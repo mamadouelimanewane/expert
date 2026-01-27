@@ -20,7 +20,11 @@ import {
     Loader2,
     LineChart as LineChartIcon,
     Layers,
-    BarChart3
+    BarChart3,
+    Divide,
+    Droplets,
+    Scale,
+    AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +44,7 @@ const MOCK_RATIOS: FinancialRatio[] = [
 ];
 
 export default function FinancialAnalysisPage() {
-    const [activeTab, setActiveTab] = useState<"bilan" | "rapport">("bilan");
+    const [activeTab, setActiveTab] = useState<"bilan" | "cashflow" | "advanced" | "rapport">("bilan");
     const [isGenerating, setIsGenerating] = useState(false);
     const [reportContent, setReportContent] = useState("");
 
@@ -72,14 +76,15 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
     };
 
     return (
-        <div className="space-y-6 pb-20">
+        <div className="space-y-8 pb-20 animate-in fade-in duration-700">
+            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <FilePieChart className="w-8 h-8 text-purple-400" />
-                        Analyse Financière & États de Synthèse
+                        Analyse Financière Avancée
                     </h2>
-                    <p className="text-slate-400 mt-1">Diagnostic complet par IA du bilan, compte de résultat et ratios OHADA.</p>
+                    <p className="text-slate-400 mt-1">Diagnostic 360° : Bilan, Cash Flow, et Modélisation DuPont.</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -92,10 +97,10 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                 </div>
             </div>
 
-            {/* KPI Overlays */}
+            {/* KPI Overlays - Sticky Top Context */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {MOCK_RATIOS.map((ratio, i) => (
-                    <div key={i} className="glass-card p-5 rounded-2xl border border-slate-700/50 bg-slate-900/30">
+                    <div key={i} className="glass-card p-5 rounded-3xl border border-slate-700/50 bg-slate-900/30">
                         <div className="flex justify-between items-start mb-2">
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{ratio.label}</span>
                             <div className={cn(
@@ -105,225 +110,302 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                                 {ratio.trend === "up" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                             </div>
                         </div>
-                        <div className="text-2xl font-bold text-white mb-1">{ratio.value}</div>
+                        <div className="text-2xl font-black text-white mb-1">{ratio.value}</div>
                         <p className="text-[10px] text-slate-500 leading-tight">{ratio.desc}</p>
                     </div>
                 ))}
             </div>
 
+            {/* Navigation Tabs */}
             <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
-                <button
-                    onClick={() => setActiveTab("bilan")}
-                    className={cn(
-                        "px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all",
-                        activeTab === "bilan" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                    )}
-                >
-                    Analyse du Bilan
+                <button onClick={() => setActiveTab("bilan")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all", activeTab === "bilan" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                    <Layers className="w-3 h-3 inline mr-2" /> Structure Bilan
                 </button>
-                <button
-                    onClick={() => setActiveTab("rapport")}
-                    className={cn(
-                        "px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all",
-                        activeTab === "rapport" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                    )}
-                >
-                    Rapport d'Analyse IA
+                <button onClick={() => setActiveTab("cashflow")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all", activeTab === "cashflow" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                    <Droplets className="w-3 h-3 inline mr-2" /> Cash Flow Waterfall
+                </button>
+                <button onClick={() => setActiveTab("advanced")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all", activeTab === "advanced" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                    <Divide className="w-3 h-3 inline mr-2" /> DuPont & Altman
+                </button>
+                <button onClick={() => setActiveTab("rapport")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all", activeTab === "rapport" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                    <FileText className="w-3 h-3 inline mr-2" /> Rapport IA
                 </button>
             </div>
 
-            {activeTab === "bilan" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Visual Analysis */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="glass-card rounded-3xl p-8 border border-slate-700/50 bg-slate-900/40">
+            {/* CONTENT AREA */}
+            <div className="min-h-[500px]">
+
+                {/* === TAB 1: BILAN (Existing but Refined) === */}
+                {activeTab === "bilan" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="lg:col-span-2 glass-card rounded-[40px] p-10 border border-slate-700/50 bg-slate-900/40">
                             <div className="flex justify-between items-center mb-10">
-                                <h3 className="font-bold text-white text-lg flex items-center gap-3">
-                                    <Layers className="w-5 h-5 text-purple-400" />
-                                    Visualisation de la Structure du Bilan
-                                </h3>
-                                <div className="flex gap-2">
-                                    <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-2 py-1 rounded">MOYENNE SECTEUR: 82%</span>
-                                </div>
+                                <h3 className="font-bold text-white text-lg flex items-center gap-3">Visualisation Actif / Passif</h3>
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-3 py-1 rounded-full border border-white/5">ÉQUILIBRE FINANCIER</span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-                                {/* ACTIF GRAPHIC */}
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-center px-1">
-                                        <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Actif (Utilisation)</h4>
-                                        <span className="text-xs text-white font-bold">100%</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1 h-64 border-l-2 border-slate-800 pl-4">
-                                        <div className="flex-1 bg-indigo-500/20 border border-indigo-500/30 rounded-lg p-3 flex flex-col justify-center gap-1 group hover:bg-indigo-500/30 transition-all cursor-pointer" style={{ flex: 60 }}>
-                                            <span className="text-[10px] font-bold text-indigo-300 uppercase">Actif Immobilisé</span>
-                                            <span className="text-lg font-bold text-white">45.0M</span>
+                            <div className="grid grid-cols-2 gap-16 h-80">
+                                {/* ACTIF */}
+                                <div className="flex flex-col h-full border-l-4 border-indigo-500/20 pl-6 relative">
+                                    <div className="absolute -left-[11px] top-0 w-5 h-5 bg-indigo-500 rounded-full border-4 border-slate-900" />
+                                    <h4 className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">Emplois (Actif)</h4>
+
+                                    <div className="flex-1 flex flex-col gap-2">
+                                        <div className="flex-grow-[6] bg-indigo-500/20 border border-indigo-500/30 rounded-xl p-4 flex flex-col justify-center relative group hover:bg-indigo-500/30 transition-all">
+                                            <span className="text-[10px] font-black text-indigo-300 uppercase">Actif Immobilisé</span>
+                                            <span className="text-2xl font-black text-white">45.0M</span>
                                         </div>
-                                        <div className="flex-1 bg-indigo-400/10 border border-indigo-400/20 rounded-lg p-3 flex flex-col justify-center gap-1 group hover:bg-indigo-400/20 transition-all cursor-pointer mt-1" style={{ flex: 33 }}>
-                                            <span className="text-[10px] font-bold text-indigo-400 uppercase">Actif Circulant</span>
-                                            <span className="text-sm font-bold text-white">25.0M</span>
+                                        <div className="flex-grow-[3] bg-indigo-400/10 border border-indigo-400/20 rounded-xl p-3 flex flex-col justify-center relative group hover:bg-indigo-400/20 transition-all">
+                                            <span className="text-[10px] font-black text-indigo-400 uppercase">Actif Circulant</span>
+                                            <span className="text-lg font-black text-white">25.0M</span>
                                         </div>
-                                        <div className="flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex flex-col justify-center gap-1 group hover:bg-emerald-500/20 transition-all cursor-pointer mt-1" style={{ flex: 7 }}>
-                                            <span className="text-[10px] font-bold text-emerald-400 uppercase">Cash</span>
-                                            <span className="text-[10px] font-bold text-white">5.0M</span>
+                                        <div className="flex-grow-[1] bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2 flex flex-col justify-center relative group hover:bg-emerald-500/20 transition-all">
+                                            <span className="text-[10px] font-black text-emerald-400 uppercase">Tréso.</span>
+                                            <span className="text-sm font-black text-white">5.0M</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* PASSIF GRAPHIC */}
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-center px-1">
-                                        <h4 className="text-xs font-bold text-purple-400 uppercase tracking-widest">Passif (Origine)</h4>
-                                        <span className="text-xs text-white font-bold">100%</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1 h-64 border-r-2 border-slate-800 pr-4">
-                                        <div className="flex-1 bg-purple-500/20 border border-purple-500/30 rounded-lg p-3 flex flex-col justify-center gap-1 text-right group hover:bg-purple-500/30 transition-all cursor-pointer" style={{ flex: 42 }}>
-                                            <span className="text-[10px] font-bold text-purple-300 uppercase">Capitaux Propres</span>
-                                            <span className="text-lg font-bold text-white">32.0M</span>
+                                {/* PASSIF */}
+                                <div className="flex flex-col h-full border-r-4 border-purple-500/20 pr-6 relative items-end">
+                                    <div className="absolute -right-[11px] top-0 w-5 h-5 bg-purple-500 rounded-full border-4 border-slate-900" />
+                                    <h4 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-4">Ressources (Passif)</h4>
+
+                                    <div className="flex-1 flex flex-col gap-2 w-full">
+                                        <div className="flex-grow-[4] bg-purple-500/20 border border-purple-500/30 rounded-xl p-4 flex flex-col justify-center items-end relative group hover:bg-purple-500/30 transition-all">
+                                            <span className="text-[10px] font-black text-purple-300 uppercase">Capitaux Propres</span>
+                                            <span className="text-2xl font-black text-white">32.0M</span>
                                         </div>
-                                        <div className="flex-1 bg-purple-400/10 border border-purple-400/20 rounded-lg p-3 flex flex-col justify-center gap-1 text-right group hover:bg-purple-400/20 transition-all cursor-pointer mt-1" style={{ flex: 24 }}>
-                                            <span className="text-[10px] font-bold text-purple-400 uppercase">Dettes Long Terme</span>
-                                            <span className="text-sm font-bold text-white">18.0M</span>
+                                        <div className="flex-grow-[2] bg-purple-400/10 border border-purple-400/20 rounded-xl p-3 flex flex-col justify-center items-end relative group hover:bg-purple-400/20 transition-all">
+                                            <span className="text-[10px] font-black text-purple-400 uppercase">Dettes LMT</span>
+                                            <span className="text-lg font-black text-white">18.0M</span>
                                         </div>
-                                        <div className="flex-1 bg-slate-800/40 border border-slate-700/50 rounded-lg p-3 flex flex-col justify-center gap-1 text-right group hover:bg-slate-700/50 transition-all cursor-pointer mt-1" style={{ flex: 34 }}>
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase">Dettes Court Terme</span>
-                                            <span className="text-sm font-bold text-white">25.0M</span>
+                                        <div className="flex-grow-[4] bg-slate-700/30 border border-slate-600/30 rounded-xl p-3 flex flex-col justify-center items-end relative group hover:bg-slate-700/40 transition-all">
+                                            <span className="text-[10px] font-black text-slate-400 uppercase">Dettes CT</span>
+                                            <span className="text-lg font-black text-white">25.0M</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Equilibrium Summary */}
-                            <div className="mt-12 p-6 bg-slate-950/40 rounded-3xl border border-slate-800 flex justify-around items-center text-center">
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter mb-1">Fonds de Roulement</p>
-                                    <p className="text-xl font-bold text-emerald-400">+5.0M</p>
+                        <div className="space-y-6">
+                            <div className="glass-card p-8 rounded-[40px] border border-purple-500/20 bg-gradient-to-br from-slate-900 to-purple-900/20 text-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-[60px] rounded-full pointer-events-none" />
+                                <h3 className="text-4xl font-black text-white mb-2">82/100</h3>
+                                <p className="text-xs font-black text-purple-400 uppercase tracking-widest mb-6">Score Santé Financière</p>
+                                <div className="space-y-3 text-left">
+                                    <ScoreRow label="Solvabilité" score={90} />
+                                    <ScoreRow label="Rentabilité" score={75} />
+                                    <ScoreRow label="Liquidité" score={80} />
                                 </div>
-                                <div className="w-px h-10 bg-slate-800" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter mb-1">Rotation Stock</p>
-                                    <p className="text-xl font-bold text-amber-500">52j</p>
+                            </div>
+
+                            <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/40">
+                                <h4 className="flex items-center gap-2 text-xs font-black text-slate-500 uppercase mb-4">
+                                    <Target className="w-4 h-4 text-emerald-400" /> Recommandations
+                                </h4>
+                                <ul className="space-y-3">
+                                    <li className="text-xs text-slate-300 flex gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
+                                        Excellente couverture des emplois stables par ressources stables.
+                                    </li>
+                                    <li className="text-xs text-slate-300 flex gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+                                        Attention à la rotation des stocks qui dégrade la trésorerie.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* === TAB 2: CASH FLOW WATERFALL === */}
+                {activeTab === "cashflow" && (
+                    <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-1">Tableau des Flux de Trésorerie (TFT)</h3>
+                                <p className="text-sm text-slate-500">Visualisation en cascade de la variation de trésorerie sur l'exercice.</p>
+                            </div>
+                            <div className="px-4 py-2 bg-slate-800 rounded-xl text-xs font-mono text-emerald-400 border border-emerald-500/20">
+                                Net Change: +12.5M
+                            </div>
+                        </div>
+
+                        <div className="flex items-end justify-between h-[400px] gap-2 px-4 border-b border-white/5 pb-4">
+                            {/* Opening Balance */}
+                            <WaterfallBar label="Tréso. Ouverture" value={25} total={40} type="neutral" start={0} />
+
+                            {/* Operating Activities */}
+                            <WaterfallBar label="EBE" value={15} total={15} type="positive" start={25} isFlow />
+                            <WaterfallBar label="Var. BFR" value={-5} total={5} type="negative" start={40} isFlow />
+                            <WaterfallBar label="Impôts" value={-3} total={3} type="negative" start={35} isFlow />
+
+                            {/* Investing Activities */}
+                            <WaterfallBar label="CAPEX" value={-8} total={8} type="negative" start={32} isFlow />
+                            <WaterfallBar label="Cessions" value={4} total={4} type="positive" start={24} isFlow />
+
+                            {/* Financing Activities */}
+                            <WaterfallBar label="Nouvel Emprunt" value={10} total={10} type="positive" start={28} isFlow />
+                            <WaterfallBar label="Dividendes" value={-2.5} total={2.5} type="negative" start={38} isFlow />
+
+                            {/* Closing Balance */}
+                            <WaterfallBar label="Tréso. Clôture" value={35.5} total={35.5} type="final" start={0} />
+                        </div>
+                    </div>
+                )}
+
+                {/* === TAB 3: ADVANCED DUPONT & ALTMAN === */}
+                {activeTab === "advanced" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* DuPont Analysis */}
+                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                            <div className="flex items-center gap-3 mb-8">
+                                <Divide className="w-6 h-6 text-indigo-400" />
+                                <h3 className="text-xl font-bold text-white">Décomposition DuPont (ROE)</h3>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-6">
+                                <div className="p-6 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-center w-full">
+                                    <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-2">Return On Equity (ROE)</p>
+                                    <p className="text-4xl font-black text-white">18.5%</p>
                                 </div>
-                                <div className="w-px h-10 bg-slate-800" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter mb-1">Capacité d'Autofin.</p>
-                                    <p className="text-xl font-bold text-white">12.4M</p>
+
+                                <div className="flex items-center w-full gap-4">
+                                    <div className="h-px bg-slate-700 flex-1" />
+                                    <span className="text-xs text-slate-500 font-bold">=</span>
+                                    <div className="h-px bg-slate-700 flex-1" />
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4 w-full">
+                                    <DuPontCard label="Marge Nette" value="12%" desc="Efficacité Opérationnelle" color="text-emerald-400" />
+                                    <div className="flex items-center justify-center text-slate-600 font-bold">×</div>
+                                    <DuPontCard label="Rotation Actif" value="0.95" desc="Efficacité des Actifs" color="text-amber-400" />
+                                    <div className="col-span-3 flex items-center justify-center text-slate-600 font-bold my-[-10px]">×</div>
+                                    <div className="col-span-3 flex justify-center">
+                                        <DuPontCard label="Levier Financier" value="1.62" desc="Structure du Capital" color="text-purple-400" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Altman Z-Score */}
+                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[50px] pointer-events-none" />
+
+                            <div className="flex items-center gap-3 mb-8">
+                                <Scale className="w-6 h-6 text-emerald-400" />
+                                <h3 className="text-xl font-bold text-white">Altman Z-Score (Faillite)</h3>
+                            </div>
+
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <div className="relative w-64 h-32 overflow-hidden mb-4">
+                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full border-[20px] border-slate-800 border-t-emerald-500 border-r-emerald-500 rotation-wrapper transform -rotate-45" />
+                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 mb-4 text-center">
+                                        <span className="text-5xl font-black text-white">3.42</span>
+                                        <p className="text-[10px] font-bold text-emerald-400 uppercase mt-1">Zone Sûre (Safe)</p>
+                                    </div>
+                                </div>
+
+                                <p className="text-center text-sm text-slate-400 max-w-sm leading-relaxed">
+                                    Le score Z de 3.42 indique une probabilité de défaillance extrêmement faible à 2 ans. L'entreprise est financièrement robuste.
+                                </p>
+
+                                <div className="grid grid-cols-2 gap-4 w-full mt-8">
+                                    <div className="p-4 rounded-2xl bg-slate-800/50 border border-white/5 flex flex-col items-center">
+                                        <span className="text-xs text-slate-500 uppercase">Zone de Danger</span>
+                                        <span className="font-bold text-rose-400">Z &lt; 1.8</span>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-slate-800/50 border border-white/5 flex flex-col items-center">
+                                        <span className="text-xs text-slate-500 uppercase">Zone Grise</span>
+                                        <span className="font-bold text-amber-400">1.8 - 2.99</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                )}
 
-                    {/* Side Intelligence Panel */}
-                    <div className="space-y-6">
-                        <div className="glass-card p-6 rounded-3xl border border-purple-500/20 bg-gradient-to-br from-slate-900 to-purple-900/20">
-                            <h3 className="text-white font-bold flex items-center gap-2 mb-6">
-                                <Zap className="w-5 h-5 text-purple-400" />
-                                Score de Performance IA
-                            </h3>
-                            <div className="relative h-48 flex items-center justify-center">
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-32 h-32 rounded-full border-8 border-slate-800 border-t-purple-500 animate-[spin_3s_linear_infinite]" />
-                                </div>
-                                <div className="text-center">
-                                    <span className="text-4xl font-bold text-white">82</span>
-                                    <p className="text-[10px] font-bold text-purple-400 uppercase">SANTÉ FINANCIÈRE</p>
-                                </div>
-                            </div>
-                            <div className="space-y-3 mt-6">
-                                <div className="p-3 bg-white/5 rounded-xl border border-white/5 text-[11px] text-slate-300 leading-relaxed italic">
-                                    "L'entreprise surpasse 75% du secteur en termes d'autonomie financière, mais présente une vulnérabilité sur la liquidité immédiate."
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50">
-                            <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
-                                <BarChart3 className="w-4 h-4 text-emerald-400" /> Comparaison SIG
-                            </h4>
-                            <div className="space-y-4">
-                                <SIGProgress label="Valeur Ajoutée / CA" value={42} color="bg-emerald-500" />
-                                <SIGProgress label="EBE / CA" value={15} color="bg-indigo-500" />
-                                <SIGProgress label="Résultat Net / CA" value={8.2} color="bg-purple-500" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {activeTab === "rapport" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 glass-card rounded-3xl border border-slate-700/50 flex flex-col min-h-[650px] overflow-hidden bg-slate-900/30">
-                        <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
+                {/* === TAB 4: REPORT (Existing) === */}
+                {activeTab === "rapport" && (
+                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 h-[600px] flex flex-col">
+                        <div className="flex justify-between items-center mb-6">
                             <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-widest">
                                 <FileText className="w-5 h-5 text-purple-400" />
-                                Rapport de Diagnostic Bilan & SIG
+                                Rapport Généré par IA
                             </h3>
-                            <div className="flex gap-2">
-                                <button className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition-colors"><Download className="w-5 h-5" /></button>
-                            </div>
+                            <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all">
+                                <Download className="w-4 h-4" /> PDF
+                            </button>
                         </div>
-                        <div className="flex-1 p-8 relative">
-                            {isGenerating && (
-                                <div className="absolute inset-0 z-10 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center">
-                                    <div className="flex flex-col items-center gap-4 text-center">
-                                        <Loader2 className="w-12 h-12 text-purple-500 animate-spin" />
-                                        <span className="text-purple-400 font-bold animate-pulse">L'IA croise les données du Bilan et du Compte de Résultat...</span>
-                                    </div>
+                        <div className="flex-1 bg-slate-950/50 rounded-2xl p-6 border border-white/5 font-mono text-sm text-slate-300 leading-loose overflow-y-auto whitespace-pre-line shadow-inner">
+                            {isGenerating ? (
+                                <div className="flex flex-col items-center justify-center h-full gap-4">
+                                    <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
+                                    <p className="text-purple-400 animate-pulse">Analyse des ratios en cours...</p>
                                 </div>
-                            )}
-                            <textarea
-                                className="w-full h-full bg-transparent border-none focus:ring-0 text-slate-200 font-serif leading-relaxed text-sm resize-none"
-                                placeholder="Lancez l'analyse financière pour générer le rapport..."
-                                value={reportContent}
-                                onChange={(e) => setReportContent(e.target.value)}
-                            />
+                            ) : reportContent || "Cliquez sur 'Générer Rapport Financier' pour lancer l'analyse IA."}
                         </div>
                     </div>
-
-                    <div className="space-y-6">
-                        <div className="glass-card p-6 rounded-3xl border border-purple-500/20 bg-purple-500/5">
-                            <h4 className="flex items-center gap-2 font-bold text-purple-400 mb-4 text-sm">
-                                <Target className="w-4 h-4" /> Focus Stratégique IA
-                            </h4>
-                            <p className="text-xs text-slate-400 leading-relaxed italic">
-                                "L'entreprise est en sur-capacité de financement stable. Envisagez une distribution de dividendes ou un investissement autofinancé de 12M FCFA."
-                            </p>
-                        </div>
-
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 space-y-4">
-                            <h4 className="font-bold text-white text-sm">Actions de Performance</h4>
-                            <div className="space-y-2">
-                                <button className="w-full p-4 rounded-2xl bg-slate-800 text-xs text-slate-300 hover:text-white hover:bg-purple-900/40 transition-all text-left flex items-center justify-between border border-transparent hover:border-purple-500/30 group">
-                                    Lancer audit des charges fixes
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
-                                </button>
-                                <button className="w-full p-4 rounded-2xl bg-slate-800 text-xs text-slate-300 hover:text-white hover:bg-purple-900/40 transition-all text-left flex items-center justify-between border border-transparent hover:border-purple-500/30 group">
-                                    Simuler investissement CAPEX
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
-                                </button>
-                                <button className="w-full p-4 rounded-2xl bg-slate-800 text-xs text-slate-300 hover:text-white hover:bg-purple-900/40 transition-all text-left flex items-center justify-between border border-transparent hover:border-purple-500/30 group">
-                                    Éditer liasse fiscale syscohada
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
 
-function SIGProgress({ label, value, color }: { label: string, value: number, color: string }) {
+// === Sub Components ===
+
+function ScoreRow({ label, score }: { label: string, score: number }) {
     return (
-        <div>
-            <div className="flex justify-between text-[11px] mb-1.5">
-                <span className="text-slate-400 font-bold">{label}</span>
-                <span className="text-white font-bold">{value}%</span>
+        <div className="flex items-center gap-3">
+            <span className="text-[10px] font-bold text-slate-400 w-16 uppercase">{label}</span>
+            <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${score}%` }} />
             </div>
-            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className={cn("h-full transition-all duration-1000", color)} style={{ width: `${value}%` }} />
+            <span className="text-[10px] font-bold text-white w-6 text-right">{score}</span>
+        </div>
+    );
+}
+
+function WaterfallBar({ label, value, total, type, start, isFlow }: any) {
+    const height = Math.abs((total / 50) * 100); // Scale factor, 50 is max
+    const bottom = (start / 50) * 100;
+
+    let colorClass = "bg-slate-500";
+    if (type === "positive") colorClass = "bg-emerald-500";
+    if (type === "negative") colorClass = "bg-rose-500";
+    if (type === "final") colorClass = "bg-blue-500";
+
+    return (
+        <div className="flex-1 h-full flex flex-col justify-end items-center group relative">
+            <div className="w-full text-center mb-2 opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-[100%]">
+                <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">{value > 0 && isFlow ? "+" : ""}{value}</span>
             </div>
+
+            <div className="relative w-full h-full">
+                <div
+                    className={cn("absolute w-full rounded-md transition-all duration-700 hover:brightness-110 cursor-pointer shadow-lg", colorClass)}
+                    style={{
+                        height: `${Math.max(height, 2)}%`,
+                        bottom: `${bottom}%`,
+                        opacity: isFlow ? 0.8 : 1
+                    }}
+                />
+                {isFlow && <div className="absolute w-px h-full border-l border-dashed border-white/10 left-1/2 -z-10" />}
+            </div>
+
+            <span className="mt-3 text-[9px] font-bold text-slate-500 uppercase tracking-tighter rotate-0 truncate w-full text-center group-hover:text-white transition-colors">{label}</span>
+        </div>
+    );
+}
+
+function DuPontCard({ label, value, desc, color }: any) {
+    return (
+        <div className="bg-slate-800/50 rounded-2xl p-4 border border-white/5 text-center flex flex-col items-center justify-center flex-1 min-w-[120px]">
+            <span className="text-[10px] font-black text-slate-500 uppercase mb-1">{label}</span>
+            <span className={cn("text-2xl font-black mb-1", color)}>{value}</span>
+            <span className="text-[9px] text-slate-600 leading-tight">{desc}</span>
         </div>
     );
 }
