@@ -27,7 +27,8 @@ import {
     TrendingUp,
     ArrowRightLeft,
     FileSpreadsheet,
-    CalendarDays
+    CalendarDays,
+    DollarSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,7 @@ const menuItems = [
     { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
     { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
+    { icon: DollarSign, label: "Levée de Fonds & Investisseurs", href: "/strategy/fundraising" },
 
     // 2. Gestion de la Relation Client & Missions
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
