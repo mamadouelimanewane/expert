@@ -37,6 +37,7 @@ const menuItems = [
     { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
     { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
     { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
+    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
 
     // 2. Gestion de la Relation Client & Missions
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
