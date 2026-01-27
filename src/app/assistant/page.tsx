@@ -1,232 +1,207 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import {
-    Bot,
-    Send,
-    User,
     Sparkles,
-    BookOpen,
-    Files,
-    Loader2
+    Send,
+    Scale,
+    FileText,
+    Brain,
+    ShieldCheck,
+    History,
+    Search,
+    Mic,
+    Paperclip,
+    ArrowUpRight,
+    Scale as ScaleIcon,
+    Gavel,
+    ScrollText,
+    Copy,
+    Download,
+    UserCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Message = {
-    id: string;
+interface ChatMessage {
     role: "user" | "assistant";
     content: string;
     timestamp: string;
-};
-
-const INITIAL_MESSAGES: Message[] = [
-    {
-        id: "1",
-        role: "assistant",
-        content: "Bonjour Maître. Je suis votre Assistant Fiscal IA, entraîné sur le Code Général des Impôts (CI, SN, CM, BJ) et les Actes Uniformes OHADA. Comment puis-je vous aider aujourd'hui ?",
-        timestamp: "09:00",
-    },
-];
-
-const SUGGESTIONS = [
-    "Quel est le taux d'IS en Côte d'Ivoire ?",
-    "Rédige une réponse à une notification de redressement (TVA)",
-    "Quelles sont les conditions de déductibilité des charges en OHADA ?",
-    "Calcule les pénalités de retard pour déclaration tardive (Sénégal)"
-];
+    references?: { title: string; link: string }[];
+}
 
 export default function AssistantPage() {
-    const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-    const [input, setInput] = useState("");
-    const [isTyping, setIsTyping] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const [messages, setMessages] = useState<ChatMessage[]>([
+        {
+            role: "assistant",
+            content: "Bonjour Maître. Je suis votre assistant spécialisé en droit OHADA et normes SYSCOHADA. Comment puis-je vous assister aujourd'hui ?",
+            timestamp: "09:00",
+            references: [
+                { title: "Acte Uniforme - Sociétés Commerciales", link: "#" },
+                { title: "Guide PCG 2024", link: "#" }
+            ]
         }
-    }, [messages, isTyping]);
+    ]);
+    const [input, setInput] = useState("");
 
-    const handleSend = async () => {
+    const handleSend = () => {
         if (!input.trim()) return;
 
-        const userMsg: Message = {
-            id: Date.now().toString(),
-            role: "user",
-            content: input,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-
-        setMessages(prev => [...prev, userMsg]);
+        const userMsg: ChatMessage = { role: "user", content: input, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+        setMessages([...messages, userMsg]);
         setInput("");
-        setIsTyping(true);
 
-        // Simulation of AI processing
+        // Simulate AI thinking and response
         setTimeout(() => {
-            const aiResponse: Message = {
-                id: (Date.now() + 1).toString(),
+            const aiMsg: ChatMessage = {
                 role: "assistant",
-                content: generateMockResponse(userMsg.content),
+                content: "Selon l'Acte Uniformre relatif au Droit des Sociétés Commerciales et du GIE (AUSCGIE), la constitution d'une SARL nécessite un capital social minimum de 1 000 000 FCFA dans la plupart des juridictions OHADA, sauf disposition nationale contraire plus favorable. Souhaitez-vous que je rédige un projet de statuts ?",
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                references: [{ title: "AUSCGIE Article 311", link: "#" }]
             };
-            setMessages(prev => [...prev, aiResponse]);
-            setIsTyping(false);
+            setMessages(prev => [...prev, aiMsg]);
         }, 1500);
     };
 
-    const generateMockResponse = (query: string): string => {
-        const q = query.toLowerCase();
-        if (q.includes("taux") && q.includes("is")) return "En Côte d'Ivoire, le taux normal de l'Impôt sur les Sociétés (IS) est de **25%**. \n\nNotez cependant qu'il existe un taux réduit pour certaines entreprises agréées au Code des Investissements.";
-        if (q.includes("redressement") || q.includes("notification")) return "Voici une **structure de réponse** suggérée pour une notification de redressement TVA : \n\n1. **Accusé de réception** : Confirmer la réception de la notification n°... datée du...\n2. **Rappel des faits** : Mentionner la période contrôlée.\n3. **Points contestés** : \n   - *Chef de redressement n°1* : Argumentaire basé sur l'article X du CGI.\n   - *Chef de redressement n°2* : Preuve de la déductibilité (Documents joints).\n4. **Conclusion** : Demande d'abandon des chefs de redressement.\n\nSouhaitez-vous que je rédige le courrier complet ?";
-        if (q.includes("ohada") && q.includes("charge")) return "Selon le **PCG-OHADA Révisé**, pour qu'une charge soit déductible, elle doit remplir 4 conditions cumulatives :\n1. Être exposée dans l'intérêt de l'exploitation.\n2. Correspondre à une dépense effective et être appuyée de pièces justificatives.\n3. Se traduire par une diminution de l'actif net.\n4. Être comprise dans les charges de l'exercice au cours duquel elle a été engagée.";
-
-        return "Je comprends votre question. Pourriez-vous préciser le pays concerné (CI, SN, CM, etc.) pour que je consulte le CGI approprié ?";
-    };
-
     return (
-        <div className="h-[calc(100vh-8rem)] flex gap-6">
-            {/* Chat Area */}
-            <div className="flex-1 flex flex-col glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
-                {/* Header */}
-                <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                            <Bot className="w-6 h-6 text-white" />
+        <div className="h-[calc(100vh-8rem)] flex gap-8">
+            {/* Left: Chat Interface */}
+            <div className="flex-1 flex flex-col glass-card rounded-3xl border border-white/5 bg-slate-900/30 overflow-hidden shadow-2xl">
+                {/* Chat Header */}
+                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-pulse">
+                            <Brain className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-white">Expert IA OHADA</h3>
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                <span className="text-xs text-slate-400">En ligne • v4.0 (RAG activé)</span>
+                            <h2 className="text-xl font-black text-white tracking-widest uppercase">Assistant Expert IA</h2>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">IA Spécialisée OHADA & SYSCOHADA</span>
                             </div>
                         </div>
                     </div>
-                    <button className="text-slate-400 hover:text-white transition-colors">
-                        <Files className="w-5 h-5" />
-                    </button>
+                    <div className="flex gap-2">
+                        <button className="p-3 hover:bg-white/5 rounded-xl text-slate-500 transition-all border border-white/5">
+                            <History className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
-                    {messages.map((msg) => (
-                        <div key={msg.id} className={cn(
-                            "flex gap-4 max-w-3xl",
-                            msg.role === "user" ? "ml-auto flex-row-reverse" : ""
+                {/* Messages Area */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar scroll-smooth">
+                    {messages.map((msg, i) => (
+                        <div key={i} className={cn(
+                            "flex gap-4 max-w-4xl mx-auto",
+                            msg.role === "user" ? "flex-row-reverse" : ""
                         )}>
                             <div className={cn(
-                                "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1",
-                                msg.role === "assistant" ? "bg-indigo-500/20 text-indigo-400" : "bg-slate-700 text-slate-300"
+                                "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl shadow-black/20",
+                                msg.role === "assistant" ? "bg-indigo-600 border-indigo-400 text-white" : "bg-slate-800 border-slate-700 text-indigo-400"
                             )}>
-                                {msg.role === "assistant" ? <Sparkles className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                                {msg.role === "assistant" ? <Brain className="w-5 h-5" /> : <UserCheck className="w-5 h-5" />}
                             </div>
-
                             <div className={cn(
-                                "p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-line shadow-sm",
-                                msg.role === "assistant"
-                                    ? "bg-slate-800/80 border border-slate-700/50 text-slate-200 rounded-tl-none"
-                                    : "bg-indigo-600/90 text-white rounded-tr-none"
+                                "flex flex-col gap-2 max-w-[80%]",
+                                msg.role === "user" ? "items-end text-right" : "items-start"
                             )}>
-                                {msg.content}
                                 <div className={cn(
-                                    "text-[10px] mt-2 opacity-50 text-right",
-                                    msg.role === "user" ? "text-indigo-100" : "text-slate-400"
+                                    "p-6 rounded-3xl border shadow-xl",
+                                    msg.role === "assistant"
+                                        ? "bg-slate-800/80 border-white/5 text-slate-200"
+                                        : "bg-indigo-600 border-indigo-400 text-white"
                                 )}>
-                                    {msg.timestamp}
+                                    <p className="text-sm leading-relaxed">{msg.content}</p>
+
+                                    {msg.references && (
+                                        <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
+                                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Fondements Juridiques</p>
+                                            <div className="flex flex-wrap gap-2">
+                                                {msg.references.map((ref, idx) => (
+                                                    <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900/50 rounded-full border border-white/5 text-[10px] font-bold text-slate-400 hover:text-white transition-colors cursor-pointer">
+                                                        <ScaleIcon className="w-3 h-3" />
+                                                        {ref.title}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
+                                <span className="text-[9px] font-black text-slate-700 uppercase">{msg.timestamp}</span>
                             </div>
                         </div>
                     ))}
-
-                    {isTyping && (
-                        <div className="flex gap-4 max-w-3xl">
-                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            </div>
-                            <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/50 rounded-tl-none flex items-center gap-2">
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {/* Input Area */}
-                <div className="p-4 bg-slate-900/50 border-t border-slate-700/50">
-                    {messages.length === 1 && (
-                        <div className="flex gap-2 overflow-x-auto pb-4 mb-2 no-scrollbar">
-                            {SUGGESTIONS.map((sugg, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => { setInput(sugg); }} // Just putting it in input for user to validate, or could auto-send
-                                    className="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-slate-400 hover:text-indigo-400 hover:border-indigo-500/30 transition-all"
-                                >
-                                    {sugg}
+                {/* Chat Input */}
+                <div className="p-8 bg-slate-950/50 border-t border-white/5">
+                    <div className="max-w-4xl mx-auto relative group">
+                        <div className="absolute inset-0 bg-indigo-600 rounded-3xl blur opacity-10 group-focus-within:opacity-20 transition-opacity" />
+                        <div className="relative bg-slate-900 border border-white/10 rounded-3xl p-2 shadow-2xl flex items-end gap-2 pr-4 pl-6">
+                            <textarea
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                                placeholder="Posez une question sur le droit OHADA ou demandez la rédaction d'un acte..."
+                                className="w-full bg-transparent border-none py-4 text-sm text-white placeholder:text-slate-500 focus:ring-0 resize-none min-h-[60px]"
+                                rows={1}
+                            />
+                            <div className="flex gap-1 mb-2">
+                                <button className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                                    <Paperclip className="w-5 h-5" />
                                 </button>
-                            ))}
+                                <button className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                                    <Mic className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={handleSend}
+                                    className="p-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+                                >
+                                    <Send className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
-                    )}
-
-                    <div className="relative flex items-center">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                            placeholder="Posez votre question fiscale ou juridique..."
-                            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-4 pr-12 py-3 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={!input.trim() || isTyping}
-                            className="absolute right-2 p-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white rounded-lg transition-colors"
-                        >
-                            <Send className="w-4 h-4" />
-                        </button>
                     </div>
-                    <p className="text-[10px] text-center text-slate-600 mt-2">
-                        L'IA peut faire des erreurs. Vérifiez toujours les informations avec le Code Général des Impôts en vigueur.
-                    </p>
                 </div>
             </div>
 
-            {/* Sidebar Info (Context) */}
-            <div className="w-80 hidden lg:flex flex-col gap-4">
-                <div className="glass-card rounded-2xl p-4 border border-slate-700/50">
-                    <h4 className="font-bold text-white mb-3 flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-indigo-400" />
-                        Sources Juridiques
-                    </h4>
-                    <div className="space-y-2">
-                        {[
-                            "CGI Côte d'Ivoire (2024)",
-                            "CGI Sénégal (2024)",
-                            "Acte Uniforme OHADA (Compta)",
-                            "Acte Uniforme OHADA (Sociét.)"
-                        ].map((src, i) => (
-                            <div key={i} className="flex items-center gap-2 text-xs text-slate-400 p-2 rounded bg-slate-800/50 border border-slate-800">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                {src}
-                            </div>
-                        ))}
+            {/* Right: Tools & Presets Sidebar */}
+            <div className="w-80 space-y-6">
+                <div className="glass-card rounded-3xl p-6 border border-white/5 bg-slate-900/40">
+                    <h3 className="text-white font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <Gavel className="w-4 h-4 text-indigo-400" />
+                        Actions Rapides
+                    </h3>
+                    <div className="space-y-3">
+                        <AssistantAction icon={FileText} label="Vérifier conformité liasse" />
+                        <AssistantAction icon={ScrollText} label="Générer PV d'AG" />
+                        <AssistantAction icon={ScaleIcon} label="Consultation Article OHADA" />
+                        <AssistantAction icon={Brain} label="Analyse de clause contractuelle" />
                     </div>
                 </div>
 
-                <div className="glass-card rounded-2xl p-4 border border-slate-700/50 flex-1 bg-gradient-to-b from-slate-900/50 to-indigo-900/10">
-                    <h4 className="font-bold text-white mb-2">Historique récent</h4>
-                    <p className="text-xs text-slate-500 mb-4">Vos dernières consultations.</p>
-                    <div className="space-y-3">
-                        <div className="text-xs p-2 hover:bg-slate-800/50 rounded cursor-pointer transition-colors">
-                            <span className="text-slate-300 font-medium block mb-1">TVA Déductible</span>
-                            <span className="text-slate-500 block">Hier</span>
-                        </div>
-                        <div className="text-xs p-2 hover:bg-slate-800/50 rounded cursor-pointer transition-colors">
-                            <span className="text-slate-300 font-medium block mb-1">Amortissement Véhicules</span>
-                            <span className="text-slate-500 block">Il y a 2 jours</span>
-                        </div>
+                <div className="glass-card rounded-3xl p-6 border border-rose-500/10 bg-rose-500/[0.02]">
+                    <h3 className="text-rose-400 font-black text-[10px] uppercase tracking-widest mb-4">Urgent / Alertes Fiscales</h3>
+                    <div className="p-4 bg-rose-500/10 rounded-2xl border border-rose-500/20">
+                        <p className="text-xs text-rose-200 font-bold leading-relaxed italic">
+                            "Attention Maître, 3 dossiers dépassent le seuil de capital social minimum pour leur forme juridique actuelle."
+                        </p>
+                        <button className="mt-3 text-[10px] text-white font-black uppercase tracking-widest flex items-center gap-2 hover:underline">
+                            Dépiler les dossiers <ArrowUpRight className="w-3 h-3" />
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    );
+}
+
+function AssistantAction({ icon: Icon, label }: any) {
+    return (
+        <button className="w-full flex items-center gap-3 p-3 bg-white/[0.02] hover:bg-white/[0.05] rounded-2xl border border-white/5 group transition-all text-left">
+            <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-indigo-600 transition-colors">
+                <Icon className="w-4 h-4 text-slate-400 group-hover:text-white" />
+            </div>
+            <span className="text-xs font-bold text-slate-300 group-hover:text-white">{label}</span>
+        </button>
     );
 }

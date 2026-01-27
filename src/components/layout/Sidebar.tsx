@@ -38,7 +38,8 @@ import {
     ClipboardList,
     Zap,
     Scale,
-    Rocket
+    Rocket,
+    Library
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +47,10 @@ const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
     { icon: Users, label: "Clients (CRM)", href: "/clients" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
-    { icon: FileText, label: "GED & Signatures", href: "/documents" },
+    { icon: FileText, label: "GED Intelligente", href: "/documents" },
+    { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
+    { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
+    { icon: Workflow, label: "Pipeline & Autom.", href: "/workflows" },
     { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
     { icon: Zap, label: "Optimisation Fiscale", href: "/fiscalite/optimization" },
     { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
@@ -60,13 +64,12 @@ const menuItems = [
     { icon: ClipboardList, label: "Kit Prép. Audit", href: "/audit/prep-kit" },
     { icon: Fingerprint, label: "Cartographie Risques IA", href: "/audit/ia-risks" },
     { icon: Package, label: "Audit Immob.", href: "/audit/fixed-assets" },
-    { icon: MessageSquare, label: "Communications", href: "/communications" },
+    { icon: MessageSquare, label: "Communications Hub", href: "/communications" },
     { icon: Mail, label: "Manager d'Emails IA", href: "/emails" },
-    { icon: Workflow, label: "Workflows & Autom.", href: "/workflows" },
     { icon: Calendar, label: "Agenda & Réunions", href: "/agenda" },
     { icon: FileCog, label: "Prép. Missions", href: "/preparation" },
     { icon: Calculator, label: "Déclarations Fiscales", href: "/declarations" },
-    { icon: PenTool, label: "Rédaction & Courrier", href: "/writing" },
+    { icon: PenTool, label: "Rédaction IA", href: "/writing" },
     { icon: Stethoscope, label: "Diagnostic 360", href: "/diagnostic" },
     { icon: BookOpen, label: "Manuels de Procédures", href: "/procedures" },
     { icon: Clock, label: "Saisie des Temps", href: "/timesheets" },
@@ -78,7 +81,6 @@ const menuItems = [
     { icon: Database, label: "Import Données", href: "/ingest" },
     { icon: LayoutDashboard, label: "Espace Client (Portail)", href: "/portal" },
     { icon: ShieldCheck, label: "Administration", href: "/settings/admin" },
-    { icon: Sparkles, label: "Assistant IA", href: "/assistant" },
 ];
 
 export function Sidebar() {
