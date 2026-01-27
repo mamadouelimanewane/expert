@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { OnboardingGuide } from "@/components/onboarding/OnboardingGuide";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,8 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased text-slate-100`}>
         {/* Background ambient glow effect */}
         <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+
+        <OnboardingGuide />
 
         <div className="flex min-h-screen">
           <Sidebar />
