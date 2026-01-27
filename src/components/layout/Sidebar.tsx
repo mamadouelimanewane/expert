@@ -40,19 +40,24 @@ import {
     Scale,
     Rocket,
     Library,
-    Wallet
+    Wallet,
+    TrendingUp,
+    ArrowRightLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
+    { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
     { icon: Users, label: "Clients (CRM)", href: "/clients" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
+    { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
+    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
+    { icon: ArrowRightLeft, label: "Banque & Lettrage IA", href: "/banking" },
     { icon: FileText, label: "GED Intelligente", href: "/documents" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
     { icon: Workflow, label: "Pipeline & Autom.", href: "/workflows" },
-    { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
     { icon: Zap, label: "Optimisation Fiscale", href: "/fiscalite/optimization" },
     { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
     { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
