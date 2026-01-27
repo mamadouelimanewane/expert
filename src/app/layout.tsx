@@ -24,7 +24,7 @@ export default function RootLayout({
         <div className="flex min-h-screen">
           <Sidebar />
           <main className="pl-64 flex-1 min-h-screen relative">
-            <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+            <div className="p-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
               {children}
             </div>
           </main>

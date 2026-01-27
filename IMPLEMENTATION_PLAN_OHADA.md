@@ -55,6 +55,32 @@ Contrairement aux CRM génériques, nous intégrons les champs obligatoires en A
 4.  **Module Missions (Projets)**
     - Vue Kanban des dossiers.
 
+## 6. Phase 2 : Fonctionnalités Avancées (Propositions)
+
+Pour transformer le logiciel en véritable avantage concurrentiel ("Unfair Advantage"), voici les modules additionnels proposés :
+
+### A. Module "Fintech" & Mobile Money 💳
+*Contexte : Indispensable en zone UEMOA/CEMAC.*
+- **Intégration Paiements** : Collecte des honoraires via **Wave, Orange Money, MTN MoMo** (via API type CinetPay ou KKiaPay).
+- **Réconciliation Auto** : Lettrage automatique des factures cabinet dès réception du SMS de paiement.
+
+### B. OCR & IA Comptable 🤖
+*Contexte : Gain de temps sur la saisie.*
+- **Scan Intelligent** : Extraction automatique des données (Date, Montant HT/TVA, Fournisseur) sur les factures photos.
+- **Classification** : Suggestion automatique du compte PCG-OHADA (ex: 605 pour "Transport").
+
+### C. Portail RH & Paie Collaboratif 👥
+- **Saisie des Variables** : Le client saisit lui-même les heures sup/absences de ses employés sur le portail.
+- **Distribution** : Envoi automatique des bulletins de paie dans les coffres-forts numériques des salariés (WhatsApp/SMS sécurisé).
+
+### D. Mode "Offline First" (PWA) 📶
+- **Continuité** : Permettre aux collaborateurs de saisir des temps ou consulter des dossiers même en cas de coupure internet.
+- **Synchro** : Synchronisation différentielle dès le retour de la connexion.
+
+### E. Assistant Fiscal IA (LLM RAG) 🧠
+- **Base de Connaissance** : Chatbot entraîné sur le Code Général des Impôts (CGI) de chaque pays cible.
+- **Rédaction** : Brouillon automatique de réponses aux notifications de redressement fiscal.
+
 ---
 **Date de démarrage** : 2024-05
 **Développeur Principal** : Antigravity
