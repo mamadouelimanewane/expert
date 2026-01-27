@@ -42,13 +42,15 @@ import {
     Library,
     Wallet,
     TrendingUp,
-    ArrowRightLeft
+    ArrowRightLeft,
+    FileSpreadsheet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
     { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
+    { icon: FileSpreadsheet, label: "Data Center & Éditions", href: "/data-center" },
     { icon: PenTool, label: "Signatures Certifiées", href: "/signature" },
     { icon: Rocket, label: "Valorisation & M&A", href: "/investment" },
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
