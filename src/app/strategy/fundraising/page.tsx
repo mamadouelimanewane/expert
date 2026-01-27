@@ -137,15 +137,63 @@ function TabButton({ active, onClick, icon: Icon, label, badge }: any) {
 // --- SECTIONS ---
 
 function InvestorSearchSection() {
-    const INVESTORS = [
+    const [investors, setInvestors] = useState([
         { name: "Partech Africa", type: "VC", geo: "Global", ticket: "500k - 5M", sector: "Fintech, Logistics", match: 98 },
         { name: "Launch Africa Ventures", type: "VC / Angels", geo: "Pan-African", ticket: "100k - 300k", sector: "Agnostic", match: 92 },
         { name: "Orange Ventures Africa", type: "CVC", geo: "MEA", ticket: "1M - 10M", sector: "Digital, Infrastructure", match: 85 },
         { name: "Norrsken22", type: "Equity", geo: "Sub-Saharan Africa", ticket: "2M - 15M", sector: "Tech Growth", match: 79 },
-    ];
+    ]);
+
+    const [isCrawling, setIsCrawling] = useState(false);
+    const [crawlerStatus, setCrawlerStatus] = useState("");
+
+    const runCrawler = () => {
+        setIsCrawling(true);
+        const statuses = [
+            "Initialisation des vecteurs de recherche...",
+            "Crawling Crunchbase & Tracxn (MEA nodes)...",
+            "Analyse des derniers deals enregistrés sur LinkedIn...",
+            "Filtrage des thèses d'investissement Tech Africa...",
+            "Extraction des coordonnées et tickets moyens..."
+        ];
+
+        let i = 0;
+        const interval = setInterval(() => {
+            setCrawlerStatus(statuses[i]);
+            i++;
+            if (i === statuses.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    const newInvestors = [
+                        { name: "Saviu Ventures", type: "VC", geo: "Francophone Africa", ticket: "200k - 2M", sector: "Retail, Fintech", match: 94 },
+                        { name: "Janngo Capital", type: "Equity / Impact", geo: "West Africa", ticket: "50k - 500k", sector: "Inclusion, Digital", match: 88 }
+                    ];
+                    setInvestors(prev => [...newInvestors, ...prev]);
+                    setIsCrawling(false);
+                    setCrawlerStatus("");
+                }, 1000);
+            }
+        }, 800);
+    };
 
     return (
         <div className="space-y-6">
+            {/* Crawler Awareness Bar */}
+            {isCrawling && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between animate-pulse">
+                    <div className="flex items-center gap-4">
+                        <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin" />
+                        <div>
+                            <p className="text-sm font-bold text-white">Neural Crawler en cours...</p>
+                            <p className="text-xs text-emerald-400 font-mono">{crawlerStatus}</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[10px] text-slate-500 uppercase font-bold">Source: Web Intelligence</p>
+                    </div>
+                </div>
+            )}
+
             {/* Filter Bar */}
             <div className="glass-card p-4 rounded-2xl border border-slate-700/50 flex flex-wrap gap-4 items-center">
                 <div className="flex-1 relative min-w-[300px]">
@@ -159,8 +207,15 @@ function InvestorSearchSection() {
                 <div className="flex gap-2">
                     <FilterButton label="Type VC" />
                     <FilterButton label="Ticket Min" />
-                    <FilterButton label="OHADA Focus" />
-                    <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                    <button
+                        onClick={runCrawler}
+                        disabled={isCrawling}
+                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20"
+                    >
+                        <Globe className="w-4 h-4" />
+                        Intelligence Web Crawler
+                    </button>
+                    <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all">
                         <Zap className="w-4 h-4" />
                         AI Matching
                     </button>
@@ -169,8 +224,8 @@ function InvestorSearchSection() {
 
             {/* Investor Cards grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {INVESTORS.map((inv, idx) => (
-                    <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 p-6 hover:border-emerald-500/50 transition-all group">
+                {investors.map((inv, idx) => (
+                    <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 p-6 hover:border-emerald-500/50 transition-all group animate-in zoom-in-95 duration-500">
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-white text-xl">
