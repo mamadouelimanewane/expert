@@ -16,7 +16,14 @@ import {
     Inbox,
     Calendar,
     ChevronRight,
-    ShieldCheck
+    ShieldCheck,
+    Video,
+    HardDrive,
+    Share2,
+    MessageCircle,
+    Phone,
+    MonitorIcon,
+    AtSign
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,13 +45,13 @@ export default function ClientPortalPage() {
                         </div>
                     </div>
 
-                    <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
-                        {["synthèse", "documents", "échanges", "finance"].map((tab) => (
+                    <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 overflow-x-auto no-scrollbar max-w-full">
+                        {["synthèse", "drive", "communications", "échanges", "finance"].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={cn(
-                                    "px-6 py-2 rounded-lg text-xs font-bold uppercase transition-all",
+                                    "px-6 py-2 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap",
                                     activeTab === tab ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-500 hover:text-white"
                                 )}
                             >
@@ -103,64 +110,132 @@ export default function ClientPortalPage() {
 
                             <div className="glass-card rounded-3xl p-6 border border-white/5 bg-slate-900/50">
                                 <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                                    <Inbox className="w-4 h-4 text-indigo-400" />
-                                    Dernières communications
+                                    <Video className="w-4 h-4 text-indigo-400" />
+                                    Prochaines Réunions
                                 </h3>
                                 <div className="space-y-4">
-                                    {[
-                                        { sender: "Expert", text: "J'ai bien reçu vos factures.", date: "Hier" },
-                                        { sender: "Système", text: "Votre TVA est prête.", date: "Lun." }
-                                    ].map((msg, i) => (
-                                        <div key={i} className="flex gap-3 p-3 rounded-2xl hover:bg-white/5 transition-all cursor-pointer group">
-                                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-white/5">
-                                                {msg.sender[0]}
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="text-xs font-bold text-white mb-1">{msg.sender}</p>
-                                                <p className="text-xs text-slate-500 line-clamp-1 group-hover:text-slate-300">{msg.text}</p>
-                                            </div>
-                                            <span className="text-[10px] text-slate-600">{msg.date}</span>
+                                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-2xl border border-white/5">
+                                        <div>
+                                            <p className="text-xs font-bold text-white">Point Fiscal Trimestriel</p>
+                                            <p className="text-[10px] text-slate-500">Aujourd'hui, 14:00 (Zoom)</p>
                                         </div>
-                                    ))}
+                                        <button className="p-2 bg-indigo-600 rounded-lg text-white">
+                                            <Video className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* DOCUMENTS VIEW */}
-                {activeTab === "documents" && (
+                {/* DRIVE VIEW */}
+                {activeTab === "drive" && (
                     <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Drop Zone */}
-                            <div className="glass-card rounded-3xl p-12 border-2 border-dashed border-white/10 hover:border-indigo-500/50 hover:bg-white/5 transition-all flex flex-col items-center text-center cursor-pointer group">
-                                <div className="w-20 h-20 rounded-full bg-indigo-600/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                    <UploadCloud className="w-10 h-10 text-indigo-500" />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Déposer vos pièces</h3>
-                                <p className="text-sm text-slate-500 max-w-xs">Glissez vos factures, relevés ou contrats ici (PDF, JPG, Excel).</p>
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                <HardDrive className="w-6 h-6 text-indigo-400" />
+                                Drive Sécurisé (Cloud Cabinet)
+                            </h3>
+                            <div className="flex gap-3">
+                                <button className="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold border border-slate-700 flex items-center gap-2">
+                                    <UploadCloud className="w-4 h-4" /> Upload
+                                </button>
+                                <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold flex items-center gap-2">
+                                    <Share2 className="w-4 h-4" /> Partager
+                                </button>
                             </div>
+                        </div>
 
-                            {/* Quick Downloads */}
-                            <div className="glass-card rounded-3xl p-8 border border-white/5 bg-slate-900/30">
-                                <h3 className="text-lg font-bold text-white mb-6">Documents à votre disposition</h3>
-                                <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {["Comptabilité", "Fiscalité", "Social", "Juridique"].map((folder) => (
+                                <div key={folder} className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/30 hover:bg-slate-800 transition-all cursor-pointer group">
+                                    <FileText className="w-10 h-10 text-indigo-500 mb-4 group-hover:scale-110 transition-transform" />
+                                    <p className="font-bold text-white">{folder}</p>
+                                    <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">12 Fichiers • 45 MB</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="glass-card rounded-3xl border border-white/5 overflow-hidden">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-900 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <tr>
+                                        <th className="px-6 py-4">Nom du document</th>
+                                        <th className="px-6 py-4">Date ajouté</th>
+                                        <th className="px-6 py-4 text-right">Taille</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
                                     {[
-                                        { label: "Liasse Fiscale 2023", size: "2.4 MB", date: "20/05/2024" },
-                                        { label: "Bilan & Compte de Résultat", size: "1.2 MB", date: "15/05/2024" },
-                                        { label: "Dossier Juridique (Statuts)", size: "4.8 MB", date: "10/01/2024" },
-                                    ].map((doc, i) => (
-                                        <div key={i} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-2xl border border-white/5 hover:bg-slate-800 transition-all cursor-pointer group">
-                                            <div className="flex items-center gap-4">
-                                                <FileText className="w-5 h-5 text-indigo-400" />
-                                                <div>
-                                                    <p className="text-sm font-bold text-white">{doc.label}</p>
-                                                    <p className="text-[10px] text-slate-500 uppercase">{doc.date} • {doc.size}</p>
-                                                </div>
+                                        { name: "Liasse_Finale_2023.pdf", date: "20/01/2024", size: "2.4 MB" },
+                                        { name: "Relevés_Janvier.zip", date: "05/02/2024", size: "15.8 MB" },
+                                        { name: "Contrat_Bail.pdf", date: "12/12/2023", size: "1.2 MB" },
+                                    ].map((file, i) => (
+                                        <tr key={i} className="hover:bg-white/5 transition-colors group cursor-pointer">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <FileText className="w-4 h-4 text-slate-500" />
+                                                <span className="text-sm text-slate-300 font-medium">{file.name}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-xs text-slate-500">{file.date}</td>
+                                            <td className="px-6 py-4 text-right text-xs text-slate-500">{file.size}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* COMMUNICATIONS VIEW (HUB) */}
+                {activeTab === "communications" && (
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <CommChannelCard name="WhatsApp" icon={MessageCircle} color="bg-emerald-500" action="Ouvrir WhatsApp" />
+                            <CommChannelCard name="Zoom Meetings" icon={Video} color="bg-blue-500" action="Lancer Zoom" />
+                            <CommChannelCard name="Microsoft Teams" icon={MonitorIcon} color="bg-indigo-500" action="Ouvrir Teams" />
+                            <CommChannelCard name="Support Email" icon={AtSign} color="bg-rose-500" action="Envoyer Email" />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 glass-card rounded-3xl p-8 border border-white/5 bg-slate-900/30">
+                                <h3 className="text-lg font-bold text-white mb-6">Fil d'actualité Cabinet-Client</h3>
+                                <div className="space-y-6">
+                                    {[
+                                        { user: "Maître Camara", action: "a validé votre TVA Mensuelle", time: "Il y a 2h", type: "system" },
+                                        { user: "Assistance", action: "a planifié une réunion Teams", time: "Il y a 5h", type: "meeting" },
+                                        { user: "Serveur Drive", action: "Nouveau document partagé : 'Audit Immos'", time: "Hier", type: "file" }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0 border border-white/5 font-bold text-indigo-400">
+                                                {item.user[0]}
                                             </div>
-                                            <Download className="w-5 h-5 text-slate-600 group-hover:text-white" />
+                                            <div>
+                                                <p className="text-sm text-slate-200">
+                                                    <span className="font-bold">{item.user}</span> {item.action}
+                                                </p>
+                                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-1">{item.time}</p>
+                                            </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div className="glass-card rounded-3xl p-6 border border-white/5 bg-slate-900/50">
+                                <h3 className="text-white font-bold mb-4">Contact d'Urgence</h3>
+                                <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full bg-indigo-600/20 flex items-center justify-center ring-2 ring-indigo-600/20">
+                                            <Phone className="w-6 h-6 text-indigo-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Ligne Directe Expert</p>
+                                            <p className="text-lg font-bold text-white">+225 07 00 00 00 00</p>
+                                        </div>
+                                    </div>
+                                    <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition-all">
+                                        Lancer un appel
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -261,6 +336,20 @@ function ProgressMission({ label, progress, status }: any) {
             <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${progress}%` }} />
             </div>
+        </div>
+    );
+}
+
+function CommChannelCard({ name, icon: Icon, color, action }: any) {
+    return (
+        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/30 hover:bg-slate-900/50 transition-all group cursor-pointer text-center">
+            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-opacity-20 transition-all group-hover:scale-110", color, color.replace('bg-', 'ring-'))}>
+                <Icon className="w-6 h-6 text-white" />
+            </div>
+            <h4 className="font-bold text-white mb-2">{name}</h4>
+            <button className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-white transition-colors">
+                {action}
+            </button>
         </div>
     );
 }
