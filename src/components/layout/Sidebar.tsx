@@ -39,7 +39,8 @@ import {
     Zap,
     Scale,
     Rocket,
-    Library
+    Library,
+    Wallet
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ const menuItems = [
     { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
     { icon: Zap, label: "Optimisation Fiscale", href: "/fiscalite/optimization" },
     { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
+    { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
     { icon: ScanLine, label: "Scan OCR (IA)", href: "/scan" },
     { icon: BarChart3, label: "Analyse Balance/GL", href: "/analysis/deep" },
     { icon: FilePieChart, label: "Analyse Financière", href: "/analysis/financial" },
