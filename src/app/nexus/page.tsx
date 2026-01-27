@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Sparkles,
     BrainCircuit,
@@ -16,14 +16,19 @@ import {
     Cpu,
     Network,
     Lock,
-    Eye
+    Eye,
+    CheckCircle2,
+    AlertTriangle,
+    X,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function NexusPage() {
     const [query, setQuery] = useState("");
-    const [isListening, setIsListening] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [streamData, setStreamData] = useState<string[]>([]);
+    const [aiResponse, setAiResponse] = useState<any>(null); // For modals/results
 
     // Simulate live data stream
     useEffect(() => {
@@ -44,11 +49,121 @@ export default function NexusPage() {
         return () => clearInterval(interval);
     }, []);
 
+    const handleCommand = () => {
+        if (!query.trim()) return;
+        setIsProcessing(true);
+        setAiResponse(null);
+
+        // Simulate AI Processing Delay
+        setTimeout(() => {
+            const lowerQuery = query.toLowerCase();
+
+            if (lowerQuery.includes("fusion") || lowerQuery.includes("m&a")) {
+                setAiResponse({
+                    type: "fusion",
+                    title: "SIMULATION DE FUSION : SCÉNARIO ALPHA",
+                    data: {
+                        score: "94/100",
+                        synergy: "+450M FCFA",
+                        risk: "MODÉRÉ (Conformité Sociale)",
+                        timeline: "6 Mois",
+                        details: "La fusion avec 'Groupe Atlantique' générerait des synergies opérationnelles immédiates. Attention à l'harmonisation des conventions collectives."
+                    }
+                });
+                setStreamData(prev => ["INITIATION PROTOCOLE M&A...", "CALCUL DES SYNERGIES...", "ANALYSE DE RISQUE JURIDIQUE TERMINÉE.", ...prev].slice(0, 6));
+            } else if (lowerQuery.includes("scan") || lowerQuery.includes("audit")) {
+                setAiResponse({
+                    type: "audit",
+                    title: "AUDIT FLASH : ANOMALIES DÉTECTÉES",
+                    data: {
+                        anomalies: 3,
+                        severity: "CRITIQUE",
+                        details: "3 écritures comptables non justifiées détectées dans le journal de trésorerie (Total: 4.5M FCFA)."
+                    }
+                });
+                setStreamData(prev => ["SCANNING GRAND LIVRE...", "DÉTECTION ANOMALIES...", "RAPPORT GÉNÉRÉ.", ...prev].slice(0, 6));
+            } else {
+                setAiResponse({
+                    type: "generic",
+                    title: "NEXUS AI : RÉPONSE",
+                    data: {
+                        details: "Commande prise en compte. Analyse en cours sur les serveurs sécurisés. Veuillez consulter les logs pour plus de détails."
+                    }
+                });
+            }
+            setIsProcessing(false);
+            setQuery("");
+        }, 2000);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") handleCommand();
+    };
+
     return (
         <div className="min-h-screen bg-black text-white overflow-hidden relative font-mono selection:bg-cyan-500/30">
             {/* Background Grid & Effects */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
             <div className="absolute top-0 left-0 w-full h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+
+            {/* RESPONSE MODAL OVERLAY */}
+            {aiResponse && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="w-full max-w-2xl bg-black border border-cyan-500 shadow-[0_0_50px_rgba(6,182,212,0.3)] rounded-2xl overflow-hidden">
+                        <div className="bg-cyan-950/50 p-4 border-b border-cyan-500/30 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
+                                <h3 className="text-lg font-black text-white tracking-widest">{aiResponse.title}</h3>
+                            </div>
+                            <button onClick={() => setAiResponse(null)} className="text-cyan-500 hover:text-white transition-colors">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            {aiResponse.type === "fusion" && (
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="p-4 bg-cyan-900/10 border border-cyan-500/20 rounded-xl text-center">
+                                        <p className="text-xs text-cyan-500 uppercase tracking-widest font-bold mb-1">Score de Faisabilité</p>
+                                        <p className="text-4xl font-black text-white">{aiResponse.data.score}</p>
+                                    </div>
+                                    <div className="p-4 bg-emerald-900/10 border border-emerald-500/20 rounded-xl text-center">
+                                        <p className="text-xs text-emerald-500 uppercase tracking-widest font-bold mb-1">Synergies Est.</p>
+                                        <p className="text-4xl font-black text-emerald-400">{aiResponse.data.synergy}</p>
+                                    </div>
+                                    <div className="col-span-2 p-4 bg-white/5 rounded-xl border border-white/5">
+                                        <p className="text-sm text-cyan-100 leading-relaxed font-sans border-l-2 border-cyan-500 pl-4">
+                                            {aiResponse.data.details}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {aiResponse.type === "audit" && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-4 p-4 bg-rose-950/20 border border-rose-500/30 rounded-xl">
+                                        <AlertTriangle className="w-8 h-8 text-rose-500" />
+                                        <div>
+                                            <h4 className="text-xl font-bold text-rose-400">{aiResponse.data.anomalies} Anomalies Critiques</h4>
+                                            <p className="text-xs text-rose-300 uppercase tracking-widest">Action Immédiate Requise</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-slate-300">{aiResponse.data.details}</p>
+                                    <button className="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold uppercase tracking-widest text-xs rounded-lg transition-all">
+                                        Voir le rapport détaillé
+                                    </button>
+                                </div>
+                            )}
+
+                            {aiResponse.type === "generic" && (
+                                <div className="flex items-start gap-4">
+                                    <CheckCircle2 className="w-6 h-6 text-green-400 shrink-0" />
+                                    <p className="text-slate-300 text-sm leading-relaxed">{aiResponse.data.details}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* HEADER */}
             <div className="relative z-10 p-8 flex justify-between items-center border-b border-cyan-900/30 bg-black/50 backdrop-blur-sm">
@@ -111,14 +226,21 @@ export default function NexusPage() {
                     {/* The Brain Visual */}
                     <div className="relative w-[500px] h-[500px] flex items-center justify-center">
                         {/* Orbitals */}
-                        <div className="absolute inset-0 rounded-full border border-cyan-500/10 animate-[spin_10s_linear_infinite]" />
-                        <div className="absolute inset-10 rounded-full border border-cyan-500/20 animate-[spin_15s_linear_infinite_reverse]" />
-                        <div className="absolute inset-24 rounded-full border border-cyan-400/30 animate-[spin_20s_linear_infinite]" />
+                        <div className={cn("absolute inset-0 rounded-full border border-cyan-500/10 transition-all duration-1000", isProcessing ? "animate-[spin_2s_linear_infinite] border-cyan-500/30" : "animate-[spin_10s_linear_infinite]")} />
+                        <div className={cn("absolute inset-10 rounded-full border border-cyan-500/20 transition-all duration-1000", isProcessing ? "animate-[spin_3s_linear_infinite_reverse] border-cyan-500/40" : "animate-[spin_15s_linear_infinite_reverse]")} />
+                        <div className={cn("absolute inset-24 rounded-full border transition-all duration-1000", isProcessing ? "border-cyan-400/60 animate-[spin_4s_linear_infinite]" : "border-cyan-400/30 animate-[spin_20s_linear_infinite]")} />
 
                         {/* Central Sphere */}
-                        <div className="w-48 h-48 rounded-full bg-cyan-900/20 backdrop-blur-md border border-cyan-400/50 shadow-[0_0_100px_rgba(34,211,238,0.2)] flex items-center justify-center relative z-20 group cursor-pointer hover:scale-110 transition-transform duration-500">
+                        <div className={cn(
+                            "w-48 h-48 rounded-full bg-cyan-900/20 backdrop-blur-md border border-cyan-400/50 shadow-[0_0_100px_rgba(34,211,238,0.2)] flex items-center justify-center relative z-20 transition-all duration-500",
+                            isProcessing ? "scale-110 shadow-[0_0_150px_rgba(34,211,238,0.6)]" : "group hover:scale-110"
+                        )}>
                             <div className="absolute inset-0 rounded-full bg-cyan-400/10 animate-pulse" />
-                            <Cpu className="w-20 h-20 text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
+                            {isProcessing ? (
+                                <Loader2 className="w-20 h-20 text-white animate-spin drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]" />
+                            ) : (
+                                <Cpu className="w-20 h-20 text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
+                            )}
                         </div>
 
                         {/* Connection Lines */}
@@ -128,20 +250,29 @@ export default function NexusPage() {
 
                     {/* AI Input Field */}
                     <div className="w-full max-w-2xl mt-8 relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 blur-lg" />
+                        <div className={cn(
+                            "absolute -inset-1 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl opacity-30 transition duration-1000 blur-lg",
+                            isProcessing ? "opacity-80 duration-200" : "group-hover:opacity-100 group-hover:duration-200"
+                        )} />
                         <div className="relative bg-black rounded-2xl border border-cyan-500/30 flex items-center p-2">
                             <div className="p-3">
-                                <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
+                                <Sparkles className={cn("w-6 h-6 text-cyan-400", isProcessing ? "animate-spin" : "animate-pulse")} />
                             </div>
                             <input
                                 type="text"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Posez une question complexe à Nexus ou lancez une simulation..."
-                                className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-cyan-700/50 font-mono text-sm h-10 px-2"
+                                onKeyDown={handleKeyDown}
+                                disabled={isProcessing}
+                                placeholder={isProcessing ? "Traitement en cours..." : "Posez une question à Nexus ou lancez une simulation..."}
+                                className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-cyan-700/50 font-mono text-sm h-10 px-2 disabled:opacity-50"
                             />
-                            <button className="px-6 py-2 bg-cyan-900/30 hover:bg-cyan-600 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 hover:text-white rounded-xl font-bold uppercase text-xs transition-all">
-                                Exécuter
+                            <button
+                                onClick={handleCommand}
+                                disabled={isProcessing}
+                                className="px-6 py-2 bg-cyan-900/30 hover:bg-cyan-600 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 hover:text-white rounded-xl font-bold uppercase text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isProcessing ? "..." : "Exécuter"}
                             </button>
                         </div>
                     </div>
