@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 const menuItems = [
     // 1. Pilotage & Stratégie
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
+    { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
     { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
     { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
 
