@@ -133,6 +133,66 @@ La présente mission a pour objet : Tenue de comptabilité et Établissement des
 2. OBLIGATIONS DU CABINET
 Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
 
+    const [showMissionReport, setShowMissionReport] = useState(false);
+    const [isGeneratingMissionReport, setIsGeneratingMissionReport] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [missionReport, setMissionReport] = useState({
+        title: "",
+        summary: "",
+        technical: "",
+        findings: "",
+        recommendations: "",
+        conclusion: ""
+    });
+
+    const generateMissionReport = () => {
+        setIsGeneratingMissionReport(true);
+        setTimeout(() => {
+            let content = { title: "", summary: "", technical: "", findings: "", recommendations: "", conclusion: "" };
+
+            if (missionType === "inventory") {
+                content = {
+                    title: "RAPPORT D'INVENTAIRE PHYSIQUE DES IMMOBILISATIONS",
+                    summary: `La mission d'inventaire physique des immobilisations de ${selectedClient} pour l'exercice 2024 s'est déroulée du 15 au 25 mai 2024. L'objectif était de recenser l'intégralité des actifs, de vérifier leur existence physique et leur état, et de procéder au rapprochement avec le fichier comptable.`,
+                    technical: "La méthodologie a reposé sur un étiquetage par QR Code et une saisie mobile synchronisée. Le périmètre couvrait 247 actifs répartis sur 4 sites géographiques. La valeur brute globale inventoriée s'élève à 316.5M FCFA.",
+                    findings: "• Taux de rapprochement initial : 85%\n• Écarts d'inventaire détectés : 12 immobilisations non localisées (8.5M FCFA)\n• Actifs non valorisés en comptabilité : 5 machines identifiées en atelier\n• État de conservation : 15% du matériel informatique est obsolète ou hors d'usage.",
+                    recommendations: "1. Procéder à la mise au rebut des actifs obsolètes.\n2. Régulariser les écritures comptables pour les 5 machines non inscrites.\n3. Renforcer la procédure de sortie d'actifs par un bon de mouvement systématique.\n4. Planifier un inventaire tournant trimestriel pour les actifs à haute valeur.",
+                    conclusion: "L'inventaire confirme la robustesse globale du patrimoine de l'entreprise, sous réserve des régularisations identifiées. Le rapprochement final après écritures de régularisation atteindra 100%."
+                };
+            } else if (missionType === "costing") {
+                content = {
+                    title: "ANALYSE DES COÛTS DE REVIENT ET MARGES DE FABRICATION",
+                    summary: `L'étude porte sur la structure des coûts de revient de la gamme de production 2024. L'analyse a été menée selon la méthode des coûts complets pour identifier les leviers de rentabilité par famille de produits.`,
+                    technical: "Les charges ont été ventilées en : Matières Premières (48%), MOD (32%) et Overheads (20%). Le coût moyen de fabrication s'établit à 2,933 FCFA par unité contre un prix de vente moyen de 4,166 FCFA.",
+                    findings: "• Marge brute moyenne : 29.4% (Cible : 30%)\n• Sous-efficience détectée sur la Série B (Marge 29.4%)\n• Dérive des coûts énergétiques impactant les charges indirectes (+15% vs budget)\n• Temps de réglage des machines supérieur de 20% aux standards.",
+                    recommendations: "1. Réviser les fiches techniques de la Série B.\n2. Négocier des contrats cadres pour les matières premières stratégiques.\n3. Investir dans un système de monitoring énergétique par machine.\n4. Formations spécifiques du personnel de production sur l'optimisation des temps de réglage.",
+                    conclusion: "La structure de coût est saine mais perfectible. Une réduction de 5% du coût des matières premières permettrait de dépasser l'objectif de marge cible de 30%."
+                };
+            } else if (missionType === "analytical") {
+                content = {
+                    title: "RAPPORT DE COMPTABILITÉ ANALYTIQUE ET PERFORMANCE",
+                    summary: `Synthèse de la performance par centre de responsabilité pour le semestre écoulé. L'objectif est d'évaluer la rentabilité relative des centres de production et de distribution.`,
+                    technical: "L'analyse repose sur le découpage de l'entreprise en 12 centres analytiques. Les clés de répartition ont été mises à jour pour refléter l'utilisation réelle des ressources partagées.",
+                    findings: "• Résultat Global : 195M FCFA (+18% sur un an)\n• Rentabilité exceptionnelle du centre 'Service Commercial' (Taux de marge 81.1%)\n• Le centre 'Atelier Fabrication' absorbe 125M FCFA de charges\n• Les frais administratifs sont maîtrisés à 10% du CA total.",
+                    recommendations: "1. Revoir la facturation interne des prestations de l'atelier.\n2. Développer les incitations commerciales basées sur la marge analytique et non le CA brut.\n3. Automatiser le reporting mensuel par centre pour un pilotage proactif.\n4. Analyser plus finement les coûts fixes du centre administratif.",
+                    conclusion: "L'entreprise présente une excellente maîtrise de sa structure analytique. Le dynamisme commercial compense largement les coûts de production, assurant une rentabilité globale robuste."
+                };
+            }
+
+            setMissionReport(content);
+            setIsGeneratingMissionReport(false);
+            setShowMissionReport(true);
+        }, 2500);
+    };
+
+    const regenerateMissionSection = (section: keyof typeof missionReport) => {
+        // Logic to simulate regeneration
+        setMissionReport(prev => ({
+            ...prev,
+            [section]: prev[section] + "\n\n[Contenu actualisé par l'algorithme IA v4.5]"
+        }));
+    };
+
     const renderStandardMission = () => (
         <div className="h-full flex gap-6">
             {/* Sidebar: Context & Checklist */}
@@ -391,10 +451,14 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     <h4 className="font-bold text-white text-sm">Exporter Inventaire</h4>
                     <p className="text-xs text-slate-500 mt-1">Format Excel avec photos</p>
                 </button>
-                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-emerald-500/50 transition-all text-left group">
+                <button
+                    onClick={generateMissionReport}
+                    disabled={isGeneratingMissionReport}
+                    className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-emerald-500/50 transition-all text-left group disabled:opacity-50"
+                >
                     <ClipboardList className="w-6 h-6 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
-                    <h4 className="font-bold text-white text-sm">Rapport de Mission</h4>
-                    <p className="text-xs text-slate-500 mt-1">Générer rapport final</p>
+                    <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport de Mission"}</h4>
+                    <p className="text-xs text-slate-500 mt-1">Générer rapport final IA</p>
                 </button>
                 <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
                     <Zap className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
@@ -496,40 +560,27 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 </div>
             </div>
 
-            {/* Cost Breakdown Chart */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="glass-card rounded-xl p-6 border border-slate-700/50">
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <PieChart className="w-4 h-4 text-amber-400" />
-                        Répartition Moyenne des Coûts
-                    </h4>
-                    <div className="space-y-3">
-                        <CostBreakdownBar label="Matières Premières" value={48} color="bg-cyan-500" />
-                        <CostBreakdownBar label="Main d'Œuvre Directe" value={32} color="bg-amber-500" />
-                        <CostBreakdownBar label="Charges Indirectes" value={20} color="bg-rose-500" />
-                    </div>
-                </div>
-
-                <div className="glass-card rounded-xl p-6 border border-slate-700/50">
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <Target className="w-4 h-4 text-emerald-400" />
-                        Recommandations d'Optimisation
-                    </h4>
-                    <ul className="space-y-3 text-sm">
-                        <li className="flex gap-2 text-slate-300">
-                            <ArrowRight className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                            Renégocier les prix matières pour gagner 5% sur le coût total
-                        </li>
-                        <li className="flex gap-2 text-slate-300">
-                            <ArrowRight className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                            Optimiser les temps de production (réduction MOD de 10%)
-                        </li>
-                        <li className="flex gap-2 text-slate-300">
-                            <ArrowRight className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                            Mutualiser les charges indirectes entre produits
-                        </li>
-                    </ul>
-                </div>
+            {/* Actions Footer */}
+            <div className="grid grid-cols-3 gap-4">
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-amber-500/50 transition-all text-left group">
+                    <BarChart3 className="w-6 h-6 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">Analyse Comparative</h4>
+                    <p className="text-xs text-slate-500 mt-1">Comparer aux standards OHADA</p>
+                </button>
+                <button
+                    onClick={generateMissionReport}
+                    disabled={isGeneratingMissionReport}
+                    className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-emerald-500/50 transition-all text-left group disabled:opacity-50"
+                >
+                    <ClipboardList className="w-6 h-6 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport de Coûts IA"}</h4>
+                    <p className="text-xs text-slate-500 mt-1">Générer rapport de rentabilité</p>
+                </button>
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
+                    <Download className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">Exporter Fiches Coûts</h4>
+                    <p className="text-xs text-slate-500 mt-1">PDF individuel par produit</p>
+                </button>
             </div>
         </div>
     );
@@ -640,40 +691,27 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 </div>
             </div>
 
-            {/* Analysis Cards */}
-            <div className="grid grid-cols-2 gap-4">
-                <div className="glass-card rounded-xl p-6 border border-slate-700/50">
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <PieChart className="w-4 h-4 text-indigo-400" />
-                        Répartition des Charges par Nature
-                    </h4>
-                    <div className="space-y-3">
-                        <CostBreakdownBar label="Charges de Personnel" value={55} color="bg-cyan-500" />
-                        <CostBreakdownBar label="Achats & Consommables" value={30} color="bg-amber-500" />
-                        <CostBreakdownBar label="Services Extérieurs" value={15} color="bg-rose-500" />
-                    </div>
-                </div>
-
-                <div className="glass-card rounded-xl p-6 border border-slate-700/50">
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <Target className="w-4 h-4 text-emerald-400" />
-                        Indicateurs de Performance
-                    </h4>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-400">Taux de Marge Global</span>
-                            <span className="text-lg font-bold text-emerald-400">81.1%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-400">Rentabilité Distribution</span>
-                            <span className="text-lg font-bold text-emerald-400">81.1%</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-slate-400">Poids Admin / CA</span>
-                            <span className="text-lg font-bold text-amber-400">10%</span>
-                        </div>
-                    </div>
-                </div>
+            {/* Actions Footer */}
+            <div className="grid grid-cols-3 gap-4">
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
+                    <TrendingUp className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">Simulation Seuil</h4>
+                    <p className="text-xs text-slate-500 mt-1">Calculer point mort par centre</p>
+                </button>
+                <button
+                    onClick={generateMissionReport}
+                    disabled={isGeneratingMissionReport}
+                    className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-emerald-500/50 transition-all text-left group disabled:opacity-50"
+                >
+                    <ClipboardList className="w-6 h-6 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport Analytique IA"}</h4>
+                    <p className="text-xs text-slate-500 mt-1">Générer synthèse de performance</p>
+                </button>
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
+                    <Save className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-bold text-white text-sm">Clôtures Périodiques</h4>
+                    <p className="text-xs text-slate-500 mt-1">Figer les résultats du mois</p>
+                </button>
             </div>
         </div>
     );
@@ -709,11 +747,164 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Content based on mission type */}
-            {missionType === "standard" && renderStandardMission()}
-            {missionType === "inventory" && renderInventoryMission()}
-            {missionType === "costing" && renderCostingMission()}
-            {missionType === "analytical" && renderAnalyticalMission()}
+            <div className="flex-1 min-h-0">
+                {missionType === "standard" && renderStandardMission()}
+                {missionType === "inventory" && renderInventoryMission()}
+                {missionType === "costing" && renderCostingMission()}
+                {missionType === "analytical" && renderAnalyticalMission()}
+            </div>
+
+            {/* AI Report Modal */}
+            {showMissionReport && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Modal Header */}
+                        <div className="bg-indigo-900 p-6 text-white flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-500/20 rounded-lg">
+                                    <ClipboardList className="w-6 h-6 text-indigo-300" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold">{missionReport.title}</h3>
+                                    <p className="text-indigo-300 text-sm">Mission effectuée pour {selectedClient} • Mai 2024</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2 bg-indigo-800/50 px-3 py-1.5 rounded-full border border-indigo-700">
+                                    <span className="text-xs font-medium text-indigo-200">Mode Édition</span>
+                                    <button
+                                        onClick={() => setIsEditMode(!isEditMode)}
+                                        className={cn(
+                                            "w-10 h-5 rounded-full p-1 transition-colors relative",
+                                            isEditMode ? "bg-amber-500" : "bg-slate-700"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "w-3 h-3 bg-white rounded-full transition-transform",
+                                            isEditMode ? "translate-x-5" : "translate-x-0"
+                                        )} />
+                                    </button>
+                                </div>
+                                <button
+                                    onClick={() => setShowMissionReport(false)}
+                                    className="p-2 hover:bg-indigo-800 rounded-full transition-colors"
+                                >
+                                    <Plus className="w-6 h-6 rotate-45" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="flex-1 flex overflow-hidden">
+                            {/* TOC Sidebar */}
+                            <div className="w-64 bg-slate-50 border-r border-slate-200 p-6 overflow-y-auto hidden md:block">
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Sommaire</h4>
+                                <nav className="space-y-1">
+                                    <TOCItem number="1" title="Synthèse de mission" />
+                                    <TOCItem number="2" title="Méthodologie technique" />
+                                    <TOCItem number="3" title="Constats et observations" />
+                                    <TOCItem number="4" title="Recommandations" />
+                                    <TOCItem number="5" title="Conclusion" />
+                                </nav>
+                            </div>
+
+                            {/* Report Body */}
+                            <div className="flex-1 bg-white p-12 overflow-y-auto">
+                                <div className="max-w-3xl mx-auto space-y-12">
+                                    <EditableMissionSection
+                                        title="1. Synthèse de la mission"
+                                        content={missionReport.summary}
+                                        editMode={isEditMode}
+                                        onChange={(val) => setMissionReport(prev => ({ ...prev, summary: val }))}
+                                        onRegenerate={() => regenerateMissionSection('summary')}
+                                    />
+                                    <EditableMissionSection
+                                        title="2. Méthodologie et cadre technique"
+                                        content={missionReport.technical}
+                                        editMode={isEditMode}
+                                        onChange={(val) => setMissionReport(prev => ({ ...prev, technical: val }))}
+                                        onRegenerate={() => regenerateMissionSection('technical')}
+                                    />
+                                    <EditableMissionSection
+                                        title="3. Constats et observations majeures"
+                                        content={missionReport.findings}
+                                        editMode={isEditMode}
+                                        onChange={(val) => setMissionReport(prev => ({ ...prev, findings: val }))}
+                                        onRegenerate={() => regenerateMissionSection('findings')}
+                                    />
+                                    <EditableMissionSection
+                                        title="4. Recommandations stratégiques"
+                                        content={missionReport.recommendations}
+                                        editMode={isEditMode}
+                                        onChange={(val) => setMissionReport(prev => ({ ...prev, recommendations: val }))}
+                                        onRegenerate={() => regenerateMissionSection('recommendations')}
+                                    />
+                                    <EditableMissionSection
+                                        title="5. Conclusion générale"
+                                        content={missionReport.conclusion}
+                                        editMode={isEditMode}
+                                        onChange={(val) => setMissionReport(prev => ({ ...prev, conclusion: val }))}
+                                        onRegenerate={() => regenerateMissionSection('conclusion')}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                            <p className="text-xs text-slate-500">
+                                Document généré par Neural Engine OHADA v2.4 • Signature numérique certifiée
+                            </p>
+                            <div className="flex gap-3">
+                                <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors">
+                                    Imprimer
+                                </button>
+                                <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-transform hover:scale-105">
+                                    <Download className="w-4 h-4" />
+                                    Télécharger Rapport PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+    );
+}
+
+function EditableMissionSection({ title, content, editMode, onChange, onRegenerate }: {
+    title: string;
+    content: string;
+    editMode: boolean;
+    onChange: (val: string) => void;
+    onRegenerate: () => void;
+}) {
+    return (
+        <section className="space-y-4">
+            <div className="flex justify-between items-center">
+                <h4 className="text-lg font-bold text-slate-900 border-l-4 border-indigo-500 pl-4">{title}</h4>
+                {editMode && (
+                    <button
+                        onClick={onRegenerate}
+                        className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs font-bold hover:bg-indigo-100 transition-colors flex items-center gap-1"
+                    >
+                        <Zap className="w-3 h-3" />
+                        Améliorer l'IA
+                    </button>
+                )}
+            </div>
+            {editMode ? (
+                <textarea
+                    value={content}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="w-full min-h-[150px] p-4 bg-indigo-50/30 border border-indigo-100 rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700"
+                />
+            ) : (
+                <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {content}
+                </div>
+            )}
+        </section>
     );
 }
 
@@ -780,6 +971,15 @@ function CostBreakdownBar({ label, value, color }: { label: string; value: numbe
             <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
                 <div className={cn("h-full rounded-full", color)} style={{ width: `${value}%` }} />
             </div>
+        </div>
+    );
+}
+
+function TOCItem({ number, title }: { number: string; title: string }) {
+    return (
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-white hover:shadow-sm cursor-pointer transition-all">
+            <span className="font-bold text-indigo-500 w-4">{number}.</span>
+            <span>{title}</span>
         </div>
     );
 }
