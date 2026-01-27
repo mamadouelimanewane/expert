@@ -155,6 +155,8 @@ export default function DiagnosticPage() {
     const [selectedClient, setSelectedClient] = useState("Société Ivoirienne de Banque");
     const [expandedSection, setExpandedSection] = useState<number | null>(null);
     const [showEvolution, setShowEvolution] = useState(false);
+    const [showReport, setShowReport] = useState(false);
+    const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
     const runDiagnostic = () => {
         setIsGenerating(true);
@@ -163,6 +165,14 @@ export default function DiagnosticPage() {
             setIsGenerating(false);
             setDiagnosticVisible(true);
         }, 3500);
+    };
+
+    const generateReport = () => {
+        setIsGeneratingReport(true);
+        setTimeout(() => {
+            setIsGeneratingReport(false);
+            setShowReport(true);
+        }, 2500);
     };
 
     const globalScore = Math.round(MOCK_DIAGNOSTIC.reduce((acc, s) => acc + s.score, 0) / MOCK_DIAGNOSTIC.length);
@@ -475,10 +485,16 @@ export default function DiagnosticPage() {
 
                     {/* Actions Footer */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button className="p-6 glass-card rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition-all group text-left">
+                        <button
+                            onClick={generateReport}
+                            disabled={isGeneratingReport}
+                            className="p-6 glass-card rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             <Download className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
-                            <h4 className="font-bold text-white mb-1">Télécharger Rapport PDF</h4>
-                            <p className="text-xs text-slate-500">Format professionnel avec branding</p>
+                            <h4 className="font-bold text-white mb-1">
+                                {isGeneratingReport ? "Génération IA..." : "Générer Rapport Narratif IA"}
+                            </h4>
+                            <p className="text-xs text-slate-500">Rapport rédigé automatiquement par l'IA</p>
                         </button>
                         <button className="p-6 glass-card rounded-2xl border border-slate-700/50 hover:border-emerald-500/50 transition-all group text-left">
                             <Share className="w-8 h-8 text-emerald-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -490,6 +506,263 @@ export default function DiagnosticPage() {
                             <h4 className="font-bold text-white mb-1">Exporter Données Brutes</h4>
                             <p className="text-xs text-slate-500">Excel avec tous les calculs</p>
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* AI REPORT MODAL */}
+            {showReport && (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-8 animate-in fade-in duration-300">
+                    <div className="w-full max-w-5xl h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                        {/* Header */}
+                        <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex justify-between items-center">
+                            <div>
+                                <h2 className="text-2xl font-black tracking-tight">RAPPORT DE DIAGNOSTIC FINANCIER</h2>
+                                <p className="text-sm text-indigo-200 mt-1">Généré automatiquement par Cabinet 360 AI Engine</p>
+                            </div>
+                            <button
+                                onClick={() => setShowReport(false)}
+                                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <ArrowRight className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Report Content */}
+                        <div className="flex-1 overflow-y-auto p-12 bg-white text-slate-900">
+                            <div className="max-w-3xl mx-auto space-y-8">
+                                {/* Metadata */}
+                                <div className="flex justify-between items-start pb-6 border-b-2 border-slate-200">
+                                    <div>
+                                        <p className="text-sm text-slate-600 uppercase tracking-widest font-bold mb-1">Client</p>
+                                        <p className="text-lg font-bold">{selectedClient}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm text-slate-600 uppercase tracking-widest font-bold mb-1">Date</p>
+                                        <p className="text-lg font-bold">{new Date().toLocaleDateString('fr-FR')}</p>
+                                    </div>
+                                </div>
+
+                                {/* Executive Summary */}
+                                <section>
+                                    <h3 className="text-xl font-black text-slate-900 mb-4 pb-2 border-b border-slate-300">
+                                        I. SYNTHÈSE EXÉCUTIVE
+                                    </h3>
+                                    <div className="space-y-4 text-sm leading-relaxed">
+                                        <p>
+                                            À l'issue de notre analyse approfondie des états financiers de <strong>{selectedClient}</strong>
+                                            portant sur les exercices N-1 (2023), N (2024) et les projections N+1 (2025), nous avons établi
+                                            un <strong>score global de santé financière de {globalScore}/100</strong>, reflétant une situation
+                                            globalement {globalScore >= 75 ? "excellente" : globalScore >= 50 ? "satisfaisante" : "préoccupante"}.
+                                        </p>
+                                        <p>
+                                            L'entreprise présente une <strong>structure financière solide</strong> avec un ratio d'autonomie
+                                            financière de 45%, en progression constante depuis N-1 (42%). Le chiffre d'affaires a connu une
+                                            croissance soutenue de <strong>+32% sur la période</strong>, passant de 450M FCFA (N-1) à 520M FCFA (N),
+                                            avec une projection à 595M FCFA pour N+1.
+                                        </p>
+                                        <p className="text-rose-700 font-semibold">
+                                            ⚠️ Point d'attention majeur : La conformité fiscale et sociale présente des lacunes critiques
+                                            (score 45/100) nécessitant une intervention immédiate pour éviter des risques de redressement
+                                            estimés à 8.5M FCFA.
+                                        </p>
+                                    </div>
+                                </section>
+
+                                {/* Detailed Analysis */}
+                                <section>
+                                    <h3 className="text-xl font-black text-slate-900 mb-4 pb-2 border-b border-slate-300">
+                                        II. ANALYSE DÉTAILLÉE PAR AXE
+                                    </h3>
+
+                                    {/* Structure Financière */}
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-emerald-500 rounded" />
+                                            A. Structure Financière & Solvabilité (85/100)
+                                        </h4>
+                                        <div className="pl-4 space-y-3 text-sm leading-relaxed">
+                                            <p>
+                                                La structure financière de l'entreprise est <strong>particulièrement robuste</strong>.
+                                                Les fonds propres représentent 45% du total bilan, soit 3 points de plus qu'en N-1,
+                                                témoignant d'une politique de renforcement des capitaux propres cohérente.
+                                            </p>
+                                            <p>
+                                                Le ratio d'endettement s'établit à 0.35, bien en deçà de la norme OHADA de 0.5,
+                                                offrant ainsi une <strong>marge de manœuvre significative</strong> pour financer
+                                                des investissements de croissance par effet de levier.
+                                            </p>
+                                            <p className="text-indigo-700 font-medium">
+                                                💡 Recommandation : Envisager un investissement stratégique de croissance (acquisition,
+                                                expansion géographique) en mobilisant un financement bancaire modéré, tout en maintenant
+                                                le ratio d'endettement sous 0.45.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Performance */}
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-amber-500 rounded" />
+                                            B. Performance Opérationnelle (62/100)
+                                        </h4>
+                                        <div className="pl-4 space-y-3 text-sm leading-relaxed">
+                                            <p>
+                                                La performance opérationnelle présente des <strong>signaux mitigés</strong>.
+                                                Si le chiffre d'affaires progresse de manière satisfaisante (+15.6% en N),
+                                                la marge commerciale stagne à 35%, soit 3 points sous la norme sectorielle (38%).
+                                            </p>
+                                            <p>
+                                                L'analyse des Soldes Intermédiaires de Gestion révèle une <strong>dérive des charges
+                                                    de personnel</strong> (+15% sans corrélation avec la croissance du CA), impactant
+                                                négativement l'EBE qui recule de 8% sur l'exercice.
+                                            </p>
+                                            <p className="text-indigo-700 font-medium">
+                                                💡 Recommandation : Mettre en place un audit de productivité RH pour identifier
+                                                les sources d'inefficience. Renégocier les contrats de sous-traitance pour améliorer
+                                                la marge de 3 points et atteindre la norme sectorielle.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Conformité */}
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-rose-500 rounded" />
+                                            C. Conformité Fiscale & Sociale (45/100) - CRITIQUE
+                                        </h4>
+                                        <div className="pl-4 space-y-3 text-sm leading-relaxed">
+                                            <p className="text-rose-700 font-semibold">
+                                                ⚠️ Cet axe présente des <strong>risques majeurs</strong> nécessitant une action immédiate.
+                                            </p>
+                                            <p>
+                                                Notre analyse a révélé une <strong>incohérence de 5M FCFA</strong> entre la TVA déclarée
+                                                et le chiffre d'affaires comptabilisé, exposant l'entreprise à un risque de redressement
+                                                fiscal. De plus, les retards récurrents de paiement des cotisations sociales (CNPS) ont
+                                                généré des pénalités de 3.5M FCFA en N, contre 1.2M en N-1 (+192%).
+                                            </p>
+                                            <p>
+                                                L'absence de justificatifs pour 12% des charges déductibles constitue un <strong>facteur
+                                                    de risque supplémentaire</strong> en cas de contrôle fiscal.
+                                            </p>
+                                            <p className="text-rose-700 font-bold bg-rose-50 p-3 rounded border-l-4 border-rose-500">
+                                                🚨 ACTION URGENTE : Procéder à un cadrage de TVA immédiat avec un expert-comptable pour
+                                                corriger les déclarations. Mettre en place un calendrier de paiement automatisé pour les
+                                                cotisations sociales. Constituer un dossier de justification exhaustif avant tout contrôle.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Trésorerie */}
+                                    <div className="mb-6">
+                                        <h4 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                            <div className="w-2 h-6 bg-amber-500 rounded" />
+                                            D. Trésorerie & BFR (72/100)
+                                        </h4>
+                                        <div className="pl-4 space-y-3 text-sm leading-relaxed">
+                                            <p>
+                                                La gestion de trésorerie reste <strong>globalement maîtrisée</strong> avec une trésorerie
+                                                nette positive de 22M FCFA, bien qu'en baisse de 18% par rapport à N-1 (27M FCFA).
+                                            </p>
+                                            <p>
+                                                Le Besoin en Fonds de Roulement a augmenté de 25%, passant de 38 à 45 jours de CA,
+                                                principalement en raison d'un <strong>ralentissement des encaissements clients</strong>
+                                                (délai moyen de 75 jours contre une norme de 60 jours).
+                                            </p>
+                                            <p className="text-indigo-700 font-medium">
+                                                💡 Recommandation : Mettre en place une politique de relance clients plus agressive
+                                                (relance à J+45, pénalités de retard). Négocier des délais fournisseurs plus longs
+                                                pour compenser. Envisager l'affacturage pour les créances supérieures à 60 jours.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Projections */}
+                                <section>
+                                    <h3 className="text-xl font-black text-slate-900 mb-4 pb-2 border-b border-slate-300">
+                                        III. PROJECTIONS N+1 ET SCÉNARIOS
+                                    </h3>
+                                    <div className="space-y-4 text-sm leading-relaxed">
+                                        <p>
+                                            Sur la base des tendances observées et en intégrant les recommandations formulées,
+                                            nos projections pour N+1 (2025) anticipent :
+                                        </p>
+                                        <ul className="list-disc pl-6 space-y-2">
+                                            <li>Un <strong>chiffre d'affaires de 595M FCFA</strong> (+14.4%), porté par la dynamique commerciale actuelle</li>
+                                            <li>Un <strong>résultat net de 51M FCFA</strong> (+21.4%), grâce à l'optimisation des charges de personnel</li>
+                                            <li>Un <strong>renforcement des fonds propres à 48%</strong>, consolidant la structure financière</li>
+                                            <li>Une <strong>amélioration du BFR à 42 jours</strong> (-3j) suite aux actions de recouvrement</li>
+                                            <li>Une <strong>trésorerie nette remontant à 28M FCFA</strong> (+27%), reflétant l'amélioration du cycle d'exploitation</li>
+                                        </ul>
+                                        <p className="text-emerald-700 font-semibold bg-emerald-50 p-3 rounded border-l-4 border-emerald-500">
+                                            ✅ Ces projections sont conditionnées à la mise en œuvre effective des recommandations,
+                                            notamment la régularisation fiscale et l'optimisation de la masse salariale.
+                                        </p>
+                                    </div>
+                                </section>
+
+                                {/* Conclusion */}
+                                <section>
+                                    <h3 className="text-xl font-black text-slate-900 mb-4 pb-2 border-b border-slate-300">
+                                        IV. CONCLUSION ET PLAN D'ACTION
+                                    </h3>
+                                    <div className="space-y-4 text-sm leading-relaxed">
+                                        <p>
+                                            <strong>{selectedClient}</strong> présente des <strong>fondamentaux solides</strong>
+                                            avec une croissance soutenue et une structure financière robuste. Toutefois,
+                                            la situation de conformité fiscale et sociale nécessite une <strong>intervention
+                                                urgente</strong> pour éviter des risques de redressement significatifs.
+                                        </p>
+                                        <div className="bg-slate-100 p-4 rounded-lg">
+                                            <h4 className="font-bold text-slate-900 mb-3">Plan d'Action Prioritaire (30 jours) :</h4>
+                                            <ol className="list-decimal pl-6 space-y-2">
+                                                <li><strong>Cadrage fiscal immédiat</strong> : Régularisation TVA et constitution dossier justificatifs</li>
+                                                <li><strong>Automatisation paiements sociaux</strong> : Mise en place calendrier CNPS</li>
+                                                <li><strong>Audit productivité RH</strong> : Analyse des écarts masse salariale / CA</li>
+                                                <li><strong>Optimisation recouvrement</strong> : Politique de relance clients renforcée</li>
+                                            </ol>
+                                        </div>
+                                        <p className="font-semibold">
+                                            La mise en œuvre de ces actions permettra de porter le score global de santé
+                                            financière à <strong>82/100 d'ici N+1</strong>, positionnant l'entreprise dans
+                                            une trajectoire de croissance pérenne et sécurisée.
+                                        </p>
+                                    </div>
+                                </section>
+
+                                {/* Signature */}
+                                <div className="mt-12 pt-6 border-t-2 border-slate-200 flex justify-between items-end">
+                                    <div>
+                                        <p className="text-xs text-slate-600 uppercase tracking-widest font-bold mb-1">Généré par</p>
+                                        <p className="text-sm font-bold">Cabinet 360 AI Engine v4.2</p>
+                                        <p className="text-xs text-slate-500 italic">Expert-Comptable & Commissaire aux Comptes</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-slate-600 uppercase tracking-widest font-bold mb-1">Signature Électronique</p>
+                                        <div className="w-32 h-16 border-2 border-dashed border-slate-300 rounded flex items-center justify-center">
+                                            <Shield className="w-8 h-8 text-slate-400" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+                            <p className="text-xs text-slate-600">
+                                Ce rapport a été généré automatiquement par intelligence artificielle
+                            </p>
+                            <div className="flex gap-3">
+                                <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
+                                    Imprimer
+                                </button>
+                                <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+                                    <Download className="w-4 h-4" />
+                                    Télécharger PDF
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
