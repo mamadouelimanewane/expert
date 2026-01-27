@@ -2,238 +2,245 @@
 
 import { useState } from "react";
 import {
-    Gem,
-    TrendingUp,
-    Target,
-    ShieldCheck,
-    Zap,
-    ArrowRight,
-    Download,
-    BarChart,
-    PieChart,
-    Activity,
-    Briefcase,
-    Coins,
-    History,
     Rocket,
-    Search,
-    ChevronRight,
-    Plus
+    TrendingUp,
+    PieChart,
+    BarChart3,
+    ArrowRight,
+    Plus,
+    Target,
+    Zap,
+    Scale,
+    ShieldCheck,
+    Briefcase,
+    Globe,
+    LineChart,
+    Calculator,
+    Layers,
+    History,
+    FileText,
+    Percent,
+    Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ValuationMetric {
-    label: string;
-    value: string;
-    weight: number;
-}
-
-const SECTOR_MULTIPLES: Record<string, number> = {
-    "Distribution / Retail": 5.5,
-    "Services B2B": 4.2,
-    "Industrie": 6.8,
-    "Tech / Startup": 12.5,
-    "Agro-industrie": 7.2
-};
-
-export default function InvestmentValuationPage() {
-    const [sector, setSector] = useState("Distribution / Retail");
-    const [ebitda, setEbitda] = useState(150000000); // 150M FCFA
-    const [debt, setDebt] = useState(45000000); // 45M FCFA
-    const [cash, setCash] = useState(12000000); // 12M FCFA
-    const [isCalculating, setIsCalculating] = useState(false);
-
-    // Computed Valuation
-    const multiple = SECTOR_MULTIPLES[sector] || 5;
-    const enterpriseValue = ebitda * multiple;
-    const equityValue = enterpriseValue - debt + cash;
-
-    const runValuationIA = () => {
-        setIsCalculating(true);
-        setTimeout(() => setIsCalculating(false), 1500);
-    };
+export default function InvestmentPage() {
+    const [simType, setSimType] = useState<"ma" | "bp" | "valuation">("ma");
 
     return (
-        <div className="space-y-6 pb-20">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        <Rocket className="w-8 h-8 text-indigo-400" />
-                        Valorisation IA & Investment Readiness
-                    </h2>
-                    <p className="text-slate-400 mt-1">Outil de préparation aux levées de fonds, fusions-acquisitions et évaluation de la valeur d'entreprise.</p>
-                </div>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+            {/* Massive Premium Header */}
+            <div className="relative p-12 rounded-[50px] bg-slate-900/60 border border-white/5 overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-20 opacity-10 blur-3xl bg-indigo-500 rounded-full animate-pulse" />
+                <div className="absolute -bottom-20 -left-20 p-20 opacity-5 bg-cyan-500 rounded-full" />
 
-                <div className="flex gap-2">
-                    <button
-                        onClick={runValuationIA}
-                        className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20 hover:scale-[1.02] transition-all"
-                    >
-                        <Zap className="w-4 h-4 fill-current" /> {isCalculating ? "Calcul des Multiples OHADA..." : "Lancer Valorisation IA"}
-                    </button>
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-500/40">
+                                <Rocket className="w-10 h-10 text-white" />
+                            </div>
+                            <h2 className="text-5xl font-black text-white tracking-tighter">Valorisation & M&A IA</h2>
+                        </div>
+                        <p className="text-slate-400 text-xl max-w-2xl font-medium leading-relaxed italic">
+                            "Modélisez l'avenir de vos clients. Simulez des fusions, des acquisitions et des levées de fonds avec une précision institutionnelle."
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <div className="bg-slate-900/80 p-6 rounded-3xl border border-white/5 flex items-center gap-6">
+                            <div>
+                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Capital Valorisés</p>
+                                <h3 className="text-3xl font-black text-white mt-1">14.8B <span className="text-xs text-slate-600">FCFA</span></h3>
+                            </div>
+                            <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
+                                <TrendingUp className="w-6 h-6" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Mode Selector */}
+            <div className="flex gap-4 p-1.5 bg-slate-900 border border-white/10 rounded-[30px] w-fit shadow-2xl">
+                <button
+                    onClick={() => setSimType("ma")}
+                    className={cn(
+                        "px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-3",
+                        simType === "ma" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30" : "text-slate-500 hover:text-white"
+                    )}
+                >
+                    <Layers className="w-4 h-4" /> Fusion & Acquisition
+                </button>
+                <button
+                    onClick={() => setSimType("bp")}
+                    className={cn(
+                        "px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-3",
+                        simType === "bp" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30" : "text-slate-500 hover:text-white"
+                    )}
+                >
+                    <LineChart className="w-4 h-4" /> Business Plan 5 Ans
+                </button>
+                <button
+                    onClick={() => setSimType("valuation")}
+                    className={cn(
+                        "px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-3",
+                        simType === "valuation" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30" : "text-slate-500 hover:text-white"
+                    )}
+                >
+                    <Calculator className="w-4 h-4" /> Scoring & Valo
+                </button>
+            </div>
 
-                {/* Left: Input & Leverages */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50 space-y-6">
-                        <h3 className="font-bold text-white flex items-center gap-2">
-                            <Coins className="w-5 h-5 text-indigo-400" />
-                            Données de Valorisation
-                        </h3>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1.5 ml-1">Secteur d'Activité</label>
-                                <select
-                                    value={sector}
-                                    onChange={(e) => setSector(e.target.value)}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-white focus:border-indigo-500 outline-none transition-all cursor-pointer"
-                                >
-                                    {Object.keys(SECTOR_MULTIPLES).map(s => <option key={s}>{s}</option>)}
-                                </select>
+            {simType === "ma" ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Synergies & Inputs */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="glass-card rounded-[40px] p-8 bg-slate-900/40 border border-white/5">
+                            <h3 className="text-white font-black text-sm uppercase tracking-widest mb-8 flex items-center gap-3">
+                                <Target className="w-5 h-5 text-indigo-400" /> Paramètres M&A
+                            </h3>
+                            <div className="space-y-6">
+                                <SimInput label="Cible (Dénomination)" value="Société Agro-Industrielle X" />
+                                <SimSlider label="Prime d'Acquisition (%)" value={25} />
+                                <SimSlider label="Synergies de Coût (FCFA)" value={150} unit="M" />
+                                <SimSlider label="Coût de la Dette (%)" value={6.5} />
+                                <div className="pt-6">
+                                    <button className="w-full py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+                                        <Zap className="w-4 h-4" /> Recalculer l'impact
+                                    </button>
+                                </div>
                             </div>
-
-                            <DataInput label="EBITDA / EBE (FCFA)" value={ebitda} onChange={setEbitda} />
-                            <DataInput label="Dette Nette (FCFA)" value={debt} onChange={setDebt} />
-                            <DataInput label="Trésorerie Disponible (FCFA)" value={cash} onChange={setCash} />
                         </div>
 
-                        <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl">
-                            <div className="flex justify-between items-center text-xs font-bold text-indigo-400 mb-2">
-                                <span>Multiple Sectoriel OHADA</span>
-                                <span>x {multiple}</span>
+                        <div className="glass-card rounded-[40px] p-8 bg-emerald-500/5 border border-emerald-500/10">
+                            <h4 className="text-emerald-400 font-bold text-xs uppercase tracking-widest mb-4">Accrétion / Dilution</h4>
+                            <div className="flex items-baseline gap-2">
+                                <h3 className="text-4xl font-black text-white">+12.4%</h3>
+                                <span className="text-emerald-500 text-xs font-bold font-mono">EPS Accretion</span>
                             </div>
-                            <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                                "Basé sur les dernières transactions observées en zone UEMOA ({sector})."
+                            <p className="text-[10px] text-slate-500 font-medium mt-2 leading-relaxed">
+                                L'opération est fortement accrétive dès la première année grâce aux synergies opérationnelles identifiées.
                             </p>
                         </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase mb-4">Investment Readiness Score</h4>
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="text-4xl font-bold text-white">84<span className="text-lg text-slate-600">/100</span></div>
-                            <div className="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded border border-emerald-500/20">INVESTOR READY</div>
-                        </div>
-                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 w-[84%]" />
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-4 italic">"Votre structure financière et votre conformité juridique sont excellentes pour une due-diligence."</p>
-                    </div>
-                </div>
-
-                {/* Right: Visualization & Deal Room */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Value Display */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="glass-card p-8 rounded-3xl border border-indigo-500/40 bg-gradient-to-br from-indigo-950/20 to-slate-950 overflow-hidden relative group">
-                            <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-1000">
-                                <History className="w-32 h-32 text-white" />
-                            </div>
-                            <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Valeur d'Entreprise (EV)</p>
-                            <h4 className="text-4xl font-bold text-white mb-2">
-                                {(enterpriseValue / 1000000).toLocaleString()} <span className="text-sm">M</span>
-                            </h4>
-                            <p className="text-xs text-slate-500">FCFA • Estimation par multiples</p>
+                    {/* Dashboard & Charts */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <ResultCard title="Valeur de l'Entité Fusionnée" value="8.4B" trend="+2.1B" icon={Briefcase} />
+                            <ResultCard title="Multiple EV/EBITDA Post-Op" value="7.2x" trend="-0.8x" icon={PieChart} />
                         </div>
 
-                        <div className="glass-card p-8 rounded-3xl border border-purple-500/40 bg-gradient-to-br from-purple-950/20 to-slate-950 overflow-hidden relative group">
-                            <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-1000">
-                                <Gem className="w-32 h-32 text-white" />
-                            </div>
-                            <p className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-2">Valeur des Capitaux Propres</p>
-                            <h4 className="text-4xl font-bold text-white mb-2">
-                                {(equityValue / 1000000).toLocaleString()} <span className="text-sm">M</span>
-                            </h4>
-                            <p className="text-xs text-slate-500">FCFA • Valeur pour les actionnaires</p>
-                        </div>
-                    </div>
-
-                    {/* Deal Room / Data Room Preview */}
-                    <div className="glass-card rounded-3xl border border-slate-700/50 bg-slate-900/30 overflow-hidden">
-                        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                            <h3 className="font-bold text-white flex items-center gap-3">
-                                <Briefcase className="w-5 h-5 text-amber-500" />
-                                VDR (Virtual Data Room) & Due Diligence
-                            </h3>
-                            <button className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold rounded-lg border border-slate-700">GÉRER ACCÈS INVESTISSEURS</button>
-                        </div>
-
-                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
-                                { label: "Dossier Financier & Fiscal", status: "complete", count: 12 },
-                                { label: "Dossier Juridique & Statuts", status: "complete", count: 8 },
-                                { label: "Contrats Majeurs Clients", status: "warning", count: 4 },
-                                { label: "Propriété Intellectuelle (OAPI)", status: "pending", count: 2 },
-                            ].map((folder, i) => (
-                                <div key={i} className="p-4 bg-slate-800/20 border border-slate-800 rounded-2xl flex items-center justify-between hover:bg-slate-800/40 transition-all cursor-pointer group">
-                                    <div className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center",
-                                            folder.status === "complete" ? "bg-emerald-500/10 text-emerald-500" :
-                                                folder.status === "warning" ? "bg-amber-500/10 text-amber-500" : "bg-slate-700 text-slate-500"
-                                        )}>
-                                            <Briefcase className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-white">{folder.label}</p>
-                                            <p className="text-[10px] text-slate-500 uppercase">{folder.count} DOCUMENTS</p>
-                                        </div>
-                                    </div>
-                                    <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-white" />
+                        <div className="glass-card rounded-[40px] p-10 bg-slate-900/40 border border-white/5 min-h-[400px] flex flex-col">
+                            <div className="flex justify-between items-center mb-10">
+                                <div>
+                                    <h3 className="text-2xl font-black text-white tracking-tighter">Projections EBITDA (Post-Acquisition)</h3>
+                                    <p className="text-xs text-slate-500 mt-1">Comparaison Basile vs Consolidé (Simulé)</p>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Equity Cap Table Simulation */}
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
-                            <Activity className="w-5 h-5 text-indigo-400" />
-                            Cap Table (Répartition de l'Actionnariat)
-                        </h3>
-                        <div className="space-y-4">
-                            {[
-                                { name: "Fondateur Principal", share: 55, value: "453M" },
-                                { name: "Associé Historique", share: 30, value: "247M" },
-                                { name: "Stock Options (ESOP)", share: 5, value: "41M" },
-                                { name: "Pool Investissement (Libre)", share: 10, value: "82M" },
-                            ].map((owner, i) => (
-                                <div key={i} className="flex items-center gap-4">
-                                    <span className="w-full max-w-[120px] text-xs font-medium text-slate-400">{owner.name}</span>
-                                    <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-500" style={{ width: `${owner.share}%` }} />
+                                <div className="flex gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-slate-700" />
+                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Avant</span>
                                     </div>
-                                    <span className="text-xs font-bold text-white w-10">{owner.share}%</span>
-                                    <span className="text-xs font-mono font-bold text-indigo-400 w-16">{owner.value}</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Après Fusion</span>
+                                    </div>
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Fake Chart bars */}
+                            <div className="flex-1 flex items-end gap-6 px-10">
+                                <ChartBar height="40%" label="An 1" active />
+                                <ChartBar height="55%" label="An 2" active />
+                                <ChartBar height="75%" label="An 3" active />
+                                <ChartBar height="90%" label="An 4" active />
+                                <ChartBar height="100%" label="An 5" active />
+                            </div>
                         </div>
-                        <div className="mt-8 flex justify-center">
-                            <button className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-2">
-                                <Plus className="w-4 h-4" /> Simuler une nouvelle levée de fonds (Série A)
+
+                        <div className="flex gap-4">
+                            <button className="flex-1 py-5 bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl border border-white/5 flex items-center justify-center gap-3 transition-all">
+                                <Download className="w-4 h-4" /> Télécharger l'Infomémorandum
+                            </button>
+                            <button className="flex-1 py-5 bg-white text-slate-950 font-black uppercase tracking-widest text-[10px] rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-200 transition-all">
+                                <FileText className="w-4 h-4" /> Rapport de Valorisation
                             </button>
                         </div>
                     </div>
                 </div>
+            ) : (
+                <div className="glass-card rounded-[50px] p-40 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10">
+                    <div className="w-24 h-24 rounded-full bg-indigo-500/10 flex items-center justify-center mb-8">
+                        <LineChart className="w-12 h-12 text-indigo-400" />
+                    </div>
+                    <h3 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter">Module en de Préparation</h3>
+                    <p className="text-slate-500 max-w-lg mx-auto font-medium text-lg leading-relaxed">
+                        Le moteur de modélisation dynamique de Business Plan 5 ans arrive.
+                        Importez vos balances et laissez l'IA générer vos prévisionnels de trésorerie.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function SimInput({ label, value }: { label: string, value: string }) {
+    return (
+        <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{label}</p>
+            <input
+                type="text"
+                defaultValue={value}
+                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-4 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+            />
+        </div>
+    );
+}
+
+function SimSlider({ label, value, unit }: { label: string, value: number, unit?: string }) {
+    return (
+        <div className="space-y-4">
+            <div className="flex justify-between items-center">
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{label}</p>
+                <span className="text-xs font-black text-white">{value}{unit || "%"}</span>
+            </div>
+            <div className="relative h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="absolute top-0 left-0 h-full bg-indigo-500 rounded-full" style={{ width: `${(value / 50) * 100}%` }} />
             </div>
         </div>
     );
 }
 
-function DataInput({ label, value, onChange }: { label: string, value: number, onChange: (v: number) => void }) {
+function ResultCard({ title, value, trend, icon: Icon }: any) {
     return (
-        <div>
-            <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1.5 ml-1">{label}</label>
-            <input
-                type="number"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-white font-mono focus:border-indigo-500 outline-none transition-all"
-                value={value}
-                onChange={(e) => onChange(parseInt(e.target.value) || 0)}
-            />
+        <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5 relative group overflow-hidden">
+            <div className="flex justify-between items-start mb-6">
+                <div className="p-4 bg-indigo-600/10 rounded-2xl text-indigo-400">
+                    <Icon className="w-6 h-6" />
+                </div>
+                <span className="text-[10px] font-black px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+                    {trend}
+                </span>
+            </div>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{title}</p>
+            <div className="flex items-baseline gap-2">
+                <h3 className="text-4xl font-black text-white tracking-tighter">{value}</h3>
+                <span className="text-xs font-bold text-slate-600 italic">FCFA</span>
+            </div>
+        </div>
+    );
+}
+
+function ChartBar({ height, label, active }: { height: string, label: string, active?: boolean }) {
+    return (
+        <div className="flex-1 flex flex-col items-center gap-4">
+            <div className="w-full flex gap-2 items-end justify-center">
+                <div className="w-8 bg-slate-800 rounded-t-xl" style={{ height: `calc(${height} * 0.7)` }} />
+                <div className={cn("w-8 rounded-t-xl transition-all duration-1000", active ? "bg-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)]" : "bg-slate-700")} style={{ height: height }} />
+            </div>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
         </div>
     );
 }

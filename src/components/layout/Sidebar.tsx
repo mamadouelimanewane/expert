@@ -49,8 +49,8 @@ import { cn } from "@/lib/utils";
 const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
     { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
-    { icon: Users, label: "Clients (CRM)", href: "/clients" },
-    { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
+    { icon: PenTool, label: "Signatures Certifiées", href: "/signature" },
+    { icon: Rocket, label: "Valorisation & M&A", href: "/investment" },
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
     { icon: Calculator, label: "Paie & Social", href: "/payroll" },
     { icon: ArrowRightLeft, label: "Banque & Lettrage IA", href: "/banking" },
