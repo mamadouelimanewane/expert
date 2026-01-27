@@ -21,9 +21,21 @@ import {
     TrendingDown,
     Sparkles,
     FileSpreadsheet,
-    Eye
+    Eye,
+    BarChart3,
+    LineChart,
+    Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface YearData {
+    year: string;
+    ca: number;
+    resultatNet: number;
+    fondsPropresPct: number;
+    bfr: number;
+    tresorerie: number;
+}
 
 interface DiagnosticSection {
     title: string;
@@ -32,7 +44,14 @@ interface DiagnosticSection {
     findings: string[];
     recommendations: string[];
     metrics?: { label: string; value: string; trend?: string }[];
+    evolution?: { label: string; n1: string; n: string; n1Proj?: string; variation: string }[];
 }
+
+const MOCK_YEARS: YearData[] = [
+    { year: "N-1 (2023)", ca: 450, resultatNet: 35, fondsPropresPct: 42, bfr: 38, tresorerie: 27 },
+    { year: "N (2024)", ca: 520, resultatNet: 42, fondsPropresPct: 45, bfr: 45, tresorerie: 22 },
+    { year: "N+1 (2025 Proj.)", ca: 595, resultatNet: 51, fondsPropresPct: 48, bfr: 42, tresorerie: 28 }
+];
 
 const MOCK_DIAGNOSTIC: DiagnosticSection[] = [
     {
@@ -51,6 +70,10 @@ const MOCK_DIAGNOSTIC: DiagnosticSection[] = [
         metrics: [
             { label: "Ratio d'Autonomie Financière", value: "45%", trend: "+3%" },
             { label: "CAF / CA", value: "12.5%", trend: "+1.2%" }
+        ],
+        evolution: [
+            { label: "Fonds Propres / Total Bilan", n1: "42%", n: "45%", n1Proj: "48%", variation: "+6 pts" },
+            { label: "Ratio d'Endettement", n1: "0.42", n: "0.35", n1Proj: "0.30", variation: "-0.12" }
         ]
     },
     {
@@ -70,6 +93,11 @@ const MOCK_DIAGNOSTIC: DiagnosticSection[] = [
         metrics: [
             { label: "Marge Commerciale", value: "35%", trend: "stable" },
             { label: "EBE / CA", value: "18%", trend: "-8%" }
+        ],
+        evolution: [
+            { label: "Chiffre d'Affaires (M FCFA)", n1: "450", n: "520", n1Proj: "595", variation: "+32%" },
+            { label: "Résultat Net (M FCFA)", n1: "35", n: "42", n1Proj: "51", variation: "+46%" },
+            { label: "Marge Nette", n1: "7.8%", n: "8.1%", n1Proj: "8.6%", variation: "+0.8 pts" }
         ]
     },
     {
@@ -89,6 +117,10 @@ const MOCK_DIAGNOSTIC: DiagnosticSection[] = [
         metrics: [
             { label: "Risque Fiscal Estimé", value: "8.5M FCFA", trend: "critique" },
             { label: "Taux de Conformité", value: "45%", trend: "-12%" }
+        ],
+        evolution: [
+            { label: "Taux de Conformité", n1: "57%", n: "45%", variation: "-12 pts" },
+            { label: "Pénalités & Amendes (M FCFA)", n1: "1.2", n: "3.5", variation: "+192%" }
         ]
     },
     {
@@ -108,6 +140,11 @@ const MOCK_DIAGNOSTIC: DiagnosticSection[] = [
         metrics: [
             { label: "BFR (jours CA)", value: "45j", trend: "+10j" },
             { label: "Trésorerie Nette", value: "22M FCFA", trend: "-18%" }
+        ],
+        evolution: [
+            { label: "BFR (jours CA)", n1: "38j", n: "45j", n1Proj: "42j", variation: "+7j" },
+            { label: "Trésorerie Nette (M FCFA)", n1: "27", n: "22", n1Proj: "28", variation: "-19%" },
+            { label: "Délai Clients (jours)", n1: "68", n: "75", n1Proj: "65", variation: "+7j" }
         ]
     }
 ];
@@ -117,6 +154,7 @@ export default function DiagnosticPage() {
     const [diagnosticVisible, setDiagnosticVisible] = useState(false);
     const [selectedClient, setSelectedClient] = useState("Société Ivoirienne de Banque");
     const [expandedSection, setExpandedSection] = useState<number | null>(null);
+    const [showEvolution, setShowEvolution] = useState(false);
 
     const runDiagnostic = () => {
         setIsGenerating(true);
@@ -137,7 +175,7 @@ export default function DiagnosticPage() {
                         <Stethoscope className="w-8 h-8 text-rose-400" />
                         Diagnostic IA États Financiers
                     </h2>
-                    <p className="text-slate-400 mt-1">Analyse médicale complète de la santé financière avec IA prédictive.</p>
+                    <p className="text-slate-400 mt-1">Analyse médicale complète avec évolution pluriannuelle N-1, N, N+1.</p>
                 </div>
 
                 <div className="flex gap-3">
@@ -169,7 +207,7 @@ export default function DiagnosticPage() {
                     </div>
                     <h3 className="text-xl font-bold text-slate-400">Prêt pour le Check-up Financier ?</h3>
                     <p className="text-slate-500 max-w-sm mx-auto mt-2">
-                        L'IA va scanner l'intégralité du grand livre, de la balance et des journaux pour générer un rapport de diagnostic complet avec scoring prédictif.
+                        L'IA va scanner l'intégralité du grand livre, de la balance et des journaux pour générer un rapport de diagnostic complet avec scoring prédictif et analyse pluriannuelle.
                     </p>
                 </div>
             )}
@@ -188,7 +226,8 @@ export default function DiagnosticPage() {
                         <div className="mt-4 space-y-2 text-xs text-slate-600 font-mono">
                             <p className="animate-pulse">→ Scan du Grand Livre (2,450 écritures)...</p>
                             <p className="animate-pulse delay-100">→ Calcul des SIG et ratios de structure...</p>
-                            <p className="animate-pulse delay-200">→ Détection d'anomalies par ML...</p>
+                            <p className="animate-pulse delay-200">→ Analyse croisée N-1, N, N+1...</p>
+                            <p className="animate-pulse delay-300">→ Détection d'anomalies par ML...</p>
                         </div>
                     </div>
                 </div>
@@ -229,6 +268,79 @@ export default function DiagnosticPage() {
                         </div>
                     </div>
 
+                    {/* Evolution Pluriannuelle */}
+                    <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
+                        <div
+                            className="p-5 bg-slate-900/50 flex justify-between items-center cursor-pointer hover:bg-slate-800/50 transition-colors"
+                            onClick={() => setShowEvolution(!showEvolution)}
+                        >
+                            <h3 className="font-bold text-white flex items-center gap-3">
+                                <LineChart className="w-5 h-5 text-indigo-400" />
+                                Évolution Pluriannuelle (N-1, N, N+1)
+                            </h3>
+                            <Eye className={cn("w-5 h-5 text-slate-500 transition-transform", showEvolution ? "rotate-180" : "")} />
+                        </div>
+
+                        {showEvolution && (
+                            <div className="p-6 space-y-6 animate-in slide-in-from-top-2 fade-in duration-300">
+                                <div className="grid grid-cols-3 gap-4">
+                                    {MOCK_YEARS.map((year, i) => (
+                                        <div key={i} className={cn(
+                                            "p-4 rounded-xl border",
+                                            i === 1 ? "bg-indigo-500/10 border-indigo-500/30" : "bg-slate-800/30 border-slate-700/30"
+                                        )}>
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Calendar className="w-4 h-4 text-slate-500" />
+                                                <span className="text-xs font-bold text-slate-400 uppercase">{year.year}</span>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <MetricRow label="CA (M FCFA)" value={year.ca.toString()} />
+                                                <MetricRow label="Résultat Net (M)" value={year.resultatNet.toString()} />
+                                                <MetricRow label="Fonds Propres" value={`${year.fondsPropresPct}%`} />
+                                                <MetricRow label="BFR (jours)" value={year.bfr.toString()} />
+                                                <MetricRow label="Trésorerie (M)" value={year.tresorerie.toString()} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Visual Trend */}
+                                <div className="p-6 bg-slate-800/30 rounded-xl border border-slate-700/30">
+                                    <h4 className="text-sm font-bold text-slate-400 mb-4 flex items-center gap-2">
+                                        <BarChart3 className="w-4 h-4" /> Tendance CA & Résultat Net
+                                    </h4>
+                                    <div className="flex items-end justify-between gap-4 h-32">
+                                        {MOCK_YEARS.map((year, i) => (
+                                            <div key={i} className="flex-1 flex flex-col items-center gap-2">
+                                                <div className="w-full flex flex-col gap-1">
+                                                    <div
+                                                        className="w-full bg-indigo-500 rounded-t transition-all hover:bg-indigo-400"
+                                                        style={{ height: `${(year.ca / 600) * 100}px` }}
+                                                    />
+                                                    <div
+                                                        className="w-full bg-emerald-500 rounded-t transition-all hover:bg-emerald-400"
+                                                        style={{ height: `${(year.resultatNet / 60) * 100}px` }}
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] text-slate-500 font-bold">{year.year.split(' ')[0]}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center justify-center gap-6 mt-4 text-xs">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 bg-indigo-500 rounded" />
+                                            <span className="text-slate-400">CA</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 bg-emerald-500 rounded" />
+                                            <span className="text-slate-400">Résultat Net</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Detailed Sections */}
                     <div className="space-y-4">
                         {MOCK_DIAGNOSTIC.map((section, idx) => (
@@ -257,6 +369,50 @@ export default function DiagnosticPage() {
 
                                 {expandedSection === idx && (
                                     <div className="p-6 space-y-6 animate-in slide-in-from-top-2 fade-in duration-300">
+                                        {/* Evolution Table */}
+                                        {section.evolution && (
+                                            <div className="bg-slate-800/30 rounded-xl border border-slate-700/30 overflow-hidden">
+                                                <div className="p-3 bg-slate-900/50 border-b border-slate-700/30">
+                                                    <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                                        <TrendingUp className="w-3 h-3" /> Évolution Comparative
+                                                    </h4>
+                                                </div>
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-sm">
+                                                        <thead>
+                                                            <tr className="border-b border-slate-700/30">
+                                                                <th className="text-left p-3 text-xs font-bold text-slate-500 uppercase">Indicateur</th>
+                                                                <th className="text-right p-3 text-xs font-bold text-slate-500 uppercase">N-1</th>
+                                                                <th className="text-right p-3 text-xs font-bold text-slate-500 uppercase">N</th>
+                                                                {section.evolution.some(e => e.n1Proj) && (
+                                                                    <th className="text-right p-3 text-xs font-bold text-slate-500 uppercase">N+1 (Proj.)</th>
+                                                                )}
+                                                                <th className="text-right p-3 text-xs font-bold text-slate-500 uppercase">Variation</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {section.evolution.map((evo, i) => (
+                                                                <tr key={i} className="border-b border-slate-800/30 hover:bg-slate-800/20">
+                                                                    <td className="p-3 text-slate-300 font-medium">{evo.label}</td>
+                                                                    <td className="p-3 text-right text-slate-400 font-mono">{evo.n1}</td>
+                                                                    <td className="p-3 text-right text-white font-mono font-bold">{evo.n}</td>
+                                                                    {evo.n1Proj && (
+                                                                        <td className="p-3 text-right text-indigo-400 font-mono">{evo.n1Proj}</td>
+                                                                    )}
+                                                                    <td className={cn(
+                                                                        "p-3 text-right font-bold font-mono",
+                                                                        evo.variation.includes("+") && !evo.variation.includes("Pénalités") ? "text-emerald-400" :
+                                                                            evo.variation.includes("-") || evo.variation.includes("critique") ? "text-rose-400" :
+                                                                                "text-slate-400"
+                                                                    )}>{evo.variation}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Metrics */}
                                         {section.metrics && (
                                             <div className="grid grid-cols-2 gap-4">
@@ -359,6 +515,15 @@ function QuickMetric({ icon: Icon, label, value, status }: any) {
                     status === "correct" ? "text-amber-400" :
                         "text-rose-400"
             )}>{value}</p>
+        </div>
+    );
+}
+
+function MetricRow({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-500">{label}</span>
+            <span className="text-white font-bold font-mono">{value}</span>
         </div>
     );
 }
