@@ -33,42 +33,36 @@ import {
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-    // 1. Pilotage & Stratégie
+    // 1. Cœur de Métier (Requested Order)
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/" },
-    { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
-    { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
-    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
-    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
-    { icon: DollarSign, label: "Levée de Fonds & Investisseurs", href: "/strategy/fundraising" },
-
-    // 2. Gestion de la Relation Client & Missions
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
-    { icon: LayoutDashboard, label: "Espace Client (Portail)", href: "/portal" },
-
-    // 3. Pôle Juridique & Conformité
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
-    { icon: PenTool, label: "Signatures Certifiées", href: "/signature" },
     { icon: ShieldAlert, label: "Audit & Conformité", href: "/audit" },
-
-    // 4. Pôle Financier & Social
-    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
     { icon: ArrowRightLeft, label: "Banque & Lettrage IA", href: "/banking" },
     { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
-    { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
-
-    // 5. Conseil Expert
-    { icon: Rocket, label: "Valorisation & M&A", href: "/investment" },
+    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
     { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
-
-    // 6. Outils Transverses & IA
-    { icon: FileText, label: "GED Intelligente", href: "/documents" },
-    { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
+    { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
+    { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
-    { icon: Workflow, label: "Pipeline & Autom.", href: "/workflows" },
+
+    // 2. Stratégie & Innovation IA
+    { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
+    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
+    { icon: DollarSign, label: "Levée de Fonds & Investisseurs", href: "/strategy/fundraising" },
+    { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
+    { icon: TrendingUp, label: "Pilotage Associé", href: "/dashboard/partner" },
+    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
+
+    // 3. Outils & Data
+    { icon: FileText, label: "GED Intelligente", href: "/documents" },
+    { icon: PenTool, label: "Signatures Certifiées", href: "/signature" },
+    { icon: LayoutDashboard, label: "Espace Client (Portail)", href: "/portal" },
     { icon: FileSpreadsheet, label: "Data Center & Éditions", href: "/data-center" },
     { icon: MessageSquare, label: "Communications Hub", href: "/communications" },
-    { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
+    { icon: Workflow, label: "Pipeline & Autom.", href: "/workflows" },
+    { icon: Rocket, label: "Valorisation & M&A", href: "/investment" },
 ];
 
 export function Sidebar() {
