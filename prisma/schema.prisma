@@ -1,0 +1,468 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION & USERS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  EXPERT
+  COLLABORATOR
+  CLIENT
+  ASSISTANT
+}
+
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole @default(COLLABORATOR)
+  phone         String?
+  avatar        String?
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  assignedMissions Mission[] @relation("AssignedTo")
+  createdMissions  Mission[] @relation("CreatedBy")
+  timeEntries      TimeEntry[]
+  meetings         Meeting[]
+  documents        Document[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+// ============================================
+// CLIENTS (CRM)
+// ============================================
+
+enum ClientType {
+  ENTREPRISE
+  PARTICULIER
+  ASSOCIATION
+}
+
+enum FiscalRegime {
+  REEL_NORMAL
+  REEL_SIMPLIFIE
+  CME
+  MICRO_ENTREPRISE
+}
+
+model Client {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  type              ClientType   @default(ENTREPRISE)
+  
+  // Identification
+  companyName       String?
+  firstName         String?
+  lastName          String?
+  email             String       @unique
+  phone             String
+  
+  // Identifiants OHADA
+  rccm              String?      // Registre Commerce
+  ninea             String?      // Sénégal
+  ifu               String?      // Bénin/CI
+  nif               String?      // Cameroun
+  
+  // Fiscal
+  fiscalRegime      FiscalRegime @default(REEL_NORMAL)
+  sector            String?      // Secteur d'activité
+  country           String       @default("CI") // CI, SN, CM, etc.
+  
+  // Adresse
+  address           String?
+  city              String?
+  postalCode        String?
+  
+  // Status
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  // Relations
+  missions          Mission[]
+  invoices          Invoice[]
+  documents         Document[]
+  meetings          Meeting[]
+  timeEntries       TimeEntry[]
+  declarations      TaxDeclaration[]
+  
+  @@map("clients")
+}
+
+// ============================================
+// MISSIONS & TASKS
+// ============================================
+
+enum MissionStatus {
+  DRAFT
+  IN_PROGRESS
+  PENDING_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum MissionType {
+  AUDIT
+  CONSEIL
+  TENUE_COMPTABLE
+  DECLARATION_FISCALE
+  PAIE
+  EXPERTISE_JUDICIAIRE
+  AUTRE
+}
+
+model Mission {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String?
+  type            MissionType
+  status          MissionStatus @default(DRAFT)
+  
+  // Dates
+  startDate       DateTime
+  endDate         DateTime?
+  deadline        DateTime?
+  
+  // Financial
+  estimatedHours  Float?
+  hourlyRate      Float?
+  fixedPrice      Float?
+  
+  // Relations
+  clientId        String        @db.ObjectId
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  assignedToId    String?       @db.ObjectId
+  assignedTo      User?         @relation("AssignedTo", fields: [assignedToId], references: [id])
+  
+  createdById     String        @db.ObjectId
+  createdBy       User          @relation("CreatedBy", fields: [createdById], references: [id])
+  
+  tasks           Task[]
+  timeEntries     TimeEntry[]
+  documents       Document[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("missions")
+}
+
+model Task {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String?
+  status          MissionStatus @default(DRAFT)
+  priority        Int           @default(1) // 1-5
+  
+  dueDate         DateTime?
+  completedAt     DateTime?
+  
+  missionId       String        @db.ObjectId
+  mission         Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("tasks")
+}
+
+// ============================================
+// TIME TRACKING
+// ============================================
+
+enum TimeEntryCategory {
+  PRODUCTION
+  CONSEIL
+  AUDIT
+  DEPLACEMENT
+  REUNION
+  AUTRE
+}
+
+enum TimeEntryStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  INVOICED
+}
+
+model TimeEntry {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  
+  date            DateTime
+  duration        Float             // En heures (ex: 2.5)
+  category        TimeEntryCategory @default(PRODUCTION)
+  status          TimeEntryStatus   @default(DRAFT)
+  description     String?
+  
+  // Relations
+  userId          String            @db.ObjectId
+  user            User              @relation(fields: [userId], references: [id])
+  
+  clientId        String?           @db.ObjectId
+  client          Client?           @relation(fields: [clientId], references: [id])
+  
+  missionId       String?           @db.ObjectId
+  mission         Mission?          @relation(fields: [missionId], references: [id])
+  
+  invoiceId       String?           @db.ObjectId
+  invoice         Invoice?          @relation(fields: [invoiceId], references: [id])
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@map("time_entries")
+}
+
+// ============================================
+// INVOICING & BILLING
+// ============================================
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber   String        @unique
+  
+  issueDate       DateTime      @default(now())
+  dueDate         DateTime
+  paidDate        DateTime?
+  
+  status          InvoiceStatus @default(DRAFT)
+  
+  // Amounts (en FCFA)
+  subtotal        Float
+  taxRate         Float         @default(18) // TVA 18% OHADA
+  taxAmount       Float
+  total           Float
+  
+  notes           String?
+  
+  // Relations
+  clientId        String        @db.ObjectId
+  client          Client        @relation(fields: [clientId], references: [id])
+  
+  timeEntries     TimeEntry[]
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("invoices")
+}
+
+// ============================================
+// DOCUMENTS & OCR
+// ============================================
+
+enum DocumentType {
+  FACTURE
+  RELEVE_BANCAIRE
+  CONTRAT
+  RAPPORT
+  DECLARATION
+  PIECE_IDENTITE
+  AUTRE
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  PROCESSED
+  ERROR
+}
+
+model Document {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  fileName        String
+  originalName    String
+  fileSize        Int
+  mimeType        String
+  fileUrl         String
+  
+  type            DocumentType   @default(AUTRE)
+  status          DocumentStatus @default(UPLOADED)
+  
+  // OCR Data
+  ocrData         Json?          // Données extraites par OCR
+  ocrProcessedAt  DateTime?
+  
+  // Relations
+  clientId        String?        @db.ObjectId
+  client          Client?        @relation(fields: [clientId], references: [id])
+  
+  missionId       String?        @db.ObjectId
+  mission         Mission?       @relation(fields: [missionId], references: [id])
+  
+  uploadedById    String         @db.ObjectId
+  uploadedBy      User           @relation(fields: [uploadedById], references: [id])
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  @@map("documents")
+}
+
+// ============================================
+// TAX DECLARATIONS
+// ============================================
+
+enum DeclarationType {
+  TVA
+  IS
+  IRPP
+  COTISATION_SOCIALE
+  AUTRE
+}
+
+enum DeclarationStatus {
+  DRAFT
+  PENDING
+  SUBMITTED
+  VALIDATED
+  REJECTED
+}
+
+model TaxDeclaration {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  type            DeclarationType
+  status          DeclarationStatus @default(DRAFT)
+  
+  period          String            // Ex: "2024-01" pour Janvier 2024
+  dueDate         DateTime
+  submittedDate   DateTime?
+  
+  amount          Float?
+  reference       String?           // Numéro de quittance
+  
+  // Relations
+  clientId        String            @db.ObjectId
+  client          Client            @relation(fields: [clientId], references: [id])
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@map("tax_declarations")
+}
+
+// ============================================
+// MEETINGS & AGENDA
+// ============================================
+
+enum MeetingType {
+  VIRTUELLE
+  PRESENTIEL
+}
+
+enum MeetingStatus {
+  PLANIFIE
+  TERMINE
+  ANNULE
+}
+
+model Meeting {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String?
+  
+  type            MeetingType   @default(VIRTUELLE)
+  status          MeetingStatus @default(PLANIFIE)
+  
+  startTime       DateTime
+  endTime         DateTime
+  location        String?
+  meetingUrl      String?       // Lien visio
+  
+  notes           String?
+  reportGenerated Boolean       @default(false)
+  
+  // Relations
+  clientId        String?       @db.ObjectId
+  client          Client?       @relation(fields: [clientId], references: [id])
+  
+  organizerId     String        @db.ObjectId
+  organizer       User          @relation(fields: [organizerId], references: [id])
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@map("meetings")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+}
+
+model Notification {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  type            NotificationType @default(INFO)
+  title           String
+  message         String
+  
+  isRead          Boolean          @default(false)
+  readAt          DateTime?
+  
+  userId          String           @db.ObjectId
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime         @default(now())
+  
+  @@map("notifications")
+}
+
+// ============================================
+// AUDIT LOGS
+// ============================================
+
+model AuditLog {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  action          String   // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity          String   // Client, Mission, Invoice, etc.
+  entityId        String?
+  details         String?  // Complementary info
+  
+  oldValue        Json?
+  newValue        Json?
+  
+  ipAddress       String?
+  userAgent       String?
+  
+  userId          String?  @db.ObjectId
+  user            User?    @relation(fields: [userId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("audit_logs")
+}

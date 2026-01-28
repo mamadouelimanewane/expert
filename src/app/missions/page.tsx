@@ -1,146 +1,156 @@
-"use client";
-
-import { useState } from "react";
+import prisma from "@/lib/prisma";
 import {
     CheckCircle2,
     Clock,
     AlertCircle,
     MoreVertical,
     Plus,
-    ArrowRight
+    ArrowRight,
+    Briefcase,
+    Calendar,
+    Search,
+    Filter
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Mission, Client, User } from "@prisma/client";
 
-type Priority = "Haute" | "Moyenne" | "Basse";
+type MissionWithRelations = Mission & { client: Client | null; assignedTo: User | null };
 
-interface Task {
-    id: string;
-    title: string;
-    client: string;
-    deadline: string;
-    priority: Priority;
-    tags: string[];
-}
+export default async function MissionsPage() {
+    // Récupération des missions de la DB
+    const missions = await prisma.mission.findMany({
+        include: {
+            client: true,
+            assignedTo: true
+        },
+        orderBy: {
+            deadline: 'asc'
+        }
+    });
 
-interface Column {
-    id: string;
-    title: string;
-    tasks: Task[];
-    color: string;
-}
+    // Organisation en colonnes pour le Kanban (statuts du schéma Prisma)
+    const columns = [
+        { id: "todo", title: "À Faire / Draft", color: "bg-slate-500", status: "DRAFT" },
+        { id: "in-progress", title: "En Cours", color: "bg-indigo-500", status: "IN_PROGRESS" },
+        { id: "review", title: "Révision Expert", color: "bg-amber-500", status: "PENDING_REVIEW" },
+        { id: "done", title: "Terminé / Archivé", color: "bg-emerald-500", status: "COMPLETED" }
+    ];
 
-const initialColumns: Column[] = [
-    {
-        id: "todo",
-        title: "À Faire / Reçu",
-        color: "bg-slate-500",
-        tasks: [
-            { id: "1", title: "Réception pièces comptables", client: "Traoré Import-Export", deadline: "Demain", priority: "Haute", tags: ["Saisie", "Juin"] },
-            { id: "2", title: "Questionnaire Onboarding", client: "Boulangerie du Plateau", deadline: "30 Juin", priority: "Moyenne", tags: ["Juridique"] },
-        ]
-    },
-    {
-        id: "in-progress",
-        title: "En Cours / Saisie",
-        color: "bg-indigo-500",
-        tasks: [
-            { id: "3", title: "Déclaration TVA Mensuelle", client: "Société Ivoirienne de Banque", deadline: "15 Juin", priority: "Haute", tags: ["Fiscal", "Urgent"] },
-        ]
-    },
-    {
-        id: "review",
-        title: "Révision Expert",
-        color: "bg-amber-500",
-        tasks: [
-            { id: "4", title: "Validation Liasse Fiscale", client: "Tech Solutions Bénin", deadline: "20 Juin", priority: "Haute", tags: ["Bilan", "2023"] },
-        ]
-    },
-    {
-        id: "done",
-        title: "Terminé / Archivé",
-        color: "bg-emerald-500",
-        tasks: [
-            { id: "5", title: "Lettre de Mission signée", client: "Boulangerie du Plateau", deadline: "-", priority: "Basse", tags: ["Administratif"] },
-        ]
-    }
-];
-
-export default function MissionsPage() {
-    const [columns, setColumns] = useState(initialColumns);
+    const getMissionsForStatus = (status: string) => {
+        return missions.filter((m: MissionWithRelations) => m.status === status);
+    };
 
     return (
-        <div className="h-[calc(100vh-8rem)] flex flex-col gap-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
+        <div className="h-[calc(100vh-8rem)] flex flex-col gap-8 animate-in fade-in duration-700">
+            {/* Header Premium */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">Missions & Tâches</h2>
-                    <p className="text-slate-400 mt-1">Suivi de la production et des échéances du cabinet.</p>
+                    <h2 className="text-4xl font-black text-white tracking-tighter flex items-center gap-3">
+                        <Briefcase className="w-10 h-10 text-indigo-500" />
+                        Management des Missions
+                    </h2>
+                    <p className="text-slate-400 mt-1 font-medium">Pilotage de la production comptable et suivi des échéances légales.</p>
                 </div>
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Nouvelle Tâche
-                </button>
+
+                <div className="flex gap-4 w-full sm:w-auto">
+                    <div className="relative flex-1 sm:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher une mission..."
+                            className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-2xl text-sm text-white focus:border-indigo-500 outline-none transition-all shadow-inner"
+                        />
+                    </div>
+                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 active:scale-95">
+                        <Plus className="w-5 h-5" />
+                        Nouvelle Misson
+                    </button>
+                </div>
             </div>
 
-            {/* Kanban Board */}
-            <div className="flex-1 overflow-x-auto pb-4">
-                <div className="flex gap-6 h-full min-w-[1000px]">
-                    {columns.map((col) => (
-                        <div key={col.id} className="w-80 flex flex-col gap-4">
-                            {/* Column Header */}
-                            <div className="flex items-center justify-between px-2">
-                                <div className="flex items-center gap-2">
-                                    <div className={cn("w-3 h-3 rounded-full", col.color)} />
-                                    <h3 className="font-bold text-slate-200">{col.title}</h3>
-                                    <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{col.tasks.length}</span>
+            {/* Kanban Board Container */}
+            <div className="flex-1 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                <div className="flex gap-6 h-full min-w-[1200px]">
+                    {columns.map((col) => {
+                        const colMissions = getMissionsForStatus(col.status);
+
+                        return (
+                            <div key={col.id} className="w-80 flex flex-col gap-5">
+                                {/* Column Header */}
+                                <div className="flex items-center justify-between px-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className={cn("w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]", col.color)} />
+                                        <h3 className="font-black text-slate-200 uppercase tracking-widest text-[11px]">{col.title}</h3>
+                                        <span className="text-[10px] font-black text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-lg border border-white/5">{colMissions.length}</span>
+                                    </div>
+                                    <button className="p-1.5 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
+                                        <MoreVertical className="w-4 h-4" />
+                                    </button>
                                 </div>
-                                <button className="text-slate-500 hover:text-white">
-                                    <Plus className="w-4 h-4" />
-                                </button>
-                            </div>
 
-                            {/* Tasks List */}
-                            <div className="flex-1 bg-slate-900/40 rounded-xl p-2 space-y-3 overflow-y-auto border border-slate-800/50">
-                                {col.tasks.map((task) => (
-                                    <div key={task.id} className="group p-4 bg-slate-800/80 hover:bg-slate-700/80 rounded-xl border border-slate-700/50 hover:border-indigo-500/30 cursor-grab active:cursor-grabbing transition-all shadow-sm">
-                                        {/* Tags */}
-                                        <div className="flex flex-wrap gap-2 mb-3">
-                                            {task.tags.map(tag => (
-                                                <span key={tag} className="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
+                                {/* Tasks List */}
+                                <div className="flex-1 bg-slate-900/40 rounded-[32px] p-3 space-y-4 overflow-y-auto border border-white/5 shadow-inner backdrop-blur-sm">
+                                    {colMissions.length > 0 ? colMissions.map((mission: MissionWithRelations) => (
+                                        <div key={mission.id} className="group p-5 bg-slate-800/50 hover:bg-slate-800/80 rounded-2xl border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all shadow-lg hover:shadow-indigo-500/10 relative overflow-hidden">
+                                            {/* Accent Gradient */}
+                                            <div className={cn("absolute top-0 left-0 w-1 h-full opacity-50", col.color)} />
 
-                                        <h4 className="font-semibold text-slate-200 mb-1 group-hover:text-indigo-300 transition-colors">{task.title}</h4>
-                                        <p className="text-sm text-slate-500 mb-4">{task.client}</p>
-
-                                        <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
-                                            <div className="flex items-center gap-1.5 text-xs font-medium text-amber-500">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                {task.deadline}
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 text-[8px] font-black uppercase tracking-widest border border-indigo-500/20">
+                                                        #{mission.id.slice(-4)}
+                                                    </span>
+                                                </div>
+                                                <button className="text-slate-600 hover:text-white transition-colors">
+                                                    <MoreVertical className="w-4 h-4" />
+                                                </button>
                                             </div>
 
-                                            <div className="flex items-center gap-2">
-                                                {task.priority === "Haute" && <AlertCircle className="w-4 h-4 text-rose-500" />}
-                                                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-[10px] flex items-center justify-center text-white font-bold">
-                                                    EX
+                                            <h4 className="font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors text-sm sm:text-base leading-tight">{mission.title}</h4>
+                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5">
+                                                <div className="w-1 h-1 bg-slate-600 rounded-full" />
+                                                {mission.client?.companyName}
+                                            </p>
+
+                                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                                <div className={cn(
+                                                    "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider",
+                                                    mission.deadline && new Date(mission.deadline) < new Date() ? "text-rose-400" : "text-amber-400"
+                                                )}>
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    {mission.deadline ? format(new Date(mission.deadline), 'dd MMM yyyy', { locale: fr }) : 'Pas d\'échéance'}
+                                                </div>
+
+                                                <div className="flex -space-x-2">
+                                                    <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-[8px] font-black text-white shadow-xl">
+                                                        {mission.assignedTo?.firstName?.[0] || 'A'}
+                                                    </div>
+                                                    <div className="w-7 h-7 rounded-full bg-indigo-600 border-2 border-slate-800 flex items-center justify-center text-[8px] font-black text-white shadow-xl">
+                                                        AI
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )) : (
+                                        <div className="h-32 border-2 border-dashed border-slate-800/50 rounded-[28px] flex flex-col items-center justify-center text-slate-600 gap-2">
+                                            <Briefcase className="w-6 h-6 opacity-20" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Aucun dossier</span>
+                                        </div>
+                                    )}
 
-                                {col.tasks.length === 0 && (
-                                    <div className="h-24 border-2 border-dashed border-slate-800 rounded-xl flex items-center justify-center text-slate-600 text-sm">
-                                        Aucune tâche
-                                    </div>
-                                )}
+                                    {/* Quick Add Button at bottom of column */}
+                                    <button className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-400 hover:bg-white/5 transition-all">
+                                        + Ajouter une étape
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
     );
 }
+

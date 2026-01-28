@@ -195,7 +195,13 @@ export function Sidebar() {
                             <p className="text-xs font-bold text-foreground truncate">Expert Principal</p>
                             <p className="text-[10px] text-muted-foreground truncate">admin@cabinet.com</p>
                         </div>
-                        <button className="text-muted-foreground hover:text-red-400 transition-colors">
+                        <button
+                            onClick={async () => {
+                                await fetch("/api/auth/logout", { method: "POST" });
+                                window.location.href = "/login";
+                            }}
+                            className="text-muted-foreground hover:text-red-400 transition-colors"
+                        >
                             <LogOut className="w-4 h-4" />
                         </button>
                     </div>
