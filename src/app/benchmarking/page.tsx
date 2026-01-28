@@ -41,22 +41,26 @@ export default function BenchmarkingPage() {
 
     return (
         <div className="space-y-6 pb-20">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        <Globe className="w-8 h-8 text-cyan-400" />
-                        Benchmarking & Intelligence Sectorielle
-                    </h2>
-                    <p className="text-slate-400 mt-1">Comparez les performances de votre client avec les moyennes du marché OHADA.</p>
+            <div className="flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                    <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
+                        <Globe className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                            Benchmarking & Intelligence
+                        </h2>
+                        <p className="text-slate-400 mt-1 text-sm sm:text-base">Comparez les performances avec les moyennes du marché OHADA.</p>
+                    </div>
                 </div>
 
-                <div className="flex gap-3">
-                    <div className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                    <div className="bg-slate-800 border border-slate-700 rounded-xl px-3 sm:px-4 py-2 flex items-center gap-2">
                         <Compass className="w-4 h-4 text-cyan-400" />
                         <select
                             value={sector}
                             onChange={(e) => setSector(e.target.value)}
-                            className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer"
+                            className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer flex-1"
                         >
                             <option>Commerce / Distribution</option>
                             <option>Industrie / Manufacture</option>
@@ -64,12 +68,12 @@ export default function BenchmarkingPage() {
                             <option>Agriculture / Agro</option>
                         </select>
                     </div>
-                    <div className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 flex items-center gap-2">
+                    <div className="bg-slate-800 border border-slate-700 rounded-xl px-3 sm:px-4 py-2 flex items-center gap-2">
                         <Target className="w-4 h-4 text-rose-500" />
                         <select
                             value={region}
                             onChange={(e) => setRegion(e.target.value)}
-                            className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer"
+                            className="bg-transparent text-white text-xs font-bold outline-none cursor-pointer flex-1"
                         >
                             <option>Côte d'Ivoire (UEMOA)</option>
                             <option>Sénégal (UEMOA)</option>
@@ -81,25 +85,25 @@ export default function BenchmarkingPage() {
             </div>
 
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="glass-card rounded-3xl p-8 border border-slate-700/50 bg-slate-900/30">
-                        <div className="flex justify-between items-center mb-10">
-                            <h3 className="font-bold text-white text-lg">Indicateurs de Performance Comparés</h3>
-                            <button className="text-xs text-cyan-400 font-bold hover:underline flex items-center gap-2">
-                                <Zap className="w-3 h-3" /> Mettre à jour les données sectorielles
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+                    <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-700/50 bg-slate-900/30">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-10 gap-3">
+                            <h3 className="font-bold text-white text-base sm:text-lg">Indicateurs de Performance Comparés</h3>
+                            <button className="text-xs text-cyan-400 font-bold hover:underline flex items-center gap-2 whitespace-nowrap">
+                                <Zap className="w-3 h-3" /> <span className="hidden sm:inline">Mettre à jour les données</span><span className="sm:hidden">MAJ</span>
                             </button>
                         </div>
 
-                        <div className="space-y-8">
+                        <div className="space-y-6 sm:space-y-8">
                             {MOCK_BENCHMARK.map((item, i) => (
-                                <div key={i} className="space-y-3 group cursor-pointer">
-                                    <div className="flex justify-between items-end">
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{item.indicator}</p>
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <span className="text-2xl font-bold text-white">{item.clientValue}</span>
-                                                <span className="text-xs text-slate-500">vs {item.sectorAvg} (Secteur)</span>
+                                <div key={i} className="space-y-2 sm:space-y-3 group cursor-pointer">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
+                                        <div className="flex-1">
+                                            <p className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest">{item.indicator}</p>
+                                            <div className="flex items-center gap-3 sm:gap-4 mt-1">
+                                                <span className="text-xl sm:text-2xl font-bold text-white">{item.clientValue}</span>
+                                                <span className="text-[10px] sm:text-xs text-slate-500">vs {item.sectorAvg} (Secteur)</span>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -126,8 +130,8 @@ export default function BenchmarkingPage() {
                 </div>
 
                 {/* AI Strategic Intelligence Panel */}
-                <div className="space-y-6">
-                    <div className="glass-card p-6 rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-cyan-900/20">
+                <div className="space-y-4 sm:space-y-6">
+                    <div className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-cyan-900/20">
                         <h3 className="text-white font-bold flex items-center gap-2 mb-6">
                             <Sparkles className="w-5 h-5 text-cyan-400" />
                             Intelligence Marché (IA)
@@ -147,12 +151,12 @@ export default function BenchmarkingPage() {
                             </div>
                         </div>
 
-                        <button className="w-full mt-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-cyan-600/20 transition-all flex items-center justify-center gap-2">
+                        <button className="w-full mt-6 sm:mt-8 py-2.5 sm:py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs sm:text-sm shadow-lg shadow-cyan-600/20 transition-all flex items-center justify-center gap-2">
                             Générer Rapport de Benchmarking
                         </button>
                     </div>
 
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50">
+                    <div className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-700/50 bg-slate-900/50">
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
                             <BarChart3 className="w-4 h-4" /> Positionnement Global
                         </h4>

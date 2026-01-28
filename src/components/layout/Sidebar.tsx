@@ -34,7 +34,8 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useTheme } from "@/context/ThemeContext";
-import { Moon, Sun, Monitor, Palette } from "lucide-react";
+import { Moon, Sun, Monitor, Palette, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const menuItems = [
     // 1. Cœur de Métier (Requested Order)
@@ -70,95 +71,137 @@ const menuItems = [
 export function Sidebar() {
     const pathname = usePathname();
     const { theme, setTheme } = useTheme();
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Close sidebar on navigation (mobile)
+    useEffect(() => {
+        setIsOpen(false);
+    }, [pathname]);
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border/50 flex flex-col z-50 transition-all duration-300">
-            {/* Logo */}
-            <div className="p-6 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <span className="font-bold text-white text-lg">C</span>
+        <>
+            {/* Mobile Header / Toggle */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-card border-b border-border/50 flex items-center justify-between px-6 z-[60]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                        <span className="font-bold text-white text-lg">C</span>
+                    </div>
+                    <h1 className="text-lg font-bold">CABINET 360</h1>
                 </div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-slate-400">
-                    CABINET 360
-                </h1>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                {menuItems.map((item, idx) => {
-                    const Icon = item.icon;
-                    const isActive = pathname === item.href;
-
-                    return (
-                        <Link
-                            key={`${item.href}-${idx}`}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
-                                isActive
-                                    ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                            )}
-                        >
-                            {isActive && (
-                                <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full sidebar-active-indicator" />
-                            )}
-                            <Icon className={cn("w-5 h-5 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
-                            <span className="font-medium text-sm">{item.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* Footer / Settings & Theme Swapper */}
-            <div className="p-4 sidebar-footer space-y-4 transition-colors duration-300">
-                {/* Theme Switcher UI */}
-                <div className="flex items-center justify-between px-2 py-2 bg-background/50 rounded-xl border border-border/50">
-                    <button
-                        onClick={() => setTheme('dark')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'dark' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
-                        title="Mode Sombre"
-                    >
-                        <Moon className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => setTheme('light')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'light' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
-                        title="Mode Clair"
-                    >
-                        <Sun className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => setTheme('corporate')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'corporate' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
-                        title="Mode Corporate"
-                    >
-                        <Building className="w-4 h-4" />
-                    </button>
-                </div>
-
-                <Link
-                    href="/settings"
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="p-2 rounded-xl bg-primary/10 text-primary"
                 >
-                    <Settings className="w-5 h-5" />
-                    <span className="font-medium text-sm">Paramètres</span>
-                </Link>
+                    {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+            </div>
 
-                <div className="pt-2 border-t border-border/30 flex items-center gap-3 px-2">
-                    <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center">
-                        <span className="font-bold text-xs text-muted-foreground uppercase">EX</span>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] lg:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            <aside className={cn(
+                "fixed left-0 top-0 h-screen w-64 glass border-r border-border/50 flex flex-col z-[58] transition-all duration-300 lg:translate-x-0",
+                isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+            )}>
+                {/* Logo Section (Desktop only or keep for mobile drawer) */}
+                <div className="p-6 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <span className="font-bold text-white text-lg">C</span>
                     </div>
-                    <div className="flex-1 overflow-hidden">
-                        <p className="text-xs font-bold text-foreground truncate">Expert Principal</p>
-                        <p className="text-[10px] text-muted-foreground truncate">admin@cabinet.com</p>
-                    </div>
-                    <button className="text-muted-foreground hover:text-red-400 transition-colors">
-                        <LogOut className="w-4 h-4" />
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-slate-400">
+                        CABINET 360
+                    </h1>
+                    {/* Close button inside sidebar for mobile */}
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="lg:hidden ml-auto p-1 text-muted-foreground"
+                    >
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
-            </div>
-        </aside>
+
+                {/* Navigation */}
+                <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+                    {menuItems.map((item, idx) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+
+                        return (
+                            <Link
+                                key={`${item.href}-${idx}`}
+                                href={item.href}
+                                className={cn(
+                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                                    isActive
+                                        ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                )}
+                            >
+                                {isActive && (
+                                    <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full sidebar-active-indicator" />
+                                )}
+                                <Icon className={cn("w-5 h-5 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
+                                <span className="font-medium text-sm">{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* Footer / Settings & Theme Swapper */}
+                <div className="p-4 sidebar-footer space-y-4 transition-colors duration-300">
+                    {/* Theme Switcher UI */}
+                    <div className="flex items-center justify-between px-2 py-2 bg-background/50 rounded-xl border border-border/50">
+                        <button
+                            onClick={() => setTheme('dark')}
+                            className={cn("p-2 rounded-lg transition-all", theme === 'dark' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
+                            title="Mode Sombre"
+                        >
+                            <Moon className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setTheme('light')}
+                            className={cn("p-2 rounded-lg transition-all", theme === 'light' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
+                            title="Mode Clair"
+                        >
+                            <Sun className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => setTheme('corporate')}
+                            className={cn("p-2 rounded-lg transition-all", theme === 'corporate' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
+                            title="Mode Corporate"
+                        >
+                            <Building className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <Link
+                        href="/settings"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                    >
+                        <Settings className="w-5 h-5" />
+                        <span className="font-medium text-sm">Paramètres</span>
+                    </Link>
+
+                    <div className="pt-2 border-t border-border/30 flex items-center gap-3 px-2">
+                        <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center">
+                            <span className="font-bold text-xs text-muted-foreground uppercase">EX</span>
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-xs font-bold text-foreground truncate">Expert Principal</p>
+                            <p className="text-[10px] text-muted-foreground truncate">admin@cabinet.com</p>
+                        </div>
+                        <button className="text-muted-foreground hover:text-red-400 transition-colors">
+                            <LogOut className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </>
     );
 }
 
