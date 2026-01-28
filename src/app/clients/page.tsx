@@ -72,30 +72,6 @@ export default function ClientsPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
-            {/* Header Premium */}
-            <div className="relative p-6 sm:p-10 rounded-2xl sm:rounded-[50px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-20 opacity-5 bg-indigo-500 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-10">
-                    <div className="flex-1">
-                        <div className="flex items-center gap-4 sm:gap-5 mb-4">
-                            <div className="p-3 sm:p-4 bg-blue-600 rounded-xl sm:rounded-[24px] shadow-2xl shadow-blue-600/30">
-                                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                            </div>
-                            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tighter">Portefeuille Clients 360°</h2>
-                        </div>
-                        <p className="text-slate-400 text-sm sm:text-lg max-w-2xl font-medium leading-relaxed">
-                            Gestion centralisée des tiers, scoring de risque KYC et opportunités de cross-selling.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                        <KPICard label="Revenus Récurrents" value="34.2M" trend="+12%" icon={TrendingUp} color="text-emerald-400" />
-                        <KPICard label="Clients Actifs" value={clients.length.toString()} trend="+3" icon={Activity} color="text-indigo-400" />
-                    </div>
-                </div>
-            </div>
-
             {/* Actions & Fitlers */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
                 <div className="flex gap-2 p-1 bg-slate-900 border border-white/10 rounded-2xl self-start sm:self-auto">
