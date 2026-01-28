@@ -293,6 +293,26 @@ export default function ClientsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Bandeau de synthèse bas de page */}
+            <div className="relative p-8 sm:p-12 rounded-[40px] bg-gradient-to-br from-slate-900 to-indigo-950/30 border border-white/5 overflow-hidden shadow-2xl mt-12 animate-in slide-in-from-bottom-10 duration-1000">
+                <div className="absolute -bottom-10 -left-10 p-20 opacity-10 bg-indigo-500 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
+                    <div className="text-center lg:text-left">
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-2">Portefeuille Clients 360°</h2>
+                        <p className="text-slate-400 text-sm sm:text-base max-w-xl font-medium">
+                            Gestion centralisée des tiers, scoring de risque KYC et opportunités de cross-selling.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap justify-center lg:justify-end gap-4 w-full lg:w-auto">
+                        <KPICard label="Revenus Récurrents" value="34.2M" trend="+12%" icon={TrendingUp} color="text-emerald-400" />
+                        <KPICard label="Clients Actifs" value="42" trend="+3" icon={Activity} color="text-indigo-400" />
+                        <KPICard label="Risque Churn" value="2" trend="stable" icon={AlertCircle} color="text-rose-400" />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
