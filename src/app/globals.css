@@ -56,52 +56,114 @@
   }
 }
 
-/* Utilities via standard CSS classes or @utility in v4 (keeping it simple with classes for now) */
+/* Utilities via standard CSS classes */
 .glass {
-  background: rgba(30, 41, 59, 0.7);
+  background: var(--sidebar-bg);
   backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid var(--sidebar-border);
 }
 
 .glass-card {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--sidebar-border);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-:root {
+:root,
+.dark {
   --background: #0f172a;
   /* Slate 900 */
   --foreground: #f8fafc;
   /* Slate 50 */
-
   --card: #1e293b;
   --card-foreground: #f8fafc;
-
   --primary: #6366f1;
   /* Indigo 500 */
   --primary-foreground: #ffffff;
-
   --secondary: #0f172a;
   --secondary-foreground: #f8fafc;
-
   --muted: #334155;
   --muted-foreground: #94a3b8;
-
   --accent: #06b6d4;
   /* Cyan 500 */
   --accent-foreground: #ffffff;
-
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
   --border: #334155;
   --input: #334155;
   --ring: #6366f1;
+  --sidebar-bg: rgba(30, 41, 59, 0.7);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --card-bg: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+}
+
+.light {
+  --background: #f8fafc;
+  /* Slate 50 */
+  --foreground: #0f172a;
+  /* Slate 900 */
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --primary: #4f46e5;
+  /* Indigo 600 */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #0891b2;
+  /* Cyan 600 */
+  --accent-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #4f46e5;
+  --sidebar-bg: rgba(255, 255, 255, 0.8);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --card-bg: #ffffff;
+}
+
+.corporate {
+  --background: #f3f4f6;
+  /* Gray 100 */
+  --foreground: #111827;
+  /* Gray 900 */
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+  --primary: #1e3a8a;
+  /* Blue 900 (Deep Corporate) */
+  --primary-foreground: #ffffff;
+  --secondary: #e5e7eb;
+  --secondary-foreground: #1f2937;
+  --muted: #d1d5db;
+  --muted-foreground: #6b7280;
+  --accent: #0369a1;
+  /* Sky 700 */
+  --accent-foreground: #ffffff;
+  --border: #d1d5db;
+  --input: #d1d5db;
+  --ring: #1e3a8a;
+  --sidebar-bg: #1e3a8a;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --card-bg: #ffffff;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.corporate .glass {
+  background: var(--sidebar-bg);
+  backdrop-filter: none;
+  border-right: none;
+}
+
+.corporate .glass h1,
+.corporate .glass span,
+.corporate .glass p {
+  color: white !important;
+}
+
+.corporate .glass .text-slate-400 {
+  color: rgba(255, 255, 255, 0.7) !important;
 }
