@@ -1,4 +1,5 @@
 "use client";
+// Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
 import {
@@ -278,7 +279,7 @@ export default function ClientsPage() {
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
                     <div className="text-center lg:text-left">
-                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-2">Portefeuille Clients 360°</h2>
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-2">⭐ Portefeuille Clients 360°</h2>
                         <p className="text-slate-400 text-sm sm:text-base max-w-xl font-medium">
                             Gestion centralisée des tiers, scoring de risque KYC et opportunités de cross-selling.
                         </p>
