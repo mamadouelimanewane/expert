@@ -100,49 +100,48 @@
 }
 
 .light {
-  --background: #f1f5f9;
-  /* Slate 100 - softer than white */
-  --foreground: #0f172a;
-  /* Slate 900 */
+  --background: #f8fafc;
+  /* Lighter background */
+  --foreground: #020617;
+  /* Very dark slate 950 */
   --card: #ffffff;
-  --card-foreground: #1e293b;
-  --primary: #4f46e5;
-  /* Indigo 600 */
+  --card-foreground: #0f172a;
+  --primary: #4338ca;
+  /* Indigo 700 */
   --primary-foreground: #ffffff;
-  --secondary: #e2e8f0;
-  --secondary-foreground: #1e293b;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
   --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #0891b2;
-  /* Cyan 600 */
+  --muted-foreground: #334155;
+  /* Much darker muted text */
+  --accent: #0e7490;
+  /* Cyan 700 */
   --accent-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
+  --border: #e2e8f0;
   --input: #ffffff;
-  --ring: #4f46e5;
+  --ring: #4338ca;
   --sidebar-bg: #ffffff;
-  --sidebar-border: rgba(0, 0, 0, 0.05);
-  --sidebar-text: #1e293b;
-  --sidebar-active-bg: rgba(79, 70, 229, 0.08);
+  --sidebar-border: #e2e8f0;
+  --sidebar-text: #0f172a;
+  --sidebar-active-bg: rgba(67, 56, 202, 0.1);
   --card-bg: #ffffff;
-  --footer-bg: #f8fafc;
+  --footer-bg: #f1f5f9;
 }
 
 .corporate {
-  --background: #f8fafc;
-  /* Slate 50 */
-  --foreground: #1e2937;
-  /* Gray 800 */
+  --background: #f3f4f6;
+  --foreground: #030712;
+  /* Black-ish */
   --card: #ffffff;
-  --card-foreground: #111827;
+  --card-foreground: #030712;
   --primary: #1e3a8a;
-  /* Deep Navy */
   --primary-foreground: #ffffff;
   --secondary: #cbd5e1;
   --secondary-foreground: #1e3a8a;
   --muted: #e5e7eb;
-  --muted-foreground: #4b5563;
-  --accent: #0369a1;
-  /* Sky 700 */
+  --muted-foreground: #1f2937;
+  /* Dark text for muted */
+  --accent: #075985;
   --accent-foreground: #ffffff;
   --border: #cbd5e1;
   --input: #ffffff;
@@ -151,9 +150,9 @@
   /* Solid Navy Sidebar */
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-text: #ffffff;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-active-bg: rgba(255, 255, 255, 0.15);
   --card-bg: #ffffff;
-  --footer-bg: #1a365d;
+  --footer-bg: #1e3a8a;
 }
 
 body {
@@ -187,9 +186,42 @@ body {
 }
 
 .light .glass {
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.02);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
 }
 
 .light .glass-card {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Global contrast fix for secondary text in light modes */
+.light .text-slate-400,
+.corporate .text-slate-400,
+.light .text-slate-500,
+.corporate .text-slate-500 {
+  color: #334155 !important;
+  /* Dark Slate 700 */
+}
+
+.light .text-slate-600,
+.corporate .text-slate-600 {
+  color: #1e293b !important;
+  /* Dark Slate 800 */
+}
+
+/* Fix for descriptions that might be too faint */
+.light p.text-slate-400,
+.corporate p.text-slate-400 {
+  color: #475569 !important;
+}
+
+/* Ensure headings are always dark in light themes */
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.corporate h1,
+.corporate h2,
+.corporate h3,
+.corporate h4 {
+  color: var(--foreground) !important;
 }
