@@ -81,24 +81,27 @@
   --primary: #6366f1;
   /* Indigo 500 */
   --primary-foreground: #ffffff;
-  --secondary: #0f172a;
+  --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
   --muted: #334155;
   --muted-foreground: #94a3b8;
   --accent: #06b6d4;
   /* Cyan 500 */
   --accent-foreground: #ffffff;
-  --border: #334155;
+  --border: rgba(255, 255, 255, 0.1);
   --input: #334155;
   --ring: #6366f1;
-  --sidebar-bg: rgba(30, 41, 59, 0.7);
+  --sidebar-bg: rgba(15, 23, 42, 0.8);
   --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-text: #f8fafc;
+  --sidebar-active-bg: rgba(99, 102, 241, 0.15);
   --card-bg: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+  --footer-bg: rgba(15, 23, 42, 0.5);
 }
 
 .light {
-  --background: #f8fafc;
-  /* Slate 50 */
+  --background: #f1f5f9;
+  /* Slate 100 - softer than white */
   --foreground: #0f172a;
   /* Slate 900 */
   --card: #ffffff;
@@ -106,64 +109,87 @@
   --primary: #4f46e5;
   /* Indigo 600 */
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
+  --secondary: #e2e8f0;
   --secondary-foreground: #1e293b;
-  --muted: #e2e8f0;
+  --muted: #f1f5f9;
   --muted-foreground: #64748b;
   --accent: #0891b2;
   /* Cyan 600 */
   --accent-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: #ffffff;
   --ring: #4f46e5;
-  --sidebar-bg: rgba(255, 255, 255, 0.8);
-  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-bg: #ffffff;
+  --sidebar-border: rgba(0, 0, 0, 0.05);
+  --sidebar-text: #1e293b;
+  --sidebar-active-bg: rgba(79, 70, 229, 0.08);
   --card-bg: #ffffff;
+  --footer-bg: #f8fafc;
 }
 
 .corporate {
-  --background: #f3f4f6;
-  /* Gray 100 */
-  --foreground: #111827;
-  /* Gray 900 */
+  --background: #f8fafc;
+  /* Slate 50 */
+  --foreground: #1e2937;
+  /* Gray 800 */
   --card: #ffffff;
-  --card-foreground: #1f2937;
+  --card-foreground: #111827;
   --primary: #1e3a8a;
-  /* Blue 900 (Deep Corporate) */
+  /* Deep Navy */
   --primary-foreground: #ffffff;
-  --secondary: #e5e7eb;
-  --secondary-foreground: #1f2937;
-  --muted: #d1d5db;
-  --muted-foreground: #6b7280;
+  --secondary: #cbd5e1;
+  --secondary-foreground: #1e3a8a;
+  --muted: #e5e7eb;
+  --muted-foreground: #4b5563;
   --accent: #0369a1;
   /* Sky 700 */
   --accent-foreground: #ffffff;
-  --border: #d1d5db;
-  --input: #d1d5db;
+  --border: #cbd5e1;
+  --input: #ffffff;
   --ring: #1e3a8a;
   --sidebar-bg: #1e3a8a;
+  /* Solid Navy Sidebar */
   --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-text: #ffffff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
   --card-bg: #ffffff;
+  --footer-bg: #1a365d;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
+.sidebar-link-active {
+  background-color: var(--sidebar-active-bg);
+  color: var(--primary);
+}
+
+.sidebar-footer {
+  background-color: var(--footer-bg);
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* Override for light/corporate to avoid dark-theme specific hardcoded utility clashes */
+.light .glass,
 .corporate .glass {
-  background: var(--sidebar-bg);
   backdrop-filter: none;
-  border-right: none;
 }
 
-.corporate .glass h1,
-.corporate .glass span,
-.corporate .glass p {
+.corporate .glass * {
   color: white !important;
 }
 
-.corporate .glass .text-slate-400 {
-  color: rgba(255, 255, 255, 0.7) !important;
+.corporate .glass .sidebar-active-indicator {
+  background-color: white !important;
+}
+
+.light .glass {
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.02);
+}
+
+.light .glass-card {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
 }

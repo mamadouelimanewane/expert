@@ -72,7 +72,7 @@ export function Sidebar() {
     const { theme, setTheme } = useTheme();
 
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-slate-700/50 flex flex-col z-50">
+        <aside className="fixed left-0 top-0 h-screen w-64 glass border-r border-border/50 flex flex-col z-50 transition-all duration-300">
             {/* Logo */}
             <div className="p-6 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -96,12 +96,12 @@ export function Sidebar() {
                             className={cn(
                                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
                                 isActive
-                                    ? "bg-primary/10 text-primary shadow-lg shadow-indigo-500/10 border border-primary/20"
-                                    : "text-slate-400 hover:text-foreground hover:bg-slate-800/50"
+                                    ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                             )}
                         >
                             {isActive && (
-                                <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full" />
+                                <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full sidebar-active-indicator" />
                             )}
                             <Icon className={cn("w-5 h-5 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
                             <span className="font-medium text-sm">{item.label}</span>
@@ -111,26 +111,26 @@ export function Sidebar() {
             </nav>
 
             {/* Footer / Settings & Theme Swapper */}
-            <div className="p-4 border-t border-border/50 space-y-4 bg-slate-900/40">
+            <div className="p-4 sidebar-footer space-y-4 transition-colors duration-300">
                 {/* Theme Switcher UI */}
-                <div className="flex items-center justify-between px-2">
+                <div className="flex items-center justify-between px-2 py-2 bg-background/50 rounded-xl border border-border/50">
                     <button
                         onClick={() => setTheme('dark')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'dark' ? "bg-slate-800 text-indigo-400" : "text-slate-500 hover:bg-slate-800/50")}
+                        className={cn("p-2 rounded-lg transition-all", theme === 'dark' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
                         title="Mode Sombre"
                     >
                         <Moon className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => setTheme('light')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'light' ? "bg-slate-200 text-indigo-600" : "text-slate-500 hover:bg-slate-800/50")}
+                        className={cn("p-2 rounded-lg transition-all", theme === 'light' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
                         title="Mode Clair"
                     >
                         <Sun className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => setTheme('corporate')}
-                        className={cn("p-2 rounded-lg transition-all", theme === 'corporate' ? "bg-indigo-900/50 text-white" : "text-slate-500 hover:bg-slate-800/50")}
+                        className={cn("p-2 rounded-lg transition-all", theme === 'corporate' ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:bg-muted")}
                         title="Mode Corporate"
                     >
                         <Building className="w-4 h-4" />
@@ -139,21 +139,21 @@ export function Sidebar() {
 
                 <Link
                     href="/settings"
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-foreground hover:bg-slate-800/50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                 >
                     <Settings className="w-5 h-5" />
                     <span className="font-medium text-sm">Paramètres</span>
                 </Link>
 
                 <div className="pt-2 border-t border-border/30 flex items-center gap-3 px-2">
-                    <div className="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center">
-                        <span className="font-bold text-xs text-slate-300">EX</span>
+                    <div className="w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center">
+                        <span className="font-bold text-xs text-muted-foreground uppercase">EX</span>
                     </div>
                     <div className="flex-1 overflow-hidden">
                         <p className="text-xs font-bold text-foreground truncate">Expert Principal</p>
-                        <p className="text-[10px] text-slate-500 truncate">admin@cabinet.com</p>
+                        <p className="text-[10px] text-muted-foreground truncate">admin@cabinet.com</p>
                     </div>
-                    <button className="text-slate-400 hover:text-red-400 transition-colors">
+                    <button className="text-muted-foreground hover:text-red-400 transition-colors">
                         <LogOut className="w-4 h-4" />
                     </button>
                 </div>
@@ -161,3 +161,4 @@ export function Sidebar() {
         </aside>
     );
 }
+
