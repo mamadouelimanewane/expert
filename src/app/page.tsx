@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Users, Briefcase, AlertCircle, Wallet, Plus, Scan } from "lucide-react";
 import prisma from "@/lib/prisma";
