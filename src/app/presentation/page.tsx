@@ -46,18 +46,19 @@ export default function PresentationPage() {
                 <div className="space-y-8 print:space-y-6 text-justify leading-relaxed">
 
                     {/* Title Section */}
-                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2">Analyse de la Solution Cabinet 360 ERP</h2>
-                        <h3 className="text-lg text-slate-600 font-medium">Pour le marché de l'expertise comptable en Afrique et l'espace OHADA</h3>
+                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0 group hover:border-indigo-200 transition-colors relative">
+                        <div className="hidden group-hover:block absolute right-8 top-8 text-xs text-indigo-400 font-bold bg-white px-2 py-1 rounded shadow-sm print:hidden">Éditable</div>
+                        <h2 contentEditable suppressContentEditableWarning className="text-2xl font-bold text-slate-800 mb-2 outline-none focus:bg-indigo-50/30 rounded px-1">Analyse de la Solution Cabinet 360 ERP</h2>
+                        <h3 contentEditable suppressContentEditableWarning className="text-lg text-slate-600 font-medium outline-none focus:bg-indigo-50/30 rounded px-1">Pour le marché de l'expertise comptable en Afrique et l'espace OHADA</h3>
                     </div>
 
                     {/* 1. Présentation */}
                     <section className="space-y-4">
-                        <h4 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
-                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm">1</span>
+                        <h4 contentEditable suppressContentEditableWarning className="text-xl font-bold text-indigo-700 flex items-center gap-2 outline-none">
+                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0">1</span>
                             Présentation Générale de la Solution
                         </h4>
-                        <p className="text-slate-600">
+                        <p contentEditable suppressContentEditableWarning className="text-slate-600 outline-none focus:bg-indigo-50/30 rounded p-1">
                             <strong>Cabinet 360 ERP</strong> représente une plateforme SaaS complète dédiée à la gestion des cabinets d'expertise comptable,
                             spécialement conçue pour l'Afrique francophone et l'espace OHADA. Cette solution se positionne comme un outil intégré répondant aux
                             besoins spécifiques des Experts-Comptables dans un contexte africain en pleine mutation digitale.
@@ -65,15 +66,15 @@ export default function PresentationPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 print:border-slate-300">
-                                <h5 className="font-bold text-slate-800 mb-2 flex items-center gap-2"><BriefcaseIcon className="w-4 h-4 text-indigo-500" /> Fonctionnalités Classiques</h5>
-                                <p className="text-sm text-slate-600">
+                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-slate-800 mb-2 flex items-center gap-2 outline-none"><BriefcaseIcon className="w-4 h-4 text-indigo-500" /> Fonctionnalités Classiques</h5>
+                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-indigo-50/30 rounded">
                                     Gestion complète des dossiers clients, tenue comptable conforme SYSCOHADA, facturation des honoraires,
                                     suivi des temps (Time Tracking) et Gestion Électronique de Documents (GED) fiscale.
                                 </p>
                             </div>
                             <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 print:border-slate-300">
-                                <h5 className="font-bold text-indigo-900 mb-2 flex items-center gap-2"><Cpu className="w-4 h-4 text-indigo-500" /> Innovations IA</h5>
-                                <p className="text-sm text-slate-600">
+                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-indigo-900 mb-2 flex items-center gap-2 outline-none"><Cpu className="w-4 h-4 text-indigo-500" /> Innovations IA</h5>
+                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-indigo-50/30 rounded">
                                     <strong>ExpertAI</strong> pour l'assistant fiscal, <strong>Audit Scanner</strong> pour la détection automatique d'anomalies comptables,
                                     et générateur automatique d'états financiers et de liasses fiscales.
                                 </p>
