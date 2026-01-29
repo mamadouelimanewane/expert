@@ -55,6 +55,8 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error("[Login API] Error:", error);
-        return NextResponse.json({ error: "Erreur lors de la connexion" }, { status: 500 });
+        return NextResponse.json({
+            error: `Erreur système: ${error instanceof Error ? error.message : String(error)}`
+        }, { status: 500 });
     }
 }
