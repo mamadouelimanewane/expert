@@ -101,9 +101,9 @@ export default function ClientsPage() {
                     />
                 </div>
 
-                <button className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
                     <Briefcase className="w-4 h-4" /> Nouveau Dossier
-                </button>
+                </a>
             </div>
 
             {/* Main Content */}
@@ -121,9 +121,9 @@ export default function ClientsPage() {
                         <h3 className="text-xl font-bold text-white mb-1">Aucun client trouvé</h3>
                         <p className="text-slate-500 max-w-xs mx-auto">Commencez par ajouter votre premier client pour gérer ses missions et sa fiscalité.</p>
                     </div>
-                    <button className="mt-4 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-all border border-white/5">
+                    <a href="/clients/new" className="mt-4 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-all border border-white/5">
                         Ajouter un client
-                    </button>
+                    </a>
                 </div>
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -197,12 +197,12 @@ export default function ClientsPage() {
                     })}
 
                     {/* Add Client Card */}
-                    <div className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-indigo-500/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
+                    <a href="/clients/new" className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-indigo-500/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
                         <div className="w-16 h-16 rounded-full bg-slate-800 group-hover:bg-indigo-600 transition-colors flex items-center justify-center shadow-2xl">
                             <Briefcase className="w-6 h-6 text-slate-400 group-hover:text-white" />
                         </div>
                         <p className="text-[10px] font-black text-slate-500 group-hover:text-indigo-400 uppercase tracking-widest">Nouveau Dossier</p>
-                    </div>
+                    </a>
                 </div>
             ) : (
                 <div className="glass-card rounded-2xl sm:rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
