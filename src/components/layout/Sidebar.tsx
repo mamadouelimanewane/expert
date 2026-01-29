@@ -52,6 +52,9 @@ const menuItems = [
     { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
 
+    // Accès rapide Présentation
+    { icon: FileText, label: "Présentation Stratégique", href: "/presentation" },
+
     // 2. Innovation & Stratégie (Flat list for visibility)
     { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
