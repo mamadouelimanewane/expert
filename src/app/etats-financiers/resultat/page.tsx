@@ -66,9 +66,6 @@ export default function ResultatPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {COMPTE_RESULTAT.map((row, idx) => {
-                            const variation = row.netN - row.netN1;
-                            const isPositive = variation >= 0;
-
                             if (row.isHeader) {
                                 return (
                                     <tr key={idx} className="bg-slate-50/50 dark:bg-slate-900/30">
@@ -77,6 +74,9 @@ export default function ResultatPage() {
                                     </tr>
                                 )
                             }
+
+                            const variation = (row.netN || 0) - (row.netN1 || 0);
+                            const isPositive = variation >= 0;
 
                             return (
                                 <tr
@@ -93,12 +93,12 @@ export default function ResultatPage() {
                                     </td>
                                     <td className="px-6 py-3 text-right font-mono text-slate-900 dark:text-white">
                                         {row.level === 2 ?
-                                            <span className="text-indigo-600 dark:text-indigo-400">{row.netN.toLocaleString('fr-FR')}</span> :
-                                            row.netN.toLocaleString('fr-FR')
+                                            <span className="text-indigo-600 dark:text-indigo-400">{(row.netN || 0).toLocaleString('fr-FR')}</span> :
+                                            (row.netN || 0).toLocaleString('fr-FR')
                                         }
                                     </td>
                                     <td className="px-6 py-3 text-right font-mono opacity-80">
-                                        {row.netN1.toLocaleString('fr-FR')}
+                                        {(row.netN1 || 0).toLocaleString('fr-FR')}
                                     </td>
                                     <td className="px-6 py-3 text-right">
                                         <div className={`flex items-center justify-end gap-1 font-mono text-xs ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
