@@ -13,6 +13,9 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "tsx prisma/seed.ts",
+    "seed:admin": "tsx scripts/seed-admin.ts",
+    "seed:admin:prod": "tsx scripts/seed-admin-production.ts",
+    "seed:demo": "tsx scripts/seed-demo-uemoa.ts",
     "prisma:studio": "prisma studio",
     "postinstall": "prisma generate"
   },

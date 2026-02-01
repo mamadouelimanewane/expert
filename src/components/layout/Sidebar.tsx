@@ -48,6 +48,7 @@ const menuItems = [
     { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
     { icon: Calculator, label: "Paie & Social", href: "/payroll" },
     { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
+    { icon: FileSpreadsheet, label: "États Financiers", href: "/etats-financiers" },
     { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
     { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
