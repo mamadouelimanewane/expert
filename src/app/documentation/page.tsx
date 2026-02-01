@@ -88,6 +88,16 @@ const documents = [
 ];
 
 export default function DocumentationHubPage() {
+    const [isDownloading, setIsDownloading] = React.useState(false);
+
+    const handleDownloadAll = () => {
+        setIsDownloading(true);
+        setTimeout(() => {
+            setIsDownloading(false);
+            window.location.href = "/documentation/full";
+        }, 1500);
+    };
+
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8">
             <div className="max-w-6xl mx-auto space-y-12">
@@ -105,8 +115,26 @@ export default function DocumentationHubPage() {
                         </p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-5 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10">
-                            <Download className="w-5 h-5" /> Tout Télécharger
+                        <button
+                            onClick={handleDownloadAll}
+                            disabled={isDownloading}
+                            className={cn(
+                                "flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all border shadow-lg relative overflow-hidden",
+                                isDownloading
+                                    ? "bg-indigo-600/20 border-indigo-500/50 text-indigo-400 cursor-wait"
+                                    : "bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-indigo-500/50"
+                            )}
+                        >
+                            {isDownloading ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                                    Préparation du Pack...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="w-5 h-5" /> Tout Télécharger
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
