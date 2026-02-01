@@ -190,8 +190,8 @@ export function Sidebar() {
                             <span className="font-bold text-[10px] text-white">EP</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-foreground truncate leading-tight">Expert P.</p>
-                            <p className="text-[9px] text-muted-foreground truncate leading-tight opacity-80">admin@cab.com</p>
+                            <p className="text-xs font-bold text-foreground truncate leading-tight">Expert Principal</p>
+                            <p className="text-[9px] text-muted-foreground truncate leading-tight opacity-80">admin@cabinet360.com</p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                             <Link
