@@ -46,10 +46,10 @@ export default function PrintBilanPage() {
                             <td className="border border-black px-2 py-1">{row.label.toUpperCase()}</td>
                             <td className="border border-black px-1 py-1 text-center"></td>
                             {/* Simulation Brut/Amort for this display since we only had Net in mock */}
-                            <td className="border border-black px-2 py-1 text-right font-mono">{(row.netN * 1.2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
-                            <td className="border border-black px-2 py-1 text-right font-mono">{(row.netN * 0.2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
-                            <td className={clsx("border border-black px-2 py-1 text-right font-mono", row.isTotal ? "bg-slate-200" : "")}>{row.netN.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
-                            <td className="border border-black px-2 py-1 text-right font-mono">{row.netN1.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
+                            <td className="border border-black px-2 py-1 text-right font-mono">{((row.netN || 0) * 1.2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
+                            <td className="border border-black px-2 py-1 text-right font-mono">{((row.netN || 0) * 0.2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
+                            <td className={clsx("border border-black px-2 py-1 text-right font-mono", row.isTotal ? "bg-slate-200" : "")}>{(row.netN || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
+                            <td className="border border-black px-2 py-1 text-right font-mono">{(row.netN1 || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</td>
                         </tr>
                     ))}
                 </tbody>

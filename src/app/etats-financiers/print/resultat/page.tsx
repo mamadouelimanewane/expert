@@ -62,12 +62,12 @@ export default function PrintResultatPage() {
                                 {row.isTotal ? row.label.toUpperCase() : row.label}
                             </td>
                             <td className="border border-black px-2 py-1 text-right font-mono">
-                                {Math.abs(row.netN).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                                {row.netN < 0 ? " (X)" : ""}
+                                {Math.abs(row.netN || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                                {(row.netN || 0) < 0 ? " (X)" : ""}
                             </td>
                             <td className="border border-black px-2 py-1 text-right font-mono">
-                                {Math.abs(row.netN1).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                                {row.netN1 < 0 ? " (X)" : ""}
+                                {Math.abs(row.netN1 || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                                {(row.netN1 || 0) < 0 ? " (X)" : ""}
                             </td>
                         </tr>
                     ))}

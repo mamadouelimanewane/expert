@@ -95,10 +95,10 @@ function BilanTable({ title, data, headerColor }: { title: string, data: any[], 
                                 <td className="px-4 py-3 font-mono text-xs opacity-70">{row.code}</td>
                                 <td className="px-4 py-3">{row.label}</td>
                                 <td className="px-4 py-3 text-right font-mono">
-                                    {row.netN.toLocaleString('fr-FR')}
+                                    {(row.netN || 0).toLocaleString('fr-FR')}
                                 </td>
                                 <td className="px-4 py-3 text-right font-mono opacity-80">
-                                    {row.netN1.toLocaleString('fr-FR')}
+                                    {(row.netN1 || 0).toLocaleString('fr-FR')}
                                 </td>
                             </tr>
                         ))}

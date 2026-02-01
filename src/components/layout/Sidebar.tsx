@@ -8,6 +8,7 @@ import {
     Mail,
     Briefcase,
     FileText,
+    Book,
     Settings,
     LogOut,
     BarChart3,
@@ -53,7 +54,8 @@ const menuItems = [
     { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
 
-    // Accès rapide Présentation
+    // Accès rapide Documentation & Marketing
+    { icon: Book, label: "Documentation & Marketing", href: "/documentation" },
     { icon: FileText, label: "Présentation Stratégique", href: "/presentation" },
 
     // 2. Innovation & Stratégie (Flat list for visibility)
