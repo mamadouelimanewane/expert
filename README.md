@@ -10,6 +10,8 @@
 
 **Logiciel de gestion tout-en-un pour cabinets d'expertise comptable en zone OHADA**
 
+> 🆕 **Dernière mise à jour** : 01/02/2026 - Module États Financiers OHADA ajouté à la sidebar
+
 [🚀 Demo](https://cabinet360.vercel.app) • [📖 Documentation](./DOCUMENTATION.md) • [🐛 Report Bug](https://github.com/mamadouelimanewane/expert/issues)
 
 </div>
