@@ -9,6 +9,7 @@ import {
     Briefcase,
     FileText,
     Book,
+    BookOpen,
     Settings,
     LogOut,
     BarChart3,
@@ -56,6 +57,7 @@ const menuItems = [
 
     // Accès rapide Documentation & Marketing
     { icon: Book, label: "Documentation & Marketing", href: "/documentation" },
+    { icon: BookOpen, label: "Manuel Expert (Guide)", href: "/documentation/full-manual" },
     { icon: FileText, label: "Présentation Stratégique", href: "/presentation" },
 
     // 2. Innovation & Stratégie (Flat list for visibility)
