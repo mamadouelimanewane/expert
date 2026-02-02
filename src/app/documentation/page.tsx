@@ -53,7 +53,7 @@ const documents = [
             {
                 title: "Manuel d'Utilisation",
                 description: "Guide complet pas à pas pour maîtriser Cabinet 360.",
-                href: "/documentation/manuel",
+                href: "/documentation/full-manual",
                 icon: Book,
                 type: "Interactive Guide"
             },
