@@ -41,9 +41,12 @@ import {
     Zap,
     Plane,
     Calendar as CalendarIcon,
-    BrainCircuit
+    BrainCircuit,
+    Printer,
+    FileDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ChapterContent } from "./chapter-content";
 
 const CHAPTERS = [
     {
@@ -490,11 +493,30 @@ const CHAPTERS = [
 
 export default function DetailedManualPage() {
     const [activeChapter, setActiveChapter] = useState(CHAPTERS[0].id);
+    const [viewMode, setViewMode] = useState<'chapter' | 'full'>('chapter');
 
     const chapter = CHAPTERS.find(c => c.id === activeChapter) || CHAPTERS[0];
 
     return (
         <div className="min-h-screen bg-[#050608] flex overflow-hidden font-sans">
+            <style jsx global>{`
+                @media print {
+                    @page { margin: 1cm; size: A4; }
+                    body { background: white !important; color: black !important; -webkit-print-color-adjust: exact; }
+                    aside { display: none !important; }
+                    main { padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+                    .no-print { display: none !important; }
+                    .glass-card, .bg-gray-900, .bg-slate-900, .bg-[#050608], .bg-[#0d1117] { 
+                        background: white !important; 
+                        border: 1px solid #ddd !important;
+                        box-shadow: none !important;
+                        color: black !important;
+                    }
+                    h1, h2, h3, h4, p, span, div { color: black !important; text-shadow: none !important; }
+                    .text-slate-400, .text-slate-500 { color: #555 !important; }
+                    .text-indigo-400, .text-indigo-500 { color: #333 !important; font-weight: bold !important; }
+                }
+            `}</style>
             {/* Left Sidebar Table of Contents */}
             <aside className="w-80 bg-[#0d1117] border-r border-white/5 flex flex-col p-8 gap-8 overflow-y-auto shrink-0 relative z-20">
                 <div className="flex flex-col items-center gap-4 py-8 border-b border-white/5">
@@ -544,6 +566,31 @@ export default function DetailedManualPage() {
                     })}
                 </nav>
 
+                <div className="mt-4 px-2 space-y-2">
+                    <button
+                        onClick={() => setViewMode(viewMode === 'chapter' ? 'full' : 'chapter')}
+                        className={cn(
+                            "w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all border",
+                            viewMode === 'full'
+                                ? "bg-indigo-500 text-white border-indigo-500"
+                                : "bg-white/5 text-slate-400 border-white/10 hover:bg-white/10"
+                        )}
+                    >
+                        <FileDown className="w-4 h-4" />
+                        {viewMode === 'full' ? "Vue Par Chapitre" : "Vue Complète (PDF)"}
+                    </button>
+
+                    {viewMode === 'full' && (
+                        <button
+                            onClick={() => window.print()}
+                            className="w-full py-3 bg-white text-indigo-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2 shadow-lg"
+                        >
+                            <Printer className="w-4 h-4" />
+                            Imprimer / PDF
+                        </button>
+                    )}
+                </div>
+
                 <div className="mt-8 p-6 bg-indigo-600/10 border border-indigo-500/20 rounded-[32px] space-y-4 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <HelpCircle className="w-12 h-12 text-indigo-400" />
@@ -566,93 +613,38 @@ export default function DetailedManualPage() {
                 <div className="max-w-4xl mx-auto space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
 
                     {/* Chapter Header */}
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <span className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase border border-indigo-500/20">
-                                Chapitre #{CHAPTERS.findIndex(c => c.id === activeChapter) + 1}
-                            </span>
-                            <div className="h-px flex-1 bg-white/5" />
-                        </div>
-                        <div className="flex items-start gap-8">
-                            <div className="p-5 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl shadow-2xl shadow-indigo-600/20 shrink-0">
-                                <chapter.icon className="w-12 h-12 text-white" />
+                    {viewMode === 'chapter' ? (
+                        <ChapterContent chapter={chapter} />
+                    ) : (
+                        <div className="space-y-24">
+                            <div className="text-center py-12 border-b border-black/10 hidden print:block">
+                                <h1 className="text-4xl font-black uppercase tracking-widest mb-4">Manuel Utilisateur Expert</h1>
+                                <p>Généré le {new Date().toLocaleDateString()}</p>
                             </div>
-                            <div className="space-y-3">
-                                <h2 className="text-5xl font-black text-white tracking-tighter italic">
-                                    {chapter.title.split(' ')[0]} <span className="text-indigo-500">{chapter.title.split(' ').slice(1).join(' ')}</span>
-                                </h2>
-                                <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                                    {chapter.description}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Detailed Sections */}
-                    <div className="grid grid-cols-1 gap-12">
-                        {chapter.sections.map((section, sIdx) => (
-                            <div key={sIdx} className="space-y-8">
-                                <h3 className="flex items-center gap-3 text-xl font-black text-white tracking-tight">
-                                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-indigo-400">
-                                        <MousePointer2 className="w-4 h-4" />
-                                    </div>
-                                    {section.title}
-                                </h3>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {section.items.map((item, iIdx) => (
-                                        <div key={iIdx} className="group p-8 bg-[#0d1117] border border-white/5 rounded-[40px] hover:border-indigo-500/40 transition-all hover:scale-[1.02] shadow-2xl relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-5 transition-opacity">
-                                                <Zap className="w-20 h-20 text-indigo-400" />
-                                            </div>
-
-                                            <div className="space-y-6 relative z-10">
-                                                <div className="space-y-2">
-                                                    <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{item.name}</h4>
-                                                    <div className="h-1 w-12 bg-indigo-600 rounded-full" />
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div className="space-y-2">
-                                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                                            <Eye className="w-3 h-3" /> Fonctionnalité
-                                                        </span>
-                                                        <p className="text-sm text-slate-400 leading-relaxed font-medium italic">
-                                                            {item.function}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl space-y-2">
-                                                        <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
-                                                            <CheckCircle2 className="w-3 h-3" /> Résultat Attendu
-                                                        </span>
-                                                        <p className="text-xs text-emerald-400/80 font-bold leading-relaxed">
-                                                            {item.result}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                            {CHAPTERS.map(ch => (
+                                <div key={ch.id} className="break-inside-avoid page-break">
+                                    <ChapterContent chapter={ch} />
+                                    <div className="my-12 border-b border-dashed border-slate-700/30 print:border-black/20" />
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Footer Tips */}
-                    <div className="p-12 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-[50px] border border-white/5 space-y-6 text-center">
-                        <div className="inline-flex p-4 bg-white/5 rounded-3xl text-indigo-400">
-                            <Sparkles className="w-8 h-8" />
+                            ))}
                         </div>
-                        <h4 className="text-2xl font-black text-white">Astuce d'Expert</h4>
-                        <p className="text-slate-400 max-w-xl mx-auto leading-relaxed">
-                            Saviez-vous que vous pouvez utiliser des raccourcis clavier pour naviguer entre ces sections ?
-                            Combinez <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">Alt</kbd> + <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">N</kbd> pour passer au chapitre suivant.
-                        </p>
-                    </div>
+                    )}
+                </div>
 
+                {/* Footer Tips */}
+                <div className="p-12 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-[50px] border border-white/5 space-y-6 text-center no-print">
+                    <div className="inline-flex p-4 bg-white/5 rounded-3xl text-indigo-400">
+                        <Sparkles className="w-8 h-8" />
+                    </div>
+                    <h4 className="text-2xl font-black text-white">Astuce d'Expert</h4>
+                    <p className="text-slate-400 max-w-xl mx-auto leading-relaxed">
+                        Saviez-vous que vous pouvez utiliser des raccourcis clavier pour naviguer entre ces sections ?
+                        Combinez <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">Alt</kbd> + <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">N</kbd> pour passer au chapitre suivant.
+                    </p>
                 </div>
             </main>
         </div>
     );
 }
+
+
