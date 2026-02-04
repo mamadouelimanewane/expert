@@ -80,9 +80,86 @@ export default function SignaturePage() {
                 <TrustCard icon={History} title="Audit Trail" desc="Historique complet et scellé pour chaque acte." color="text-emerald-400" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Stats Sidebar */}
-                <div className="lg:col-span-1 space-y-6">
+            {/* NEW: Certification Levels & Compliance Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                        <Lock className="w-48 h-48 text-indigo-400" />
+                    </div>
+
+                    <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                        <ShieldCheck className="w-6 h-6 text-indigo-400" />
+                        Niveaux de Certification Disponibles
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <CertificationCard
+                            level="Qualifiée (AES)"
+                            desc="Valeur juridique identique à la signature manuscrite. Vérification d'identité face-à-face (ID Now)."
+                            price="Haute Sécurité"
+                            color="text-emerald-400"
+                        />
+                        <CertificationCard
+                            level="Avancée"
+                            desc="Établit un lien univoque avec le signataire. Idéal pour les contrats commerciaux et RH."
+                            price="Standard"
+                            color="text-indigo-400"
+                        />
+                        <CertificationCard
+                            level="Simple"
+                            desc="Validation rapide par email ou SMS. Adapté aux documents internes et devis."
+                            price="Rapide"
+                            color="text-slate-400"
+                        />
+                    </div>
+                </div>
+
+                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col justify-center">
+                    <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Zap className="w-8 h-8 text-indigo-400" />
+                        </div>
+                        <h4 className="text-white font-black text-xl">Nexus Sign IA</h4>
+                        <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                            L'IA analyse vos documents pour suggérer automatiquement le niveau de signature requis selon la législation OHADA.
+                        </p>
+                        <button className="mt-6 px-8 py-3 bg-white text-indigo-950 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all">
+                            Activer l'Auto-Compliance
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Workflow Tracking Sidebar */}
+                <div className="lg:col-span-4 space-y-8">
+                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
+                        <h3 className="text-xl font-black text-white mb-8">Workflows en Cours</h3>
+                        <div className="space-y-6">
+                            <WorkflowItem
+                                title="Approbation Bilan SIB"
+                                steps={3}
+                                current={2}
+                                nextSigner="Commissaire aux Comptes"
+                            />
+                            <WorkflowItem
+                                title="Contrat Consultant"
+                                steps={2}
+                                current={1}
+                                nextSigner="Directeur Général"
+                            />
+                        </div>
+
+                        <div className="mt-12 p-6 bg-white/5 rounded-3xl border border-white/5">
+                            <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Relance Intelligente</h5>
+                            <p className="text-xs text-slate-400 mb-4 font-medium leading-relaxed">
+                                2 signataires sont en retard. Voulez-vous envoyer une relance SMS automatique ?
+                            </p>
+                            <button className="text-xs font-black text-indigo-400 uppercase tracking-widest hover:underline">Relancer tout le monde</button>
+                        </div>
+                    </div>
+
                     <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-6">Statistiques Signature</h4>
                         <div className="space-y-8">
@@ -91,42 +168,30 @@ export default function SignaturePage() {
                             <StatProgress label="Économie Papier" value={1250} total={1500} unit=" pages" color="bg-cyan-500" />
                         </div>
                     </div>
-
-                    <div className="glass-card p-10 bg-gradient-to-br from-slate-900 to-indigo-900 rounded-[40px] border border-white/5 relative overflow-hidden group">
-                        <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform">
-                            <Zap className="w-40 h-40 text-white" />
-                        </div>
-                        <h4 className="text-white font-black text-xl mb-2 relative z-10">Lancer une Campagne</h4>
-                        <p className="text-xs text-indigo-200 mb-6 relative z-10">Envoyez 100+ documents à signer en une fois.</p>
-                        <button className="w-full py-4 bg-white text-indigo-900 font-black uppercase tracking-widest text-[10px] rounded-2xl relative z-10 hover:shadow-2xl transition-all">
-                            Bulk Signing IA
-                        </button>
-                    </div>
                 </div>
 
                 {/* Main Documents Table */}
-                <div className="lg:col-span-3 glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
-                    <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-indigo-400" />
-                            Registre des Actes Signés
+                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
+                    <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40">
+                        <h3 className="text-xl font-black text-white flex items-center gap-3">
+                            <History className="w-5 h-5 text-indigo-400" />
+                            Historique des Actes
                         </h3>
-                        <div className="relative w-72">
+                        <div className="relative w-full md:w-80">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="Rechercher un dossier..."
-                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                placeholder="Rechercher par titre ou signataire..."
+                                className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                             />
                         </div>
                     </div>
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                            <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
                                 <tr>
                                     <th className="px-8 py-6">Document</th>
-                                    <th className="px-6 py-6 font-black">Signataires</th>
                                     <th className="px-6 py-6 font-black text-center">Niveau</th>
                                     <th className="px-6 py-6 font-black">Statut</th>
                                     <th className="px-8 py-6 font-black text-right">Actions</th>
@@ -134,50 +199,46 @@ export default function SignaturePage() {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {MOCK_DOCS.map((doc) => (
-                                    <tr key={doc.id} className="hover:bg-white/[0.02] transition-colors group">
+                                    <tr key={doc.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center">
-                                                    <FileText className="w-5 h-5 text-slate-400" />
+                                                <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                                                    <FileText className="w-6 h-6 text-slate-400 group-hover:text-white" />
                                                 </div>
                                                 <div>
-                                                    <span className="font-bold text-white block">{doc.title}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">Réf: {doc.id} • {doc.sentDate}</span>
+                                                    <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{doc.title}</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Réf: {doc.id} • {doc.sentDate}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-6 font-medium text-slate-400 text-xs">
-                                            {doc.owners.join(" & ")}
-                                        </td>
                                         <td className="px-6 py-6 text-center">
                                             <span className={cn(
-                                                "text-[9px] px-2 py-0.5 rounded-full font-black uppercase border",
-                                                doc.level === "Qualifié" ? "border-indigo-500/30 text-indigo-400 bg-indigo-500/5" : "border-slate-700 text-slate-500"
+                                                "text-[9px] px-3 py-1 rounded-full font-black uppercase border tracking-tighter",
+                                                doc.level === "Qualifié" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/5" :
+                                                    doc.level === "Avancé" ? "border-indigo-500/30 text-indigo-400 bg-indigo-500/5" :
+                                                        "border-slate-700 text-slate-500"
                                             )}>
                                                 {doc.level}
                                             </span>
                                         </td>
                                         <td className="px-6 py-6">
                                             <div className={cn(
-                                                "flex items-center gap-2 text-[10px] font-black uppercase px-3 py-1 rounded-full border w-fit shadow-sm",
-                                                doc.status === "Signé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                    doc.status === "Partiel" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                                "flex items-center gap-2 text-[10px] font-black uppercase px-4 py-1.5 rounded-full border w-fit shadow-lg transition-transform group-hover:scale-105",
+                                                doc.status === "Signé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10" :
+                                                    doc.status === "Partiel" ? "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10" :
                                                         "bg-slate-800 text-slate-500 border-slate-700"
                                             )}>
-                                                {doc.status === "Signé" ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                                                {doc.status === "Signé" ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                                                 {doc.status}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
-                                            <div className="flex justify-end gap-1">
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
+                                            <div className="flex justify-end gap-2">
+                                                <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-sm">
                                                     <Download className="w-4 h-4" />
                                                 </button>
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <MoreVertical className="w-4 h-4" />
+                                                <button className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20">
+                                                    Suivre
                                                 </button>
                                             </div>
                                         </td>
@@ -188,6 +249,35 @@ export default function SignaturePage() {
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function WorkflowItem({ title, steps, current, nextSigner }: any) {
+    const progress = (current / steps) * 100;
+    return (
+        <div className="p-5 bg-white/5 rounded-3xl border border-white/5 space-y-4 hover:bg-white/10 transition-all group">
+            <div className="flex justify-between items-start">
+                <h5 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{title}</h5>
+                <span className="text-[10px] font-black text-slate-500 uppercase">{current}/{steps}</span>
+            </div>
+            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-indigo-500 transition-all duration-1000 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse" />
+                <p className="text-[9px] text-slate-400 font-medium">Prochain signataire : <span className="text-white font-bold">{nextSigner}</span></p>
+            </div>
+        </div>
+    );
+}
+
+function CertificationCard({ level, desc, price, color }: any) {
+    return (
+        <div className="p-6 bg-slate-950/40 rounded-[32px] border border-white/5 space-y-4 hover:bg-slate-950 transition-all group">
+            <div className={cn("text-[10px] font-black uppercase tracking-widest", color)}>{level}</div>
+            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{desc}</p>
+            <div className="pt-2 border-t border-white/5 text-[9px] font-black uppercase text-slate-600">{price}</div>
         </div>
     );
 }

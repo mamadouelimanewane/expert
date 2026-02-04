@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { AuditService } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
     try {
@@ -74,6 +75,15 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        // Log action
+        await AuditService.log({
+            action: 'CREATE',
+            entity: 'CLIENT',
+            entityId: client.id,
+            details: `Nouveau client créé : ${client.companyName || (client.firstName + ' ' + client.lastName)}`,
+            newValue: client
+        });
+
         return NextResponse.json({ client }, { status: 201 });
     } catch (error) {
         console.error('❌ Error creating client:', error);
@@ -83,3 +93,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+

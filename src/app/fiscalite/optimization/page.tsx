@@ -12,32 +12,64 @@ import {
     Download,
     Calculator,
     FileText,
-    BarChart,
+    BarChart3,
     Lightbulb,
     Wand2,
     Loader2,
-    Lock
+    Lock,
+    Scale,
+    Globe,
+    FileSearch,
+    BrainCircuit,
+    Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { mockClients } from "@/data/mock-clients";
 
 interface FiscalRisk {
     id: string;
     category: string;
     label: string;
     score: number;
-    impact: string;
+    impact: "low" | "medium" | "high" | "critical";
     observation: string;
+    potentialRisk: string;
 }
 
 const MOCK_RISKS: FiscalRisk[] = [
-    { id: "1", category: "TVA", label: "Cadrage TVA/CA", score: 85, impact: "Moyen", observation: "Écart de 2.5% détecté entre le CA comptabilisé et le CA déclaré en TVA." },
-    { id: "2", category: "IS", label: "Charges non déductibles", score: 40, impact: "Élevé", observation: "Volume atypique de frais de réception sans justificatifs conformes (Art. 12 CGI)." },
-    { id: "3", category: "Social", label: "Retenues à la source", score: 15, impact: "Critique", observation: "Retard de reversement des retenues sur salaires (ITS) depuis 2 mois." },
+    {
+        id: "1",
+        category: "TVA",
+        label: "Cadrage TVA / Chiffre d'Affaires",
+        score: 85,
+        impact: "medium",
+        observation: "Écart de 2.5% détecté entre le CA comptabilisé et le CA déclaré en TVA.",
+        potentialRisk: "1.5M FCFA"
+    },
+    {
+        id: "2",
+        category: "IS",
+        label: "Deductibilité des Charges (Art. 12 CGI)",
+        score: 40,
+        impact: "high",
+        observation: "Volume atypique de frais de réception sans justificatifs conformes OHADA.",
+        potentialRisk: "4.2M FCFA"
+    },
+    {
+        id: "3",
+        category: "Social",
+        label: "Retenues ITS & Reversements",
+        score: 15,
+        impact: "critical",
+        observation: "Retard de reversement des retenues sur salaires au Trésor Public.",
+        potentialRisk: "9.8M FCFA + Pénalités 100%"
+    },
 ];
 
-export default function FiscalOptimizationPage() {
-    const [activeTab, setActiveTab] = useState<"audit" | "optimisation">("audit");
+export default function NexusTaxIntelligencePage() {
+    const [activeTab, setActiveTab] = useState<"audit" | "optimisation" | "integrity">("audit");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [selectedClient, setSelectedClient] = useState(mockClients[0]);
     const [reportVisible, setReportVisible] = useState(false);
 
     const runAnalysis = () => {
@@ -49,122 +81,189 @@ export default function FiscalOptimizationPage() {
     };
 
     return (
-        <div className="space-y-6 pb-20">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        <ShieldCheck className="w-8 h-8 text-rose-500" />
-                        Analyse & Optimisation Fiscale
-                    </h2>
-                    <p className="text-slate-400 mt-1">Audit de conformité (Risk Scoring) et stratégies de réduction de la charge fiscale.</p>
+        <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
+            {/* Elite Header */}
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
+                    <Scale className="w-64 h-64 text-rose-400" />
                 </div>
 
-                <div className="flex gap-2">
-                    <button
-                        onClick={runAnalysis}
-                        className="px-6 py-3 bg-gradient-to-r from-rose-600 to-rose-500 text-white rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-500/20 hover:scale-[1.02] transition-all"
-                    >
-                        <Zap className="w-4 h-4 fill-current" /> {isGenerating ? "Analyse Multi-CGI..." : "Lancer Audit Fiscal IA"}
-                    </button>
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-rose-500/20">
+                                NEXUS Premium
+                            </span>
+                            <span className="px-3 py-1 bg-slate-500/10 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-slate-500/20">
+                                Global Tax & Integrity
+                            </span>
+                        </div>
+                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                            Nexus <span className="text-rose-400">Tax Intelligence</span>
+                        </h2>
+                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                            Pilotage de l'intégrité fiscale, gestion automatique des risques CGI et stratégies d'optimisation basées sur l'Acte Uniforme OHADA.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                        <select
+                            value={selectedClient.id}
+                            onChange={(e) => setSelectedClient(mockClients.find(c => c.id === e.target.value) || mockClients[0])}
+                            className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-rose-500 focus:border-rose-500 outline-none transition-all hover:bg-white/10"
+                        >
+                            {mockClients.map(client => (
+                                <option key={client.id} value={client.id} className="bg-slate-900">{client.name}</option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={runAnalysis}
+                            disabled={isGenerating}
+                            className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-rose-600/30 active:scale-95 disabled:opacity-50">
+                            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                            {isGenerating ? "Traitement CGI..." : "Audit Fiscal IA"}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
-                <button
-                    onClick={() => setActiveTab("audit")}
-                    className={cn(
-                        "px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all",
-                        activeTab === "audit" ? "bg-rose-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                    )}
-                >
-                    Audit de Conformité
-                </button>
-                <button
-                    onClick={() => setActiveTab("optimisation")}
-                    className={cn(
-                        "px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all",
-                        activeTab === "optimisation" ? "bg-rose-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                    )}
-                >
-                    Pistes d'Optimisation
-                </button>
+            {/* Navigation Tabs */}
+            <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-[24px] w-fit">
+                {[
+                    { id: "audit", label: "Intégrité & Risques", icon: ShieldCheck },
+                    { id: "optimisation", label: "Pistes d'Optimisation", icon: Target },
+                    { id: "integrity", label: "Cadrage Global", icon: Layers },
+                ].map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={cn(
+                            "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3",
+                            activeTab === tab.id ? "bg-rose-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
+                        )}
+                    >
+                        <tab.icon className="w-4 h-4" /> {tab.label}
+                    </button>
+                ))}
             </div>
 
             {activeTab === "audit" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Risk Map */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="glass-card rounded-3xl p-8 border border-slate-700/50 bg-slate-900/30">
-                            <h3 className="font-bold text-white text-lg mb-8 flex items-center gap-3">
-                                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                                Points de Vigilance (Contrôle Fiscal Préventif)
-                            </h3>
-
-                            <div className="space-y-6">
-                                {MOCK_RISKS.map((risk) => (
-                                    <div key={risk.id} className="p-5 rounded-2xl bg-slate-800/20 border border-slate-800 hover:border-slate-700 transition-all group">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{risk.category}</span>
-                                                <h4 className="text-sm font-bold text-white group-hover:text-rose-400 transition-colors">{risk.label}</h4>
-                                            </div>
-                                            <div className={cn(
-                                                "px-2 py-1 rounded text-[10px] font-bold border",
-                                                risk.impact === "Critique" ? "bg-rose-500/10 text-rose-500 border-rose-500/20" :
-                                                    risk.impact === "Élevé" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
-                                                        "bg-slate-700 text-slate-400 border-slate-600"
-                                            )}>
-                                                Impact {risk.impact}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1 h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                                                <div className={cn(
-                                                    "h-full transition-all duration-1000",
-                                                    risk.score < 30 ? "bg-rose-500" : risk.score < 70 ? "bg-amber-500" : "bg-emerald-500"
-                                                )} style={{ width: `${risk.score}%` }} />
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-400">{risk.score}% de conformité</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 mt-4 leading-relaxed group-hover:text-slate-300 transition-colors">
-                                            "{risk.observation}"
-                                        </p>
-                                    </div>
-                                ))}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Risk Grid */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+                        <div className="flex justify-between items-center px-4">
+                            <h3 className="text-sm font-black text-white uppercase tracking-widest">Tableau des Risques : {selectedClient.name}</h3>
+                            <div className="text-[10px] font-black text-rose-400 uppercase tracking-widest bg-rose-500/5 px-4 py-2 rounded-full border border-rose-500/10">
+                                {MOCK_RISKS.length} Anomalies Détectées
                             </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {MOCK_RISKS.map((risk) => (
+                                <div key={risk.id} className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 group hover:border-rose-500/20 transition-all">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 transition-all",
+                                                risk.impact === "critical" ? "bg-rose-500/10 border-rose-500/20" : "bg-slate-800"
+                                            )}>
+                                                <AlertTriangle className={cn("w-6 h-6", risk.impact === "critical" ? "text-rose-400" : "text-slate-400")} />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-lg font-black text-white">{risk.label}</h4>
+                                                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">{risk.category} • CGI {selectedClient.country}</p>
+                                            </div>
+                                        </div>
+                                        <div className={cn(
+                                            "px-4 py-2 rounded-xl text-[10px] font-black uppercase border",
+                                            risk.impact === "critical" ? "bg-rose-500/20 border-rose-500/30 text-rose-400" :
+                                                risk.impact === "high" ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
+                                                    "bg-slate-800 border-white/5 text-slate-400"
+                                        )}>
+                                            Impact {risk.impact}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                        <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Score Conformité</p>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                    <div className={cn("h-full", risk.score < 30 ? "bg-rose-500" : "bg-amber-500")} style={{ width: `${risk.score}%` }} />
+                                                </div>
+                                                <span className="text-xs font-black text-white">{risk.score}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Risque Financier Est.</p>
+                                            <p className="text-sm font-black text-rose-400">{risk.potentialRisk}</p>
+                                        </div>
+                                        <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
+                                            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Règle Appliquée</p>
+                                            <p className="text-sm font-black text-white">OHADA Art. 12 & CGI</p>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-xs text-slate-400 leading-relaxed mb-6 italic">
+                                        "{risk.observation}"
+                                    </p>
+
+                                    <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                                        <button className="flex items-center gap-2 text-[9px] font-black uppercase text-slate-500 hover:text-white transition-all">
+                                            <FileSearch className="w-3.5 h-3.5" /> Analyser les Pièces Jointes
+                                        </button>
+                                        <button className="px-6 py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 text-[9px] font-black uppercase rounded-xl border border-rose-500/20 transition-all">
+                                            Générer Note de Défense
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* AI Strategy Sidebar */}
-                    <div className="space-y-6">
-                        <div className="glass-card p-6 rounded-3xl border border-rose-500/20 bg-gradient-to-br from-slate-900 to-rose-900/20">
-                            <h3 className="text-white font-bold flex items-center gap-2 mb-6">
-                                <Wand2 className="w-5 h-5 text-rose-400" />
-                                Stratégie de Défense IA
-                            </h3>
-                            <div className="space-y-4">
-                                <p className="text-xs text-slate-400 leading-relaxed italic">
-                                    "Pour le risque de cadrage TVA, l'IA suggère de vérifier les factures en attente du compte 4457. Un écart de 2.5% peut générer un redressement de 1.5M FCFA plus pénalités."
-                                </p>
-                                <button className="w-full py-3 bg-white/5 border border-white/10 text-white rounded-xl text-xs font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2">
-                                    <Calculator className="w-4 h-4" /> Simuler Redressement
-                                </button>
+                    {/* Sidebar Analytics */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                            <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
+                                <BrainCircuit className="w-4 h-4 text-rose-400" /> Conseil IA Nexus
+                            </h4>
+                            <p className="text-xs text-slate-400 leading-relaxed mb-6">
+                                Basé sur les jurisprudences récentes de la Cour Commune de Justice et d'Arbitrage (CCJA), l'IA suggère une régularisation spontanée des retenues ITS pour éviter une majoration automatique de 50%.
+                            </p>
+                            <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-2xl mb-6">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-[9px] font-black text-rose-400 uppercase">Économie Potentielle</span>
+                                    <TrendingDown className="w-4 h-4 text-rose-400" />
+                                </div>
+                                <p className="text-xl font-black text-white">4.9M FCFA</p>
+                                <p className="text-[9px] text-slate-500 uppercase mt-1">via déclaration rectificative</p>
                             </div>
+                            <button className="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase text-white hover:bg-white/10 transition-all">
+                                Simuler Calendrier de Paiement
+                            </button>
                         </div>
 
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50">
-                            <h4 className="text-xs font-bold text-slate-500 uppercase mb-4">Statut des Obligations</h4>
-                            <ul className="space-y-3">
-                                <li className="flex items-center gap-3 text-xs text-slate-300">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> TVA Mai validée (05/06)
-                                </li>
-                                <li className="flex items-center gap-3 text-xs text-slate-300">
-                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Acompte IS réglé
-                                </li>
-                                <li className="flex items-center gap-3 text-xs text-slate-300 underline underline-offset-4 decoration-rose-500/50 decoration-2">
-                                    <AlertTriangle className="w-4 h-4 text-rose-500" /> ITS de retard (URGENT)
-                                </li>
-                            </ul>
+                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                            <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest">Calendrier des Obligations</h4>
+                            <div className="space-y-4">
+                                {[
+                                    { label: "Déclaration TVA", date: "15 Juin 2026", status: "urgent" },
+                                    { label: "Reversement ITS", date: "10 Juin 2026", status: "late" },
+                                    { label: "Acompte IS", date: "30 Juin 2026", status: "planned" },
+                                ].map((item, i) => (
+                                    <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
+                                        <div>
+                                            <p className="text-[10px] text-white font-bold">{item.label}</p>
+                                            <p className="text-[9px] text-slate-500">{item.date}</p>
+                                        </div>
+                                        <div className={cn(
+                                            "w-2 h-2 rounded-full",
+                                            item.status === 'late' ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]' :
+                                                item.status === 'urgent' ? 'bg-amber-500' : 'bg-slate-600'
+                                        )} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -177,64 +276,64 @@ export default function FiscalOptimizationPage() {
                             <OptimizationCard
                                 title="Code des Investissements (Agrément)"
                                 potential="Exonération IS 5-8 ans"
-                                desc="Votre client remplit les critères d'investissement minimum pour bénéficier du régime d'incitation."
+                                desc="Votre client remplit les critères d'investissement minimum pour bénéficier du régime d'incitation fiscale sectorielle."
                                 icon={Target}
                                 color="text-emerald-400"
                             />
                             <OptimizationCard
-                                title="Crédit d'Impôt Recherche (CIR)"
+                                title="Recherche & Développement (CGI)"
                                 potential="Déduction de 15% des frais R&D"
-                                desc="Les dépenses inscrites en compte 611 (Sous-traitance technique) pourraient être éligibles."
+                                desc="Identification de 12.5M FCFA de dépenses éligibles au crédit d'impôt innovation."
                                 icon={Lightbulb}
-                                color="text-indigo-400"
+                                color="text-violet-400"
                             />
                             <OptimizationCard
-                                title="Traitement Fiscal des Amortissements"
+                                title="Amortissements Dégressifs"
                                 potential="Gain Cash : 2.8M FCFA"
-                                desc="Passage en amortissement dégressif sur le nouveau matériel industriel."
+                                desc="Activation du mode dégressif sur le parc informatique et matériel de bureau acquis au Q1 2026."
                                 icon={TrendingDown}
                                 color="text-amber-400"
                             />
                             <OptimizationCard
-                                title="Régime de faveur (Fusions/Apports)"
-                                potential="Neutralité fiscale"
-                                desc="La restructuration prévue peut bénéficier du régime de faveur de l'Acte Uniforme OHADA."
-                                icon={ShieldCheck}
+                                title="Régime de faveur Fusions-Acquisitions"
+                                potential="Neutralité Fiscale CCJA"
+                                desc="La restructuration prévue peut bénéficier de l'exonération des plus-values via le régime de faveur OHADA."
+                                icon={Layers}
                                 color="text-rose-400"
                             />
                         </div>
 
-                        {/* Simulation Table */}
-                        <div className="glass-card rounded-3xl p-8 border border-slate-700/50 bg-slate-900/30">
-                            <h3 className="font-bold text-white mb-6">Simulation de Charge Fiscale (Options de Régime)</h3>
+                        {/* Analysis Grid */}
+                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                            <h3 className="text-xl font-black text-white mb-8 uppercase tracking-tight">Comparatif des Régimes Fiscaux</h3>
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm">
-                                    <thead className="text-slate-500 border-b border-slate-800">
+                                <table className="w-full text-left">
+                                    <thead className="border-b border-white/5">
                                         <tr>
-                                            <th className="px-4 py-3 font-bold uppercase text-[10px]">Régime Fiscal</th>
-                                            <th className="px-4 py-3 font-bold uppercase text-[10px]">Base Imposable (Est.)</th>
-                                            <th className="px-4 py-3 font-bold uppercase text-[10px]">Charge Fiscale Totale</th>
-                                            <th className="px-4 py-3 font-bold uppercase text-[10px]">Économie / Gain</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Scénario de Pilotage</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Base Imposable</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Charge d'Impôt</th>
+                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Gain Net</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800">
-                                        <tr className="bg-slate-800/10">
-                                            <td className="px-4 py-4 text-white font-medium">Réel Normal (Actuel)</td>
-                                            <td className="px-4 py-4 text-slate-400 font-mono">45 800 000</td>
-                                            <td className="px-4 py-4 text-white font-bold">11 450 000</td>
-                                            <td className="px-4 py-4 text-slate-600 italic">Baseline</td>
+                                    <tbody className="divide-y divide-white/5">
+                                        <tr className="hover:bg-white/5 transition-all">
+                                            <td className="px-6 py-5 text-sm font-bold text-white">Réel Normal (Baseline)</td>
+                                            <td className="px-6 py-5 text-sm font-mono text-slate-400 text-right">45 800 000</td>
+                                            <td className="px-6 py-5 text-sm font-bold text-white text-right">11 450 000</td>
+                                            <td className="px-6 py-5 text-center"><span className="text-[10px] text-slate-500 font-black uppercase">Référence</span></td>
                                         </tr>
-                                        <tr className="bg-emerald-500/[0.03]">
-                                            <td className="px-4 py-4 text-white font-medium">Réel avec Exonération (Agrément)</td>
-                                            <td className="px-4 py-4 text-slate-400 font-mono">45 800 000</td>
-                                            <td className="px-4 py-4 text-emerald-400 font-bold">0</td>
-                                            <td className="px-4 py-4 text-emerald-500 font-bold">+11.4M</td>
+                                        <tr className="bg-emerald-500/5 group">
+                                            <td className="px-6 py-5 text-sm font-bold text-emerald-400">Régime Incitatif (Optimal)</td>
+                                            <td className="px-6 py-5 text-sm font-mono text-slate-400 text-right">45 800 000</td>
+                                            <td className="px-6 py-5 text-sm font-black text-emerald-400 text-right">0</td>
+                                            <td className="px-6 py-5 text-center"><span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg font-black text-[10px] group-hover:bg-emerald-500/30 transition-all">+11.4M FCFA</span></td>
                                         </tr>
-                                        <tr>
-                                            <td className="px-4 py-4 text-white font-medium">Régime Simplifié PME</td>
-                                            <td className="px-4 py-4 text-slate-400 font-mono">38 200 000</td>
-                                            <td className="px-4 py-4 text-white font-bold">9 550 000</td>
-                                            <td className="px-4 py-4 text-indigo-400 font-bold">+1.9M</td>
+                                        <tr className="hover:bg-white/5 transition-all">
+                                            <td className="px-6 py-5 text-sm font-bold text-white">PME Innovante</td>
+                                            <td className="px-6 py-5 text-sm font-mono text-slate-400 text-right">38 200 000</td>
+                                            <td className="px-6 py-5 text-sm font-bold text-white text-right">9 550 000</td>
+                                            <td className="px-6 py-5 text-center"><span className="px-3 py-1 bg-violet-500/20 text-violet-400 rounded-lg font-black text-[10px]">+1.9M FCFA</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -242,14 +341,41 @@ export default function FiscalOptimizationPage() {
                         </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50">
-                            <h4 className="font-bold text-white text-sm mb-4">Édition du Rapport</h4>
-                            <p className="text-xs text-slate-500 mb-6">Compilez les pistes d'optimisation en un rapport de conseil stratégique.</p>
-                            <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
-                                <FileText className="w-4 h-4" /> Rapport Optimisation PDF
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="glass-card p-8 rounded-[32px] border border-indigo-500/20 bg-indigo-500/5">
+                            <h4 className="text-sm font-black text-white mb-4 uppercase">Rapport Stratégique</h4>
+                            <p className="text-[10px] text-slate-400 mb-8 leading-relaxed">
+                                Le système a généré 4 scénarios d'optimisation. Exportez le rapport complet pour présentation au CA.
+                            </p>
+                            <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/30 transition-all">
+                                <Download className="w-4 h-4 inline mr-2" /> Télécharger PDF
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === "integrity" && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 min-h-[400px] flex items-center justify-center border-dashed">
+                        <div className="text-center">
+                            <Globe className="w-16 h-16 text-slate-700 mx-auto mb-6" />
+                            <h3 className="text-xl font-black text-slate-500 uppercase">Cadrage Fiscal Multi-Zones</h3>
+                            <p className="text-sm text-slate-600 max-w-sm mt-2">Gérez la consolidation fiscale de vos filiales dans toute la zone UEMOA/CEMAC.</p>
+                        </div>
+                    </div>
+                    <div className="glass-card rounded-[32px] border border-amber-500/20 bg-amber-500/5 p-8 self-start">
+                        <div className="flex items-center gap-3 mb-4">
+                            <Lock className="w-5 h-5 text-amber-500" />
+                            <h4 className="text-sm font-black text-white uppercase tracking-widest">Nexus Vault Compliance</h4>
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed mb-6">
+                            Toutes vos données fiscales sont chiffrées et vérifiées par un hash blockchain pour garantir l'intégrité en cas de contrôle.
+                        </p>
+                        <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="w-[100%] h-full bg-emerald-500" />
+                        </div>
+                        <p className="text-[9px] text-emerald-400 font-black mt-2 uppercase">100% Inaltérable</p>
                     </div>
                 </div>
             )}
@@ -259,16 +385,23 @@ export default function FiscalOptimizationPage() {
 
 function OptimizationCard({ title, potential, desc, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30 hover:bg-slate-900/50 transition-all border-l-4 group">
-            <div className="flex justify-between items-start mb-4">
-                <div className={cn("p-2 bg-slate-800 rounded-xl", color)}>
+        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform">
+                <Icon className="w-24 h-24" />
+            </div>
+
+            <div className="flex justify-between items-start mb-6">
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 transition-all group-hover:scale-110", color)}>
                     <Icon className="w-6 h-6" />
                 </div>
-                <ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-white transition-all transform group-hover:translate-x-1" />
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                    <ArrowRight className="w-4 h-4 text-white" />
+                </div>
             </div>
-            <h3 className="font-bold text-white text-sm mb-1">{title}</h3>
-            <p className={cn("text-xs font-bold mb-3", color)}>{potential}</p>
-            <p className="text-[10px] text-slate-500 leading-relaxed italic line-clamp-2">"{desc}"</p>
+
+            <h3 className="text-sm font-black text-white mb-2">{title}</h3>
+            <p className={cn("text-xs font-black uppercase tracking-widest mb-4", color)}>{potential}</p>
+            <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">"{desc}"</p>
         </div>
     );
 }

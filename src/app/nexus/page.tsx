@@ -71,6 +71,30 @@ export default function NexusPage() {
                     }
                 });
                 setStreamData(prev => ["INITIATION PROTOCOLE M&A...", "CALCUL DES SYNERGIES...", "ANALYSE DE RISQUE JURIDIQUE TERMINÉE.", ...prev].slice(0, 6));
+            } else if (lowerQuery.includes("ohada") || lowerQuery.includes("loi") || lowerQuery.includes("juridique") || lowerQuery.includes("acte uniforme")) {
+                setAiResponse({
+                    type: "legal",
+                    title: "ASSISTANT JURIDIQUE OHADA",
+                    data: {
+                        article: "Art. 13 AUDCIF",
+                        source: "Acte Uniforme relatif au Droit Comptable et à l'Information Financière",
+                        interpretation: "Conformément à l'Acte Uniforme OHADA, tout commerçant est tenu de tenir un livre-journal, un grand livre et un livre d'inventaire. Ces livres doivent être conservés pendant dix ans.",
+                        links: ["Voir AUDCIF complet", "Jurisprudence liée"]
+                    }
+                });
+                setStreamData(prev => ["INDEXATION BASE OHADA...", "RÉCUPÉRATION TEXTES LÉGAUX...", "ANALYSE DE CONFORMITÉ TERMINÉE.", ...prev].slice(0, 6));
+            } else if (lowerQuery.includes("impot") || lowerQuery.includes("fiscal") || lowerQuery.includes("tva") || lowerQuery.includes("is")) {
+                setAiResponse({
+                    type: "tax",
+                    title: "CONSEILLER FISCAL UEMOA",
+                    data: {
+                        country: "Sénégal / Côte d'Ivoire",
+                        focus: "TVA Import & Droits de Douane",
+                        details: "Taux standard TVA : 18% (Sénégal & CI). Exonérations possibles selon le Code des Investissements pour les biens d'équipement. Attention au mécanisme d'autoliquidation de la TVA pour les prestataires étrangers.",
+                        caution: "Risque identifié : Nouvelles dispositions de la Loi de Finances 2024 sur les services numériques."
+                    }
+                });
+                setStreamData(prev => ["SCANNER CODES DES IMPÔTS...", "VÉRIFICATION LOI DE FINANCES 2024...", "SYNTHÈSE FISCALE GÉNÉRÉE.", ...prev].slice(0, 6));
             } else if (lowerQuery.includes("scan") || lowerQuery.includes("audit")) {
                 setAiResponse({
                     type: "audit",
@@ -134,6 +158,49 @@ export default function NexusPage() {
                                         <p className="text-sm text-cyan-100 leading-relaxed font-sans border-l-2 border-cyan-500 pl-4">
                                             {aiResponse.data.details}
                                         </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {aiResponse.type === "legal" && (
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-blue-950/20 border border-blue-500/30 rounded-xl">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-xs font-black text-blue-400 uppercase tracking-widest">{aiResponse.data.source}</span>
+                                            <span className="px-2 py-1 bg-blue-500 text-white text-[10px] font-bold rounded">{aiResponse.data.article}</span>
+                                        </div>
+                                        <p className="text-sm text-blue-100 font-sans leading-relaxed italic border-l-2 border-blue-500 pl-4 py-1">
+                                            {aiResponse.data.interpretation}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {aiResponse.data.links.map((link: string, i: number) => (
+                                            <button key={i} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-[10px] font-bold text-blue-400 rounded-lg border border-white/5 transition-colors">
+                                                {link}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {aiResponse.type === "tax" && (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
+                                            <p className="text-[10px] font-bold text-amber-500 uppercase mb-1">Zone Géographique</p>
+                                            <p className="text-sm font-black text-white">{aiResponse.data.country}</p>
+                                        </div>
+                                        <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-xl">
+                                            <p className="text-[10px] font-bold text-amber-500 uppercase mb-1">Focus Analyse</p>
+                                            <p className="text-sm font-black text-white">{aiResponse.data.focus}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-slate-300 font-sans leading-relaxed">
+                                        {aiResponse.data.details}
+                                    </p>
+                                    <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-3">
+                                        <AlertTriangle className="w-5 h-5 text-rose-500" />
+                                        <p className="text-xs font-bold text-rose-300">{aiResponse.data.caution}</p>
                                     </div>
                                 </div>
                             )}

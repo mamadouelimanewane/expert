@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
+import { AuditService } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
     try {
@@ -78,6 +79,15 @@ export async function POST(request: NextRequest) {
             }
         });
 
+        // Log action
+        await AuditService.log({
+            action: 'CREATE',
+            entity: 'TIME_ENTRY',
+            entityId: entry.id,
+            details: `Saisie de temps effectuée : ${entry.duration}h pour ${body.description || 'mission sans description'}`,
+            newValue: entry
+        });
+
         return NextResponse.json({ entry }, { status: 201 });
     } catch (error) {
         console.error('❌ Error creating time entry:', error);
@@ -87,3 +97,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+

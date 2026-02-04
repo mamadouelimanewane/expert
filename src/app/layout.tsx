@@ -6,6 +6,8 @@ import { OnboardingGuide } from "@/components/onboarding/OnboardingGuide";
 
 import { ThemeProvider } from "@/context/ThemeContext";
 
+import { AppShell } from "@/components/layout/AppShell";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,16 +27,9 @@ export default function RootLayout({
           {/* Background ambient glow effect */}
           <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none opacity-50 dark:opacity-100" />
 
-          <OnboardingGuide />
-
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="lg:pl-64 flex-1 min-h-screen relative pt-16 lg:pt-0">
-              <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-fade-in">
-                {children}
-              </div>
-            </main>
-          </div>
+          <AppShell>
+            {children}
+          </AppShell>
         </ThemeProvider>
       </body>
     </html>

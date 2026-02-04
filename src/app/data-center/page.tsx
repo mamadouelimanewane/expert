@@ -1,230 +1,189 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-    FileSpreadsheet,
-    FileText,
-    Download,
-    Share2,
-    Printer,
     Database,
-    Zap,
-    Clock,
-    CheckCircle2,
-    AlertCircle,
-    ArrowRight,
+    UploadCloud,
+    DownloadCloud,
+    FileSpreadsheet,
+    FileCode,
+    RefreshCw,
     Search,
     Filter,
-    Table as TableIcon,
-    BarChart3,
+    ArrowRight,
+    CheckCircle2,
+    AlertTriangle,
+    Clock,
     Layers,
-    History,
-    MoreVertical,
-    Smartphone,
-    Mail,
-    MessagesSquare
+    Activity,
+    HardDrive,
+    Trash2,
+    Sparkles,
+    ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ExportJob {
+interface Dataset {
     id: string;
     name: string;
-    type: "Excel" | "CSV" | "PDF" | "JSON";
-    status: "Terminé" | "En cours" | "Échec";
-    date: string;
+    type: "FEC" | "Grand Livre" | "Balance" | "Social";
     size: string;
+    date: string;
+    status: "Importé" | "Traitement..." | "Erreur" | "Prêt";
+    rows: number;
 }
 
-const MOCK_JOBS: ExportJob[] = [
-    { id: "EXP-001", name: "Grand Livre Annuel 2023", type: "Excel", status: "Terminé", date: "27/05/2024 14:20", size: "4.2 MB" },
-    { id: "EXP-002", name: "Balance Générale Q1", type: "CSV", status: "Terminé", date: "26/05/2024 09:15", size: "1.1 MB" },
-    { id: "EXP-003", name: "Rapport Gouvernance - SIB", type: "PDF", status: "En cours", date: "27/05/2024 15:45", size: "--" },
+const MOCK_DATASETS: Dataset[] = [
+    { id: "1", name: "FEC_2023_SIB_SENEGAL.xml", type: "FEC", size: "14.2 MB", date: "02/02/2024", status: "Importé", rows: 124500 },
+    { id: "2", name: "Balance_Générale_May24_Orange.xlsx", type: "Balance", size: "1.2 MB", date: "01/02/2024", status: "Prêt", rows: 450 },
+    { id: "3", name: "Extraction_Paie_H1_2023.csv", type: "Social", size: "4.5 MB", date: "28/01/2024", status: "Importé", rows: 1200 },
 ];
 
 export default function DataCenterPage() {
-    const [isExporting, setIsExporting] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
 
-    const startGlobalExport = () => {
-        setIsExporting(true);
-        setProgress(0);
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => setIsExporting(false), 1000);
-                    return 100;
-                }
-                return prev + 5;
-            });
-        }, 100);
+    const handleUpload = () => {
+        setIsUploading(true);
+        setTimeout(() => setIsUploading(false), 3000);
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+        <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
+            {/* Header Premium - Data Center */}
+            <div className="bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
-                    <Database className="w-56 h-56 text-indigo-400" />
+                    <Database className="w-64 h-64 text-indigo-400" />
                 </div>
 
-                <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
-                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
-                            <FileSpreadsheet className="w-8 h-8 text-white" />
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                                Nexus Data Engine
+                            </span>
+                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20">
+                                High Integrity Imports
+                            </span>
                         </div>
-                        Data Center & Éditions
-                    </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium text-lg leading-relaxed">
-                        Exportez vos données au format Excel/CSV et automatisez vos rapports périodiques.
-                    </p>
-                </div>
+                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                            Centre de <span className="text-indigo-400">Données & Ingestion</span>
+                        </h2>
+                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                            Importez massivement vos écritures comptables, FEC et balances. Notre moteur d'ingestion valide automatiquement la structure OHADA.
+                        </p>
+                    </div>
 
-                <div className="flex gap-4 relative z-10">
-                    <button
-                        onClick={startGlobalExport}
-                        disabled={isExporting}
-                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30"
-                    >
-                        {isExporting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        Export Global (Comprenant Tout)
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={handleUpload}
+                            disabled={isUploading}
+                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95 disabled:opacity-50"
+                        >
+                            {isUploading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                            Importer un fichier
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {isExporting && (
-                <div className="glass-card p-8 rounded-[30px] border border-indigo-500/30 bg-indigo-500/5 animate-pulse">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">Génération du package de données...</span>
-                        <span className="text-xs font-black text-white">{progress}%</span>
+            {/* Storage & Health Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <DataKpiCard title="Stockage Utilisé" value="4.2" unit="GB" trend="de 10GB" icon={HardDrive} color="text-indigo-400" />
+                <DataKpiCard title="Lignes Traitées" value="2.8M" trend="+124k ce mois" icon={Activity} color="text-emerald-400" />
+                <DataKpiCard title="Intégrité Data" value="99.9" unit="%" trend="Sans erreur FEC" icon={ShieldCheck} color="text-cyan-400" />
+                <DataKpiCard title="Datasets Actifs" value="142" trend="Fichiers indexés" icon={Layers} color="text-amber-400" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Datasets Table */}
+                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
+                    <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/60">
+                        <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                            <FileSpreadsheet className="w-6 h-6 text-indigo-400" />
+                            Historique des Ingestions
+                        </h3>
+                        <div className="flex gap-2 relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+                            <input placeholder="Filtrer..." className="bg-slate-950/50 border border-white/5 rounded-2xl pl-12 pr-6 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64" />
+                        </div>
                     </div>
-                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+
+                    <div className="flex-1 overflow-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th className="px-8 py-6">Fichier</th>
+                                    <th className="px-6 py-6 text-center">Type</th>
+                                    <th className="px-6 py-6 text-center">Volume</th>
+                                    <th className="px-6 py-6">Date</th>
+                                    <th className="px-8 py-6 text-right">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {MOCK_DATASETS.map((data) => (
+                                    <tr key={data.id} className="hover:bg-white/[0.02] transition-colors group">
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-2.5 bg-slate-800 rounded-xl border border-white/5 text-slate-400 group-hover:text-indigo-400 transition-colors">
+                                                    <FileCode className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <span className="font-bold text-slate-200 block group-hover:text-white transition-colors">{data.name}</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{data.size}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-6 text-center text-xs font-black text-slate-400">{data.type}</td>
+                                        <td className="px-6 py-6 text-center">
+                                            <span className="text-indigo-400 font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
+                                            <p className="text-[8px] text-slate-600 font-black uppercase">Lignes</p>
+                                        </td>
+                                        <td className="px-6 py-6 text-xs text-slate-500 font-bold">{data.date}</td>
+                                        <td className="px-8 py-6 text-right">
+                                            <div className="flex items-center justify-end gap-4">
+                                                <span className={cn(
+                                                    "text-[10px] font-black uppercase px-2 py-0.5 rounded border",
+                                                    data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                )}>{data.status}</span>
+                                                <button className="p-2 text-slate-700 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Automations Column */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
-                        <h3 className="text-white font-black text-xs uppercase tracking-widest mb-8 flex items-center gap-3">
-                            <Zap className="w-5 h-5 text-amber-400" />
-                            Automatisations Actives
+                {/* Automation & Connectors */}
+                <div className="lg:col-span-4 space-y-8">
+                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                        <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
+                            <RefreshCw className="w-6 h-6 text-indigo-400" />
+                            Connecteurs Directs
                         </h3>
                         <div className="space-y-4">
-                            <AutomationItem
-                                title="Reporting Hebdo Email"
-                                desc="Envoi auto tous les lundis à 08h00"
-                                icon={Mail}
-                                status="On"
-                            />
-                            <AutomationItem
-                                title="Synchro Drive Client"
-                                desc="Export PDF dès signature d'acte"
-                                icon={Share2}
-                                status="On"
-                            />
-                            <AutomationItem
-                                title="Nudge WhatsApp"
-                                desc="Relance auto factures > 15j"
-                                icon={MessagesSquare}
-                                status="On"
-                            />
-                            <AutomationItem
-                                title="Backup Cloud"
-                                desc="Export JSON complet quotidien"
-                                icon={History}
-                                status="Off"
-                            />
+                            <ConnectorItem name="Pennylane API" status="Connecté" color="emerald" />
+                            <ConnectorItem name="DGID Téléservices" status="Actif" color="emerald" />
+                            <ConnectorItem name="BCEAO Market Data" status="Connecté" color="emerald" />
+                            <ConnectorItem name="Banque Atlantique" status="En attente" color="amber" />
                         </div>
-                        <button className="w-full mt-8 py-4 border-2 border-dashed border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:border-indigo-500/30 hover:text-indigo-400 transition-all">
-                            + Configurer une Automation
+                        <button className="w-full mt-10 py-5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-3xl font-black uppercase tracking-widest text-[10px] transition-all">
+                            Ajouter une intégration
                         </button>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] bg-gradient-to-br from-slate-900 to-indigo-950 border border-white/5">
-                        <h4 className="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-2">Statut Data Warehouse</h4>
-                        <p className="text-white text-2xl font-black">1.2 TB <span className="text-xs text-slate-500">Stockés</span></p>
-                        <div className="mt-6 flex gap-2">
-                            <div className="px-3 py-1 bg-white/5 rounded-lg text-[8px] font-bold text-slate-400">99.9% Disponibilité</div>
-                            <div className="px-3 py-1 bg-white/5 rounded-lg text-[8px] font-bold text-slate-400">Chiffrement AES-256</div>
+                    <div className="p-10 rounded-[48px] bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                            <Sparkles className="w-32 h-32 text-indigo-400" />
                         </div>
-                    </div>
-                </div>
-
-                {/* Exports & Reports List */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Quick Format Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FormatCard title="Excel (.xlsx)" icon={FileSpreadsheet} color="text-emerald-400" />
-                        <FormatCard title="Comma Separated (.csv)" icon={TableIcon} color="text-cyan-400" />
-                        <FormatCard title="Archive Rapport (.pdf)" icon={FileText} color="text-rose-400" />
-                    </div>
-
-                    {/* Historical Exports */}
-                    <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
-                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                <History className="w-5 h-5 text-indigo-400" />
-                                Historique des Downloads
-                            </h3>
-                            <button className="p-2.5 bg-slate-800 rounded-xl text-slate-400">
-                                <Filter className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                    <tr>
-                                        <th className="px-8 py-6">Rapport / Fichier</th>
-                                        <th className="px-6 py-6 font-black">Format</th>
-                                        <th className="px-6 py-6 font-black">Statut</th>
-                                        <th className="px-6 py-6 font-black">Date</th>
-                                        <th className="px-8 py-6 font-black text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {MOCK_JOBS.map((job) => (
-                                        <tr key={job.id} className="hover:bg-white/[0.02] transition-colors group">
-                                            <td className="px-8 py-6">
-                                                <div>
-                                                    <span className="font-bold text-white block">{job.name}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{job.size}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6">
-                                                <span className={cn(
-                                                    "text-[9px] px-2 py-0.5 rounded-md font-black border",
-                                                    job.type === "Excel" ? "border-emerald-500/20 text-emerald-400" :
-                                                        job.type === "PDF" ? "border-rose-500/20 text-rose-400" : "border-slate-700 text-slate-500"
-                                                )}>
-                                                    {job.type}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-6">
-                                                <div className={cn(
-                                                    "flex items-center gap-2 text-[10px] font-black uppercase",
-                                                    job.status === "Terminé" ? "text-emerald-400" : "text-amber-400"
-                                                )}>
-                                                    {job.status === "Terminé" ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3 animate-spin" />}
-                                                    {job.status}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 text-xs text-slate-500 font-mono">
-                                                {job.date}
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <Download className="w-4 h-4" />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <h4 className="text-indigo-400 font-black text-xs uppercase tracking-widest mb-4">Optimisation IA Nexus</h4>
+                        <p className="text-xs text-indigo-100/60 leading-relaxed font-medium mb-6">
+                            L'IA a identifié 15.000 écritures en doublon potentiel dans le dernier import FEC. Souhaitez-vous lancer un rapport de déduplication ?
+                        </p>
+                        <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
+                            Analyser les Doublons
+                        </button>
                     </div>
                 </div>
             </div>
@@ -232,50 +191,31 @@ export default function DataCenterPage() {
     );
 }
 
-function AutomationItem({ title, desc, icon: Icon, status }: any) {
+function DataKpiCard({ title, value, unit, trend, icon: Icon, color }: any) {
     return (
-        <div className="p-5 bg-white/[0.02] border border-white/5 rounded-[24px] flex items-center justify-between group hover:bg-white/[0.05] transition-all cursor-pointer">
-            <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-800 rounded-xl text-indigo-400 group-hover:scale-110 transition-transform">
-                    <Icon className="w-5 h-5" />
+        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all">
+            <div className="flex justify-between items-start mb-6">
+                <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110", color)}>
+                    <Icon className="w-6 h-6" />
                 </div>
-                <div>
-                    <h4 className="text-sm font-bold text-white">{title}</h4>
-                    <p className="text-[10px] text-slate-500 font-medium">{desc}</p>
+                <div className="text-[10px] font-black px-3 py-1 bg-white/5 rounded-full text-slate-500 uppercase">
+                    {trend}
                 </div>
             </div>
-            <div className={cn(
-                "w-10 h-5 rounded-full relative transition-all",
-                status === "On" ? "bg-indigo-600" : "bg-slate-800"
-            )}>
-                <div className={cn(
-                    "absolute top-1 w-3 h-3 rounded-full bg-white transition-all",
-                    status === "On" ? "right-1" : "left-1"
-                )} />
-            </div>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
+            <h3 className="text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
         </div>
     );
 }
 
-function FormatCard({ title, icon: Icon, color }: any) {
+function ConnectorItem({ name, status, color }: any) {
     return (
-        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group cursor-pointer text-center flex flex-col items-center">
-            <div className={cn("p-4 rounded-2xl bg-white/5 mb-4 group-hover:scale-110 transition-transform", color)}>
-                <Icon className="w-6 h-6" />
+        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-indigo-500/30 transition-all">
+            <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{name}</span>
+            <div className="flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", color === "emerald" ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 shadow-[0_0_8px_#f59e0b]")} />
+                <span className={cn("text-[9px] font-black uppercase", color === "emerald" ? "text-emerald-400" : "text-amber-400")}>{status}</span>
             </div>
-            <h4 className="text-white font-bold text-xs uppercase tracking-widest">{title}</h4>
-            <p className="text-[9px] text-slate-600 font-bold mt-2 uppercase">Générer maintenant</p>
         </div>
     );
-}
-
-function RefreshCw({ className }: { className?: string }) {
-    return (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-            <path d="M21 3v5h-5" />
-            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-            <path d="M3 21v-5h5" />
-        </svg>
-    )
 }

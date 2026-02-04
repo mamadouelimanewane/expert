@@ -111,6 +111,83 @@ export default function ExpensesPage() {
                 <KpiCard title="Remboursé (Total)" value="840K" currency="FCFA" trend="-4%" icon={TrendingDown} color="text-emerald-400" bgColor="bg-emerald-500/10" />
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Advanced Validation Workflow */}
+                <div className="lg:col-span-2 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
+                    <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                        <CheckCircle2 className="w-6 h-6 text-indigo-400" />
+                        Circuit de Validation de Frais
+                    </h3>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
+                        {/* Connecting Line */}
+                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/5 hidden md:block -translate-y-1/2" />
+
+                        <div className="relative z-10 text-center space-y-3">
+                            <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+                                <Sparkles className="w-8 h-8 text-emerald-400" />
+                            </div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Saisie & OCR</p>
+                            <span className="text-[8px] text-slate-500 font-bold uppercase">Automatique</span>
+                        </div>
+
+                        <div className="relative z-10 text-center space-y-3 p-4 bg-white/5 rounded-3xl border border-white/10 scale-110 shadow-2xl">
+                            <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/30">
+                                <Users className="w-8 h-8 text-white" />
+                            </div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Approbation Manager</p>
+                            <span className="text-[8px] text-indigo-400 font-black uppercase">En cours (12)</span>
+                        </div>
+
+                        <div className="relative z-10 text-center space-y-3">
+                            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto border border-white/5">
+                                <FileText className="w-8 h-8 text-slate-500" />
+                            </div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Compta - Export FEC</p>
+                            <span className="text-[8px] text-slate-500 font-bold uppercase">Planifié</span>
+                        </div>
+
+                        <div className="relative z-10 text-center space-y-3">
+                            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto border border-white/5">
+                                <TrendingUp className="w-8 h-8 text-slate-500" />
+                            </div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Remboursement</p>
+                            <span className="text-[8px] text-slate-500 font-bold uppercase">Virement SEPA</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Expense Analytics Brief */}
+                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <h3 className="text-xl font-black text-white mb-8">Répartition Analytique</h3>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                                <span className="text-xs font-bold text-slate-300">Transport</span>
+                            </div>
+                            <span className="text-xs font-black text-white">45%</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-purple-500" />
+                                <span className="text-xs font-bold text-slate-300">Hébergement</span>
+                            </div>
+                            <span className="text-xs font-black text-white">32%</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-orange-500" />
+                                <span className="text-xs font-bold text-slate-300">Repas</span>
+                            </div>
+                            <span className="text-xs font-black text-white">18%</span>
+                        </div>
+                        <div className="mt-8 pt-6 border-t border-white/5">
+                            <button className="w-full text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:underline text-center">Voir l'analyse détaillée</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Main Tabs */}
             <div className="flex gap-4 p-1 bg-slate-900 border border-white/5 rounded-3xl w-fit">
                 <button

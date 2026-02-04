@@ -171,15 +171,67 @@ export default function InvestmentPage() {
                     </div>
                 </div>
             ) : (
-                <div className="glass-card rounded-[50px] p-40 flex flex-col items-center justify-center text-center border-2 border-dashed border-white/10">
-                    <div className="w-24 h-24 rounded-full bg-indigo-500/10 flex items-center justify-center mb-8">
-                        <LineChart className="w-12 h-12 text-indigo-400" />
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-in fade-in duration-700">
+                    {/* Valo Inputs */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                            <h3 className="text-white font-black text-xs uppercase tracking-widest mb-8">Données de Base</h3>
+                            <div className="space-y-6">
+                                <SimInput label="Chiffre d'Affaires (N)" value="450M" />
+                                <SimInput label="EBITDA (N)" value="85M" />
+                                <SimInput label="Dette Nette" value="32M" />
+                                <div className="pt-4 border-t border-white/5">
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4">Secteur OHADA</p>
+                                    <select className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-4 text-xs text-white outline-none">
+                                        <option>Agro-Industrie</option>
+                                        <option>Services B2B</option>
+                                        <option>Retail / Commerce</option>
+                                        <option>Technologie / SaaS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 className="text-4xl font-black text-white mb-4 uppercase tracking-tighter">Module en de Préparation</h3>
-                    <p className="text-slate-500 max-w-lg mx-auto font-medium text-lg leading-relaxed">
-                        Le moteur de modélisation dynamique de Business Plan 5 ans arrive.
-                        Importez vos balances et laissez l'IA générer vos prévisionnels de trésorerie.
-                    </p>
+
+                    {/* AI Scoring & Estimates */}
+                    <div className="lg:col-span-3 space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 relative group">
+                                <Sparkles className="absolute top-4 right-4 w-5 h-5 text-indigo-400 opacity-20 group-hover:opacity-100 transition-opacity" />
+                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Valo. Estimée (DCF)</p>
+                                <h3 className="text-3xl font-black text-white">425M <span className="text-[10px] text-slate-500 uppercase">FCFA</span></h3>
+                                <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-emerald-400 uppercase">
+                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                                    Confiance IA: Haute (92%)
+                                </div>
+                            </div>
+                            <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Multiple Sectoriel</p>
+                                <h3 className="text-3xl font-black text-white">5.8x <span className="text-[10px] text-slate-500 uppercase">EBITDA</span></h3>
+                                <p className="mt-4 text-[9px] text-slate-500 font-bold uppercase">Moyenne Afrique de l'Ouest</p>
+                            </div>
+                            <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score d'Attractivité</p>
+                                <h3 className="text-3xl font-black text-white">78/100</h3>
+                                <div className="mt-4 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-indigo-500" style={{ width: '78%' }} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden h-[400px] flex flex-col justify-center items-center">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 via-transparent to-transparent" />
+                            <div className="text-center space-y-4 relative z-10">
+                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 group hover:scale-110 transition-all cursor-pointer">
+                                    <Plus className="w-8 h-8 text-indigo-400" />
+                                </div>
+                                <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Générer le rapport complet</h4>
+                                <p className="text-slate-500 max-w-sm mx-auto text-sm">
+                                    L'IA Nexus compile 12 méthodes de valorisation (DCF, Multiples, Actif Net Réévalué) pour votre rapport final.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -270,3 +270,23 @@ body {
 .no-transition * {
   transition: none !important;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (max-width: 640px) {
+  .no-scrollbar-on-mobile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar-on-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

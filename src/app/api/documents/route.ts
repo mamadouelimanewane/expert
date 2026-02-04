@@ -5,6 +5,7 @@ import { existsSync } from 'fs';
 import prisma from '@/lib/prisma';
 import { processUploadedInvoice } from '@/lib/ocr-engine';
 import { AuthService } from '@/lib/auth';
+import { AuditService } from '@/lib/audit';
 
 export async function POST(request: NextRequest) {
     try {
@@ -59,8 +60,6 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(bytes);
         await writeFile(filePath, buffer);
 
-        console.log('✅ File saved:', filePath);
-
         // Créer l'entrée dans la base de données
         const document = await prisma.document.create({
             data: {
@@ -76,13 +75,19 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        console.log('✅ Document created in DB:', document.id);
+        // Log action
+        await AuditService.log({
+            action: 'UPLOAD',
+            entity: 'DOCUMENT',
+            entityId: document.id,
+            details: `Document uploadé : ${file.name} (${documentType})`,
+            newValue: { id: document.id, fileName: document.fileName, type: document.type }
+        });
 
         // Traiter le document avec OCR si c'est une facture
         let ocrResult = null;
         if (documentType === 'FACTURE' && file.type.startsWith('image/')) {
             try {
-                console.log('🔍 Starting OCR processing...');
                 ocrResult = await processUploadedInvoice(filePath);
 
                 // Mettre à jour le document avec les données OCR
@@ -95,7 +100,14 @@ export async function POST(request: NextRequest) {
                     },
                 });
 
-                console.log('✅ OCR processing completed');
+                // Log OCR processing
+                await AuditService.log({
+                    action: 'PROCESS',
+                    entity: 'DOCUMENT',
+                    entityId: document.id,
+                    details: ocrResult.success ? `Traitement OCR réussi pour : ${file.name}` : `Échec traitement OCR pour : ${file.name}`,
+                    newValue: { status: ocrResult.success ? 'PROCESSED' : 'ERROR' }
+                });
             } catch (ocrError) {
                 console.error('❌ OCR Error:', ocrError);
                 await prisma.document.update({
@@ -177,3 +189,4 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+

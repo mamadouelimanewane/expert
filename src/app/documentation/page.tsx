@@ -3,6 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import {
+    BookOpen,
+    LayoutDashboard,
     FileText,
     Book,
     ShieldCheck,
@@ -16,7 +18,11 @@ import {
     Globe,
     FileSignature,
     PenTool,
-    Briefcase
+    Award,
+    Briefcase,
+    GraduationCap,
+    Star,
+    TrendingUp
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -32,6 +38,13 @@ const documents = [
                 type: "PDF / Imprimable"
             },
             {
+                title: "Catalogue Formations 2026",
+                description: "Le catalogue complet de nos parcours certifiants et modules e-learning.",
+                href: "/documentation/training-catalog",
+                icon: BookOpen,
+                type: "Marketing / Digital"
+            },
+            {
                 title: "Lettre de Présentation",
                 description: "Modèle de lettre personnalisable pour les nouveaux clients.",
                 href: "/documentation/lettre",
@@ -39,11 +52,44 @@ const documents = [
                 type: "Word / Editable"
             },
             {
-                title: "Présentation Stratégique",
-                description: "Analyse profonde de la solution et du marché OHADA.",
-                href: "/presentation",
-                icon: FileText,
-                type: "Executive Summary"
+                title: "Histoires de Succès 2026",
+                description: "Études de cas réelles et témoignages d'impact des clients Cabinet 360.",
+                href: "/documentation/success-stories",
+                icon: TrendingUp,
+                type: "Marketing / Case Study"
+            }
+        ]
+    },
+    {
+        category: "E-Learning & Formation",
+        items: [
+            {
+                title: "Elite Handbook 2026",
+                description: "Manuel d'utilisation complet 200+ pages détaillant chaque module Nexus.",
+                href: "/documentation/full-manual",
+                icon: Book,
+                type: "Manual"
+            },
+            {
+                title: "Guide Plateforme Academy",
+                description: "Guide utilisateur pour naviguer dans l'espace de formation Cabinet Academy.",
+                href: "/documentation/academy-guide",
+                icon: LayoutDashboard,
+                type: "User Guide"
+            },
+            {
+                title: "Manuels de Formation Elite",
+                description: "Programmes de formation après-vente détaillés pour chaque module (Compta, Audit, Tax, etc.).",
+                href: "/documentation/training-manuals",
+                icon: GraduationCap,
+                type: "Premium Service"
+            },
+            {
+                title: "Référentiel Compétences CPF",
+                description: "Détail des crédits CPF pour chaque parcours de formation.",
+                href: "/documentation/cpf-ref",
+                icon: Award,
+                type: "Certification"
             }
         ]
     },
@@ -75,6 +121,13 @@ const documents = [
                 href: "/library",
                 icon: ShieldCheck,
                 type: "Certification"
+            },
+            {
+                title: "Welcome Pack Elite 2026",
+                description: "Kit d'accueil premium pour les nouveaux clients (Lettre & Quick Start Guide).",
+                href: "/documentation/welcome-pack",
+                icon: Star,
+                type: "Client Asset"
             },
             {
                 title: "Conditions Générales (CGU/CGV)",

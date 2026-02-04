@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import {
     BarChart3,
@@ -30,7 +31,8 @@ import {
     MoreVertical,
     Search,
     PieChart,
-    Activity
+    Activity,
+    Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +142,9 @@ export default function ClientPortalPage() {
                                     <button className="px-6 py-3 bg-white/10 text-white rounded-xl font-bold text-sm border border-white/10 hover:bg-white/20 transition-all">
                                         Contacter mon expert
                                     </button>
+                                    <Link href="/portal/custom-dashboard" className="px-6 py-3 bg-indigo-600/20 text-indigo-400 rounded-xl font-bold text-sm border border-indigo-500/30 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2">
+                                        <MonitorIcon className="w-4 h-4" /> Personnaliser mon Pilotage
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -269,15 +274,100 @@ export default function ClientPortalPage() {
                     </div>
                 )}
 
-                {/* === TAB 3 & 4 (Placeholder for brevity, but framework is there) === */}
-                {(activeTab === "communications" || activeTab === "finance") && (
-                    <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-4">
-                        <div className="w-20 h-20 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center mb-4">
-                            {activeTab === "communications" ? <MessageSquare className="w-8 h-8 text-slate-500" /> : <Wallet className="w-8 h-8 text-slate-500" />}
+                {/* === TAB 4: FINANCE (FACTURES & PAIEMENTS) === */}
+                {activeTab === "finance" && (
+                    <div className="space-y-8 animate-in fade-in duration-500">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Facturation & Honoraires</h2>
+                                <p className="text-slate-400">Gérez vos paiements et téléchargez vos factures d'honoraires.</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                                    <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">Solde à payer</p>
+                                    <p className="text-xl font-black text-white">0 FCFA</p>
+                                </div>
+                            </div>
                         </div>
-                        <h3 className="text-xl font-bold text-white">Module en cours de chargement</h3>
-                        <p className="text-slate-400 max-w-md">L'architecture est prête. Ce module sera activé dès que les données réelles seront connectées.</p>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Invoice List */}
+                            <div className="lg:col-span-2 glass-card rounded-[32px] border border-white/5 bg-slate-900/20 overflow-hidden">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                        <tr>
+                                            <th className="px-8 py-6">Facture / Date</th>
+                                            <th className="px-6 py-6 font-black text-right">Montant</th>
+                                            <th className="px-6 py-6 text-center">Statut</th>
+                                            <th className="px-8 py-6 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {[
+                                            { id: "FACT-2024-001", date: "01 Fév 2024", amount: "450 000", status: "Payée" },
+                                            { id: "FACT-2024-002", date: "01 Jan 2024", amount: "450 000", status: "Payée" },
+                                            { id: "FACT-2023-112", date: "15 Déc 2023", amount: "125 000", status: "Payée" },
+                                        ].map((inv) => (
+                                            <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-8 py-6">
+                                                    <span className="font-bold text-white block">{inv.id}</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{inv.date}</span>
+                                                </td>
+                                                <td className="px-6 py-6 text-right">
+                                                    <span className="font-mono font-bold text-slate-200">{inv.amount} FCFA</span>
+                                                </td>
+                                                <td className="px-6 py-6 text-center">
+                                                    <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase">
+                                                        {inv.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all">
+                                                        <Download className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Payment Methods (AXONAUT INSPIRED) */}
+                            <div className="glass-card p-8 rounded-[32px] border border-white/5 bg-slate-900/40 space-y-6">
+                                <h3 className="font-black text-white text-lg flex items-center gap-3">
+                                    <CreditCard className="w-6 h-6 text-indigo-400" />
+                                    Moyen de Paiement
+                                </h3>
+                                <div className="p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-6 bg-slate-800 rounded flex items-center justify-center font-bold text-[8px] border border-white/10">VISA</div>
+                                        <div>
+                                            <p className="text-xs font-bold text-white">•••• 4290</p>
+                                            <p className="text-[10px] text-slate-500">Expire 12/26</p>
+                                        </div>
+                                    </div>
+                                    <button className="text-[10px] font-black text-indigo-400 uppercase">Modifier</button>
+                                </div>
+                                <div className="p-5 border border-dashed border-slate-800 rounded-2xl text-center cursor-pointer hover:border-indigo-500/30 transition-all">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase">+ Ajouter Mobile Money</p>
+                                </div>
+
+                                <div className="pt-6 border-t border-white/5">
+                                    <div className="flex items-center gap-3 p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                                        <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                                        <p className="text-[10px] font-medium text-emerald-500/80 leading-tight">
+                                            Paiements sécurisés et certifiés PCI-DSS. Vos données bancaires ne sont jamais stockées sur nos serveurs.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                )}
+
+                {/* === TAB 3 (MESSAGERIE) === */}
+                {activeTab === "communications" && (
+                    <PortalChat />
                 )}
 
             </div>
@@ -291,7 +381,7 @@ function PortalCard({ title, value, unit, trend, trendUp, icon: Icon, color, bg,
     return (
         <div className={cn("glass-card p-6 rounded-[32px] border transition-all hover:scale-[1.02]", border || "border-white/5", bg || "bg-slate-900/40")}>
             <div className="flex justify-between items-start mb-6">
-                <div className={cn("p-3 rounded-2xl", color.replace("text-", "bg-") / 10 || "bg-white/5")}>
+                <div className={cn("p-3 rounded-2xl bg-white/5")}>
                     <Icon className={cn("w-6 h-6", color)} />
                 </div>
                 {trend && (
@@ -304,6 +394,84 @@ function PortalCard({ title, value, unit, trend, trendUp, icon: Icon, color, bg,
             <div className="flex items-baseline gap-1">
                 <h4 className="text-3xl font-black text-white">{value}</h4>
                 <span className="text-xs font-bold text-slate-500">{unit}</span>
+            </div>
+        </div>
+    );
+}
+
+// Full Chat Interface for Portal
+function PortalChat() {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[600px] animate-in fade-in duration-500">
+            <div className="lg:col-span-4 glass-card rounded-[32px] border border-white/5 bg-slate-900/40 flex flex-col">
+                <div className="p-6 border-b border-white/5">
+                    <h3 className="font-bold text-white uppercase tracking-widest text-xs">Mes Contacts Experts</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    <ContactItem name="Moussa Sarr" role="Expert-Comptable Dédié" online />
+                    <ContactItem name="Fatima Diop" role="Gestionnaire de Paie" />
+                    <ContactItem name="Service Juridique" role="Cabinet" />
+                </div>
+            </div>
+
+            <div className="lg:col-span-8 glass-card rounded-[32px] border border-white/5 bg-slate-910/20 flex flex-col relative overflow-hidden">
+                <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">MS</div>
+                        <div>
+                            <p className="text-sm font-bold text-white font-black uppercase">Moussa Sarr</p>
+                            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">En ligne</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-white/[0.01]">
+                    <ChatBubble side="left" text="Bonjour M. Kouassi, j'ai bien reçu vos justificatifs pour la mission Audit GDS." />
+                    <ChatBubble side="left" text="La liasse fiscale sera prête pour signature demain matin sur votre portail." />
+                    <ChatBubble side="right" text="Parfait Moussa, merci pour la réactivité." />
+                </div>
+
+                <div className="p-6 bg-slate-900/60 border-t border-white/5">
+                    <div className="flex gap-4">
+                        <input
+                            placeholder="Écrivez un message ou posez une question à l'IA..."
+                            className="flex-1 bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                        />
+                        <button className="px-6 py-4 bg-indigo-600 rounded-2xl text-white shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
+                            <Send className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ContactItem({ name, role, online }: any) {
+    return (
+        <div className="p-4 rounded-2xl hover:bg-white/5 transition-all cursor-pointer group border border-transparent hover:border-white/5">
+            <div className="flex items-center gap-4">
+                <div className="relative">
+                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400">{name.split(' ').map((n: any) => n[0]).join('')}</div>
+                    {online && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0B0F17]" />}
+                </div>
+                <div>
+                    <p className="text-xs font-bold text-slate-200 group-hover:text-white transition-colors uppercase tracking-tight">{name}</p>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase">{role}</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ChatBubble({ side, text }: any) {
+    return (
+        <div className={cn("flex", side === 'right' ? "justify-end" : "justify-start")}>
+            <div className={cn(
+                "max-w-[80%] p-4 rounded-3xl",
+                side === 'right' ? "bg-indigo-600 text-white rounded-tr-none px-6" : "bg-slate-800/80 text-slate-200 rounded-tl-none border border-white/5"
+            )}>
+                <p className="text-xs leading-relaxed font-medium">{text}</p>
             </div>
         </div>
     );

@@ -1,220 +1,248 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-    Zap,
-    TrendingUp,
-    TrendingDown,
-    Target,
-    Lightbulb,
-    Play,
-    RotateCcw,
-    Boxes,
     LineChart,
-    BarChart,
-    Layers,
-    Sparkles,
+    TrendingUp,
+    Zap,
+    AlertTriangle,
+    ShieldCheck,
     ArrowRight,
-    Gem
+    Play,
+    RefreshCw,
+    Sliders,
+    BrainCircuit,
+    Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function StrategySimulatorPage() {
-    const [revenueGrowth, setRevenueGrowth] = useState(10);
-    const [costReduction, setCostReduction] = useState(5);
-    const [hiringCount, setHiringCount] = useState(0);
-    const [isSimulating, setIsSimulating] = useState(false);
+// Mock Scenario Data
+const SCENARIOS = [
+    { id: "inflation", label: "Choc Inflationniste", icon: TrendingUp, color: "text-rose-400", bg: "bg-rose-500/10" },
+    { id: "growth", label: "Hyper-Croissance", icon: Zap, color: "text-amber-400", bg: "bg-amber-500/10" },
+    { id: "churn", label: "Perte Client Majeur", icon: AlertTriangle, color: "text-orange-400", bg: "bg-orange-500/10" },
+    { id: "resilience", label: "Stress Test Bancaire", icon: ShieldCheck, color: "text-indigo-400", bg: "bg-indigo-500/10" }
+];
 
-    // Computed values
-    const currentCash = 24500000;
-    const simulatedCash = currentCash * (1 + (revenueGrowth / 100) - (hiringCount * 0.05) + (costReduction / 100));
-    const healthScore = Math.min(100, 75 + (revenueGrowth / 5) + (costReduction / 2) - (hiringCount * 2));
+export default function StrategySimulatorPage() {
+    const [selectedScenario, setSelectedScenario] = useState("inflation");
+    const [variables, setVariables] = useState({
+        revenue: 0, // % change
+        costs: 15, // % change
+        cash: -5, // % change
+        staff: 0 // % change
+    });
+
+    // Simulated impact calculation
+    const resilienceScore = Math.max(0, 100 - (variables.costs * 1.5) + (variables.revenue * 1.2));
+    const cashBurn = variables.costs > variables.revenue ? "Accéléré" : "Stable";
 
     return (
-        <div className="space-y-6 pb-20">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        <Gem className="w-8 h-8 text-indigo-400" />
-                        Digital Twin & Simulateur Stratégique
-                    </h2>
-                    <p className="text-slate-400 mt-1">Projetez l'avenir de l'entreprise et simulez l'impact de vos décisions en temps réel.</p>
+        <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+
+            {/* Header Futuristic */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-6 border-b border-white/5 relative overflow-hidden">
+                <div className="z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-violet-500/20">
+                        <BrainCircuit className="w-3 h-3" /> Intelligence Prédictive
+                    </div>
+                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                        Simulateur de Stratégie IA
+                    </h1>
+                    <p className="text-slate-400 mt-2 max-w-2xl text-lg">
+                        Ne subissez plus l'avenir. Simulez l'impact des crises et opportunités sur votre trésorerie et votre rentabilité <span className="text-violet-400 font-bold">avant qu'elles n'arrivent</span>.
+                    </p>
                 </div>
 
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 font-bold text-xs flex items-center gap-2">
-                        <RotateCcw className="w-4 h-4" /> Réinitialiser
+                {/* Visual Eye Candy */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0" />
+
+                <div className="flex gap-3 z-10">
+                    <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4" /> Reset
                     </button>
-                    <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-                        <Layers className="w-4 h-4" /> Sauvegarder Scénario
+                    <button className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/25 flex items-center gap-2 group">
+                        <Play className="w-4 h-4 group-hover:fill-current" /> Lancer Simulation
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {/* Control Panel */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/50 space-y-8">
-                        <h3 className="font-bold text-white flex items-center gap-2">
-                            <SettingsIcon className="w-5 h-5 text-indigo-400" />
-                            Leviers Stratégiques
+                {/* Left: Configuration Panel */}
+                <div className="lg:col-span-4 space-y-6">
+
+                    {/* Scenario Selector */}
+                    <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                            <Target className="w-5 h-5 text-slate-400" /> Scénario de Base
+                        </h3>
+                        <div className="grid grid-cols-1 gap-3">
+                            {SCENARIOS.map((scenario) => (
+                                <button
+                                    key={scenario.id}
+                                    onClick={() => setSelectedScenario(scenario.id)}
+                                    className={cn(
+                                        "flex items-center gap-4 p-4 rounded-xl border transition-all text-left group",
+                                        selectedScenario === scenario.id
+                                            ? "bg-slate-800 border-violet-500/50 shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+                                            : "bg-slate-950/30 border-white/5 hover:bg-slate-900"
+                                    )}
+                                >
+                                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", scenario.bg, scenario.color)}>
+                                        <scenario.icon className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-white text-sm">{scenario.label}</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">Modèle IA v2.4</p>
+                                    </div>
+                                    {selectedScenario === scenario.id && <div className="ml-auto w-2 h-2 rounded-full bg-violet-500 animate-pulse" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Variables Sliders */}
+                    <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
+                            <Sliders className="w-5 h-5 text-slate-400" /> Variables Clés
                         </h3>
 
                         <div className="space-y-6">
-                            <SliderControl
-                                label="Croissance du Chiffre d'Affaires (%)"
-                                value={revenueGrowth}
-                                min={-20}
-                                max={50}
-                                onChange={setRevenueGrowth}
-                                color="indigo"
+                            <VariableSlider
+                                label="Impact Chiffre d'Affaires"
+                                value={variables.revenue}
+                                onChange={(v: number) => setVariables({ ...variables, revenue: v })}
+                                min={-50} max={50} unit="%"
                             />
-                            <SliderControl
-                                label="Optimisation des Charges (%)"
-                                value={costReduction}
-                                min={0}
-                                max={20}
-                                onChange={setCostReduction}
-                                color="emerald"
+                            <VariableSlider
+                                label="Inflation Coûts (Achats/Externes)"
+                                value={variables.costs}
+                                onChange={(v: number) => setVariables({ ...variables, costs: v })}
+                                min={0} max={100} unit="%" alert={variables.costs > 20}
                             />
-                            <SliderControl
-                                label="Nouveaux Recrutements (Tête)"
-                                value={hiringCount}
-                                min={0}
-                                max={10}
-                                onChange={setHiringCount}
-                                color="amber"
+                            <VariableSlider
+                                label="Variation Masse Salariale"
+                                value={variables.staff}
+                                onChange={(v: number) => setVariables({ ...variables, staff: v })}
+                                min={-20} max={50} unit="%"
                             />
-                        </div>
-
-                        <div className="pt-6 border-t border-slate-800">
-                            <button
-                                onClick={() => { setIsSimulating(true); setTimeout(() => setIsSimulating(false), 2000); }}
-                                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] transition-all"
-                            >
-                                <Play className="w-5 h-5 fill-current" />
-                                Générer Projection IA
-                            </button>
                         </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-3xl border border-indigo-500/20 bg-indigo-500/5">
-                        <h4 className="flex items-center gap-2 font-bold text-indigo-400 mb-4 text-sm">
-                            <Lightbulb className="w-4 h-4" />
-                            Conseil de l'IA (Expert Mode)
-                        </h4>
-                        <p className="text-xs text-slate-400 leading-relaxed italic">
-                            "Avec une croissance de {revenueGrowth}%, votre BFR risque de saturer. Prévoyez une ligne de crédit court terme de 5M FCFA pour maintenir la liquidité."
-                        </p>
-                    </div>
                 </div>
 
-                {/* Visualisation Area */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Twin Health Score */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 flex items-center gap-6 bg-slate-900/30">
-                            <div className="relative w-24 h-24">
-                                <svg className="w-full h-full transform -rotate-90">
-                                    <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-800" />
-                                    <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent"
-                                        className={cn("transition-all duration-1000", healthScore > 70 ? "text-emerald-500" : "text-amber-500")}
-                                        strokeDasharray={251}
-                                        strokeDashoffset={251 - (251 * healthScore) / 100}
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
-                                    {Math.round(healthScore)}%
-                                </div>
-                            </div>
+                {/* Right: Simulation Output */}
+                <div className="lg:col-span-8 space-y-6">
+
+                    {/* Main Prediction Graph Area */}
+                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/50 relative overflow-hidden min-h-[400px] flex flex-col">
+                        <div className="flex justify-between items-start mb-8 z-10">
                             <div>
-                                <h3 className="font-bold text-white">Score de Santé Projeté</h3>
-                                <p className="text-xs text-slate-500 mt-1">Basé sur la solvabilité et la rentabilité finale.</p>
+                                <h2 className="text-2xl font-black text-white">Projection Trésorerie N+1</h2>
+                                <p className="text-slate-400 text-sm mt-1">Comparaison : Trajectoire Actuelle vs Scénario Simulé</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                                    <div className="w-3 h-3 rounded-full bg-slate-700" /> Actuel
+                                </div>
+                                <div className="flex items-center gap-2 text-xs font-bold text-violet-400">
+                                    <div className="w-3 h-3 rounded-full bg-violet-500" /> Simulé
+                                </div>
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Trésorerie Provisoirement Estimée</p>
-                            <div className="text-3xl font-bold text-white flex items-center gap-3">
-                                {Math.round(simulatedCash).toLocaleString()} <span className="text-sm text-slate-600">FCFA</span>
-                                <TrendingUp className="text-emerald-500 w-6 h-6" />
-                            </div>
-                            <p className="text-[10px] text-emerald-400 font-bold mt-2">+{Math.round(simulatedCash - currentCash).toLocaleString()} FCFA vs Réel</p>
-                        </div>
-                    </div>
-
-                    {/* Chart Projection (Simulation) */}
-                    <div className="glass-card p-8 rounded-3xl border border-slate-700/50 min-h-[400px] flex flex-col justify-between relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <Boxes className="w-40 h-40 text-indigo-400" />
-                        </div>
-
-                        <div className="flex justify-between items-center mb-10">
-                            <h3 className="font-bold text-white text-lg">Trajectoire de Croissance Projetée (12 mois)</h3>
-                            <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
-                                <span className="flex items-center gap-1.5 text-slate-500"><div className="w-2 h-2 bg-slate-800 rounded-full" /> Historique</span>
-                                <span className="flex items-center gap-1.5 text-indigo-400"><div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" /> Simulation IA</span>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 flex items-end gap-2 px-2 h-64">
-                            {[30, 35, 32, 45, 40, 55, 65, 75, 85, 80, 95, 100].map((h, i) => (
-                                <div key={i} className="flex-1 group relative">
+                        {/* Visual graph placeholder - using CSS for a sleek curve */}
+                        <div className="flex-1 relative w-full h-full flex items-end gap-1 px-4 pb-8">
+                            {[40, 42, 45, 48, 46, 42, 38, 35, 30, 25, 20, 15].map((h, i) => (
+                                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-1 group h-full relative">
+                                    {/* Simulated Bar */}
                                     <div
-                                        className={cn(
-                                            "w-full rounded-t-xl transition-all duration-700",
-                                            i < 6 ? "bg-slate-800" : "bg-gradient-to-t from-indigo-700 to-indigo-400 shadow-lg shadow-indigo-500/20"
-                                        )}
-                                        style={{ height: `${h * (isSimulating ? 0.2 : 1)}%` }}
-                                    />
-                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-slate-900 text-[10px] font-bold px-2 py-1 rounded-lg pointer-events-none">
-                                        {(h * 0.5).toFixed(1)}M
+                                        className="w-full max-w-[40px] rounded-t-lg bg-gradient-to-t from-violet-900/50 to-violet-500 transition-all duration-500 relative"
+                                        style={{ height: `${Math.max(10, h - (variables.costs * 0.5) + (variables.revenue * 0.5))}%` }}
+                                    >
+                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10 whitespace-nowrap z-20 pointer-events-none">
+                                            {(h - (variables.costs * 0.5) + (variables.revenue * 0.5)).toFixed(1)}M FCFA
+                                        </div>
                                     </div>
+
+                                    {/* Baseline marker (ghost) */}
+                                    <div className="w-full absolute bottom-0 max-w-[40px] border-t-2 border-dashed border-slate-600/30" style={{ height: `${h}%`, borderTopWidth: '2px' }} />
+
+                                    <span className="text-[10px] text-slate-600 font-bold mt-2 font-mono">M+{i + 1}</span>
                                 </div>
                             ))}
-                        </div>
 
-                        <div className="flex justify-between mt-6 text-[10px] text-slate-500 font-bold uppercase tracking-tighter">
-                            <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
-                            <span className="text-indigo-400">Juil</span><span className="text-indigo-400">Août</span><span className="text-indigo-400">Sept</span><span className="text-indigo-400">Oct</span><span className="text-indigo-400">Nov</span><span className="text-indigo-400">Déc</span>
+                            {/* Forecast Line overlay */}
+                            <svg className="absolute inset-0 w-full h-[calc(100%-32px)] pointer-events-none opacity-30" preserveAspectRatio="none">
+                                <path d="M0,200 C100,180 200,150 300,250 S500,300 800,100" stroke="currentColor" fill="none" strokeWidth="2" className="text-violet-400" />
+                            </svg>
                         </div>
                     </div>
 
-                    {/* Strategic Roadmap */}
-                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
-                            <Target className="w-5 h-5 text-indigo-500" />
-                            Feuille de Route Stratégique (Roadmap)
-                        </h3>
-                        <div className="space-y-4">
-                            {[
-                                { t: "M+1", label: "Lancement de l'audit de productivité fiscale", status: "priority" },
-                                { t: "M+3", label: "Objectif SEUIL : 35M de trésorerie nette", status: "target" },
-                                { t: "M+6", label: "Extension du parc matériel (Immos)", status: "pending" }
-                            ].map((step, i) => (
-                                <div key={i} className="flex items-center gap-6 p-4 hover:bg-white/5 rounded-2xl transition-all group">
-                                    <span className="text-xs font-mono font-bold text-indigo-400 w-10">{step.t}</span>
-                                    <div className="flex-1 flex items-center justify-between">
-                                        <p className="text-sm text-slate-300 group-hover:text-white transition-colors">{step.label}</p>
-                                        <ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-indigo-500 transition-all group-hover:translate-x-1" />
-                                    </div>
+                    {/* AI Insights Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all cursor-default">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                                    <BrainCircuit className="w-5 h-5 text-emerald-400" />
                                 </div>
-                            ))}
+                                <h4 className="font-bold text-white text-lg">Analyse IA</h4>
+                            </div>
+                            <div className="space-y-3">
+                                <p className="text-sm text-slate-300 leading-relaxed">
+                                    Avec <span className="font-bold text-white">+{variables.costs}%</span> de coûts, votre point mort augmente de <span className="text-rose-400 font-bold">12MF</span>.
+                                </p>
+                                <p className="text-sm text-slate-300 leading-relaxed">
+                                    <span className="text-emerald-400 font-bold">Recommandation :</span> Augmenter vos prix de vente de <span className="font-bold text-white">{(variables.costs * 0.6).toFixed(1)}%</span> pour maintenir votre EBITDA actuel.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-6 opacity-5">
+                                <ShieldCheck className="w-24 h-24 text-white" />
+                            </div>
+                            <h4 className="font-bold text-white text-lg mb-2">Score de Résilience</h4>
+                            <div className="flex items-end gap-2 mb-4">
+                                <span className={cn("text-5xl font-black",
+                                    resilienceScore > 75 ? "text-emerald-400" :
+                                        resilienceScore > 50 ? "text-amber-400" : "text-rose-400"
+                                )}>{resilienceScore.toFixed(0)}/100</span>
+                                <span className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Indice Solvab.</span>
+                            </div>
+                            <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div
+                                    className={cn("h-full rounded-full transition-all duration-700",
+                                        resilienceScore > 75 ? "bg-emerald-500" :
+                                            resilienceScore > 50 ? "bg-amber-500" : "bg-rose-500"
+                                    )}
+                                    style={{ width: `${resilienceScore}%` }}
+                                />
+                            </div>
+                            <p className="text-xs text-slate-400 mt-3 font-medium">
+                                Cash Burn : <span className={cn("font-bold", cashBurn === "Accéléré" ? "text-rose-400" : "text-emerald-400")}>{cashBurn}</span>
+                            </p>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     );
 }
 
-function SliderControl({ label, value, min, max, onChange, color }: any) {
+function VariableSlider({ label, value, onChange, min, max, unit, alert }: any) {
     return (
         <div className="space-y-3">
-            <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
-                <span className="text-slate-500">{label}</span>
-                <span className={cn("font-mono", `text-${color}-400`)}>{value > 0 ? "+" : ""}{value}{label.includes("%") ? "%" : ""}</span>
+            <div className="flex justify-between items-end">
+                <label className="text-sm font-bold text-slate-300 flex items-center gap-2">
+                    {label}
+                    {alert && <AlertTriangle className="w-3 h-3 text-rose-500 animate-pulse" />}
+                </label>
+                <span className={cn("text-lg font-black font-mono", value > 0 ? "text-emerald-400" : value < 0 ? "text-rose-400" : "text-slate-500")}>
+                    {value > 0 ? "+" : ""}{value}{unit}
+                </span>
             </div>
             <input
                 type="range"
@@ -223,18 +251,14 @@ function SliderControl({ label, value, min, max, onChange, color }: any) {
                 value={value}
                 onChange={(e) => onChange(parseInt(e.target.value))}
                 className={cn(
-                    "w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500",
+                    "w-full h-2 rounded-lg appearance-none cursor-pointer bg-slate-800",
+                    "accent-violet-500 focus:accent-violet-400"
                 )}
             />
+            <div className="flex justify-between text-[10px] text-slate-600 font-bold uppercase tracking-wider">
+                <span>{min}{unit}</span>
+                <span>{max}{unit}</span>
+            </div>
         </div>
-    );
-}
-
-function SettingsIcon({ className }: { className?: string }) {
-    return (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-        </svg>
     );
 }

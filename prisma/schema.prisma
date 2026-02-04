@@ -92,6 +92,14 @@ model Client {
   city              String?
   postalCode        String?
   
+  // Haute Expertise - Governance & Health (Real Data)
+  agStatus          String?      // late, valid, expiring
+  mandatStatus      String?
+  depotComptesStatus String?
+  kycStatus         String?      // valid, invalid
+  healthScore       Float?       // 0-100
+  rating            String?      // AAA, AA, B, etc.
+  
   // Status
   isActive          Boolean      @default(true)
   createdAt         DateTime     @default(now())
@@ -465,4 +473,38 @@ model AuditLog {
   createdAt       DateTime @default(now())
   
   @@map("audit_logs")
+}
+
+// ============================================
+// HAUTE EXPERTISE - REAL DATA MODELS
+// ============================================
+
+model Communication {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  type      String   // email, whatsapp, portal, teams
+  sender    String
+  avatar    String?  // Initials
+  subject   String?
+  preview   String?
+  content   String
+  date      DateTime @default(now())
+  clientId  String?  @db.ObjectId
+  read      Boolean  @default(false)
+  tags      String[]
+  
+  @@map("communications")
+}
+
+model NewsBrief {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  type      String   // FISCAL, LEGAL, URGENT
+  content   String
+  summary   String?
+  source    String?
+  relevance Int      @default(5) // 1-10
+  date      DateTime @default(now())
+  isRead    Boolean  @default(false)
+  
+  @@map("news_briefs")
 }

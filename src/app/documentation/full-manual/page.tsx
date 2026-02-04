@@ -1,650 +1,282 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from "react";
+import Link from "next/link";
 import {
-    LayoutDashboard,
-    Users,
-    Mail,
-    Briefcase,
-    FileText,
     Book,
-    Settings,
-    LogOut,
-    BarChart3,
-    Sparkles,
-    ShieldAlert,
-    MessageSquare,
-    Workflow,
-    Calendar,
-    Activity,
-    Calculator,
-    Receipt,
-    PenTool,
-    Gavel,
-    Rocket,
-    Library,
-    Wallet,
-    TrendingUp,
-    ArrowRightLeft,
-    FileSpreadsheet,
-    CalendarDays,
-    DollarSign,
-    Building,
-    ChevronRight,
     Search,
-    HelpCircle,
-    CheckCircle2,
-    PlayCircle,
-    ArrowRight,
-    MousePointer2,
-    Eye,
-    Zap,
-    Plane,
-    Calendar as CalendarIcon,
-    BrainCircuit,
+    ChevronRight,
+    Download,
     Printer,
-    FileDown
+    BookOpen,
+    Layers,
+    Cpu,
+    ShieldCheck,
+    Zap,
+    Scale,
+    Activity,
+    Globe,
+    FileText,
+    History,
+    Briefcase,
+    UserCheck,
+    MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ChapterContent } from "./chapter-content";
 
-const CHAPTERS = [
-    {
-        id: "dashboard",
-        label: "Tableau de Bord",
-        icon: LayoutDashboard,
-        title: "Le Centre de Pilotage Stratégique",
-        description: "Votre tableau de bord est le cœur opérationnel de Cabinet 360. Il offre une vue panoramique en temps réel sur la santé de votre cabinet et des dossiers clients.",
-        sections: [
-            {
-                title: "Fonctions Principales",
-                items: [
-                    {
-                        name: "Bouton 'Nouveau Dossier'",
-                        function: "Permet d'initier la création d'une nouvelle fiche client ou mission complexe.",
-                        result: "Ouvre un formulaire de création assistée par IA pour renseigner les données légales."
-                    },
-                    {
-                        name: "Bouton 'Scanner Pièce'",
-                        function: "Active le module d'OCR (Reconnaissance Optique de Caractères) pour numériser des pièces comptables.",
-                        result: "Les données (date, montant, TVA, tiers) sont extraites automatiquement pour pré-saisie."
-                    }
-                ]
-            },
-            {
-                title: "Indicateurs de Performance (KPI)",
-                items: [
-                    {
-                        name: "Chiffre d'Affaires",
-                        function: "Cumul des honoraires encaissés sur la période en cours.",
-                        result: "Visualisation immédiate de la rentabilité avec comparaison N-1."
-                    },
-                    {
-                        name: "Alertes Fiscales",
-                        function: "Surveillance automatique des dates limites de déclaration (TVA, IS, RF).",
-                        result: "Affiche le nombre d'échéances critiques à traiter sous 7 jours."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "clients",
-        label: "Clients (CRM 360°)",
-        icon: Users,
-        title: "Gestion de la Relation Client (CRM)",
-        description: "Un CRM conçu spécifiquement pour les experts-comptables, centralisant les aspects KYC, juridiques et financiers.",
-        sections: [
-            {
-                title: "Interface de Gestion",
-                items: [
-                    {
-                        name: "Sélecteur de Vue (Grille/Liste)",
-                        function: "Alterne entre une vue visuelle par cartes et une vue tabulaire condensée.",
-                        result: "Optimise l'affichage selon le volume de clients à gérer."
-                    },
-                    {
-                        name: "Barre de Recherche Intelligente",
-                        function: "Filtre instantanément la base client par nom, RCCM, NINEA ou ville.",
-                        result: "Accès ultra-rapide aux dossiers, même avec des milliers de références."
-                    }
-                ]
-            },
-            {
-                title: "Fiche Client IA",
-                items: [
-                    {
-                        name: "Score de Santé Client",
-                        function: "Algorithme calculant le risque client basé sur les impayés et les retards de documents.",
-                        result: "Indicateur colorimétrique (Vert/Orange/Rouge) pour prioriser la relance."
-                    },
-                    {
-                        name: "Boutons d'Action Rapide",
-                        function: "Appel, message ou accès GED direct depuis la carte client.",
-                        result: "Gain de temps en évitant d'entrer dans les détails pour des tâches simples."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "missions",
-        label: "Missions & Tâches",
-        icon: Briefcase,
-        title: "Management de la Production",
-        description: "Pilotez vos missions de tenue, révision et commissariat aux comptes via un système Kanban intuitif.",
-        sections: [
-            {
-                title: "Tableau Kanban",
-                items: [
-                    {
-                        name: "Colonnes de Flux",
-                        function: "Catégorise les missions : À Faire, En Cours, Révision Expert, Terminé.",
-                        result: "Suivi visuel de l'avancement de la production du cabinet."
-                    },
-                    {
-                        name: "Bouton 'Nouvelle Mission'",
-                        function: "Crée une tâche planifiée associée à un client spécifique.",
-                        result: "Assignation automatique aux collaborateurs et définition des échéances."
-                    }
-                ]
-            },
-            {
-                title: "Cartes de Mission",
-                items: [
-                    {
-                        name: "Indicateur d'Échéance",
-                        function: "Alerte de proximité de la deadline avec changement de couleur.",
-                        result: "Évite les dépassements de délais légaux et contractuels."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "governance",
-        label: "Gouvernance & AG",
-        icon: Gavel,
-        title: "Secrétariat Juridique Automatisé",
-        description: "Gérez la vie sociale des entreprises (AG, CA, modifications statutaires) en conformité stricte avec l'AUSCGIE.",
-        sections: [
-            {
-                title: "Pilotage Juridique",
-                items: [
-                    {
-                        name: "Bouton 'Créer un Acte'",
-                        function: "Lance le générateur de documents juridiques (Convocation, PV, Rapport).",
-                        result: "Génération d'un PDF normé prêt pour signature et dépôt."
-                    },
-                    {
-                        name: "Statut OHADA",
-                        function: "Vérifie si la société est à jour de ses obligations annuelles (AGOA).",
-                        result: "Marquage 'Conforme' ou 'Action Requise' pour éviter les sanctions."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "audit",
-        label: "Audit & Conformité",
-        icon: ShieldAlert,
-        title: "Intelligence de Contrôle",
-        description: "Module d'audit assisté par IA pour la détection de fraudes et d'anomalies comptables.",
-        sections: [
-            {
-                title: "Analyse IA",
-                items: [
-                    {
-                        name: "Bouton 'Scanner le dossier'",
-                        function: "Lance l'analyse heuristique du Grand Livre et du FEC.",
-                        result: "Liste détaillée des anomalies (doublons, ruptures de séquence, TVA atypique)."
-                    },
-                    {
-                        name: "Score de Qualité",
-                        function: "Évalue la fiabilité globale de la comptabilité analysée.",
-                        result: "Synthèse décisionnelle pour l'expert ou le commissaire aux comptes."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "banking",
-        label: "Banque & Lettrage IA",
-        icon: ArrowRightLeft,
-        title: "Réconciliation Bancaire Nouvelle Génération",
-        description: "Automatisez le rapprochement entre vos relevés bancaires et vos écritures comptables via un moteur d'IA prédictif.",
-        sections: [
-            {
-                title: "Lettrage Automatique",
-                items: [
-                    {
-                        name: "Suggestion de Mapping",
-                        function: "Analyse les libellés bancaires pour suggérer les comptes tiers correspondants.",
-                        result: "Le temps de saisie de trésorerie est réduit de 70% grâce au pré-lettrage."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "billing",
-        label: "Facturation & Finance",
-        icon: Receipt,
-        title: "Gestion Financière du Cabinet",
-        description: "Pilotez vos honoraires, vos abonnements récurrents et vos encaissements Mobile Money.",
-        sections: [
-            {
-                title: "Production de Factures",
-                items: [
-                    {
-                        name: "Bouton 'Nouvelle Facture'",
-                        function: "Génère une facture d'honoraires ou de débours.",
-                        result: "Envoi automatique par email au client avec lien de paiement intégré."
-                    },
-                    {
-                        name: "Bouton 'Facturer les heures'",
-                        function: "Convertit les temps saisis sur les missions en factures.",
-                        result: "Garantit qu'aucune prestation n'est oubliée dans la facturation mensuelle."
-                    }
-                ]
-            },
-            {
-                title: "Encaissements",
-                items: [
-                    {
-                        name: "Lien de Paiement Mobile Money",
-                        function: "Génère un QR Code ou lien de paiement Wave/Orange Money.",
-                        result: "Accélération des encaissements et lettrage automatique de la facture."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "payroll",
-        label: "Paie & Social",
-        icon: Calculator,
-        title: "Gestion Sociale Multi-Pays",
-        description: "Un moteur de paie flexible couvrant les spécificités sociales de l'espace OHADA.",
-        sections: [
-            {
-                title: "Cycles de Paie",
-                items: [
-                    {
-                        name: "Bouton 'Nouveau Bulletin'",
-                        function: "Calcule le salaire net à partir du brut et des variables de paie.",
-                        result: "Génération du bulletin de paie conforme au code du travail local."
-                    },
-                    {
-                        name: "Déclarations Sociales",
-                        function: "Génère les états pour l'IPRES, la CSS ou la CNPS.",
-                        result: "Fichiers prêts pour le télé-versement sur les portails sociaux."
-                    }
-                ]
-            },
-            {
-                title: "Outils Décisionnels",
-                items: [
-                    {
-                        name: "Simulateur de Coût Salarial",
-                        function: "Estime le coût global employeur pour une proposition d'embauche.",
-                        result: "Aide à la négociation salariale et à la budgétisation RH."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "fiscalite",
-        label: "Fiscalité OHADA",
-        icon: CalendarDays,
-        title: "Conformité Fiscale Totale",
-        description: "Suivez et optimisez vos obligations fiscales dans la zone UEMOA/CEMAC.",
-        sections: [
-            {
-                title: "Calendrier Fiscal",
-                items: [
-                    {
-                        name: "Vue Calendrier Dynamique",
-                        function: "Affiche les dates limites de TVA, IS, et acomptes par pays.",
-                        result: "Zéro pénalité de retard grâce aux alertes push intelligentes."
-                    },
-                    {
-                        name: "Bouton 'Accéder à l'Optimisation'",
-                        function: "Analyse les leviers fiscaux pour réduire l'imposition légalement.",
-                        result: "Conseil à forte valeur ajoutée pour vos clients."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "etats-financiers",
-        label: "États Financiers",
-        icon: FileSpreadsheet,
-        title: "Liasse Fiscale & Clôture Annuelle",
-        description: "Générez vos états financiers (Bilan, Compte de Résultat, TFT) conformes au SYSCOHADA Révisé 2017.",
-        sections: [
-            {
-                title: "Processus de Clôture",
-                items: [
-                    {
-                        name: "Workflow d'Avancement",
-                        function: "Guide l'utilisateur de l'import de la balance à la génération finale.",
-                        result: "Processus structuré garantissant l'exhaustivité des contrôles de fin d'année."
-                    },
-                    {
-                        name: "Édition du Mapping OHADA",
-                        function: "Permet de lier chaque compte comptable à une case du bilan/résultat.",
-                        result: "États financiers exacts même avec des plans de comptes spécifiques."
-                    }
-                ]
-            },
-            {
-                title: "Exports & Impression",
-                items: [
-                    {
-                        name: "Exports Normalisés DGID",
-                        function: "Génère les documents au format officiel A4 pour dépôt.",
-                        result: "Documents prêts à être signés et déposés aux autorités fiscales."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "expenses",
-        label: "Frais & Missions",
-        icon: Plane,
-        title: "Gestion des Frais de Déplacement",
-        description: "Digitalisez vos notes de frais et gérez vos ordres de mission avec validation par IA.",
-        sections: [
-            {
-                title: "Digitalisation des Reçus",
-                items: [
-                    {
-                        name: "Bouton 'Scan Reçu (IA)'",
-                        function: "Utilise l'OCR pour extraire montant, date et TVA d'un ticket pris en photo.",
-                        result: "Saisie instantanée sans erreur humaine pour les collaborateurs."
-                    }
-                ]
-            },
-            {
-                title: "Logistique & Validation",
-                items: [
-                    {
-                        name: "Créer un Ordre de Mission",
-                        function: "Définit le budget et la destination d'un futur déplacement.",
-                        result: "Contrôle budgétaire en amont des dépenses réelles."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "agenda",
-        label: "Agenda Partagé",
-        icon: CalendarIcon,
-        title: "Planification & Comptes-Rendus IA",
-        description: "Planifiez vos réunions et laissez l'IA rédiger vos comptes-rendus de mission.",
-        sections: [
-            {
-                title: "Gestion des Réunions",
-                items: [
-                    {
-                        name: "Bouton 'Rejoindre la visio'",
-                        function: "Lance la salle de réunion virtuelle sécurisée directement dans l'application.",
-                        result: "Collaboration fluide avec vos clients sans outils tiers."
-                    },
-                    {
-                        name: "Générer Rapport IA",
-                        function: "Synthétise les notes prises durant la réunion en un document structuré.",
-                        result: "Gain de temps massif sur la rédaction administrative post-réunion."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "library",
-        label: "Bibliothèque OHADA",
-        icon: Library,
-        title: "Recueil Légal & Modèles",
-        description: "Accédez instantanément à toute la jurisprudence et aux textes législatifs de l'espace OHADA.",
-        sections: [
-            {
-                title: "Recherche Documentaire",
-                items: [
-                    {
-                        name: "Moteur de Recherche Sémantique",
-                        function: "Recherche par mot-clé ou article dans les Actes Uniformes.",
-                        result: "Accès immédiat à la base légale pour sécuriser vos avis juridiques."
-                    },
-                    {
-                        name: "Bouton 'Modèles de Documents'",
-                        function: "Fournit des modèles types de contrats, statuts et convocations.",
-                        result: "Base de travail fiable et conforme pour vos dossiers de secrétariat juridique."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "nexus",
-        label: "NEXUS AI Experience",
-        icon: BrainCircuit,
-        title: "Le Cerveau Augmenté du Cabinet",
-        description: "Interagissez avec l'intelligence supérieure du système pour des analyses stratégiques complexes.",
-        sections: [
-            {
-                title: "Commandes Nexus",
-                items: [
-                    {
-                        name: "Simulateur de Fusion (M&A)",
-                        function: "Analyse les synergies et risques entre deux entités comptables.",
-                        result: "Évaluation de faisabilité stratégique en quelques secondes."
-                    },
-                    {
-                        name: "Audit Flash IA",
-                        function: "Lance un scan instantané des anomalies sur l'ensemble du Grand Livre.",
-                        result: "Détection proactive de fraudes ou d'erreurs d'imputation complexes."
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        id: "strategy",
-        label: "Strategy & BP Lab",
-        icon: Rocket,
-        title: "Laboratoire de Valorisation",
-        description: "Construisez des business plans robustes et calculez la valeur de vos startups clientes.",
-        sections: [
-            {
-                title: "Projection & Valorisation",
-                items: [
-                    {
-                        name: "Optimiser via IA",
-                        function: "Affine les hypothèses de croissance à partir des données de marché.",
-                        result: "Business plan crédible et séduisant pour les levées de fonds."
-                    },
-                    {
-                        name: "Calculateur de Pre-Money",
-                        function: "Détermine la valeur de l'entreprise via les méthodes multiples et DCF.",
-                        result: "Chiffrage précis pour les tables de capitalisation."
-                    }
-                ]
-            },
-            {
-                title: "Livrables",
-                items: [
-                    {
-                        name: "Exporter .PPTX",
-                        function: "Génère un Pitch Deck visuel à partir du business plan.",
-                        result: "Présentation prête pour le passage devant les comités d'investissement."
-                    }
-                ]
-            }
-        ]
-    }
+const SECTIONS = [
+    { id: "intro", title: "1. Introduction", icon: SparklesIcon },
+    { id: "ui", title: "2. Interface Dashboard", icon: Layers },
+    { id: "corp", title: "3. Nexus Corporate", icon: Globe },
+    { id: "risk", title: "4. Risk & Compliance", icon: ShieldCheck },
+    { id: "audit", title: "5. Audit & Assurance", icon: FileText },
+    { id: "tax", title: "6. Tax Intelligence", icon: Zap },
+    { id: "jud", title: "7. Judicial Command", icon: Scale },
+    { id: "market", title: "8. Market Intel", icon: Activity },
+    { id: "accounting", title: "9. Core Accounting", icon: Briefcase },
+    { id: "conso", title: "10. Consolidation", icon: Layers },
+    { id: "payroll", title: "11. Paie & Social", icon: UserCheck },
+    { id: "comms", title: "12. Communications", icon: MessageSquare },
+    { id: "academy", title: "13. Elite Academy", icon: BookOpen },
+    { id: "ops", title: "14. Opérations", icon: Cpu },
 ];
 
-export default function DetailedManualPage() {
-    const [activeChapter, setActiveChapter] = useState(CHAPTERS[0].id);
-    const [viewMode, setViewMode] = useState<'chapter' | 'full'>('chapter');
+export default function HandbookPage() {
+    const [activeSection, setActiveSection] = useState("intro");
+    const [searchQuery, setSearchQuery] = useState("");
 
-    const chapter = CHAPTERS.find(c => c.id === activeChapter) || CHAPTERS[0];
+    const CurrentIcon = SECTIONS.find(s => s.id === activeSection)?.icon || Book;
+    const currentTitle = SECTIONS.find(s => s.id === activeSection)?.title;
 
     return (
-        <div className="min-h-screen bg-[#050608] flex overflow-hidden font-sans">
-            <style jsx global>{`
-                @media print {
-                    @page { margin: 1cm; size: A4; }
-                    body { background: white !important; color: black !important; -webkit-print-color-adjust: exact; }
-                    aside { display: none !important; }
-                    main { padding: 0 !important; margin: 0 !important; overflow: visible !important; }
-                    .no-print { display: none !important; }
-                    .glass-card, .bg-gray-900, .bg-slate-900, .bg-[#050608], .bg-[#0d1117] { 
-                        background: white !important; 
-                        border: 1px solid #ddd !important;
-                        box-shadow: none !important;
-                        color: black !important;
-                    }
-                    h1, h2, h3, h4, p, span, div { color: black !important; text-shadow: none !important; }
-                    .text-slate-400, .text-slate-500 { color: #555 !important; }
-                    .text-indigo-400, .text-indigo-500 { color: #333 !important; font-weight: bold !important; }
-                }
-            `}</style>
-            {/* Left Sidebar Table of Contents */}
-            <aside className="w-80 bg-[#0d1117] border-r border-white/5 flex flex-col p-8 gap-8 overflow-y-auto shrink-0 relative z-20">
-                <div className="flex flex-col items-center gap-4 py-8 border-b border-white/5">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-2xl shadow-indigo-500/20 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-                        EP
+        <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
+            {/* Elite Header */}
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
+                    <Book className="w-64 h-64 text-indigo-400" />
+                </div>
+
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                                Documentation Elite
+                            </span>
+                        </div>
+                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                            Nexus <span className="text-indigo-400">Elite Handbook</span>
+                        </h2>
+                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                            Le manuel d'exploitation complet (200+ pages) pour maîtriser chaque facette de l'intelligence Nexus.
+                        </p>
                     </div>
-                    <div className="text-center">
-                        <h1 className="font-black text-white tracking-[0.2em] uppercase text-xs">Manuel Expert</h1>
-                        <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" />
-                            Guide Complet 2026
+
+                    <div className="flex gap-4">
+                        <Link href="/documentation/full-manual/pdf-export" className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest border border-white/10 transition-all flex items-center gap-2">
+                            <Printer className="w-4 h-4" /> Imprimer PDF Premium
+                        </Link>
+                        <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/30 transition-all">
+                            Mode Sombre Intégral
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Sidebar Navigation */}
+                <div className="lg:col-span-3 space-y-6">
+                    <div className="relative group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 group-focus-within:text-indigo-400 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher un terme..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold text-white outline-none focus:border-indigo-500/50 transition-all"
+                        />
+                    </div>
+
+                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-4 space-y-1">
+                        {SECTIONS.map((section) => (
+                            <button
+                                key={section.id}
+                                onClick={() => setActiveSection(section.id)}
+                                className={cn(
+                                    "w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all group",
+                                    activeSection === section.id
+                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                                        : "text-slate-500 hover:bg-white/5 hover:text-white"
+                                )}
+                            >
+                                <section.icon className={cn("w-5 h-5", activeSection === section.id ? "text-white" : "text-slate-600 group-hover:text-indigo-400")} />
+                                <span className="text-[11px] font-black uppercase tracking-widest">{section.title}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="p-8 rounded-[32px] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20">
+                        <History className="w-8 h-8 text-indigo-400 mb-4" />
+                        <h4 className="text-xs font-black text-white uppercase mb-2">Historique v2.0</h4>
+                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                            Dernière mise à jour : 04 Février 2026. Ajout des modules Forensics IA et Blockchain Integrity Vault.
                         </p>
                     </div>
                 </div>
 
-                <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Rechercher une fonction..."
-                        className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs text-slate-300 focus:border-indigo-500/50 transition-all outline-none"
-                    />
-                </div>
-
-                <nav className="flex flex-col gap-1.5 custom-scrollbar pr-2">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] mb-3 ml-2">Sommaire Général</p>
-                    {CHAPTERS.map((ch) => {
-                        const Icon = ch.icon;
-                        const isActive = activeChapter === ch.id;
-                        return (
-                            <button
-                                key={ch.id}
-                                onClick={() => setActiveChapter(ch.id)}
-                                className={cn(
-                                    "flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative",
-                                    isActive
-                                        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20 translate-x-1"
-                                        : "text-slate-500 hover:bg-white/5 hover:text-slate-200"
-                                )}
-                            >
-                                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-r-full" />}
-                                <Icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-indigo-400")} />
-                                <span className="font-bold text-xs">{ch.label}</span>
-                                {isActive && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
-                            </button>
-                        );
-                    })}
-                </nav>
-
-                <div className="mt-4 px-2 space-y-2">
-                    <button
-                        onClick={() => setViewMode(viewMode === 'chapter' ? 'full' : 'chapter')}
-                        className={cn(
-                            "w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all border",
-                            viewMode === 'full'
-                                ? "bg-indigo-500 text-white border-indigo-500"
-                                : "bg-white/5 text-slate-400 border-white/10 hover:bg-white/10"
-                        )}
-                    >
-                        <FileDown className="w-4 h-4" />
-                        {viewMode === 'full' ? "Vue Par Chapitre" : "Vue Complète (PDF)"}
-                    </button>
-
-                    {viewMode === 'full' && (
-                        <button
-                            onClick={() => window.print()}
-                            className="w-full py-3 bg-white text-indigo-900 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                            <Printer className="w-4 h-4" />
-                            Imprimer / PDF
-                        </button>
-                    )}
-                </div>
-
-                <div className="mt-8 p-6 bg-indigo-600/10 border border-indigo-500/20 rounded-[32px] space-y-4 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <HelpCircle className="w-12 h-12 text-indigo-400" />
-                    </div>
-                    <p className="text-[11px] text-indigo-200 font-bold tracking-widest uppercase leading-relaxed relative z-10">
-                        Besoin d'aide sur une fonctionnalité OHADA ?
-                    </p>
-                    <button className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-500 transition-all relative z-10 border border-white/10">
-                        Contacter le Support
-                    </button>
-                </div>
-            </aside>
-
-            {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto bg-[#050608] p-12 lg:p-24 relative">
-                {/* Background Aesthetics */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/5 blur-[100px] rounded-full pointer-events-none" />
-
-                <div className="max-w-4xl mx-auto space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
-
-                    {/* Chapter Header */}
-                    {viewMode === 'chapter' ? (
-                        <ChapterContent chapter={chapter} />
-                    ) : (
-                        <div className="space-y-24">
-                            <div className="text-center py-12 border-b border-black/10 hidden print:block">
-                                <h1 className="text-4xl font-black uppercase tracking-widest mb-4">Manuel Utilisateur Expert</h1>
-                                <p>Généré le {new Date().toLocaleDateString()}</p>
-                            </div>
-                            {CHAPTERS.map(ch => (
-                                <div key={ch.id} className="break-inside-avoid page-break">
-                                    <ChapterContent chapter={ch} />
-                                    <div className="my-12 border-b border-dashed border-slate-700/30 print:border-black/20" />
-                                </div>
-                            ))}
+                {/* Content Viewer */}
+                <div className="lg:col-span-9">
+                    <div className="glass-card rounded-[50px] border border-white/5 bg-slate-900/40 p-12 min-h-[800px] shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                            <CurrentIcon className="w-64 h-64 text-white" />
                         </div>
-                    )}
-                </div>
 
-                {/* Footer Tips */}
-                <div className="p-12 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 rounded-[50px] border border-white/5 space-y-6 text-center no-print">
-                    <div className="inline-flex p-4 bg-white/5 rounded-3xl text-indigo-400">
-                        <Sparkles className="w-8 h-8" />
+                        <div className="relative z-10 prose prose-invert max-w-none">
+                            <h2 className="text-3xl font-black text-white uppercase tracking-tight mb-8 flex items-center gap-4">
+                                {currentTitle}
+                                <span className="h-[1px] flex-1 bg-white/5" />
+                            </h2>
+
+                            <div className="space-y-8 text-slate-400 font-medium leading-relaxed">
+                                {activeSection === "intro" && (
+                                    <>
+                                        <p className="text-xl">L’écosystème Nexus Elite redéfinit la pratique professionnelle du chiffre et du droit dans l’espace OHADA.</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
+                                            <div className="p-8 bg-white/5 rounded-[40px] border border-white/5">
+                                                <h4 className="text-white font-black uppercase text-sm mb-4">Automatisation Totale</h4>
+                                                <p className="text-xs leading-loose">Réduction de 70% du temps administratif via la synchronisation bancaire et l’importation intelligente de documents.</p>
+                                            </div>
+                                            <div className="p-8 bg-white/5 rounded-[40px] border border-white/5">
+                                                <h4 className="text-white font-black uppercase text-sm mb-4">Crédibilité Augmentée</h4>
+                                                <p className="text-xs leading-loose">Certification Blockchain pour chaque rapport émis, rendant vos conclusions inattaquables devant les tiers et administrations.</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeSection === "corp" && (
+                                    <>
+                                        <h3 className="text-white font-black uppercase text-lg mt-12 mb-6">3.1 Entity Hub : Pilotage centralisé</h3>
+                                        <p>Ce module remplace le dossier permanent traditionnel. Il permet de gérer les statuts, les procès-verbaux d'AG et la structure du capital de chaque client.</p>
+
+                                        <ul className="space-y-4">
+                                            <li className="flex gap-4">
+                                                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                                <span><strong>Ajouter Entité :</strong> Crée un coffre-fort numérique conforme aux normes de conservation de 10 ans.</span>
+                                            </li>
+                                            <li className="flex gap-4">
+                                                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                                <span><strong>Organes de Gestion :</strong> Alerte automatique 6 mois avant l'expiration d'un mandat de commissaire aux comptes ou de DG.</span>
+                                            </li>
+                                        </ul>
+
+                                        <div className="mt-12 p-8 bg-indigo-500/10 border border-indigo-500/20 rounded-[40px]">
+                                            <h4 className="text-indigo-400 font-black uppercase text-xs mb-4 flex items-center gap-2">
+                                                <Zap className="w-4 h-4" /> Conseil IA Nexus
+                                            </h4>
+                                            <p className="text-xs italic leading-relaxed text-indigo-200">
+                                                "N'oubliez pas que pour les SAS OHADA, l'article 853-1 stipule une flexibilité maximale dans la rédaction des clauses de sortie. Utilisez notre générateur de clauses automatisé pour gagner du temps."
+                                            </p>
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeSection === "risk" && (
+                                    <>
+                                        <h3 className="text-white font-black uppercase text-lg mt-12 mb-6">4.1 ID Verify & Bio-KYC</h3>
+                                        <p>Nexus Risk intègre une solution de KYC (Know Your Customer) biométrique ultra-moderne pour sécuriser l'onboarding client.</p>
+
+                                        <div className="bg-slate-950 p-6 rounded-3xl border border-white/5 my-8">
+                                            <code className="text-indigo-400 text-xs">
+                                                // Logique de vérification<br />
+                                                if (match_score {" > "} 0.95 && !sanction_list_hit) &#123;<br />
+                                                &nbsp;&nbsp;generate_integrity_cert();<br />
+                                                &nbsp;&nbsp;anchor_to_blockchain();<br />
+                                                &#125;
+                                            </code>
+                                        </div>
+                                    </>
+                                )}
+
+                                {activeSection === "accounting" && (
+                                    <>
+                                        <h3 className="text-white font-black uppercase text-lg mt-12 mb-6">9.1 Saisie & Intelligence Comptable</h3>
+                                        <p>Nexus Accounting automatise la production comptable via des algorithmes d'OCR et de révision prédictive.</p>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+                                            <div className="p-6 bg-slate-900/50 rounded-3xl border border-white/5">
+                                                <h4 className="text-indigo-400 font-bold text-xs uppercase mb-2">IA Match Bancaire</h4>
+                                                <p className="text-[10px] text-slate-400">Rapprochement automatique des flux bancaires avec les factures de vente et d'achat avec un score de fiabilité.</p>
+                                            </div>
+                                            <div className="p-6 bg-slate-900/50 rounded-3xl border border-white/5">
+                                                <h4 className="text-emerald-400 font-bold text-xs uppercase mb-2">Génération Liasse</h4>
+                                                <p className="text-[10px] text-slate-400">Édition automatique de la plaquette annuelle (Bilan, CR, TFT) conforme au SYSCOHADA révisé.</p>
+                                            </div>
+                                        </div>
+
+                                        <ul className="space-y-4 text-sm">
+                                            <li className="flex gap-4">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                                <span><strong>Saisie OCR :</strong> Capturez vos factures par simple glisser-déposer.</span>
+                                            </li>
+                                            <li className="flex gap-4">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                                <span><strong>Lettrage Auto :</strong> Plus de 80% des comptes clients/fournisseurs lettrés sans intervention humaine.</span>
+                                            </li>
+                                        </ul>
+                                    </>
+                                )}
+
+                                {/* Placeholder for other sections - the real handbook is much longer but we show the UI structure here */}
+                                <p className="italic text-slate-600 mt-20">Consultez le fichier HANDBOOK_EXPERTE_ELITE.md dans le dossier racine pour la version texte intégrale de 200+ sections.</p>
+                            </div>
+
+                            {/* Navigation Footer */}
+                            <div className="mt-20 pt-12 border-t border-white/5 flex justify-between items-center">
+                                <button
+                                    onClick={() => {
+                                        const prevIdx = (SECTIONS.findIndex(s => s.id === activeSection) - 1 + SECTIONS.length) % SECTIONS.length;
+                                        setActiveSection(SECTIONS[prevIdx].id);
+                                    }}
+                                    className="flex items-center gap-2 text-slate-500 hover:text-white transition-all">
+                                    <ChevronRight className="w-4 h-4 rotate-180" /> Section Précédente
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const nextIdx = (SECTIONS.findIndex(s => s.id === activeSection) + 1) % SECTIONS.length;
+                                        setActiveSection(SECTIONS[nextIdx].id);
+                                    }}
+                                    className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-black uppercase text-[10px] tracking-widest transition-all"
+                                >
+                                    Section Suivante <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <h4 className="text-2xl font-black text-white">Astuce d'Expert</h4>
-                    <p className="text-slate-400 max-w-xl mx-auto leading-relaxed">
-                        Saviez-vous que vous pouvez utiliser des raccourcis clavier pour naviguer entre ces sections ?
-                        Combinez <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">Alt</kbd> + <kbd className="px-2 py-1 bg-slate-800 rounded text-xs text-white">N</kbd> pour passer au chapitre suivant.
-                    </p>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }
 
-
+function SparklesIcon(props: any) {
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            <path d="M5 3v4" />
+            <path d="M19 17v4" />
+            <path d="M3 5h4" />
+            <path d="M17 19h4" />
+        </svg>
+    );
+}

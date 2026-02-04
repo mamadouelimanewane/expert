@@ -149,6 +149,56 @@ export default function BankingPage() {
                             <SyncItem label="Orange Money Business" status="Alerte" time="Auth requis" />
                         </div>
                     </div>
+
+                    {/* AXONAUT INSPIRED: Virtual Cards Module */}
+                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 relative overflow-hidden group">
+                        <div className="flex justify-between items-center mb-6">
+                            <h4 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                                <CreditCard className="w-4 h-4 text-cyan-400" />
+                                Cartes Virtuelles
+                            </h4>
+                            <Plus className="w-4 h-4 text-slate-500 cursor-pointer hover:text-white" />
+                        </div>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                                <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Marketing Digital</p>
+                                <div className="flex justify-between items-end">
+                                    <p className="text-white font-mono text-sm">•••• 8821</p>
+                                    <p className="text-xs font-bold text-cyan-400">450k <span className="text-[8px] opacity-60">FCFA</span></p>
+                                </div>
+                            </div>
+                            <div className="p-4 bg-white/5 rounded-2xl border border-white/5 opacity-60">
+                                <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Abonnements SaaS</p>
+                                <div className="flex justify-between items-end">
+                                    <p className="text-white font-mono text-sm">•••• 3310</p>
+                                    <span className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded">GELÉE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button className="w-full mt-6 py-3 bg-cyan-600/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest rounded-xl border border-cyan-500/20 hover:bg-cyan-600/30 transition-all">
+                            Gérer mes cartes
+                        </button>
+                    </div>
+
+                    {/* AXONAUT INSPIRED: Quick Transfers */}
+                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40">
+                        <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <ArrowRightLeft className="w-4 h-4 text-emerald-400" />
+                            Virements Rapides
+                        </h4>
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl cursor-pointer">
+                                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold">SN</div>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Saliou Ndiaye</p>
+                                    <p className="text-[10px] text-slate-500">Comptable Junior</p>
+                                </div>
+                            </div>
+                            <button className="w-full py-3 bg-emerald-600/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-500/20 hover:bg-emerald-600/30 transition-all">
+                                Nouveau Virement
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Main Transaction Feed */}

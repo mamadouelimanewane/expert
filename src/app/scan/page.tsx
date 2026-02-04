@@ -284,6 +284,38 @@ export default function OCRPage() {
                                     </div>
                                 </div>
 
+                                {/* SEPTEO INSPIRED: Compliance & Fraud Checks */}
+                                <div className="p-5 rounded-2xl bg-slate-800/80 border border-white/5 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contrôles SEPTEO-Gouv</p>
+                                        <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] font-black uppercase rounded">IA Active</span>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between text-xs font-bold">
+                                            <div className="flex items-center gap-2 text-slate-300">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                Format Facture-X / FEC
+                                            </div>
+                                            <span className="text-emerald-400 font-black">CONFORME</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs font-bold">
+                                            <div className="flex items-center gap-2 text-slate-300">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                Vérification IBAN (Anti-fraude)
+                                            </div>
+                                            <span className="text-emerald-400 font-black">VALIDE</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs font-bold">
+                                            <div className="flex items-center gap-2 text-slate-300">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                Détection de Doublons
+                                            </div>
+                                            <span className="text-emerald-400 font-black">UNIQUE</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div className="mt-4 p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
                                     <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                                         <ScanLine className="w-3.5 h-3.5" />

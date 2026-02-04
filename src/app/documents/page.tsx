@@ -43,7 +43,7 @@ const mockFiles: DocFile[] = [
 ];
 
 export default function DocumentsPage() {
-    const [activeTab, setActiveTab] = useState<"tous" | "partages" | "signes">("tous");
+    const [activeTab, setActiveTab] = useState<"tous" | "partages" | "signes" | "hub">("tous");
     const [isUploading, setIsUploading] = useState(false);
     const [viewMode, setViewMode] = useState<"grid" | "list">("list");
     const [previewFile, setPreviewFile] = useState<DocFile | null>(null);
@@ -100,6 +100,7 @@ export default function DocumentsPage() {
                 <div className="flex gap-2 p-1 bg-slate-900 border border-white/5 rounded-xl">
                     {[
                         { id: "tous", label: "Bibliothèque" },
+                        { id: "hub", label: "Intelligence Hub" },
                         { id: "partages", label: "Flux Clients" },
                         { id: "signes", label: "Archives Signées" },
                     ].map((tab) => (
@@ -147,14 +148,46 @@ export default function DocumentsPage() {
                 </div>
             </div>
 
-            {/* Files List / Grid */}
+            {/* Files List / Grid / Hub */}
             {isUploading ? (
                 <div className="bg-slate-900/50 border-2 border-dashed border-indigo-500/30 rounded-3xl p-20 flex flex-col items-center justify-center text-center animate-pulse">
                     <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
                         <UploadCloud className="w-8 h-8 text-indigo-400 animate-bounce" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">IA en cours de traitement...</h3>
-                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Extraction OCR et catégorisation en cours selon les normes SYSCOHADA.</p>
+                    <h3 className="text-xl font-bold text-white mb-2">Nexus IA : Classification en cours...</h3>
+                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Analyse structurelle et extraction sémantique des documents selon les normes UEMOA/OHADA.</p>
+                </div>
+            ) : activeTab === "hub" ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-500">
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-indigo-600/5 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                                <Sparkles className="w-40 h-40 text-indigo-400" />
+                            </div>
+                            <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tighter">Journal de Classification IA</h3>
+                            <div className="space-y-4">
+                                <ClassificationLogItem icon={CheckCircle2} title="F-2024-092.pdf" type="Facture Fournisseur" client="Dakar Digital" detail="Extrait : 1.2M FCFA - TVA 18% détectée." color="text-emerald-400" />
+                                <ClassificationLogItem icon={CheckCircle2} title="PV_AG_2023.pdf" type="Juridique" client="SOGECOM" detail="Détection : Assemblée Générale Ordinaire." color="text-blue-400" />
+                                <ClassificationLogItem icon={CheckCircle2} title="Bulletin_Paie_05.pdf" type="Social" client="Telecom Afrique" detail="Extraction : 45 employés traités." color="text-purple-400" />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <HubStat label="Documents Classés /30j" value="1,245" trend="+12%" />
+                            <HubStat label="Précision Moyenne" value="99.2%" trend="Stable" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/60">
+                            <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6">Moteur de Tri Intelligent</h4>
+                            <div className="space-y-3">
+                                <HubAction label="Réorganiser Dossiers Clients" icon={Folder} />
+                                <HubAction label="Vérifier Indexation Sémantique" icon={Search} />
+                                <HubAction label="Purger Doublons IA" icon={X} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="glass-card rounded-3xl overflow-hidden border border-white/5 bg-slate-900/20">
@@ -287,5 +320,49 @@ export default function DocumentsPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+function ClassificationLogItem({ icon: Icon, title, type, client, detail, color }: any) {
+    return (
+        <div className="flex items-start gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
+            <div className={cn("p-3 rounded-xl bg-white/5", color)}>
+                <Icon className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+                <div className="flex justify-between items-start mb-1">
+                    <h4 className="text-sm font-bold text-white">{title}</h4>
+                    <span className="text-[10px] font-black text-slate-500 uppercase">{client}</span>
+                </div>
+                <div className="flex gap-2 mb-2">
+                    <span className="text-[10px] px-2 py-0.5 bg-slate-800 rounded-full text-slate-400 font-bold">{type}</span>
+                </div>
+                <p className="text-xs text-slate-500 italic">{detail}</p>
+            </div>
+        </div>
+    );
+}
+
+function HubStat({ label, value, trend }: { label: string, value: string, trend: string }) {
+    return (
+        <div className="p-6 bg-slate-900 border border-white/5 rounded-[32px]">
+            <p className="text-[10px] text-slate-500 font-black uppercase mb-1 tracking-widest">{label}</p>
+            <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-white">{value}</span>
+                <span className="text-[10px] font-black text-emerald-400 underline">{trend}</span>
+            </div>
+        </div>
+    );
+}
+
+function HubAction({ label, icon: Icon }: any) {
+    return (
+        <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/5 rounded-2xl transition-all">
+            <div className="flex items-center gap-3">
+                <Icon className="w-4 h-4 text-indigo-400" />
+                <span className="text-xs font-bold text-slate-200">{label}</span>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-600" />
+        </button>
     );
 }
