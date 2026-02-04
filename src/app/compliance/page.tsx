@@ -24,7 +24,8 @@ import {
     Globe,
     Cpu,
     Briefcase,
-    History
+    History,
+    TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockClients } from "@/data/mock-clients";

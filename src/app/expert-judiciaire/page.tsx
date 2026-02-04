@@ -22,7 +22,6 @@ import {
     FileText,
     Zap,
     Scale as ScaleIcon,
-    Balance,
     Fingerprint,
     SearchCode,
     Cpu
@@ -243,7 +242,7 @@ export default function NexusJudicialCommandPage() {
                                             {[
                                                 { label: "Analyse Flux Financiers Suspices", icon: Fingerprint, color: "text-rose-400" },
                                                 { label: "Vérification Facturation OHADA", icon: FileSearch, color: "text-indigo-400" },
-                                                { label: "Audit de Solvabilité Parties", icon: Balance, color: "text-emerald-400" },
+                                                { label: "Audit de Solvabilité Parties", icon: ScaleIcon, color: "text-emerald-400" },
                                             ].map((tool, i) => (
                                                 <button key={i} className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-all group">
                                                     <div className="flex items-center gap-4">
@@ -312,7 +311,7 @@ export default function NexusJudicialCommandPage() {
                         </>
                     ) : (
                         <div className="h-[600px] glass-card rounded-[50px] border border-white/5 bg-slate-900/40 flex flex-col items-center justify-center text-center p-20">
-                            <Balance className="w-20 h-20 text-slate-800 mb-6" />
+                            <ScaleIcon className="w-20 h-20 text-slate-800 mb-6" />
                             <h3 className="text-2xl font-black text-slate-600 uppercase tracking-widest">Nexus Command Center</h3>
                             <p className="text-slate-700 mt-2 max-w-sm">Sélectionnez une affaire judiciaire dans le portfolio pour piloter votre mission d'expertise.</p>
                         </div>

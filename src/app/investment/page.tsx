@@ -20,7 +20,8 @@ import {
     History,
     FileText,
     Percent,
-    Download
+    Download,
+    Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

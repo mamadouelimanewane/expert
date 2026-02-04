@@ -18,7 +18,8 @@ import {
     ChevronDown,
     Menu,
     X,
-    Star
+    Star,
+    Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

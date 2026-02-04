@@ -20,7 +20,8 @@ import {
     Users,
     Map as MapIcon,
     Trophy,
-    Star
+    Star,
+    MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

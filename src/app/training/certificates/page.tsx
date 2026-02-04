@@ -15,7 +15,8 @@ import {
     ExternalLink,
     Loader2,
     Printer,
-    Eye
+    Eye,
+    QrCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

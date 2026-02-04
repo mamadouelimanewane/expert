@@ -22,7 +22,8 @@ import {
     AlertCircle,
     CheckCircle2,
     Radar,
-    Flame
+    Flame,
+    Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

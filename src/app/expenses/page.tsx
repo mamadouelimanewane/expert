@@ -21,7 +21,8 @@ import {
     Sparkles,
     Search,
     ChevronRight,
-    ArrowRight
+    ArrowRight,
+    Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

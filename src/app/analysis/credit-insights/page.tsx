@@ -19,7 +19,8 @@ import {
     ChevronRight,
     RefreshCw,
     Download,
-    Eye
+    Eye,
+    XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
