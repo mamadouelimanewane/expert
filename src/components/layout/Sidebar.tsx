@@ -65,107 +65,60 @@ import { Moon, Sun, Monitor, Palette, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const menuItems = [
-    // 1. Cœur de Métier (Requested Order)
+    // --- 1. PILOTAGE & CORE (L'essentiel) ---
+    { header: "PILOTAGE" },
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/dashboard" },
-    { icon: Sparkles, label: "IA Morning Brief", href: "/dashboard/morning-brief" },
-    { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
-    { icon: Gauge, label: "Scoring Client IA", href: "/clients/scoring" },
-    { icon: Rocket, label: "Onboarding Digital", href: "/onboarding/digital" },
-    { icon: Factory, label: "Industrie & Manufacture", href: "/industries/manufacturing" },
-    { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
-    { icon: Building2, label: "Guichet Création", href: "/missions/creation" },
-    { icon: MessageCircle, label: "Requêtes Clients", href: "/collaboration/requests" },
-    { icon: Mail, label: "Triage & Emails (Karbon)", href: "/collaboration/triage" },
-    { icon: Calendar, label: "Planning d'Équipe", href: "/missions/planning" },
-    { icon: Users, label: "Plan de Charge (Beeye)", href: "/management/capacity-planning" },
-    { icon: Clock, label: "Gestion des Temps", href: "/missions/timesheets" },
-    { icon: TrendingUp, label: "Gestion Interne (Queoval)", href: "/management/practice" },
-    { icon: TrendingUp, label: "Analyse Boni-Mali", href: "/missions/boni-mali" },
-    { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
-    { icon: LayoutGrid, label: "Heatmap Gouvernance", href: "/compliance/governance/heatmap" },
-    { icon: ShieldAlert, label: "Audit & Conformité", href: "/audit" },
-    { icon: UserCheck, label: "KYC & LCB-FT (Kanta)", href: "/compliance/kyc-screening" },
-    { icon: Fingerprint, label: "Audit Forensique (Nexus)", href: "/audit/forensic" },
-    { icon: ShieldCheck, label: "Audit Légal Nexus IA", href: "/audit/ai-assisted" },
-    { icon: Microscope, label: "CAC Workbench (Audit)", href: "/audit/cac-suite" },
-    { icon: ArrowRightLeft, label: "Banque & Lettrage IA", href: "/banking" },
-    { icon: Receipt, label: "Facturation & Finance", href: "/billing" },
-    { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
-    { icon: TrendingUp, label: "Gestion Commerciale", href: "/prospects" },
-    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
+    { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
+    { icon: Sparkles, label: "IA Morning Brief", href: "/dashboard/morning-brief" },
+
+    // --- 2. EXPERTISE COMPTABLE (Priorité Demandée) ---
+    { header: "EXPERTISE COMPTABLE" },
     { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
     { icon: Clock, label: "Échéancier Fiscal", href: "/fiscalite/obligations" },
     { icon: FileSpreadsheet, label: "États Financiers", href: "/etats-financiers" },
-    { icon: FileSpreadsheet, label: "Liasse Fiscale OHADA", href: "/comptabilite/liasse-fiscale" },
-    { icon: ClipboardCheck, label: "Révision & Audit", href: "/comptabilite/revision" },
-    { icon: FileSearch, label: "Cycles de Révision", href: "/comptabilite/revision-cycles" },
-    { icon: RefreshCw, label: "Production Collaborative", href: "/comptabilite/production" },
-    { icon: FilePieChart, label: "Reporting Automatique", href: "/comptabilite/reporting" },
-    { icon: Wallet, label: "Frais & Missions", href: "/expenses" },
-    { icon: Calendar, label: "Agenda Partagé", href: "/agenda" },
+    { icon: FileSpreadsheet, label: "Liasse Fiscale", href: "/comptabilite/liasse-fiscale" },
+    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
+    { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
+    { icon: FilePieChart, label: "Reporting Client", href: "/comptabilite/reporting" },
+    { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
+
+    // --- 3. GESTION DU CABINET ---
+    { header: "GESTION CABINET" },
+    { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
+    { icon: Clock, label: "Saisie des Temps", href: "/missions/timesheets" },
+    { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
+    { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
+    { icon: Wallet, label: "Notes de Frais", href: "/expenses" },
+
+    // --- 4. AUDIT & CONFORMITÉ ---
+    { header: "AUDIT & CONFORMITÉ" },
+    { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
+    { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
+    { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
+    { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
+    { icon: Fingerprint, label: "Audit Forensique", href: "/audit/forensic" },
+
+    // --- 5. CONSEIL & STRATÉGIE ---
+    { header: "CONSEIL & STRATÉGIE" },
+    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
+    { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
+    { icon: BrainCircuit, label: "Simulateur Stratégique", href: "/strategy/simulator" },
+    { icon: Gem, label: "Wealth & Patrimoine", href: "/strategy/wealth" },
+    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
+
+    // --- 6. NEXUS AI & INNOVATION ---
+    { header: "NEXUS INTELLIGENCE" },
+    { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
+    { icon: FileSearch, label: "Drop Zone Fiscale", href: "/fiscalite/drop-zone" },
+    { icon: TrendingUp, label: "Credit Insights", href: "/analysis/credit-insights" },
+    { icon: PenTool, label: "Nexus Legal Drafter", href: "/legal/drafting" },
+
+    // --- 7. RESSOURCES ---
+    { header: "RESSOURCES" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
     { icon: GraduationCap, label: "Cabinet Academy", href: "/training/academy" },
-    { icon: ShieldAlert, label: "Contrôle Fiscal (Crise)", href: "/compliance/tax-audit" },
-    { icon: Anchor, label: "Contentieux Douanier", href: "/compliance/customs" },
-
-    // Accès rapide Documentation & Marketing
-
-    { icon: Book, label: "Documentation & Marketing", href: "/documentation" },
-    { icon: BookOpen, label: "Manuel Expert (Guide)", href: "/documentation/full-manual" },
-    { icon: FileText, label: "Présentation Stratégique", href: "/presentation" },
-
-    // 2. Innovation & Stratégie (Flat list for visibility)
-    { icon: Sparkles, label: "NEXUS AI (Expérience)", href: "/nexus" },
-    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
-    { icon: DollarSign, label: "Levée de Fonds & Investisseurs", href: "/strategy/fundraising" },
-    { icon: BrainCircuit, label: "Simulateur Stratégique IA", href: "/strategy/simulator" },
-    { icon: Gem, label: "Wealth & Patrimoine", href: "/strategy/wealth" },
-    { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
-    { icon: TrendingUp, label: "Pilotage Associé", href: "/analysis/profitability" },
-    { icon: LineChart, label: "Trésorerie Prédictive IA", href: "/analysis/cash-flow-predictive" },
-    { icon: Activity, label: "Simulateur Stress Cash", href: "/analysis/financial/stress-simulator" },
-    { icon: PenTool, label: "Nexus Legal Drafter", href: "/legal/drafting" },
-    { icon: BarChart3, label: "BI & Reporting (Finthesis)", href: "/bi/finthesis-reporting" },
-    { icon: Leaf, label: "Sustainability Hub (ESG)", href: "/bi/sustainability" },
-    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
-    { icon: FileText, label: "GED Intelligente", href: "/documents" },
-    { icon: PenTool, label: "Signatures Certifiées", href: "/signature" },
-    { icon: Radar, label: "Radar Réussite Client", href: "/analysis/clients/radar" },
-    { icon: LayoutDashboard, label: "Espace Client (Portail)", href: "/portal" },
-    { icon: FileSpreadsheet, label: "Data Center & Éditions", href: "/data-center" },
-    { icon: ShieldCheck, label: "KYC Intelligence Hub", href: "/compliance/kyc" },
-    { icon: MessageSquare, label: "Communications Hub", href: "/communications" },
-    { icon: Users, label: "Annuaire des Experts", href: "/annuaire" },
-    { icon: Workflow, label: "Pipeline & Autom.", href: "/workflows" },
-    { icon: Rocket, label: "Valorisation & M&A", href: "/investment" },
-    { icon: FileText, label: "Lettres de Mission", href: "/commercial/proposals" },
-    { icon: Calendar, label: "Planning & Ressources", href: "/production/planning" },
-    { icon: Timer, label: "Saisie Rapide des Temps", href: "/time-entry" },
-    { icon: Activity, label: "Dashboard Production", href: "/production/dashboard" },
-    { icon: BarChart3, label: "GPAO & Rentabilité", href: "/production/analytics" },
-    { icon: Target, label: "War Room Stratégique", href: "/analysis/deep/war-room" },
-    { icon: ShieldCheck, label: "Souveraineté & Sécurité", href: "/settings/security" },
-
-    // 3. NEXUS PREMIUM - Intelligence Avancée
-    { icon: BrainCircuit, label: "Audit Intelligence IA", href: "/audit/intelligence" },
-    { icon: FileSearch, label: "Drop Zone Fiscale", href: "/fiscalite/drop-zone" },
-    { icon: BookOpen, label: "OHADA-Cite (Validation)", href: "/library/ohada-cite" },
-    { icon: Book, label: "Clause Bank OHADA", href: "/library/clause-bank" },
-    { icon: ShieldAlert, label: "Fraud Detection Hub", href: "/audit/fraud-detection" },
-    { icon: Sparkles, label: "Nexus Counsel IA", href: "/assistant/cocounsel" },
-    { icon: Workflow, label: "Client Workspaces", href: "/collaboration/workspaces" },
-
-    // 4. NEXUS RISK - Strategic Intelligence
-    { icon: Fingerprint, label: "Nexus ID Verify", href: "/compliance/id-verify" },
-    { icon: ShieldAlert, label: "Financial Crime Hub", href: "/compliance/financial-crime" },
-    { icon: TrendingUp, label: "Credit Insights IA", href: "/analysis/credit-insights" },
-    { icon: Network, label: "Nexus Data Link", href: "/data/nexus-link" },
-
-    // 5. NEXUS ELITE - Global Compliance
-    { icon: BarChart3, label: "Nexus Performance", href: "/corporate/performance" },
-    { icon: ClipboardCheck, label: "Nexus Audit Hub", href: "/corporate/audit-assurance" },
-    { icon: Gavel, label: "Nexus Entity Hub", href: "/corporate/entity-hub" },
+    { icon: BookOpen, label: "Manuel Expert", href: "/documentation/full-manual" },
 ];
 
 export function Sidebar() {
@@ -227,7 +180,18 @@ export function Sidebar() {
 
                 {/* Navigation */}
                 <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                    {menuItems.map((item, idx) => {
+                    {menuItems.map((item: any, idx) => {
+                        // Rendu des en-têtes de section
+                        if (item.header) {
+                            return (
+                                <div key={`header-${idx}`} className="px-4 py-3 mt-6 mb-2">
+                                    <h3 className="text-[10px] font-black pointer-events-none text-muted-foreground/60 uppercase tracking-[0.2em]">
+                                        {item.header}
+                                    </h3>
+                                </div>
+                            );
+                        }
+
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
 
@@ -236,7 +200,7 @@ export function Sidebar() {
                                 key={`${item.href}-${idx}`}
                                 href={item.href}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                                    "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
                                     isActive
                                         ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
                                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -245,8 +209,8 @@ export function Sidebar() {
                                 {isActive && (
                                     <div className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-full sidebar-active-indicator" />
                                 )}
-                                <Icon className={cn("w-5 h-5 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
-                                <span className="font-medium text-sm">{item.label}</span>
+                                <Icon className={cn("w-4 h-4 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
+                                <span className="font-medium text-xs">{item.label}</span>
                             </Link>
                         );
                     })}
