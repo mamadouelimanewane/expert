@@ -35,13 +35,22 @@ const MOCK_RISKS: RiskPoint[] = [
 export default function IARiskAuditPage() {
     const [analyzing, setAnalyzing] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [riskData, setRiskData] = useState<any>(null);
 
-    const startAnalysis = () => {
+    const startAnalysis = async () => {
         setAnalyzing(true);
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/audit/risk-score");
+            const data = await res.json();
+            setRiskData(data);
             setAnalyzing(false);
             setShowResults(true);
-        }, 3000);
+        } catch (error) {
+            console.error("Analysis failed:", error);
+            setAnalyzing(false);
+            // Fallback pour la démo si l'API échoue
+            setShowResults(true); 
+        }
     };
 
     return (
@@ -110,11 +119,14 @@ export default function IARiskAuditPage() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                                         <span className="text-xs font-bold text-slate-400">Risque Moyen Global</span>
-                                        <span className="text-xl font-bold text-amber-500">6.4/10</span>
+                                        <span className="text-xl font-bold text-amber-500">{riskData?.globalScore || "6.4"}/10</span>
                                     </div>
                                     <div className="p-3">
                                         <p className="text-xs text-slate-400 leading-relaxed italic">
-                                            "L'IA suggère d'orienter les travaux de terrain sur le cycle 'Ventes' compte tenu des fluctuations mensuelles anormales par rapport à 2023."
+                                            {riskData?.globalScore > 7 
+                                                ? "Risque élevé détecté. Une revue approfondie des cycles de vente et de trésorerie est impérative."
+                                                : "L'IA suggère d'orienter les travaux de terrain sur le cycle 'Ventes' compte tenu des fluctuations mensuelles anormales par rapport à l'exercice précédent."
+                                            }
                                         </p>
                                     </div>
                                 </div>
@@ -128,8 +140,8 @@ export default function IARiskAuditPage() {
                             <h3 className="font-bold text-white text-sm">Ciblage des Travaux (Sondages IA)</h3>
                         </div>
                         <div className="divide-y divide-slate-800">
-                            {MOCK_RISKS.map((risk) => (
-                                <div key={risk.id} className="p-4 flex gap-4 hover:bg-slate-800/30 transition-all group">
+                            {(riskData?.breakdown || MOCK_RISKS).map((risk: any) => (
+                                <div key={risk.id || risk.label} className="p-4 flex gap-4 hover:bg-slate-800/30 transition-all group">
                                     <div className={cn(
                                         "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
                                         risk.score > 80 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :

@@ -197,6 +197,36 @@ async function main() {
         },
     });
     console.log('✅ Tax declaration created');
+    
+    // Create Sample Invoices for Banking Demo
+    await prisma.invoice.create({
+        data: {
+            invoiceNumber: 'INV-2024-001',
+            issueDate: new Date('2024-05-15'),
+            dueDate: new Date('2024-06-15'),
+            status: 'SENT',
+            subtotal: 1000000,
+            taxRate: 18,
+            taxAmount: 180000,
+            total: 1180000,
+            clientId: client1.id,
+        },
+    });
+
+    await prisma.invoice.create({
+        data: {
+            invoiceNumber: 'INV-2024-002',
+            issueDate: new Date('2024-05-20'),
+            dueDate: new Date('2024-06-20'),
+            status: 'SENT',
+            subtotal: 500000,
+            taxRate: 18,
+            taxAmount: 90000,
+            total: 590000,
+            clientId: client1.id,
+        },
+    });
+    console.log('✅ Invoices created for banking demo');
 
     console.log('🎉 Database seeded successfully!');
     console.log('\n📝 Login Credentials:');

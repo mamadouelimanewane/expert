@@ -41,10 +41,28 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 
 export default function BankingPage() {
     const [isSyncing, setIsSyncing] = useState(false);
+    const [syncResult, setSyncResult] = useState<any>(null);
 
-    const handleSync = () => {
+    const handleSync = async () => {
         setIsSyncing(true);
-        setTimeout(() => setIsSyncing(false), 2500);
+        try {
+            // Pour la démo, l'API sélectionne le premier client par défaut si non spécifié
+            const res = await fetch("/api/banking/reconcile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId: "demo-client-id" }) 
+            });
+            const data = await res.json();
+            setSyncResult(data);
+            setIsSyncing(false);
+            
+            if (data.matchedCount > 0) {
+                alert(`Succès : ${data.message}`);
+            }
+        } catch (error) {
+            console.error("Sync failed:", error);
+            setIsSyncing(false);
+        }
     };
 
     return (

@@ -51,8 +51,30 @@ const SEALED_DOCS = [
 ];
 
 export default function SignaturePage() {
+    const [signingDoc, setSigningDoc] = useState<string | null>(null);
+    const [signatureCertificate, setSignatureCertificate] = useState<any>(null);
+
+    const handleSign = async (docId: string) => {
+        setSigningDoc(docId);
+        try {
+            const res = await fetch("/api/signature/process", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ documentId: docId, userName: "Expert Principal" })
+            });
+            const data = await res.json();
+            setSignatureCertificate(data.certificate);
+            setSigningDoc(null);
+            alert(`Document signé avec succès !\nHash : ${data.certificate.hash}\nValeur : ${data.certificate.validity}`);
+        } catch (error) {
+            console.error("Signature failed:", error);
+            setSigningDoc(null);
+        }
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-1000">
+            {/* ... rest of the component (header, cards, etc.) ... */}
             {/* Header Premium */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
@@ -246,8 +268,12 @@ export default function SignaturePage() {
                                                     <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-sm">
                                                         <Download className="w-4 h-4" />
                                                     </button>
-                                                    <button className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20">
-                                                        Suivre
+                                                    <button 
+                                                        onClick={() => handleSign(doc.id)}
+                                                        disabled={signingDoc === doc.id}
+                                                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 disabled:opacity-50"
+                                                    >
+                                                        {signingDoc === doc.id ? "Signature..." : (doc.status === "Signé" ? "Consulter" : "Signer")}
                                                     </button>
                                                 </div>
                                             </td>
