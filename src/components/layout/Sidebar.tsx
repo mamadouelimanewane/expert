@@ -24,6 +24,7 @@ import {
     Receipt,
     PenTool,
     Gavel,
+    Globe,
     Rocket,
     Library,
     Wallet,
