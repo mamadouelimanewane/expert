@@ -290,3 +290,41 @@ body {
     scrollbar-width: none;
   }
 }
+
+/* Mobile Roaming Utilities */
+.pb-safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Tactile Feedback for Mobile */
+@media (max-width: 768px) {
+  .touch-feedback:active {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+}
+
+/* Horizontal scroll optimization for folders/cards */
+.flex-nowrap-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.flex-nowrap-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes voice-wave {
+  0%, 100% { height: 10px; opacity: 0.3; }
+  50% { height: 40px; opacity: 1; }
+}
+
+.animate-voice-wave {
+  animation: voice-wave 1s ease-in-out infinite;
+}

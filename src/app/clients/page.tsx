@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Client } from "@prisma/client";
+import { ResponsiveDataList } from "@/components/layout/ResponsiveComponents";
 
 interface ClientWithCount extends Client {
     _count?: {
@@ -205,71 +206,98 @@ export default function ClientsPage() {
                     </a>
                 </div>
             ) : (
-                <div className="glass-card rounded-2xl sm:rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                <tr>
-                                    <th className="px-8 py-6">Client / Secteur</th>
-                                    <th className="px-6 py-6 font-black text-center">Pays</th>
-                                    <th className="px-6 py-6 font-black text-center">Santé (IA)</th>
-                                    <th className="px-6 py-6 font-black text-right whitespace-nowrap">Missions</th>
-                                    <th className="px-6 py-6 font-black text-center">Statut</th>
-                                    <th className="px-8 py-6 font-black text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {filteredClients.map((client) => {
-                                    const name = client.companyName || `${client.firstName} ${client.lastName}`;
-                                    const healthScore = client.isActive ? 85 : 45;
-
-                                    return (
-                                        <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-slate-400">
-                                                        {name[0]}
-                                                    </div>
-                                                    <div>
-                                                        <span className="font-bold text-white block truncate max-w-[200px]">{name}</span>
-                                                        <span className="text-[10px] text-slate-500 font-bold uppercase">{client.sector || "NON DEFINI"}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 text-center">
-                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900 rounded-full border border-white/5">
-                                                    <Globe className="w-3 h-3 text-indigo-400" />
-                                                    <span className="text-[10px] font-bold text-slate-300">{client.country}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-6 text-center">
-                                                <span className={cn(
-                                                    "font-black text-sm",
-                                                    healthScore > 80 ? "text-emerald-400" : "text-rose-400"
-                                                )}>{healthScore}/100</span>
-                                            </td>
-                                            <td className="px-6 py-6 text-right">
-                                                <span className="font-mono text-white font-bold">{client._count?.missions || 0}</span>
-                                            </td>
-                                            <td className="px-6 py-6 text-center">
-                                                <span className={cn(
-                                                    "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
-                                                    client.isActive ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-700/30 text-slate-400 border-slate-600/30"
-                                                )}>
-                                                    {client.isActive ? "Actif" : "Inactif"}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <MoreHorizontal className="w-5 h-5" />
-                                                </button>
-                                            </td>
+                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
+                    <ResponsiveDataList
+                        data={filteredClients}
+                        renderCard={(client) => {
+                            const name = client.companyName || `${client.firstName} ${client.lastName}`;
+                            return (
+                                <div key={client.id} className="p-5 bg-white/5 border border-white/5 rounded-2xl flex items-center justify-between group active:scale-[0.98] transition-transform">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center font-black text-white text-xs">
+                                            {name[0]}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-white text-sm truncate">{name}</p>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[9px] px-2 py-0.5 bg-slate-800 rounded-full text-slate-500 font-bold uppercase">{client.sector || "SECTEUR NON DÉFINI"}</span>
+                                                <span className="text-[10px] text-emerald-400 font-black uppercase text-xs">ACTIF</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button className="p-2.5 bg-white/5 rounded-xl text-white">
+                                        <ArrowUpRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            );
+                        }}
+                        renderTable={() => (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                        <tr>
+                                            <th className="px-8 py-6">Client / Secteur</th>
+                                            <th className="px-6 py-6 font-black text-center">Pays</th>
+                                            <th className="px-6 py-6 font-black text-center">Santé (IA)</th>
+                                            <th className="px-6 py-6 font-black text-right whitespace-nowrap">Missions</th>
+                                            <th className="px-6 py-6 font-black text-center">Statut</th>
+                                            <th className="px-8 py-6 font-black text-right">Actions</th>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {filteredClients.map((client) => {
+                                            const name = client.companyName || `${client.firstName} ${client.lastName}`;
+                                            const healthScore = client.isActive ? 85 : 45;
+
+                                            return (
+                                                <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
+                                                    <td className="px-8 py-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-slate-400">
+                                                                {name[0]}
+                                                            </div>
+                                                            <div>
+                                                                <span className="font-bold text-white block truncate max-w-[200px]">{name}</span>
+                                                                <span className="text-[10px] text-slate-500 font-bold uppercase">{client.sector || "NON DEFINI"}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-6 text-center">
+                                                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900 rounded-full border border-white/5">
+                                                            <Globe className="w-3 h-3 text-indigo-400" />
+                                                            <span className="text-[10px] font-bold text-slate-300">{client.country}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-6 text-center">
+                                                        <span className={cn(
+                                                            "font-black text-sm",
+                                                            healthScore > 80 ? "text-emerald-400" : "text-rose-400"
+                                                        )}>{healthScore}/100</span>
+                                                    </td>
+                                                    <td className="px-6 py-6 text-right">
+                                                        <span className="font-mono text-white font-bold">{client._count?.missions || 0}</span>
+                                                    </td>
+                                                    <td className="px-6 py-6 text-center">
+                                                        <span className={cn(
+                                                            "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
+                                                            client.isActive ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-700/30 text-slate-400 border-slate-600/30"
+                                                        )}>
+                                                            {client.isActive ? "Actif" : "Inactif"}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-8 py-6 text-right">
+                                                        <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
+                                                            <MoreHorizontal className="w-5 h-5" />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    />
                 </div>
             )}
 
@@ -278,9 +306,9 @@ export default function ClientsPage() {
                 <div className="absolute -bottom-10 -left-10 p-20 opacity-10 bg-indigo-500 rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-                    <div className="text-center lg:text-left">
-                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-2">⭐ Portefeuille Clients 360°</h2>
-                        <p className="text-slate-400 text-sm sm:text-base max-w-xl font-medium">
+                    <div className="text-center lg:text-left flex-1">
+                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-2 italic">⭐ Portefeuille Clients 360°</h2>
+                        <p className="text-slate-400 text-sm sm:text-base max-w-xl font-medium mx-auto lg:mx-0">
                             Gestion centralisée des tiers, scoring de risque KYC et opportunités de cross-selling.
                         </p>
                     </div>

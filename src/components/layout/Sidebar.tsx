@@ -56,7 +56,11 @@ import {
     GraduationCap,
     Gauge,
     Anchor,
-    Network
+    Network,
+    Plus,
+    ScanLine,
+    Mic,
+    PlusCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -104,6 +108,7 @@ const menuItems = [
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
     { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
     { icon: BrainCircuit, label: "Simulateur Stratégique", href: "/strategy/simulator" },
+    { icon: Globe, label: "Nexus Fiscal Mirror", href: "/strategy/fiscal-mirror" },
     { icon: Gem, label: "Wealth & Patrimoine", href: "/strategy/wealth" },
     { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
 
@@ -126,9 +131,24 @@ export function Sidebar() {
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
 
+    const [isFabOpen, setIsFabOpen] = useState(false);
+    const [isVoiceActive, setIsVoiceActive] = useState(false);
+    const [transcription, setTranscription] = useState("");
+
+    const startNexusGo = () => {
+        setIsVoiceActive(true);
+        setIsFabOpen(false);
+        setTranscription("Initialisation de Nexus-Go...");
+        
+        setTimeout(() => setTranscription("Je vous écoute. Quelle est votre demande ?"), 1000);
+        setTimeout(() => setTranscription("Analyse du dossier Traoré en cours..."), 3000);
+        setTimeout(() => setTranscription("L'EBITDA du groupe Traoré est en hausse de 12.4% ce trimestre. Souhaitez-vous le rapport détaillé ?"), 5000);
+    };
+
     // Close sidebar on navigation (mobile)
     useEffect(() => {
         setIsOpen(false);
+        setIsFabOpen(false);
     }, [pathname]);
 
     return (
@@ -275,6 +295,84 @@ export function Sidebar() {
                     </div>
                 </div>
             </aside>
+
+            {/* Mobile Roaming FAB (Floating Action Button) */}
+            <div className="lg:hidden fixed bottom-6 right-6 z-[70] flex flex-col items-end gap-3">
+                {isFabOpen && (
+                    <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <button className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100">
+                            <ScanLine className="w-4 h-4" /> Scanner Facture
+                        </button>
+                        <button 
+                            onClick={startNexusGo}
+                            className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100"
+                        >
+                            <Mic className="w-4 h-4" /> Note Vocale IA
+                        </button>
+                        <button className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100">
+                            <PlusCircle className="w-4 h-4" /> Nouvelle Mission
+                        </button>
+                    </div>
+                )}
+                <button
+                    onClick={() => setIsFabOpen(!isFabOpen)}
+                    className={cn(
+                        "w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-95",
+                        isFabOpen 
+                            ? "bg-slate-900 text-white rotate-45" 
+                            : "bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-indigo-600/40 hover:shadow-indigo-600/60"
+                    )}
+                >
+                    <Plus className={cn("w-7 h-7 transition-transform", isFabOpen ? "rotate-0" : "rotate-0")} />
+                </button>
+            </div>
+
+            {/* Nexus-Go Voice Overlay */}
+            {isVoiceActive && (
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
+                    <div className="absolute inset-0 bg-indigo-950/95 backdrop-blur-2xl" onClick={() => setIsVoiceActive(false)} />
+                    
+                    <div className="relative z-10 flex flex-col items-center text-center space-y-12 max-w-sm">
+                        <div className="w-32 h-32 relative">
+                            <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-20" />
+                            <div className="absolute inset-0 bg-indigo-500 rounded-full animate-pulse opacity-40" />
+                            <div className="relative w-full h-full bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                                <Mic className="w-12 h-12 text-white" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Nexus-Go Active</h2>
+                            <p className="text-indigo-200/60 font-medium text-sm italic min-h-[3rem] leading-relaxed">
+                                "{transcription}"
+                            </p>
+                        </div>
+
+                        <div className="flex gap-4 pt-12">
+                            <button 
+                                onClick={() => setIsVoiceActive(false)}
+                                className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/10 transition-all"
+                            >
+                                Annuler
+                            </button>
+                            <button 
+                                onClick={() => setIsVoiceActive(false)}
+                                className="px-8 py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-500/30 transition-all"
+                            >
+                                Terminer
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-12 left-12 right-12 text-center opacity-30">
+                        <div className="flex justify-center gap-1">
+                            {[...Array(12)].map((_, i) => (
+                                <div key={i} className="w-1 bg-white rounded-full animate-voice-wave" style={{ height: `${Math.random() * 40 + 10}px`, animationDelay: `${i * 0.1}s` }} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

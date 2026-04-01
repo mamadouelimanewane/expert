@@ -35,6 +35,7 @@ import {
     Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ResponsiveDataList, ResponsiveTable } from "@/components/layout/ResponsiveComponents";
 
 // Mock Data for Portal
 const CLIENT_INFO = {
@@ -105,7 +106,7 @@ export default function ClientPortalPage() {
                             <Bell className="w-5 h-5" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-[#0B0F17]" />
                         </button>
-                        <div className="h-8 w-px bg-white/10" />
+                        <div className="h-8 w-px bg-white/10 hidden sm:block" />
                         <div className="flex items-center gap-3 pl-2 cursor-pointer group">
                             <div className="text-right hidden sm:block">
                                 <p className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{CLIENT_INFO.name}</p>
@@ -119,6 +120,30 @@ export default function ClientPortalPage() {
                 </div>
             </div>
 
+            {/* Mobile Bottom Navigation */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0B0F17]/90 backdrop-blur-xl border-t border-white/10 pb-safe-area-bottom">
+                <div className="grid grid-cols-4 h-16">
+                    {[
+                        { id: "synthèse", icon: BarChart3, label: "Synthèse" },
+                        { id: "drive", icon: HardDrive, label: "GED" },
+                        { id: "communications", icon: MessageSquare, label: "Chat" },
+                        { id: "finance", icon: Wallet, label: "Finance" },
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={cn(
+                                "flex flex-col items-center justify-center gap-1 transition-all",
+                                activeTab === tab.id ? "text-indigo-400" : "text-slate-500"
+                            )}
+                        >
+                            <tab.icon className={cn("w-5 h-5", activeTab === tab.id && "scale-110")} />
+                            <span className="text-[10px] font-bold uppercase tracking-tight">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* SPACER for Fixed Header */}
             <div className="h-32" />
 
@@ -126,24 +151,24 @@ export default function ClientPortalPage() {
 
                 {/* === TAB 1: SYNTHÈSE === */}
                 {activeTab === "synthèse" && (
-                    <div className="space-y-8">
+                    <div className="space-y-6 sm:space-y-8">
                         {/* Welcome Banner */}
-                        <div className="relative rounded-[40px] bg-gradient-to-r from-indigo-900/40 to-violet-900/40 border border-white/5 p-10 overflow-hidden">
+                        <div className="relative rounded-3xl sm:rounded-[40px] bg-gradient-to-r from-indigo-900/40 to-violet-900/40 border border-white/5 p-6 sm:p-10 overflow-hidden">
                             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                             <div className="relative z-10 max-w-2xl">
-                                <h2 className="text-3xl font-black text-white mb-2">Bonjour, {CLIENT_INFO.manager.split(' ')[1]} 👋</h2>
-                                <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-                                    Vos comptes sont à jour au 27 Janvier. Vous avez 3 actions requises concernant la clôture mensuelle.
+                                <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">Bonjour, {CLIENT_INFO.manager.split(' ')[1]} 👋</h2>
+                                <p className="text-slate-300 text-sm sm:text-lg mb-6 sm:text-lg mb-8 leading-relaxed">
+                                    Vos comptes sont à jour au 27 Janvier. Vous avez <span className="text-indigo-400 font-bold">3 actions requises</span> concernant la clôture mensuelle.
                                 </p>
-                                <div className="flex gap-4">
-                                    <button className="px-6 py-3 bg-white text-indigo-950 rounded-xl font-bold text-sm shadow-xl shadow-white/5 hover:scale-105 transition-transform flex items-center gap-2">
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                    <button className="px-6 py-3 bg-white text-indigo-950 rounded-xl font-bold text-sm shadow-xl shadow-white/5 hover:scale-105 transition-transform flex items-center justify-center gap-2">
                                         <CheckCircle2 className="w-4 h-4" /> Voir mes actions (3)
                                     </button>
-                                    <button className="px-6 py-3 bg-white/10 text-white rounded-xl font-bold text-sm border border-white/10 hover:bg-white/20 transition-all">
+                                    <button className="px-6 py-3 bg-white/10 text-white rounded-xl font-bold text-sm border border-white/10 hover:bg-white/20 transition-all flex items-center justify-center">
                                         Contacter mon expert
                                     </button>
-                                    <Link href="/portal/custom-dashboard" className="px-6 py-3 bg-indigo-600/20 text-indigo-400 rounded-xl font-bold text-sm border border-indigo-500/30 hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2">
-                                        <MonitorIcon className="w-4 h-4" /> Personnaliser mon Pilotage
+                                    <Link href="/portal/custom-dashboard" className="px-6 py-3 bg-indigo-600/20 text-indigo-400 rounded-xl font-bold text-sm border border-indigo-500/30 hover:bg-indigo-600 hover:text-white transition-all flex items-center justify-center gap-2">
+                                        <MonitorIcon className="w-4 h-4" /> Pilotage
                                     </Link>
                                 </div>
                             </div>
@@ -228,50 +253,79 @@ export default function ClientPortalPage() {
                         </div>
 
                         <div className="glass-card rounded-[32px] border border-white/5 overflow-hidden bg-slate-900/20">
-                            <div className="p-6 border-b border-white/5 flex items-center gap-4">
-                                <Search className="w-5 h-5 text-slate-500" />
-                                <input type="text" placeholder="Rechercher un document..." className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-slate-600" />
-                            </div>
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-900/50 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                    <tr>
-                                        <th className="px-8 py-4">Nom du Fichier</th>
-                                        <th className="px-6 py-4">Catégorie</th>
-                                        <th className="px-6 py-4">Date</th>
-                                        <th className="px-6 py-4 text-right">Taille</th>
-                                        <th className="px-6 py-4"></th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {[
-                                        { name: "Liasse_Fiscale_2023_Definitive.pdf", cat: "Fiscalité", date: "20 Jan 2024", size: "4.2 MB" },
-                                        { name: "Grand_Livre_Decembre_2023.xlsx", cat: "Comptabilité", date: "15 Jan 2024", size: "12.8 MB" },
-                                        { name: "PV_Assemblee_Generale.pdf", cat: "Juridique", date: "05 Jan 2024", size: "1.5 MB" },
-                                        { name: "Contrat_Travail_DirecteurCom.pdf", cat: "Social", date: "12 Dec 2023", size: "0.8 MB" },
-                                    ].map((file, i) => (
-                                        <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
-                                            <td className="px-8 py-4">
+                                <search className="p-4 sm:p-6 border-b border-white/5 flex items-center gap-4">
+                                    <Search className="w-5 h-5 text-slate-500" />
+                                    <input type="text" placeholder="Rechercher un document..." className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-slate-600" />
+                                </search>
+
+                                <div className="p-4 sm:p-0">
+                                    <ResponsiveDataList
+                                        data={[
+                                            { name: "Liasse_Fiscale_2023_Definitive.pdf", cat: "Fiscalité", date: "20 Jan 2024", size: "4.2 MB" },
+                                            { name: "Grand_Livre_Decembre_2023.xlsx", cat: "Comptabilité", date: "15 Jan 2024", size: "12.8 MB" },
+                                            { name: "PV_Assemblee_Generale.pdf", cat: "Juridique", date: "05 Jan 2024", size: "1.5 MB" },
+                                            { name: "Contrat_Travail_DirecteurCom.pdf", cat: "Social", date: "12 Dec 2023", size: "0.8 MB" },
+                                        ]}
+                                        renderCard={(file, i) => (
+                                            <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center justify-between group">
                                                 <div className="flex items-center gap-3">
                                                     <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
                                                         <FileText className="w-5 h-5" />
                                                     </div>
-                                                    <span className="font-bold text-slate-200 group-hover:text-white transition-colors">{file.name}</span>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-white truncate max-w-[180px]">{file.name}</p>
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase">{file.cat} • {file.size}</p>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-xs font-medium text-slate-400">{file.cat}</td>
-                                            <td className="px-6 py-4 text-xs font-medium text-slate-500">{file.date}</td>
-                                            <td className="px-6 py-4 text-right text-xs font-mono text-slate-500">{file.size}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                <button className="p-2 bg-white/10 rounded-xl text-white">
                                                     <Download className="w-4 h-4" />
                                                 </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                            </div>
+                                        )}
+                                        renderTable={() => (
+                                            <table className="w-full text-left">
+                                                <thead className="bg-slate-900/50 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                                    <tr>
+                                                        <th className="px-8 py-4">Nom du Fichier</th>
+                                                        <th className="px-6 py-4">Catégorie</th>
+                                                        <th className="px-6 py-4">Date</th>
+                                                        <th className="px-6 py-4 text-right">Taille</th>
+                                                        <th className="px-6 py-4"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-white/5">
+                                                    {[
+                                                        { name: "Liasse_Fiscale_2023_Definitive.pdf", cat: "Fiscalité", date: "20 Jan 2024", size: "4.2 MB" },
+                                                        { name: "Grand_Livre_Decembre_2023.xlsx", cat: "Comptabilité", date: "15 Jan 2024", size: "12.8 MB" },
+                                                        { name: "PV_Assemblee_Generale.pdf", cat: "Juridique", date: "05 Jan 2024", size: "1.5 MB" },
+                                                        { name: "Contrat_Travail_DirecteurCom.pdf", cat: "Social", date: "12 Dec 2023", size: "0.8 MB" },
+                                                    ].map((file, i) => (
+                                                        <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+                                                            <td className="px-8 py-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                                                                        <FileText className="w-5 h-5" />
+                                                                    </div>
+                                                                    <span className="font-bold text-slate-200 group-hover:text-white transition-colors">{file.name}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 text-xs font-medium text-slate-400">{file.cat}</td>
+                                                            <td className="px-6 py-4 text-xs font-medium text-slate-500">{file.date}</td>
+                                                            <td className="px-6 py-4 text-right text-xs font-mono text-slate-500">{file.size}</td>
+                                                            <td className="px-6 py-4 text-right">
+                                                                <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
+                                                                    <Download className="w-4 h-4" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                            />
+                                </div>
+                            </div>
                         </div>
-                    </div>
                 )}
 
                 {/* === TAB 4: FINANCE (FACTURES & PAIEMENTS) === */}
@@ -293,43 +347,71 @@ export default function ClientPortalPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Invoice List */}
                             <div className="lg:col-span-2 glass-card rounded-[32px] border border-white/5 bg-slate-900/20 overflow-hidden">
-                                <table className="w-full text-left">
-                                    <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                        <tr>
-                                            <th className="px-8 py-6">Facture / Date</th>
-                                            <th className="px-6 py-6 font-black text-right">Montant</th>
-                                            <th className="px-6 py-6 text-center">Statut</th>
-                                            <th className="px-8 py-6 text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {[
+                                <div className="p-4 sm:p-0">
+                                    <ResponsiveDataList
+                                        data={[
                                             { id: "FACT-2024-001", date: "01 Fév 2024", amount: "450 000", status: "Payée" },
                                             { id: "FACT-2024-002", date: "01 Jan 2024", amount: "450 000", status: "Payée" },
                                             { id: "FACT-2023-112", date: "15 Déc 2023", amount: "125 000", status: "Payée" },
-                                        ].map((inv) => (
-                                            <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
-                                                <td className="px-8 py-6">
-                                                    <span className="font-bold text-white block">{inv.id}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{inv.date}</span>
-                                                </td>
-                                                <td className="px-6 py-6 text-right">
-                                                    <span className="font-mono font-bold text-slate-200">{inv.amount} FCFA</span>
-                                                </td>
-                                                <td className="px-6 py-6 text-center">
+                                        ]}
+                                        renderCard={(inv) => (
+                                            <div key={inv.id} className="bg-white/5 p-5 rounded-2xl border border-white/5 flex justify-between items-center">
+                                                <div>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">{inv.date}</p>
+                                                    <p className="text-xs font-black text-white">{inv.id}</p>
+                                                    <p className="text-sm font-black text-indigo-400 mt-1">{inv.amount} FCFA</p>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-3">
                                                     <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase">
                                                         {inv.status}
                                                     </span>
-                                                </td>
-                                                <td className="px-8 py-6 text-right">
-                                                    <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all">
+                                                    <button className="p-2 bg-white/10 rounded-lg text-white">
                                                         <Download className="w-4 h-4" />
                                                     </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                </div>
+                                            </div>
+                                        )}
+                                        renderTable={() => (
+                                            <table className="w-full text-left">
+                                                <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                                    <tr>
+                                                        <th className="px-8 py-6">Facture / Date</th>
+                                                        <th className="px-6 py-6 font-black text-right">Montant</th>
+                                                        <th className="px-6 py-6 text-center">Statut</th>
+                                                        <th className="px-8 py-6 text-right">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-white/5">
+                                                    {[
+                                                        { id: "FACT-2024-001", date: "01 Fév 2024", amount: "450 000", status: "Payée" },
+                                                        { id: "FACT-2024-002", date: "01 Jan 2024", amount: "450 000", status: "Payée" },
+                                                        { id: "FACT-2023-112", date: "15 Déc 2023", amount: "125 000", status: "Payée" },
+                                                    ].map((inv) => (
+                                                        <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
+                                                            <td className="px-8 py-6">
+                                                                <span className="font-bold text-white block">{inv.id}</span>
+                                                                <span className="text-[10px] text-slate-500 font-bold uppercase">{inv.date}</span>
+                                                            </td>
+                                                            <td className="px-6 py-6 text-right">
+                                                                <span className="font-mono font-bold text-slate-200">{inv.amount} FCFA</span>
+                                                            </td>
+                                                            <td className="px-6 py-6 text-center">
+                                                                <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[9px] font-black uppercase">
+                                                                    {inv.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-8 py-6 text-right">
+                                                                <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-all">
+                                                                    <Download className="w-4 h-4" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                    />
+                                </div>
                             </div>
 
                             {/* Payment Methods (AXONAUT INSPIRED) */}
@@ -401,22 +483,35 @@ function PortalCard({ title, value, unit, trend, trendUp, icon: Icon, color, bg,
 
 // Full Chat Interface for Portal
 function PortalChat() {
+    const [view, setView] = useState<"list" | "chat">("list");
+
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[600px] animate-in fade-in duration-500">
-            <div className="lg:col-span-4 glass-card rounded-[32px] border border-white/5 bg-slate-900/40 flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto sm:h-[600px] animate-in fade-in duration-500">
+            <div className={cn(
+                "lg:col-span-4 glass-card rounded-[32px] border border-white/5 bg-slate-900/40 flex flex-col min-h-[400px]",
+                view === "chat" && "hidden lg:flex"
+            )}>
                 <div className="p-6 border-b border-white/5">
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs">Mes Contacts Experts</h3>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                    <ContactItem name="Moussa Sarr" role="Expert-Comptable Dédié" online />
+                    <div onClick={() => setView("chat")}>
+                        <ContactItem name="Moussa Sarr" role="Expert-Comptable Dédié" online />
+                    </div>
                     <ContactItem name="Fatima Diop" role="Gestionnaire de Paie" />
                     <ContactItem name="Service Juridique" role="Cabinet" />
                 </div>
             </div>
 
-            <div className="lg:col-span-8 glass-card rounded-[32px] border border-white/5 bg-slate-910/20 flex flex-col relative overflow-hidden">
+            <div className={cn(
+                "lg:col-span-8 glass-card rounded-[32px] border border-white/5 bg-slate-910/20 flex flex-col relative overflow-hidden h-[500px] sm:h-full",
+                view === "list" && "hidden lg:flex"
+            )}>
                 <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
                     <div className="flex items-center gap-4">
+                        <button onClick={() => setView("list")} className="lg:hidden p-2 text-slate-400">
+                            <ChevronRight className="w-5 h-5 rotate-180" />
+                        </button>
                         <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">MS</div>
                         <div>
                             <p className="text-sm font-bold text-white font-black uppercase">Moussa Sarr</p>
@@ -425,19 +520,19 @@ function PortalChat() {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-white/[0.01]">
+                <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 bg-white/[0.01]">
                     <ChatBubble side="left" text="Bonjour M. Kouassi, j'ai bien reçu vos justificatifs pour la mission Audit GDS." />
                     <ChatBubble side="left" text="La liasse fiscale sera prête pour signature demain matin sur votre portail." />
                     <ChatBubble side="right" text="Parfait Moussa, merci pour la réactivité." />
                 </div>
 
-                <div className="p-6 bg-slate-900/60 border-t border-white/5">
-                    <div className="flex gap-4">
+                <div className="p-4 sm:p-6 bg-slate-900/60 border-t border-white/5">
+                    <div className="flex gap-2 sm:gap-4">
                         <input
-                            placeholder="Écrivez un message ou posez une question à l'IA..."
-                            className="flex-1 bg-slate-950/50 border border-white/5 rounded-2xl px-6 py-4 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                            placeholder="Votre message..."
+                            className="flex-1 bg-slate-950/50 border border-white/5 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                         />
-                        <button className="px-6 py-4 bg-indigo-600 rounded-2xl text-white shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
+                        <button className="px-5 sm:px-6 py-3 sm:py-4 bg-indigo-600 rounded-2xl text-white shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
                             <Send className="w-4 h-4" />
                         </button>
                     </div>

@@ -40,6 +40,21 @@ const MOCK_EMPLOYEES: Employee[] = [
 
 export default function PayrollPage() {
     const [selectedCountry, setSelectedCountry] = useState("Tous");
+    const [isCalcOpen, setIsCalcOpen] = useState(false);
+    const [calcData, setCalcData] = useState({
+        gross: 500000,
+        country: "Sénégal"
+    });
+
+    const rates: any = {
+        "Sénégal": 0.215,
+        "Côte d'Ivoire": 0.23,
+        "Gabon": 0.255,
+        "Cameroun": 0.162,
+        "Mali": 0.22
+    };
+
+    const employerCost = calcData.gross * (1 + (rates[calcData.country] || 0.2));
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -182,12 +197,92 @@ export default function PayrollPage() {
                         </div>
                         <h4 className="text-white font-bold mb-2">Simulateur de Coût Salarial</h4>
                         <p className="text-xs text-slate-500 mb-6 font-medium">Estimez le coût total d'une embauche incluant les charges patronales par pays.</p>
-                        <button className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3">
+                        <button 
+                            onClick={() => setIsCalcOpen(true)}
+                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3"
+                        >
                             Calculer le coût total <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Payroll Simulator Modal */}
+            {isCalcOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+                    <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setIsCalcOpen(false)} />
+                    <div className="glass-card w-full max-w-2xl bg-slate-900 border border-emerald-500/30 rounded-[40px] shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden relative z-10">
+                        <div className="p-10">
+                            <div className="flex justify-between items-center mb-10">
+                                <h3 className="text-2xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
+                                    <div className="p-3 bg-emerald-500/20 rounded-xl">
+                                        <Calculator className="w-6 h-6 text-emerald-400" />
+                                    </div>
+                                    Simulation Coût Employeur
+                                </h3>
+                                <button onClick={() => setIsCalcOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+                                    Fermer
+                                </button>
+                            </div>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Juridiction Sociale</label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {Object.keys(rates).map(c => (
+                                            <button 
+                                                key={c}
+                                                onClick={() => setCalcData({ ...calcData, country: c })}
+                                                className={cn(
+                                                    "px-4 py-3 rounded-xl text-[10px] font-bold border transition-all",
+                                                    calcData.country === c ? "bg-emerald-600 border-emerald-500 text-white shadow-lg" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
+                                                )}
+                                            >
+                                                {c}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between mb-4">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Salaire Brut Mensuel</label>
+                                        <span className="text-emerald-400 font-mono font-black">{calcData.gross.toLocaleString()} FCFA</span>
+                                    </div>
+                                    <input 
+                                        type="range" min="100000" max="5000000" step="50000"
+                                        value={calcData.gross}
+                                        onChange={(e) => setCalcData({ ...calcData, gross: parseInt(e.target.value) })}
+                                        className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                                    />
+                                </div>
+
+                                <div className="p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs font-bold text-slate-400">Taux Charges Patronales ({calcData.country})</span>
+                                        <span className="text-sm font-black text-white">+{(rates[calcData.country] * 100).toFixed(1)}%</span>
+                                    </div>
+                                    <div className="h-px bg-white/5" />
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm font-black text-emerald-400 flex items-center gap-2">
+                                            <TrendingUp className="w-4 h-4" /> COÛT TOTAL CABINET
+                                        </span>
+                                        <span className="text-2xl font-black text-white">{Math.round(employerCost).toLocaleString()} FCFA</span>
+                                    </div>
+                                </div>
+
+                                <p className="text-[10px] text-slate-500 italic text-center">
+                                    Note: Cette simulation inclut les cotisations sociales standards (Retraite, Accident, Prestations Familiales).
+                                </p>
+
+                                <button className="w-full py-4 bg-white text-emerald-950 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-[1.02] transition-all">
+                                    Générer simulation détaillée (.pdf)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -46,10 +46,14 @@ const CAC_CHECKLIST: AuditStep[] = [
 export default function NexusAuditAssurancePage() {
     const [selectedClient, setSelectedClient] = useState(mockClients[1]); // Let's pick a Corporate client
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [showResults, setShowResults] = useState(false);
 
     const runIAAudit = () => {
         setIsAnalyzing(true);
-        setTimeout(() => setIsAnalyzing(false), 2000);
+        setTimeout(() => {
+            setIsAnalyzing(false);
+            setShowResults(true);
+        }, 2500);
     };
 
     return (
@@ -240,6 +244,99 @@ export default function NexusAuditAssurancePage() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Hyper-Spectral Scan Results Modal */}
+            {showResults && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 animate-in zoom-in duration-300">
+                    <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setShowResults(false)} />
+                    <div className="glass-card w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-[50px] shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-hidden relative z-10">
+                        <div className="absolute top-0 right-0 p-12 opacity-5">
+                            <Cpu className="w-64 h-64 text-indigo-400" />
+                        </div>
+
+                        <div className="p-10 sm:p-16">
+                            <div className="flex justify-between items-start mb-12">
+                                <div>
+                                    <h3 className="text-3xl font-black text-white flex items-center gap-5">
+                                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                                            <Zap className="w-6 h-6 text-white" />
+                                        </div>
+                                        Rapport Hyper-Spectral IA
+                                    </h3>
+                                    <p className="text-slate-400 mt-2 font-medium">Analyse prédictive de conformité SYSCOHADA - {selectedClient.name}</p>
+                                </div>
+                                <button 
+                                    onClick={() => setShowResults(false)}
+                                    className="p-3 hover:bg-white/10 rounded-full transition-colors text-slate-500"
+                                >
+                                    <Activity className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                                <div className="p-6 bg-rose-500/5 border border-rose-500/20 rounded-3xl">
+                                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Risque Anomalies</p>
+                                    <p className="text-4xl font-black text-white">High <span className="text-xs text-rose-500 underline">82%</span></p>
+                                </div>
+                                <div className="p-6 bg-amber-500/5 border border-amber-500/20 rounded-3xl">
+                                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Conformité AUDCIF</p>
+                                    <p className="text-4xl font-black text-white">Full <span className="text-xs text-emerald-500">100%</span></p>
+                                </div>
+                                <div className="p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-3xl">
+                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Neural Mapping</p>
+                                    <p className="text-4xl font-black text-white">Active</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Neural Red Flags (Top 3)</h4>
+                                <ScanResultItem 
+                                    title="Divergence Stock / Facturation" 
+                                    desc="Écart de 12% détecté entre le cycle achat et la valorisation OHADA du stock final (Probable survalorisation)." 
+                                    urgent 
+                                />
+                                <ScanResultItem 
+                                    title="Flux Trésorerie Atypique" 
+                                    desc="Plusieurs virements UEMOA/CEMAC sans justificatifs probants liés à l'objet social." 
+                                />
+                                <ScanResultItem 
+                                    title="Provisions Non-Deductibles" 
+                                    desc="Provision pour litige fiscal mal isolée au bilan (Impact IS potentiel)." 
+                                />
+                            </div>
+
+                            <div className="mt-16 flex gap-4">
+                                <button className="flex-1 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all" onClick={() => setShowResults(false)}>
+                                    Intégrer au Dossier de Travail
+                                </button>
+                                <button className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/10" onClick={() => setShowResults(false)}>
+                                    Export PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ScanResultItem({ title, desc, urgent }: any) {
+    return (
+        <div className={cn(
+            "p-5 rounded-3xl border flex gap-6 items-start transition-all hover:bg-white/[0.02]",
+            urgent ? "bg-rose-500/10 border-rose-500/30" : "bg-white/5 border-white/10"
+        )}>
+            <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                urgent ? "bg-rose-500/20 text-rose-500" : "bg-slate-800 text-slate-500"
+            )}>
+                {urgent ? <AlertCircle className="w-6 h-6" /> : <Layers className="w-6 h-6" />}
+            </div>
+            <div>
+                <p className="font-black text-white text-sm mb-1 uppercase tracking-tight">{title}</p>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">{desc}</p>
             </div>
         </div>
     );

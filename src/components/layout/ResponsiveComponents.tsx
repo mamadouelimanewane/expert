@@ -54,10 +54,33 @@ interface ResponsiveTableProps {
 export function ResponsiveTable({ children, className }: ResponsiveTableProps) {
     return (
         <div className={cn("overflow-x-auto -mx-4 sm:mx-0", className)}>
-            <div className="inline-block min-w-full align-middle">
+            <div className="inline-block min-w-full align-middle font-sans">
                 <div className="overflow-hidden">
                     {children}
                 </div>
+            </div>
+        </div>
+    );
+}
+
+interface ResponsiveDataListProps<T> {
+    data: T[];
+    renderCard: (item: T, index: number) => ReactNode;
+    renderTable: () => ReactNode;
+    className?: string;
+}
+
+export function ResponsiveDataList<T>({ data, renderCard, renderTable, className }: ResponsiveDataListProps<T>) {
+    return (
+        <div className={cn("w-full", className)}>
+            {/* Table for Tablet/Desktop */}
+            <div className="hidden md:block">
+                {renderTable()}
+            </div>
+            
+            {/* Cards for Mobile */}
+            <div className="md:hidden space-y-4">
+                {data.map((item, index) => renderCard(item, index))}
             </div>
         </div>
     );

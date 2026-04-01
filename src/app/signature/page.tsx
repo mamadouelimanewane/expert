@@ -22,7 +22,9 @@ import {
     ArrowUpRight,
     Key,
     ExternalLink,
-    Zap
+    Zap,
+    Layers,
+    Maximize2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +42,12 @@ const MOCK_DOCS: DocToSign[] = [
     { id: "SIG-001", title: "Lettre de Mission - Audit SIB", owners: ["M. Touré", "Assoc. Cabinet"], sentDate: "22/05/2024", status: "Partiel", expiry: "05/06/2024", level: "Qualifié" },
     { id: "SIG-002", title: "Approbation Comptes Annuels 2023", owners: ["J. Dupont"], sentDate: "20/05/2024", status: "Signé", expiry: "30/05/2024", level: "Avancé" },
     { id: "SIG-003", title: "Contrat de Travail - Junior", owners: ["P. Ndiaye", "RH Cabinet"], sentDate: "24/05/2024", status: "En attente", expiry: "10/06/2024", level: "Simple" },
+];
+
+const SEALED_DOCS = [
+    { id: "VAULT-092", title: "Statuts Traoré Import-Export", date: "15/04/2024", hash: "0x82f...a92b", seal: "OHADA-QS-2024" },
+    { id: "VAULT-114", title: "PV Assemblée Générale SOGECOM", date: "10/04/2024", hash: "0x44d...f81e", seal: "OHADA-QS-2024" },
+    { id: "VAULT-221", title: "Convention Réglementée BIDC", date: "02/04/2024", hash: "0x11c...772d", seal: "OHADA-QS-2024" },
 ];
 
 export default function SignaturePage() {
@@ -171,81 +179,129 @@ export default function SignaturePage() {
                 </div>
 
                 {/* Main Documents Table */}
-                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
-                    <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40">
-                        <h3 className="text-xl font-black text-white flex items-center gap-3">
-                            <History className="w-5 h-5 text-indigo-400" />
-                            Historique des Actes
-                        </h3>
-                        <div className="relative w-full md:w-80">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="Rechercher par titre ou signataire..."
-                                className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
-                            />
+                <div className="lg:col-span-8 flex flex-col gap-8">
+                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
+                        <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40">
+                            <h3 className="text-xl font-black text-white flex items-center gap-3">
+                                <History className="w-5 h-5 text-indigo-400" />
+                                Suivi des Signatures
+                            </h3>
+                            <div className="relative w-full md:w-80">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher par titre..."
+                                    className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                                    <tr>
+                                        <th className="px-8 py-6">Document</th>
+                                        <th className="px-6 py-6 font-black text-center">Niveau</th>
+                                        <th className="px-6 py-6 font-black">Statut</th>
+                                        <th className="px-8 py-6 font-black text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {MOCK_DOCS.map((doc) => (
+                                        <tr key={doc.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                                                        <FileText className="w-6 h-6 text-slate-400 group-hover:text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{doc.title}</span>
+                                                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Réf: {doc.id} • {doc.sentDate}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6 text-center">
+                                                <span className={cn(
+                                                    "text-[9px] px-3 py-1 rounded-full font-black uppercase border tracking-tighter",
+                                                    doc.level === "Qualifié" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/5" :
+                                                        doc.level === "Avancé" ? "border-indigo-500/30 text-indigo-400 bg-indigo-500/5" :
+                                                            "border-slate-700 text-slate-500"
+                                                )}>
+                                                    {doc.level}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-6">
+                                                <div className={cn(
+                                                    "flex items-center gap-2 text-[10px] font-black uppercase px-4 py-1.5 rounded-full border w-fit shadow-lg transition-transform group-hover:scale-105",
+                                                    doc.status === "Signé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10" :
+                                                        doc.status === "Partiel" ? "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10" :
+                                                            "bg-slate-800 text-slate-500 border-slate-700"
+                                                )}>
+                                                    {doc.status === "Signé" ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                                                    {doc.status}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-sm">
+                                                        <Download className="w-4 h-4" />
+                                                    </button>
+                                                    <button className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20">
+                                                        Suivre
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
-                                <tr>
-                                    <th className="px-8 py-6">Document</th>
-                                    <th className="px-6 py-6 font-black text-center">Niveau</th>
-                                    <th className="px-6 py-6 font-black">Statut</th>
-                                    <th className="px-8 py-6 font-black text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {MOCK_DOCS.map((doc) => (
-                                    <tr key={doc.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
-                                                    <FileText className="w-6 h-6 text-slate-400 group-hover:text-white" />
-                                                </div>
-                                                <div>
-                                                    <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{doc.title}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Réf: {doc.id} • {doc.sentDate}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className={cn(
-                                                "text-[9px] px-3 py-1 rounded-full font-black uppercase border tracking-tighter",
-                                                doc.level === "Qualifié" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/5" :
-                                                    doc.level === "Avancé" ? "border-indigo-500/30 text-indigo-400 bg-indigo-500/5" :
-                                                        "border-slate-700 text-slate-500"
-                                            )}>
-                                                {doc.level}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-6">
-                                            <div className={cn(
-                                                "flex items-center gap-2 text-[10px] font-black uppercase px-4 py-1.5 rounded-full border w-fit shadow-lg transition-transform group-hover:scale-105",
-                                                doc.status === "Signé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10" :
-                                                    doc.status === "Partiel" ? "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10" :
-                                                        "bg-slate-800 text-slate-500 border-slate-700"
-                                            )}>
-                                                {doc.status === "Signé" ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
-                                                {doc.status}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all shadow-sm">
-                                                    <Download className="w-4 h-4" />
-                                                </button>
-                                                <button className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20">
-                                                    Suivre
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* NEW: Probatory Vault Section */}
+                    <div className="glass-card rounded-[48px] border border-white/10 bg-slate-900/60 p-10 overflow-hidden relative shadow-[0_0_50px_rgba(99,102,241,0.1)]">
+                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                            <Lock className="w-48 h-48 text-indigo-400" />
+                        </div>
+                        
+                        <div className="flex justify-between items-center mb-10 relative z-10">
+                            <div>
+                                <h3 className="text-2xl font-black text-white flex items-center gap-4">
+                                    <div className="p-2 bg-indigo-500/20 rounded-xl border border-indigo-500/30">
+                                        <Layers className="w-6 h-6 text-indigo-400" />
+                                    </div>
+                                    Coffre-Fort Probatoire Scellé
+                                </h3>
+                                <p className="text-sm text-slate-500 mt-1 font-medium italic">Actes avec valeur probante certifiée OHADA.</p>
+                            </div>
+                            <button className="text-[10px] font-black text-indigo-400 border border-indigo-500/30 px-5 py-2 rounded-xl uppercase tracking-widest hover:bg-indigo-500/10 transition-all">
+                                Certifier nouveau
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                            {SEALED_DOCS.map((vaultDoc) => (
+                                <div key={vaultDoc.id} className="p-5 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.05] transition-all group relative overflow-hidden">
+                                     <div className="flex justify-between items-start mb-4">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-500 group-hover:text-indigo-400">
+                                            <ShieldCheck className="w-6 h-6" />
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-[8px] font-black text-emerald-400 border border-emerald-400/30 px-2 py-0.5 rounded-full uppercase">Scellé</span>
+                                        </div>
+                                     </div>
+                                     <h4 className="font-bold text-white text-sm mb-1">{vaultDoc.title}</h4>
+                                     <p className="text-[10px] text-slate-500 mb-4 font-mono">{vaultDoc.date} • {vaultDoc.seal}</p>
+                                     <div className="flex items-center gap-2 pt-4 border-t border-white/5 mt-2">
+                                        <Fingerprint className="w-3 h-3 text-slate-600" />
+                                        <span className="text-[9px] text-slate-600 font-mono truncate flex-1">{vaultDoc.hash}</span>
+                                        <button className="text-indigo-400 hover:text-white transition-colors">
+                                            <Maximize2 className="w-3.5 h-3.5" />
+                                        </button>
+                                     </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

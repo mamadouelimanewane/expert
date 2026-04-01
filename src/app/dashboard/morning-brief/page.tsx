@@ -50,9 +50,9 @@ export default function MorningBriefPage() {
     return (
         <div className="min-h-screen space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Ultra Premium Header */}
-            <div className="relative p-12 rounded-[60px] overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 shadow-2xl">
-                <div className="absolute top-0 right-0 p-20 opacity-10 pointer-events-none group">
-                    <Sparkles className="w-64 h-64 text-indigo-400 animate-pulse" />
+            <div className="relative p-6 sm:p-12 rounded-3xl sm:rounded-[60px] overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 shadow-2xl">
+                <div className="absolute top-0 right-0 p-10 sm:p-20 opacity-10 pointer-events-none group">
+                    <Sparkles className="w-32 h-32 sm:w-64 h-64 text-indigo-400 animate-pulse" />
                 </div>
 
                 <div className="relative z-10">
@@ -65,19 +65,19 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <h1 className="text-5xl font-black text-white tracking-tighter leading-none mb-4 uppercase">
+                    <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4 uppercase">
                         Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborateur</span>
                     </h1>
-                    <p className="text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
+                    <p className="text-base sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
                         Voici votre synthèse stratégique du <span className="text-white font-bold">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>. Nexus a analysé les dernières réformes et flux client pour vous.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-8 mt-12 relative z-10">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 mt-8 sm:mt-12 relative z-10">
                     {metrics.map((m, i) => (
-                        <div key={i} className="p-6 bg-white/[0.03] border border-white/5 rounded-3xl backdrop-blur-xl">
+                        <div key={i} className="p-4 sm:p-6 bg-white/[0.03] border border-white/5 rounded-2xl sm:rounded-3xl backdrop-blur-xl">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{m.label}</p>
-                            <div className={cn("text-3xl font-black", m.color)}>{m.value}</div>
+                            <div className={cn("text-2xl sm:text-3xl font-black", m.color)}>{m.value}</div>
                         </div>
                     ))}
                 </div>
@@ -85,10 +85,10 @@ export default function MorningBriefPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Priorités Stratégiques IA */}
-                <div className="lg:col-span-8 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-8 flex items-center gap-3">
-                            <Zap className="w-6 h-6 text-amber-400" /> Priorités du Cabinet (Réel)
+                <div className="lg:col-span-8 space-y-6 sm:space-y-8">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                        <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-6 sm:mb-8 flex items-center gap-3">
+                            <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /> Priorités du Cabinet (Réel)
                         </h3>
 
                         <div className="space-y-6">
@@ -111,8 +111,8 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                        <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/40">
                             <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6">Dernière Jurisprudence OHADA</h4>
                             <div className="space-y-4">
                                 <div className="p-4 bg-white/5 rounded-2xl border-l-2 border-indigo-500">
@@ -144,10 +144,10 @@ export default function MorningBriefPage() {
                 </div>
 
                 {/* 2. Side Console: Cabinet Health & Comms */}
-                <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent text-center">
-                        <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-indigo-500/20">
-                            <TrendingUp className="w-10 h-10 text-indigo-400" />
+                <div className="lg:col-span-4 space-y-6 sm:space-y-8">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent text-center">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-indigo-500/20">
+                            <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
                         </div>
                         <h4 className="text-white font-black uppercase text-xs tracking-widest mb-2">Santé du Cabinet</h4>
                         <div className="text-5xl font-black text-white tracking-widest uppercase mb-4">92%</div>
@@ -159,7 +159,7 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/40">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6 flex items-center gap-2">
                             <Users className="w-4 h-4" /> Collaborateurs Clés
                         </h4>
