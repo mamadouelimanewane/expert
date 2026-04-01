@@ -112,6 +112,7 @@ model Client {
   meetings          Meeting[]
   timeEntries       TimeEntry[]
   declarations      TaxDeclaration[]
+  financialData     FinancialData[]
   
   @@map("clients")
 }
@@ -507,4 +508,35 @@ model NewsBrief {
   isRead    Boolean  @default(false)
   
   @@map("news_briefs")
+}
+
+// ============================================
+// FINANCIAL DATA (Balances & SIG)
+// ============================================
+
+model FinancialData {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  year            Int      // Ex: 2023, 2024
+  period          String?  // Ex: "ANNUAL", "H1", "Q1"
+  
+  // Key Indicators (Calculated or Imported)
+  ca              Float    @default(0)
+  ebitda          Float    @default(0) // EBE
+  netResult       Float    @default(0)
+  totalBilan      Float    @default(0)
+  equity          Float    @default(0) // Fonds propres
+  netCash         Float    @default(0)
+  bfr             Float    @default(0)
+  
+  // Status
+  isProjected     Boolean  @default(false)
+  
+  // Relations
+  clientId        String   @db.ObjectId
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("financial_data")
 }

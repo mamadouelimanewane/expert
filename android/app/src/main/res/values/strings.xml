@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Cabinet 360</string>
+    <string name="title_activity_main">Cabinet 360</string>
+    <string name="package_name">com.cabinet360.expert</string>
+    <string name="custom_url_scheme">com.cabinet360.expert</string>
+</resources>

@@ -102,9 +102,45 @@ export default function NeuralForensicsPage() {
         }
     };
 
-    const runNeuralScan = () => {
+    useEffect(() => {
+        const fetchNetwork = async () => {
+            try {
+                const res = await fetch("/api/analysis/network", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ clientId: "default" })
+                });
+                const data = await res.json();
+                if (data.success && data.network) {
+                    setNodes(data.network.nodes);
+                    setEdges(data.network.edges);
+                }
+            } catch (e) {
+                console.error("Failed to fetch network", e);
+            }
+        };
+        fetchNetwork();
+    }, []);
+
+    const runNeuralScan = async () => {
         setIsScanning(true);
-        setTimeout(() => setIsScanning(false), 3000);
+        try {
+            const res = await fetch("/api/analysis/network", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId: "default" })
+            });
+            const data = await res.json();
+            setTimeout(() => {
+                if (data.success && data.network) {
+                    setNodes(data.network.nodes);
+                    setEdges(data.network.edges);
+                }
+                setIsScanning(false);
+            }, 2500);
+        } catch (e) {
+            setIsScanning(false);
+        }
     };
 
     const launchSherlockInvestigation = () => {

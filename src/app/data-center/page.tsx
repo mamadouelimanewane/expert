@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Database,
     UploadCloud,
@@ -41,6 +41,29 @@ const MOCK_DATASETS: Dataset[] = [
 
 export default function DataCenterPage() {
     const [isUploading, setIsUploading] = useState(false);
+    const [datasets, setDatasets] = useState<Dataset[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDatasets = async () => {
+            try {
+                const res = await fetch("/api/data/datasets");
+                const data = await res.json();
+                if (data.success && data.datasets) {
+                    setDatasets(data.datasets);
+                } else {
+                    // Fallback mockup si vide ou erreur
+                    setDatasets(MOCK_DATASETS);
+                }
+            } catch (e) {
+                console.error("Failed to fetch datasets", e);
+                setDatasets(MOCK_DATASETS);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchDatasets();
+    }, []);
 
     const handleUpload = () => {
         setIsUploading(true);
@@ -120,36 +143,51 @@ export default function DataCenterPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {MOCK_DATASETS.map((data) => (
-                                    <tr key={data.id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 bg-slate-800 rounded-xl border border-white/5 text-slate-400 group-hover:text-indigo-400 transition-colors">
-                                                    <FileCode className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <span className="font-bold text-slate-200 block group-hover:text-white transition-colors">{data.name}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{data.size}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center text-xs font-black text-slate-400">{data.type}</td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className="text-indigo-400 font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
-                                            <p className="text-[8px] text-slate-600 font-black uppercase">Lignes</p>
-                                        </td>
-                                        <td className="px-6 py-6 text-xs text-slate-500 font-bold">{data.date}</td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-4">
-                                                <span className={cn(
-                                                    "text-[10px] font-black uppercase px-2 py-0.5 rounded border",
-                                                    data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
-                                                )}>{data.status}</span>
-                                                <button className="p-2 text-slate-700 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                            </div>
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-8 py-20 text-center">
+                                            <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin mx-auto mb-4" />
+                                            <p className="text-slate-400 font-bold">Synchronisation avec Nexus Data Engine...</p>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : datasets.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-8 py-20 text-center text-slate-500 font-bold uppercase tracking-widest text-xs">
+                                            Aucun dataset identifié.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    datasets.map((data) => (
+                                        <tr key={data.id} className="hover:bg-white/[0.02] transition-colors group">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-2.5 bg-slate-800 rounded-xl border border-white/5 text-slate-400 group-hover:text-indigo-400 transition-colors">
+                                                        <FileCode className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-bold text-slate-200 block group-hover:text-white transition-colors">{data.name}</span>
+                                                        <span className="text-[10px] text-slate-500 font-bold uppercase">{data.size}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6 text-center text-xs font-black text-slate-400">{data.type}</td>
+                                            <td className="px-6 py-6 text-center">
+                                                <span className="text-indigo-400 font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
+                                                <p className="text-[8px] text-slate-600 font-black uppercase">Lignes</p>
+                                            </td>
+                                            <td className="px-6 py-6 text-xs text-slate-500 font-bold">{data.date}</td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex items-center justify-end gap-4">
+                                                    <span className={cn(
+                                                        "text-[10px] font-black uppercase px-2 py-0.5 rounded border",
+                                                        data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                    )}>{data.status}</span>
+                                                    <button className="p-2 text-slate-700 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

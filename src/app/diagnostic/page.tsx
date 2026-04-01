@@ -162,6 +162,12 @@ export default function DiagnosticPage() {
     const [showReport, setShowReport] = useState(false);
     const [isGeneratingReport, setIsGeneratingReport] = useState(false);
     const [editMode, setEditMode] = useState(false);
+    const [diagData, setDiagData] = useState<{
+        globalScore: number,
+        sections: DiagnosticSection[],
+        years: YearData[]
+    } | null>(null);
+
     const [reportContent, setReportContent] = useState({
         executiveSummary: "",
         structureAnalysis: "",
@@ -172,13 +178,37 @@ export default function DiagnosticPage() {
         conclusion: ""
     });
 
-    const runDiagnostic = () => {
+    const runDiagnostic = async () => {
         setIsGenerating(true);
         setDiagnosticVisible(false);
-        setTimeout(() => {
+        
+        try {
+            const res = await fetch("/api/diagnostic/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId: "default", clientName: selectedClient })
+            });
+            const data = await res.json();
+            
+            if (data.success && data.diagnostic) {
+                setDiagData(data.diagnostic);
+                setDiagnosticVisible(true);
+            } else {
+                alert(data.error || "Erreur lors de la génération du diagnostic.");
+                // Fallback aux données mock pour la démo si l'API échoue
+                setDiagData({
+                    globalScore: Math.round(MOCK_DIAGNOSTIC.reduce((acc, s) => acc + s.score, 0) / MOCK_DIAGNOSTIC.length),
+                    sections: MOCK_DIAGNOSTIC,
+                    years: MOCK_YEARS
+                });
+                setDiagnosticVisible(true);
+            }
+        } catch (error) {
+            console.error("Diagnostic error:", error);
+            alert("Erreur de connexion au service de diagnostic.");
+        } finally {
             setIsGenerating(false);
-            setDiagnosticVisible(true);
-        }, 3500);
+        }
     };
 
     const generateReport = () => {
@@ -213,7 +243,9 @@ export default function DiagnosticPage() {
         setReportContent(prev => ({ ...prev, [section]: enhancedContent }));
     };
 
-    const globalScore = Math.round(MOCK_DIAGNOSTIC.reduce((acc, s) => acc + s.score, 0) / MOCK_DIAGNOSTIC.length);
+    const currentSections = diagData?.sections || MOCK_DIAGNOSTIC;
+    const currentYears = diagData?.years || MOCK_YEARS;
+    const globalScoreHealth = diagData?.globalScore || Math.round(currentSections.reduce((acc, s) => acc + s.score, 0) / currentSections.length);
 
     return (
         <div className="space-y-6">
@@ -289,20 +321,20 @@ export default function DiagnosticPage() {
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Score Global de Santé</h3>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-5xl font-black text-white">{globalScore}</span>
+                                    <span className="text-5xl font-black text-white">{globalScoreHealth}</span>
                                     <span className="text-2xl text-slate-500">/100</span>
                                 </div>
                             </div>
-                            <div className={cn(
+                                <div className={cn(
                                 "w-24 h-24 rounded-full flex items-center justify-center border-4",
-                                globalScore >= 75 ? "border-emerald-500 bg-emerald-500/10" :
-                                    globalScore >= 50 ? "border-amber-500 bg-amber-500/10" :
+                                globalScoreHealth >= 75 ? "border-emerald-500 bg-emerald-500/10" :
+                                    globalScoreHealth >= 50 ? "border-amber-500 bg-amber-500/10" :
                                         "border-rose-500 bg-rose-500/10"
                             )}>
                                 <Activity className={cn(
                                     "w-12 h-12",
-                                    globalScore >= 75 ? "text-emerald-500" :
-                                        globalScore >= 50 ? "text-amber-500" :
+                                    globalScoreHealth >= 75 ? "text-emerald-500" :
+                                        globalScoreHealth >= 50 ? "text-amber-500" :
                                             "text-rose-500"
                                 )} />
                             </div>
@@ -332,7 +364,7 @@ export default function DiagnosticPage() {
                         {showEvolution && (
                             <div className="p-6 space-y-6 animate-in slide-in-from-top-2 fade-in duration-300">
                                 <div className="grid grid-cols-3 gap-4">
-                                    {MOCK_YEARS.map((year, i) => (
+                                    {currentYears.map((year, i) => (
                                         <div key={i} className={cn(
                                             "p-4 rounded-xl border",
                                             i === 1 ? "bg-indigo-500/10 border-indigo-500/30" : "bg-slate-800/30 border-slate-700/30"
@@ -358,19 +390,19 @@ export default function DiagnosticPage() {
                                         <BarChart3 className="w-4 h-4" /> Tendance CA & Résultat Net
                                     </h4>
                                     <div className="flex items-end justify-between gap-4 h-32">
-                                        {MOCK_YEARS.map((year, i) => (
+                                        {currentYears.map((year, i) => (
                                             <div key={i} className="flex-1 flex flex-col items-center gap-2">
                                                 <div className="w-full flex flex-col gap-1">
                                                     <div
                                                         className="w-full bg-indigo-500 rounded-t transition-all hover:bg-indigo-400"
-                                                        style={{ height: `${(year.ca / 600) * 100}px` }}
+                                                        style={{ height: `${Math.min(100, (year.ca / 600000000) * 100)}px` }}
                                                     />
                                                     <div
                                                         className="w-full bg-emerald-500 rounded-t transition-all hover:bg-emerald-400"
-                                                        style={{ height: `${(year.resultatNet / 60) * 100}px` }}
+                                                        style={{ height: `${Math.min(100, (year.resultatNet / 60000000) * 100)}px` }}
                                                     />
                                                 </div>
-                                                <span className="text-[10px] text-slate-500 font-bold">{year.year.split(' ')[0]}</span>
+                                                <span className="text-[10px] text-slate-500 font-bold">{year.year}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -391,7 +423,7 @@ export default function DiagnosticPage() {
 
                     {/* Detailed Sections */}
                     <div className="space-y-4">
-                        {MOCK_DIAGNOSTIC.map((section, idx) => (
+                        {currentSections.map((section, idx) => (
                             <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden group">
                                 <div
                                     className="p-5 border-b border-slate-700/50 bg-slate-900/50 flex justify-between items-center cursor-pointer hover:bg-slate-800/50 transition-colors"

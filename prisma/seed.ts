@@ -6,6 +6,11 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🌱 Starting database seed...');
 
+    // Cleanup existing data for demo repeatability
+    await prisma.invoice.deleteMany();
+    await prisma.financialData.deleteMany();
+    await prisma.taxDeclaration.deleteMany();
+
     // Create Admin User
     const adminPassword = await bcrypt.hash('Admin@2026!', 10);
     const admin = await prisma.user.upsert({
@@ -227,6 +232,84 @@ async function main() {
         },
     });
     console.log('✅ Invoices created for banking demo');
+
+    // Create Sample Financial Data for Diagnostic Demo
+    console.log('📊 Seeding Financial Data for Diagnostic...');
+    await prisma.financialData.create({
+        data: {
+            year: 2023,
+            ca: 450000000,
+            ebitda: 85000000,
+            netResult: 35000000,
+            totalBilan: 500000000,
+            equity: 210000000,
+            netCash: 27000000,
+            bfr: 38000000,
+            clientId: client1.id,
+        }
+    });
+
+    await prisma.financialData.create({
+        data: {
+            year: 2024,
+            ca: 520000000,
+            ebitda: 92000000,
+            netResult: 42000000,
+            totalBilan: 580000000,
+            equity: 261000000,
+            netCash: 22000000,
+            bfr: 45000000,
+            clientId: client1.id,
+        }
+    });
+
+    await prisma.financialData.create({
+        data: {
+            year: 2025,
+            ca: 595000000,
+            ebitda: 110000000,
+            netResult: 51000000,
+            totalBilan: 650000000,
+            equity: 312000000,
+            netCash: 28000000,
+            bfr: 42000000,
+            clientId: client1.id,
+            isProjected: true
+        }
+    });
+    console.log('✅ Financial data seeded for Diagnostic');
+
+    // Create Sample Documents for Data Center Demo
+    console.log('📄 Seeding Documents for Data Center...');
+    await prisma.document.create({
+        data: {
+            fileName: 'FEC_2023_SIB_SENEGAL.xml',
+            originalName: 'FEC_2023_SIB_SENEGAL.xml',
+            fileSize: 14889984, // ~14.2 MB
+            mimeType: 'text/xml',
+            fileUrl: 'https://storage.google.com/cabinet360/fec_2023.xml',
+            type: 'FACTURE', // Used as FEC proxy
+            status: 'PROCESSED',
+            clientId: client1.id,
+            uploadedById: admin.id,
+            ocrData: { entries: 124500 }
+        }
+    });
+
+    await prisma.document.create({
+        data: {
+            fileName: 'Balance_Générale_May24_Orange.xlsx',
+            originalName: 'Balance_Générale_May24_Orange.xlsx',
+            fileSize: 1258291, // ~1.2 MB
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            fileUrl: 'https://storage.google.com/cabinet360/bal_2024.xlsx',
+            type: 'RAPPORT', // Used as Balance proxy
+            status: 'PROCESSED',
+            clientId: client2.id,
+            uploadedById: admin.id,
+            ocrData: { entries: 450 }
+        }
+    });
 
     console.log('🎉 Database seeded successfully!');
     console.log('\n📝 Login Credentials:');

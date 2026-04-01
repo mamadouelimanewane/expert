@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     FileCheck,
     Clock,
@@ -17,7 +17,9 @@ import {
     ArrowRight,
     Search,
     RefreshCw,
-    Wallet
+    Wallet,
+    Loader2,
+    Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +45,31 @@ const MOCK_DECLARATIONS: TaxDeclaration[] = [
 
 export default function DeclarationsPage() {
     const [activeStatus, setActiveStatus] = useState<string>("tous");
-    const [selectedDecl, setSelectedDecl] = useState<TaxDeclaration | null>(MOCK_DECLARATIONS[0]);
+    const [declarations, setDeclarations] = useState<TaxDeclaration[]>([]);
+    const [selectedDecl, setSelectedDecl] = useState<TaxDeclaration | null>(null);
+    const [kpis, setKpis] = useState({ totalToPay: 0, nextDeadline: "N/A" });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDeclarations();
+    }, [activeStatus]);
+
+    const fetchDeclarations = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/declarations?status=${activeStatus}`);
+            const data = await res.json();
+            if (data.declarations) {
+                setDeclarations(data.declarations);
+                if (data.declarations.length > 0 && !selectedDecl) setSelectedDecl(data.declarations[0]);
+            }
+            if (data.kpis) setKpis(data.kpis);
+        } catch (error) {
+            console.error("Failed to fetch declarations", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
@@ -64,12 +90,12 @@ export default function DeclarationsPage() {
                 <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-white/5">
                     <div className="px-6 py-3 bg-slate-800 rounded-xl text-center min-w-[100px]">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">PROCHAINE ÉCHÉANCE</p>
-                        <p className="text-xl font-black text-white">15 JUIN</p>
+                        <p className="text-xl font-black text-white">{kpis.nextDeadline}</p>
                     </div>
                     <div className="h-10 w-px bg-slate-700" />
                     <div className="px-6 py-3 rounded-xl text-center min-w-[100px]">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">TOTAL À RÉGLER</p>
-                        <p className="text-xl font-black text-orange-400">38.7M <span className="text-[10px]">FCFA</span></p>
+                        <p className="text-xl font-black text-orange-400">{(kpis.totalToPay / 1000000).toFixed(1)}M <span className="text-[10px]">FCFA</span></p>
                     </div>
                 </div>
             </div>
@@ -94,7 +120,10 @@ export default function DeclarationsPage() {
                                 </button>
                             ))}
                         </div>
-                        <button className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors">
+                        <button 
+                            onClick={fetchDeclarations}
+                            className={cn("p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors", loading && "animate-spin")}
+                        >
                             <RefreshCw className="w-5 h-5" />
                         </button>
                     </div>
@@ -112,63 +141,74 @@ export default function DeclarationsPage() {
                                     <th className="px-6 py-6 text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {MOCK_DECLARATIONS.map((decl) => (
-                                    <tr
-                                        key={decl.id}
-                                        onClick={() => setSelectedDecl(decl)}
-                                        className={cn(
-                                            "cursor-pointer transition-all group hover:bg-white/[0.02]",
-                                            selectedDecl?.id === decl.id && "bg-white/[0.04]"
-                                        )}
-                                    >
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center font-black text-xs text-slate-400">
-                                                    {decl.type}
-                                                </div>
-                                                <div>
-                                                    <p className="font-bold text-white group-hover:text-orange-400 transition-colors">{decl.client}</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <img
-                                                            src={`https://flagcdn.com/w20/${decl.country.toLowerCase()}.png`}
-                                                            alt={decl.country}
-                                                            className="w-4 h-auto rounded-[2px] opacity-70"
-                                                        />
-                                                        <span className="text-[10px] text-slate-500 font-bold uppercase">{decl.country}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className="px-3 py-1 bg-slate-800 rounded-lg text-xs font-medium text-slate-300 border border-white/5">{decl.month}</span>
-                                        </td>
-                                        <td className="px-6 py-6 text-right">
-                                            <span className="font-mono font-bold text-white">{decl.amountToPay}</span>
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className={cn(
-                                                "w-2.5 h-2.5 rounded-full inline-block shadow-[0_0_10px]",
-                                                decl.risk === "faible" ? "bg-emerald-500 shadow-emerald-500/50" :
-                                                    decl.risk === "moyen" ? "bg-amber-500 shadow-amber-500/50" : "bg-rose-500 shadow-rose-500/50"
-                                            )} />
-                                        </td>
-                                        <td className="px-6 py-6 text-center">
-                                            <span className={cn(
-                                                "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
-                                                decl.status === "payee" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                    decl.status === "teletransmise" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
-                                                        decl.status === "validation" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                            "bg-slate-700/30 text-slate-400 border-slate-600/30"
-                                            )}>
-                                                {decl.status.replace("_", " ")}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-6 text-right">
-                                            <ChevronRight className="w-5 h-5 text-slate-600 ml-auto group-hover:text-white transition-colors" />
+                             <tbody className="divide-y divide-white/5">
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-8 py-20 text-center">
+                                            <Loader2 className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
+                                            <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Calcul des échéances fiscales...</p>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : declarations.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-8 py-20 text-center text-slate-500 font-bold uppercase tracking-widest text-xs">
+                                            Aucune déclaration identifiée.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    declarations.map((decl) => (
+                                        <tr
+                                            key={decl.id}
+                                            onClick={() => setSelectedDecl(decl)}
+                                            className={cn(
+                                                "cursor-pointer transition-all group hover:bg-white/[0.02]",
+                                                selectedDecl?.id === decl.id && "bg-white/[0.04]"
+                                            )}
+                                        >
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center font-black text-xs text-slate-400">
+                                                        {decl.type}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-white group-hover:text-orange-400 transition-colors uppercase text-xs">{decl.client}</p>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <Globe className="w-3 h-3 text-slate-500" />
+                                                            <span className="text-[10px] text-slate-500 font-bold uppercase">{decl.country}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-6 text-center">
+                                                <span className="px-3 py-1 bg-slate-800 rounded-lg text-[10px] font-black uppercase text-slate-300 border border-white/5">{decl.month}</span>
+                                            </td>
+                                            <td className="px-6 py-6 text-right">
+                                                <span className="font-mono font-bold text-white">{decl.amountToPay}</span>
+                                            </td>
+                                            <td className="px-6 py-6 text-center">
+                                                <span className={cn(
+                                                    "w-2.5 h-2.5 rounded-full inline-block shadow-[0_0_10px]",
+                                                    decl.risk === "faible" ? "bg-emerald-500 shadow-emerald-500/50" :
+                                                        decl.risk === "moyen" ? "bg-amber-500 shadow-amber-500/50" : "bg-rose-500 shadow-rose-500/50"
+                                                )} />
+                                            </td>
+                                            <td className="px-6 py-6 text-center">
+                                                <span className={cn(
+                                                    "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
+                                                    decl.status === "payee" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                                        decl.status === "teletransmise" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
+                                                            decl.status === "validation" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                                                "bg-slate-700/30 text-slate-400 border-slate-600/30"
+                                                )}>
+                                                    {decl.status.replace("_", " ")}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-6 text-right">
+                                                <ChevronRight className="w-5 h-5 text-slate-600 ml-auto group-hover:text-white transition-colors" />
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
