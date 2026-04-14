@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
     Lock,
     Mail,
@@ -15,10 +15,23 @@ import { cn } from "@/lib/utils";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Auto-login for demo if ?demo=true is present
+    useEffect(() => {
+        if (searchParams.get('demo') === 'true') {
+            setEmail("admin@cabinet360.com");
+            setPassword("admin2026");
+            setTimeout(() => {
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+            }, 500);
+        }
+    }, [searchParams]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
