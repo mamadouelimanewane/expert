@@ -131,6 +131,31 @@ export default function LoginPage() {
                                 <Loader2 className="absolute w-5 h-5 animate-spin" />
                             )}
                         </button>
+
+                        <div className="relative py-4">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-white/5"></span>
+                            </div>
+                            <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
+                                <span className="bg-[#0f172a] px-4 text-slate-500">Ou accès rapide</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEmail("admin@cabinet360.com");
+                                setPassword("admin2026");
+                                setTimeout(() => {
+                                    const form = document.querySelector('form');
+                                    if (form) form.requestSubmit();
+                                }, 100);
+                            }}
+                            className="w-full py-5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-[24px] font-black uppercase tracking-widest text-xs transition-all border border-indigo-500/20 flex items-center justify-center gap-3 group"
+                        >
+                            <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            Accéder au Mode Démonstration
+                        </button>
                     </form>
 
                     <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between">

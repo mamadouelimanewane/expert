@@ -33,9 +33,9 @@ Ce guide décrit les tests à effectuer pour valider que l'application répond a
 
 **Identifiants de test**:
 ```
-Admin: admin@cabinet360.com / Admin@2026!
-Expert: expert@cabinet360.com / Expert@2026!
-Collaborateur: collaborator@cabinet360.com / Collab@2026!
+- **Admin**: admin@cabinet360.com / admin2026
+- **Expert**: expert@cabinet360.com / expert2026
+- **Collaborateur**: collaborator@cabinet360.com / collab2026
 ```
 
 #### Test 1.2: Navigation Mobile

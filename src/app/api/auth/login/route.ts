@@ -14,8 +14,8 @@ export async function POST(request: Request) {
         // Si les identifiants correspondent aux comptes de démo, on force le succès
         // Utile si la BDD de prod n'est pas encore seedée
         if (
-            (email === "admin@cabinet360.com" && password === "Admin@2026!") ||
-            (email === "expert@cabinet360.com" && password === "Expert@2026!")
+            (email === "admin@cabinet360.com" && password === "admin2026") ||
+            (email === "expert@cabinet360.com" && password === "expert2026")
         ) {
             const role = email.startsWith("admin") ? "ADMIN" : "EXPERT";
             const firstName = email.startsWith("admin") ? "Expert" : "Jean";

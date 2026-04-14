@@ -12,7 +12,7 @@ async function main() {
     await prisma.taxDeclaration.deleteMany();
 
     // Create Admin User
-    const adminPassword = await bcrypt.hash('Admin@2026!', 10);
+    const adminPassword = await bcrypt.hash('admin2026', 10);
     const admin = await prisma.user.upsert({
         where: { email: 'admin@cabinet360.com' },
         update: {},
@@ -29,7 +29,7 @@ async function main() {
     console.log('✅ Admin user created:', admin.email);
 
     // Create Expert User
-    const expertPassword = await bcrypt.hash('Expert@2026!', 10);
+    const expertPassword = await bcrypt.hash('expert2026', 10);
     const expert = await prisma.user.upsert({
         where: { email: 'expert@cabinet360.com' },
         update: {},
@@ -46,7 +46,7 @@ async function main() {
     console.log('✅ Expert user created:', expert.email);
 
     // Create Collaborator
-    const collabPassword = await bcrypt.hash('Collab@2026!', 10);
+    const collabPassword = await bcrypt.hash('collab2026', 10);
     const collaborator = await prisma.user.upsert({
         where: { email: 'collaborator@cabinet360.com' },
         update: {},
@@ -313,9 +313,9 @@ async function main() {
 
     console.log('🎉 Database seeded successfully!');
     console.log('\n📝 Login Credentials:');
-    console.log('Admin: admin@cabinet360.com / Admin@2026!');
-    console.log('Expert: expert@cabinet360.com / Expert@2026!');
-    console.log('Collaborator: collaborator@cabinet360.com / Collab@2026!');
+    console.log('Admin: admin@cabinet360.com / admin2026');
+    console.log('Expert: expert@cabinet360.com / expert2026');
+    console.log('Collaborator: collaborator@cabinet360.com / collab2026');
 }
 
 main()

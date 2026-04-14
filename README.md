@@ -179,9 +179,9 @@ L'application sera accessible sur **http://localhost:3001**
 ### Identifiants de Test
 
 ```
-Admin:         admin@cabinet360.com / Admin@2026!
-Expert:        expert@cabinet360.com / Expert@2026!
-Collaborateur: collaborator@cabinet360.com / Collab@2026!
+Admin:         admin@cabinet360.com / admin2026
+Expert:        expert@cabinet360.com / expert2026
+Collaborateur: collaborator@cabinet360.com / collab2026
 ```
 
 ---

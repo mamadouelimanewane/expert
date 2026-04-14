@@ -7,14 +7,14 @@
 
 #### 1. **Administrateur Principal**
 - **Email**: `admin@cabinet360.com`
-- **Mot de passe**: `Admin@2026!`
+- **Mot de passe**: `admin2026`
 - **Rôle**: ADMIN
 - **Nom**: Expert Principal
 - **Accès**: Complet (toutes les fonctionnalités)
 
 #### 2. **Expert Comptable**
 - **Email**: `expert@cabinet360.com`
-- **Mot de passe**: `Expert@2026!`
+- **Mot de passe**: `expert2026`
 - **Rôle**: EXPERT
 - **Nom**: Jean Kouassi
 - **Téléphone**: +225 07 11 22 33 44
@@ -22,7 +22,7 @@
 
 #### 3. **Collaborateur**
 - **Email**: `collaborator@cabinet360.com`
-- **Mot de passe**: `Collab@2026!`
+- **Mot de passe**: `collab2026`
 - **Rôle**: COLLABORATOR
 - **Nom**: Marie Traoré
 - **Téléphone**: +225 07 55 66 77 88
@@ -74,7 +74,7 @@
 Si vous avez besoin d'un compte simple pour les tests :
 
 - **Email**: `admin@cabinet360.com`
-- **Mot de passe**: `admin123`
+- **Mot de passe**: `admin2026`
 - **Note**: Compte créé via le script seed-admin.ts
 
 ---
