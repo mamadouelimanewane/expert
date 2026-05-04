@@ -111,10 +111,10 @@ export default async function MissionsPage() {
                                             </div>
 
                                             <h4 className="font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors text-sm sm:text-base leading-tight">{mission.title}</h4>
-                                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5">
-                                                <div className="w-1 h-1 bg-slate-600 rounded-full" />
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5">
+                                                <span className="w-1 h-1 bg-slate-600 rounded-full inline-block" />
                                                 {mission.client?.companyName}
-                                            </p>
+                                            </span>
 
                                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
                                                 <div className={cn(

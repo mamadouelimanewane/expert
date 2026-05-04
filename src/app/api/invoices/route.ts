@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
+import { AuditService } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
     try {
@@ -66,5 +67,48 @@ export async function GET(request: NextRequest) {
             { error: 'Failed to fetch invoices' },
             { status: 500 }
         );
+    }
+}
+
+export async function POST(request: NextRequest) {
+    try {
+        const session = await AuthService.getSession();
+        if (!session) {
+            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+        }
+
+        const body = await request.json();
+        const { invoiceNumber, clientId, dueDate, subtotal, taxRate, taxAmount, total, notes, status } = body;
+
+        if (!clientId || !invoiceNumber) {
+            return NextResponse.json({ error: 'Client et numéro de facture requis' }, { status: 400 });
+        }
+
+        const invoice = await prisma.invoice.create({
+            data: {
+                invoiceNumber,
+                clientId,
+                dueDate: new Date(dueDate),
+                subtotal: subtotal || 0,
+                taxRate: taxRate || 18,
+                taxAmount: taxAmount || 0,
+                total: total || 0,
+                notes: notes || null,
+                status: status || 'DRAFT',
+            },
+            include: { client: { select: { id: true, companyName: true } } },
+        });
+
+        await AuditService.log({
+            action: 'CREATE',
+            entity: 'INVOICE',
+            entityId: invoice.id,
+            newValue: { invoiceNumber, total, status },
+        });
+
+        return NextResponse.json({ invoice }, { status: 201 });
+    } catch (error) {
+        console.error('❌ Error creating invoice:', error);
+        return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });
     }
 }
