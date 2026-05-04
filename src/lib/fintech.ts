@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
 
 export type PaymentProvider = "WAVE" | "ORANGE_MONEY" | "MTN_MOMO";
@@ -28,15 +27,11 @@ export class FintechService {
     static async initiatePayment(params: PaymentInitiation): Promise<string> {
         console.log(`[Payment] Initialising REAL ${params.provider} payment for invoice ${params.invoiceId}`);
 
-        let providerUrl = "";
-        let apiKey = "";
-        let payload: any = {};
+        let payload: Record<string, unknown> = {};
 
         // Configuration selon le fournisseur
         switch (params.provider) {
             case "WAVE":
-                providerUrl = process.env.WAVE_API_URL || "https://api.wave.com/v1/checkout";
-                apiKey = process.env.WAVE_API_KEY || "";
                 payload = {
                     amount: params.amount,
                     currency: "XOF",
@@ -47,8 +42,6 @@ export class FintechService {
                 break;
 
             case "ORANGE_MONEY":
-                providerUrl = process.env.ORANGE_API_URL || "https://api.orange.com/orange-money-webpay/dev/v1/webpayment";
-                apiKey = process.env.ORANGE_API_KEY || "";
                 payload = {
                     merchant_key: process.env.ORANGE_MERCHANT_KEY,
                     currency: "OUV",
@@ -62,8 +55,6 @@ export class FintechService {
                 break;
 
             case "MTN_MOMO":
-                providerUrl = process.env.MTN_API_URL || "https://sandbox.momodeveloper.mtn.com/collection/v1_0/requesttopay";
-                apiKey = process.env.MTN_API_KEY || "";
                 payload = {
                     amount: params.amount.toString(),
                     currency: "XOF",
@@ -77,6 +68,8 @@ export class FintechService {
                 };
                 break;
         }
+
+        console.log(`[Payment] Payload for ${params.provider}:`, JSON.stringify(payload));
 
         try {
             // Dans une intégration réelle, on ferait l'appel ici :
@@ -116,6 +109,7 @@ export class FintechService {
     /**
      * Gère les notifications asynchrones (Hooks) des fournisseurs
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static async handleWebhook(provider: PaymentProvider, payload: any) {
         console.log(`[Webhook] Processing REAL hook from ${provider}`);
 

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -69,7 +70,11 @@ import { useTheme } from "@/context/ThemeContext";
 import { Moon, Sun, Monitor, Palette, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const menuItems = [
+const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
+
+type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
+
+const menuItems: MenuItem[] = [
     // --- 1. PILOTAGE & CORE (L'essentiel) ---
     { header: "PILOTAGE" },
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/dashboard" },
@@ -201,7 +206,7 @@ export function Sidebar() {
 
                 {/* Navigation */}
                 <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                    {menuItems.map((item: any, idx) => {
+                    {menuItems.map((item, idx) => {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
@@ -213,13 +218,13 @@ export function Sidebar() {
                             );
                         }
 
-                        const Icon = item.icon;
+                        const Icon = item.icon!;
                         const isActive = pathname === item.href;
 
                         return (
                             <Link
                                 key={`${item.href}-${idx}`}
-                                href={item.href}
+                                href={item.href!}
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
                                     isActive
@@ -345,7 +350,7 @@ export function Sidebar() {
                         <div className="space-y-4">
                             <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Nexus-Go Active</h2>
                             <p className="text-indigo-200/60 font-medium text-sm italic min-h-[3rem] leading-relaxed">
-                                "{transcription}"
+                                &ldquo;{transcription}&rdquo;
                             </p>
                         </div>
 
@@ -367,8 +372,8 @@ export function Sidebar() {
 
                     <div className="absolute bottom-12 left-12 right-12 text-center opacity-30">
                         <div className="flex justify-center gap-1">
-                            {[...Array(12)].map((_, i) => (
-                                <div key={i} className="w-1 bg-white rounded-full animate-voice-wave" style={{ height: `${Math.random() * 40 + 10}px`, animationDelay: `${i * 0.1}s` }} />
+                            {VOICE_WAVE_HEIGHTS.map((h, i) => (
+                                <div key={i} className="w-1 bg-white rounded-full animate-voice-wave" style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }} />
                             ))}
                         </div>
                     </div>

@@ -53,17 +53,11 @@ export function calculateReportLine(
     rule: MappingRule,
     balance: CompteBalance[]
 ): number {
-    let total = 0;
-
-    // Filtre les comptes qui matchent les patterns (ex: commence par "21")
     const matchingAccounts = balance.filter(acc =>
         rule.accountPatterns.some(pattern => acc.numero.startsWith(pattern)) &&
         (!rule.subtractPatterns || !rule.subtractPatterns.some(sub => acc.numero.startsWith(sub)))
     );
 
-    // Some the solde
-    // Note: Dans la balance, par convention Debit = +, Credit = -
-    // Si rule.sign = -1 (Passif/Produits), on inverse car on veut afficher en positif
     const rawSum = matchingAccounts.reduce((sum, acc) => sum + acc.solde, 0);
 
     return rawSum * rule.sign!;

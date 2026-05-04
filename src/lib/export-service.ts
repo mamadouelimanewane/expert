@@ -1,6 +1,22 @@
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
 
+interface OcrData {
+    date?: string;
+    merchant?: string;
+    invoiceNumber?: string;
+    totalTTC: number;
+    totalTVA: number;
+}
+
+interface OcrDocument {
+    type?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ocrData?: any;
+    createdAt?: string;
+    originalName?: string;
+}
+
 export interface AccountingEntry {
     date: Date;
     journal: string;
@@ -52,24 +68,23 @@ export class ExportService {
     /**
      * Génère un fichier Excel pour le reporting financier
      */
-    static generateExcel(data: any[], fileName: string): Buffer {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    static generateExcel(data: any[], sheetName = "Données"): Buffer {
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
         return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
     }
 
-    /**
-     * Convertit les documents traités par OCR en écritures comptables
-     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     static mapDocumentsToEntries(documents: any[]): AccountingEntry[] {
         const entries: AccountingEntry[] = [];
 
         documents.forEach(doc => {
             if (doc.type === "FACTURE" && doc.ocrData) {
-                const ocr = doc.ocrData;
-                const date = ocr.date ? new Date(ocr.date) : new Date(doc.createdAt);
+                const ocr = doc.ocrData as OcrData;
+                const date = ocr.date ? new Date(ocr.date) : new Date(doc.createdAt ?? Date.now());
 
                 // Entrée fournisseur (TTC au Crédit)
                 entries.push({
@@ -78,7 +93,7 @@ export class ExportService {
                     accountNumber: "401000",
                     accountLabel: ocr.merchant || "Fournisseur",
                     description: `Facture ${ocr.invoiceNumber || "Inconnue"}`,
-                    reference: ocr.invoiceNumber || doc.originalName,
+                    reference: ocr.invoiceNumber || doc.originalName || "",
                     debit: 0,
                     credit: ocr.totalTTC || 0
                 });
@@ -90,7 +105,7 @@ export class ExportService {
                     accountNumber: "601000",
                     accountLabel: "Achats de marchandises",
                     description: `Facture ${ocr.invoiceNumber || "Inconnue"}`,
-                    reference: ocr.invoiceNumber || doc.originalName,
+                    reference: ocr.invoiceNumber || doc.originalName || "",
                     debit: (ocr.totalTTC || 0) - (ocr.totalTVA || 0),
                     credit: 0
                 });
@@ -103,7 +118,7 @@ export class ExportService {
                         accountNumber: "445660",
                         accountLabel: "TVA Déductible",
                         description: `TVA Facture ${ocr.invoiceNumber || "Inconnue"}`,
-                        reference: ocr.invoiceNumber || doc.originalName,
+                        reference: ocr.invoiceNumber || doc.originalName || "",
                         debit: ocr.totalTVA,
                         credit: 0
                     });

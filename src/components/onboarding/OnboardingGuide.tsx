@@ -3,20 +3,20 @@
 import { useState, useEffect } from "react";
 import {
     X,
-    ChevronRight,
     Sparkles,
     BarChart3,
     Gavel,
     Calculator,
     CheckCircle2,
-    ArrowRight
+    ArrowRight,
+    type LucideIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Step {
     title: string;
     desc: string;
-    icon: any;
+    icon: LucideIcon;
     color: string;
     image?: string; // Placeholder for future screenshots through simple colored areas
 }
