@@ -5,7 +5,7 @@ import { AuditService } from '@/lib/audit';
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
     try {
         const session = await AuthService.getSession();
         if (!session) {

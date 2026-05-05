@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
                 fileSize: file.size,
                 mimeType: file.type,
                 fileUrl: `/uploads/${fileName}`,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 type: documentType as any,
                 status: 'PROCESSING',
                 clientId: clientId || null,
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
                     where: { id: document.id },
                     data: {
                         status: ocrResult.success ? 'PROCESSED' : 'ERROR',
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         ocrData: ocrResult as any,
                         ocrProcessedAt: new Date(),
                     },
@@ -155,6 +157,7 @@ export async function GET(request: NextRequest) {
         const clientId = searchParams.get('clientId');
         const type = searchParams.get('type');
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const where: any = {};
         if (clientId) where.clientId = clientId;
         if (type) where.type = type;
