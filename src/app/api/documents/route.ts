@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
                 type: documentType as any,
                 status: 'PROCESSING',
                 clientId: clientId || null,
-                uploadedById: isValidObjectId(session.id) ? session.id : null,
+                uploadedById: isValidObjectId(session.id) ? session.id : undefined,
             },
         });
 
