@@ -7,6 +7,8 @@ import { processUploadedInvoice } from '@/lib/ocr-engine';
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
 
+const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
+
 export async function POST(request: NextRequest) {
     try {
         const session = await AuthService.getSession();
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
                 type: documentType as any,
                 status: 'PROCESSING',
                 clientId: clientId || null,
-                uploadedById: session.id,
+                uploadedById: isValidObjectId(session.id) ? session.id : null,
             },
         });
 

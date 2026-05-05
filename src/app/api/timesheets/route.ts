@@ -3,11 +3,18 @@ import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
 
+const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
+
 export async function GET(request: NextRequest) {
     try {
         const session = await AuthService.getSession();
         if (!session) {
             return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+        }
+
+        // Demo user id is not a valid MongoDB ObjectId — return empty data gracefully
+        if (!isValidObjectId(session.id)) {
+            return NextResponse.json({ entries: [], stats: { totalHours: 0, unbilledHours: 0 } });
         }
 
         const entries = await prisma.timeEntry.findMany({
@@ -65,6 +72,10 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
+
+        if (!isValidObjectId(session.id)) {
+            return NextResponse.json({ error: 'Mode démonstration — saisie désactivée' }, { status: 403 });
+        }
 
         const entry = await prisma.timeEntry.create({
             data: {

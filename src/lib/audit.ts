@@ -39,7 +39,7 @@ export class AuditService {
                     newValue,
                     ipAddress,
                     userAgent,
-                    userId: session?.id || null
+                    userId: session?.id && /^[0-9a-fA-F]{24}$/.test(session.id) ? session.id : null
                 }
             });
         } catch (error) {
