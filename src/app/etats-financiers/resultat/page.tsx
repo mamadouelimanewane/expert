@@ -4,36 +4,37 @@ import React from 'react';
 import { Download, Printer, TrendingUp, TrendingDown } from 'lucide-react';
 import { clsx } from 'clsx';
 
-const COMPTE_RESULTAT = [
-    { code: "TE", label: "PRODUITS D'EXPLOITATION", isHeader: true },
-    { code: "TA", label: "Ventes de marchandises", netN: 150000000, netN1: 140000000 },
-    { code: "TB", label: "Ventes de produits fabriqués", netN: 0, netN1: 0 },
-    { code: "TC", label: "Travaux, services vendus", netN: 25000000, netN1: 20000000 },
-
-    { code: "RE", label: "CHARGES D'EXPLOITATION", isHeader: true },
-    { code: "RA", label: "Achats de marchandises", netN: -80000000, netN1: -75000000 },
-    { code: "RB", label: "Variation de stocks", netN: 2000000, netN1: 1500000 },
-    { code: "RC", label: "Transports", netN: -5000000, netN1: -4500000 },
-    { code: "RD", label: "Services extérieurs", netN: -12000000, netN1: -10000000 },
-    { code: "RE", label: "Impôts et taxe", netN: -1500000, netN1: -1200000 },
-    { code: "RF", label: "Charges de personnel", netN: -35000000, netN1: -30000000 },
-
-    { code: "XA", label: "VALEUR AJOUTEE (V.A.)", netN: 43500000, netN1: 40800000, isTotal: true },
-
-    { code: "XF", label: "EXCEDENT BRUT D'EXPLOITATION (EBE)", netN: 43500000, netN1: 40800000, isTotal: true }, // Simplified
-
-    { code: "RP", label: "RESULTAT D'EXPLOITATION", netN: 38000000, netN1: 35000000, isTotal: true },
-
-    { code: "RF", label: "RESULTAT FINANCIER", netN: -2500000, netN1: -3000000, isTotal: true },
-
-    { code: "RH", label: "RESULTAT HORS ACTIVITE ORDINAIRE", netN: 0, netN1: 500000, isTotal: true },
-
-    { code: "RI", label: "Impôts sur le Résultat", netN: -11000000, netN1: -10000000 },
-
-    { code: "RN", label: "RESULTAT NET", netN: 24500000, netN1: 22500000, isTotal: true, level: 2 },
-];
+import { useState, useEffect } from 'react';
 
 export default function ResultatPage() {
+    const [resultatData, setResultatData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchResultat = async () => {
+            try {
+                const res = await fetch('/api/comptabilite/etats-financiers/resultat');
+                const data = await res.json();
+                if (data.resultat) {
+                    setResultatData(data.resultat);
+                }
+            } catch (error) {
+                console.error("Failed to fetch Resultat:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchResultat();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -65,7 +66,7 @@ export default function ResultatPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {COMPTE_RESULTAT.map((row, idx) => {
+                        {resultatData.map((row, idx) => {
                             if (row.isHeader) {
                                 return (
                                     <tr key={idx} className="bg-slate-50/50 dark:bg-slate-900/30">

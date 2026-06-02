@@ -62,7 +62,15 @@ import {
     Plus,
     ScanLine,
     Mic,
-    PlusCircle
+    PlusCircle,
+    Smartphone,
+    CreditCard,
+    Landmark,
+    Ship,
+    Scale,
+    FolderPlus,
+    Languages,
+    FileDigit
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -75,61 +83,62 @@ const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
 
 const menuItems: MenuItem[] = [
-    // --- 1. PILOTAGE & CORE (L'essentiel) ---
-    { header: "PILOTAGE" },
+    // --- 1. PRODUCTION COMPTABLE & FISCALE (En Premier) ---
+    { header: "PRODUCTION & FISCALITÉ" },
+    { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
+    { icon: FileSpreadsheet, label: "États Financiers", href: "/etats-financiers" },
+    { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
+    { icon: Clock, label: "Échéancier Fiscal", href: "/fiscalite/obligations" },
+    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
+    { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
+    { icon: FilePieChart, label: "Reporting Client", href: "/comptabilite/reporting" },
+    { icon: Users, label: "Abonnés TPE (BPO)", href: "/comptabilite/tpe-dashboard" },
+    { icon: FileDigit, label: "Importer Cahier de Caisse", href: "/comptabilite/informel" },
+
+    // --- 2. CŒUR DU MÉTIER & PILOTAGE ---
+    { header: "PILOTAGE & CABINET" },
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/dashboard" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
     { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
-    { icon: Sparkles, label: "IA Morning Brief", href: "/dashboard/morning-brief" },
-
-    // --- 2. EXPERTISE COMPTABLE (Priorité Demandée) ---
-    { header: "EXPERTISE COMPTABLE" },
-    { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
-    { icon: Clock, label: "Échéancier Fiscal", href: "/fiscalite/obligations" },
-    { icon: FileSpreadsheet, label: "États Financiers", href: "/etats-financiers" },
-    { icon: FileSpreadsheet, label: "Liasse Fiscale", href: "/comptabilite/liasse-fiscale" },
-    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
-    { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
-    { icon: FilePieChart, label: "Reporting Client", href: "/comptabilite/reporting" },
-    { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
-
-    // --- 3. GESTION DU CABINET ---
-    { header: "GESTION CABINET" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
     { icon: Clock, label: "Saisie des Temps", href: "/missions/timesheets" },
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
-    { icon: Wallet, label: "Notes de Frais", href: "/expenses" },
 
-    // --- 4. AUDIT & CONFORMITÉ ---
+    // --- 3. FINTECH & FINANCEMENT ---
+    { header: "FINTECH & MOBILE MONEY" },
+    { icon: Smartphone, label: "Rapprochement MoMo", href: "/fintech/mobile-money" },
+    { icon: CreditCard, label: "Paiements Intégrés", href: "/fintech/payments" },
+    { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
+    { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
+
+    // --- 4. ACCOMPAGNEMENT & DOUANES ---
+    { header: "ACCOMPAGNEMENT & DOUANES" },
+    { icon: FolderPlus, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
+    { icon: Ship, label: "Simulateur Douanier", href: "/douanes/simulateur" },
+    { icon: Anchor, label: "Suivi Transitaire", href: "/douanes/transitaire" },
+
+    // --- 5. STRATÉGIE & CONSEIL ---
+    { header: "STRATÉGIE & CONSEIL" },
+    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
+    { icon: Radar, label: "Radar Fiscal IA", href: "/strategy/radar" },
+    { icon: Scale, label: "Simulateur Zone Franche", href: "/strategy/zone-franche" },
+    { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
+    { icon: Globe, label: "Hub Multi-Devises", href: "/strategy/devises" },
+
+    // --- 6. AUDIT & CONFORMITÉ ---
     { header: "AUDIT & CONFORMITÉ" },
     { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
     { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
     { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
-    { icon: Fingerprint, label: "Audit Forensique", href: "/audit/forensic" },
 
-    // --- 5. CONSEIL & STRATÉGIE ---
-    { header: "CONSEIL & STRATÉGIE" },
-    { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
-    { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
-    { icon: BrainCircuit, label: "Simulateur Stratégique", href: "/strategy/simulator" },
-    { icon: Globe, label: "Nexus Fiscal Mirror", href: "/strategy/fiscal-mirror" },
-    { icon: Gem, label: "Wealth & Patrimoine", href: "/strategy/wealth" },
-    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
-
-    // --- 6. NEXUS AI & INNOVATION ---
+    // --- 7. NEXUS INTELLIGENCE & OUTILS ---
     { header: "NEXUS INTELLIGENCE" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
-    { icon: FileSearch, label: "Drop Zone Fiscale", href: "/fiscalite/drop-zone" },
-    { icon: TrendingUp, label: "Credit Insights", href: "/analysis/credit-insights" },
-    { icon: PenTool, label: "Nexus Legal Drafter", href: "/legal/drafting" },
-
-    // --- 7. RESSOURCES ---
-    { header: "RESSOURCES" },
+    { icon: MessageCircle, label: "Hub WhatsApp Bot", href: "/nexus/whatsapp" },
+    { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
-    { icon: GraduationCap, label: "Cabinet Academy", href: "/training/academy" },
-    { icon: BookOpen, label: "Manuel Expert", href: "/documentation/full-manual" },
 ];
 
 export function Sidebar() {

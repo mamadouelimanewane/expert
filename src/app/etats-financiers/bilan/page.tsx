@@ -5,46 +5,46 @@ import { FileSpreadsheet, Download, Printer } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-// Mock Data for visualization
-const BILAN_ACTIF = [
-    { code: "AD", label: "Immobilisations Incorporelles", netN: 12500000, netN1: 15000000, isTotal: false },
-    { code: "AE", label: "Immobilisations Corporelles", netN: 45000000, netN1: 38000000, isTotal: false },
-    { code: "AF", label: "Immobilisations Financières", netN: 2000000, netN1: 2000000, isTotal: false },
-    { code: "AX", label: "TOTAL ACTIF IMMOBILISÉ", netN: 59500000, netN1: 55000000, isTotal: true, level: 1 },
-
-    { code: "BA", label: "Stocks et en-cours", netN: 28000000, netN1: 25000000, isTotal: false },
-    { code: "BB", label: "Clients et comptes rattachés", netN: 35000000, netN1: 32000000, isTotal: false },
-    { code: "BG", label: "Autres créances", netN: 5000000, netN1: 4500000, isTotal: false },
-    { code: "BX", label: "TOTAL ACTIF CIRCULANT", netN: 68000000, netN1: 61500000, isTotal: true, level: 1 },
-
-    { code: "BQ", label: "Trésorerie-Actif", netN: 12000000, netN1: 8500000, isTotal: false },
-    { code: "BZ", label: "TOTAL GÉNÉRAL ACTIF", netN: 139500000, netN1: 125000000, isTotal: true, level: 2 },
-];
-
-const BILAN_PASSIF = [
-    { code: "CA", label: "Capital", netN: 10000000, netN1: 10000000, isTotal: false },
-    { code: "CD", label: "Report à Nouveau", netN: 15000000, netN1: 12000000, isTotal: false },
-    { code: "CF", label: "Résultat net de l'exercice", netN: 24500000, netN1: 3000000, isTotal: false },
-    { code: "CP", label: "TOTAL CAPITAUX PROPRES", netN: 49500000, netN1: 25000000, isTotal: true, level: 1 },
-
-    { code: "DA", label: "Emprunts et dettes fin.", netN: 40000000, netN1: 50000000, isTotal: false },
-    { code: "DF", label: "TOTAL DETTES FINANCIERES", netN: 40000000, netN1: 50000000, isTotal: true, level: 1 },
-
-    { code: "DB", label: "Fournisseurs", netN: 35000000, netN1: 42000000, isTotal: false },
-    { code: "DC", label: "Dettes fiscales et sociales", netN: 15000000, netN1: 8000000, isTotal: false },
-    { code: "DP", label: "TOTAL PASSIF CIRCULANT", netN: 50000000, netN1: 50000000, isTotal: true, level: 1 },
-
-    { code: "DZ", label: "TOTAL GÉNÉRAL PASSIF", netN: 139500000, netN1: 125000000, isTotal: true, level: 2 },
-];
+import { useState, useEffect } from 'react';
 
 export default function BilanPage() {
+    const [actifData, setActifData] = useState<any[]>([]);
+    const [passifData, setPassifData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBilan = async () => {
+            try {
+                const res = await fetch('/api/comptabilite/etats-financiers/bilan');
+                const data = await res.json();
+                if (data.actif && data.passif) {
+                    setActifData(data.actif);
+                    setPassifData(data.passif);
+                }
+            } catch (error) {
+                console.error("Failed to fetch Bilan:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBilan();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Bilan (SYSCOHADA)</h2>
                     <p className="text-slate-500 dark:text-slate-400">
-                        Comparatif Net N vs Net N-1
+                        Comparatif Net N vs Net N-1 généré depuis la base de données
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -58,8 +58,8 @@ export default function BilanPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <BilanTable title="ACTIF" data={BILAN_ACTIF} headerColor="bg-emerald-600" />
-                <BilanTable title="PASSIF" data={BILAN_PASSIF} headerColor="bg-amber-600" />
+                <BilanTable title="ACTIF" data={actifData} headerColor="bg-emerald-600" />
+                <BilanTable title="PASSIF" data={passifData} headerColor="bg-amber-600" />
             </div>
         </div>
     );
