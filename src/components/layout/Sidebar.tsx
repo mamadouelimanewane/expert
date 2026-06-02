@@ -105,9 +105,8 @@ const menuItems: MenuItem[] = [
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
 
-    // --- 3. FINTECH & FINANCEMENT ---
     { header: "FINTECH & MOBILE MONEY" },
-    { icon: Smartphone, label: "Rapprochement MoMo", href: "/fintech/mobile-money" },
+    { icon: Smartphone, label: "Mobile Money", href: "/mobile-money" },
     { icon: CreditCard, label: "Paiements Intégrés", href: "/fintech/payments" },
     { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
     { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
@@ -135,6 +134,7 @@ const menuItems: MenuItem[] = [
 
     // --- 7. NEXUS INTELLIGENCE & OUTILS ---
     { header: "NEXUS INTELLIGENCE" },
+    { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
     { icon: MessageCircle, label: "Hub WhatsApp Bot", href: "/nexus/whatsapp" },
     { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },

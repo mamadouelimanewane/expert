@@ -282,6 +282,7 @@ model Invoice {
   client          Client        @relation(fields: [clientId], references: [id])
   
   timeEntries     TimeEntry[]
+  transactions    BankTransaction[]
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -646,3 +647,30 @@ model TpeJournal {
   
   @@map("tpe_journals")
 }
+
+// ------------------------------------------
+// NOUVEAUX MODULES (PHASE 2)
+// ------------------------------------------
+
+// --- 1. BANQUE & LETTRAGE IA ---
+model BankTransaction {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  date            DateTime
+  description     String
+  amount          Float
+  type            String    // "DEBIT" ou "CREDIT"
+  status          String    @default("PENDING") // "PENDING", "RECONCILED", "IGNORED"
+  
+  // Relation avec une facture si rapprochée
+  invoiceId       String?   @db.ObjectId
+  invoice         Invoice?  @relation(fields: [invoiceId], references: [id])
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("bank_transactions")
+}
+
+
+
+
