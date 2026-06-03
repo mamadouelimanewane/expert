@@ -138,6 +138,7 @@ const menuItems: MenuItem[] = [
 
     // --- 7. NEXUS INTELLIGENCE & OUTILS ---
     { header: "NEXUS INTELLIGENCE" },
+    { icon: BrainCircuit, label: "Moteur IA & LLM", href: "/settings/ai" },
     { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
     { icon: MessageCircle, label: "Hub WhatsApp Bot PMI", href: "/dashboard/whatsapp-bot" },
