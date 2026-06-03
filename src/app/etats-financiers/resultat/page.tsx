@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import { Download, Printer, TrendingUp, TrendingDown } from 'lucide-react';
@@ -116,3 +116,6 @@ export default function ResultatPage() {
         </div>
     );
 }
+
+
+

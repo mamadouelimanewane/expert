@@ -1,196 +1,275 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     CalendarDays,
-    Clock,
     AlertTriangle,
     CheckCircle2,
-    Calendar,
-    ChevronLeft,
+    Clock,
     ChevronRight,
-    Search,
-    Filter,
-    ArrowRight,
+    RefreshCw,
+    Globe,
     FileText,
     Bell,
-    Users,
-    Sparkles
+    Filter,
+    Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface Obligation {
+interface FiscalObligation {
     id: string;
-    title: string;
-    deadline: string;
-    type: "Fiscale" | "Sociale" | "Légale";
-    priority: "Haute" | "Moyenne" | "Basse";
-    status: "TODO" | "EN_COURS" | "VALIDE";
-    assignedTo: string;
+    country: string;
+    code: string;
+    label: string;
+    dueDate: Date;
+    daysLeft: number;
+    type: "TVA" | "IS" | "IRPP" | "CNPS" | "PATENTE" | "AUTRE";
+    amount?: number;
+    status: "UPCOMING" | "URGENT" | "OVERDUE" | "DONE";
+    description: string;
+    clientCount: number;
 }
 
-const MOCK_OBLIGATIONS: Obligation[] = [
-    { id: "1", title: "Déclaration TVA (Janvier)", deadline: "2024-02-15", type: "Fiscale", priority: "Haute", status: "VALIDE", assignedTo: "A. Diop" },
-    { id: "2", title: "Versement ITS & VRS", deadline: "2024-02-15", type: "Sociale", priority: "Haute", status: "EN_COURS", assignedTo: "F. Kouyaté" },
-    { id: "3", title: "Déclaration Précompte sur Loyer", deadline: "2024-02-20", type: "Fiscale", priority: "Moyenne", status: "TODO", assignedTo: "M. Sarr" },
-    { id: "4", title: "Clôture Bilan (DSF)", deadline: "2024-04-30", type: "Légale", priority: "Haute", status: "TODO", assignedTo: "J. Mendy" },
-];
+const COUNTRY_FLAGS: Record<string, string> = {
+    CI: "🇨🇮", SN: "🇸🇳", CM: "🇨🇲", BF: "🇧🇫", ML: "🇲🇱",
+    GN: "🇬🇳", BJ: "🇧🇯", TG: "🇹🇬", NE: "🇳🇪", GA: "🇬🇦"
+};
 
-export default function FiscalCalendarPage() {
-    const [view, setView] = useState<"calendar" | "list">("list");
+const TYPE_COLORS: Record<string, string> = {
+    TVA: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    IS: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+    IRPP: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    CNPS: "bg-teal-500/10 text-teal-400 border-teal-500/20",
+    PATENTE: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+    AUTRE: "bg-slate-500/10 text-slate-400 border-slate-500/20",
+};
+
+// Données statiques du référentiel fiscal OHADA
+function generateObligations(): FiscalObligation[] {
+    const now = new Date();
+    const year = now.getFullYear();
+
+    const obligations: Omit<FiscalObligation, "daysLeft" | "status">[] = [
+        { id: "ci-tva-06", country: "CI", code: "TVA-JUN", label: "Déclaration TVA Juin 2026", dueDate: new Date(`${year}-07-15`), type: "TVA", description: "Déclaration et paiement TVA mensuelle — DGI Côte d'Ivoire", clientCount: 3 },
+        { id: "sn-tva-06", country: "SN", code: "TVA-JUN", label: "Déclaration TVA Juin 2026", dueDate: new Date(`${year}-07-15`), type: "TVA", description: "Déclaration TVA mensuelle — DGID Sénégal", clientCount: 1 },
+        { id: "cm-tva-06", country: "CM", code: "TVA-JUN", label: "Déclaration TVA Juin 2026", dueDate: new Date(`${year}-07-15`), type: "TVA", description: "Déclaration mensuelle TVA — DGI Cameroun", clientCount: 1 },
+        { id: "ci-cnps-06", country: "CI", code: "CNPS-JUN", label: "Cotisations CNPS Juin 2026", dueDate: new Date(`${year}-07-10`), type: "CNPS", description: "Paiement cotisations sociales employeur — CNPS Côte d'Ivoire", clientCount: 2 },
+        { id: "sn-ipres-06", country: "SN", code: "IPRES-JUN", label: "Cotisations IPRES/CSS Juin", dueDate: new Date(`${year}-07-10`), type: "CNPS", description: "Paiement mensuel IPRES et CSS — Sénégal", clientCount: 1 },
+        { id: "bf-is-q2", country: "BF", code: "IS-ACOMPTE", label: "Acompte IS 2ème trimestre", dueDate: new Date(`${year}-06-30`), type: "IS", description: "Versement du 2ème acompte IS — DGI Burkina Faso", clientCount: 1 },
+        { id: "ml-is-q2", country: "ML", code: "IS-ACOMPTE", label: "Acompte IS 2ème trimestre", dueDate: new Date(`${year}-06-30`), type: "IS", description: "2ème acompte IS 1/4 du montant annuel — DGI Mali", clientCount: 1 },
+        { id: "ci-irpp-06", country: "CI", code: "IRPP-JUN", label: "Retenue à la source IRPP Juin", dueDate: new Date(`${year}-07-10`), type: "IRPP", description: "Versement IRPP retenu sur salaires — Employeurs CI", clientCount: 3 },
+        { id: "all-patente", country: "CI", code: "PATENTE-2026", label: "Patente / Impôt Professionnel 2026", dueDate: new Date(`${year}-12-31`), type: "PATENTE", description: "Paiement annuel de la patente ou équivalent", clientCount: 5 },
+        { id: "ci-is-annual", country: "CI", code: "IS-ANNUAL", label: "IS Exercice 2025 — Solde", dueDate: new Date(`${year}-04-30`), type: "IS", description: "Solde IS sur bénéfices 2025 après déduction acomptes", clientCount: 2, amount: 15000000 },
+    ];
+
+    return obligations.map(ob => {
+        const diff = Math.ceil((ob.dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        let status: FiscalObligation["status"] = "UPCOMING";
+        if (diff < 0) status = "OVERDUE";
+        else if (diff <= 7) status = "URGENT";
+        else if (diff <= 30) status = "UPCOMING";
+        else status = "DONE";
+        return { ...ob, daysLeft: diff, status };
+    }).sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+export default function FiscalObligationsPage() {
+    const [obligations] = useState<FiscalObligation[]>(generateObligations);
+    const [filterCountry, setFilterCountry] = useState("ALL");
+    const [filterType, setFilterType] = useState("ALL");
+
+    const countries = ["ALL", ...Array.from(new Set(obligations.map(o => o.country)))];
+    const types = ["ALL", "TVA", "IS", "CNPS", "IRPP", "PATENTE"];
+
+    const filtered = obligations.filter(ob => {
+        if (filterCountry !== "ALL" && ob.country !== filterCountry) return false;
+        if (filterType !== "ALL" && ob.type !== filterType) return false;
+        return true;
+    });
+
+    const overdue = filtered.filter(o => o.status === "OVERDUE").length;
+    const urgent = filtered.filter(o => o.status === "URGENT").length;
+    const upcoming = filtered.filter(o => o.status === "UPCOMING").length;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-            {/* Header Tempolia Inspired */}
-            <div className="bg-slate-900/60 p-10 rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
+        <div className="space-y-8 animate-in fade-in duration-700">
+
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                    <CalendarDays className="w-64 h-64 text-indigo-400" />
+                    <CalendarDays className="w-40 h-40 text-amber-400" />
                 </div>
-
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-rose-500/20">
-                                Période Fiscale Seraine
-                            </span>
+                <div className="relative z-10">
+                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                        <div className="p-3 bg-amber-600 rounded-2xl shadow-xl shadow-amber-600/30">
+                            <CalendarDays className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
-                            Calendrier des <span className="text-indigo-400">Obligations OHADA</span>
-                        </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                            Ne subissez plus les pics d'activité. Anticipez vos échéances fiscales et sociales pour une gestion fluide du cabinet.
-                        </p>
-                    </div>
+                        Échéancier Fiscal OHADA
+                    </h2>
+                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
+                        Calendrier fiscal multi-pays — CI, SN, CM, BF, ML et toute la zone OHADA.
+                    </p>
+                </div>
+                <div className="flex gap-4 relative z-10">
+                    <button className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all active:scale-95 shadow-xl shadow-amber-600/30">
+                        <Bell className="w-4 h-4" />
+                        Activer Alertes
+                    </button>
+                </div>
+            </div>
 
-                    <div className="flex gap-4">
-                        <button className="px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-3 transition-all">
-                            <Bell className="w-4 h-4 text-amber-400" /> Relancer Équipe
+            {/* Alert Summary */}
+            <div className="grid grid-cols-3 gap-6">
+                <div className="glass-card p-6 rounded-[32px] border border-rose-500/20 bg-rose-500/5">
+                    <div className="flex items-center gap-3 mb-3">
+                        <AlertTriangle className="w-5 h-5 text-rose-400" />
+                        <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">En retard</p>
+                    </div>
+                    <p className="text-4xl font-black text-rose-400">{overdue}</p>
+                    <p className="text-xs text-rose-400/60 mt-1">obligation{overdue > 1 ? "s" : ""} dépassée{overdue > 1 ? "s" : ""}</p>
+                </div>
+                <div className="glass-card p-6 rounded-[32px] border border-amber-500/20 bg-amber-500/5">
+                    <div className="flex items-center gap-3 mb-3">
+                        <Zap className="w-5 h-5 text-amber-400" />
+                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Urgentes ≤7j</p>
+                    </div>
+                    <p className="text-4xl font-black text-amber-400">{urgent}</p>
+                    <p className="text-xs text-amber-400/60 mt-1">à traiter immédiatement</p>
+                </div>
+                <div className="glass-card p-6 rounded-[32px] border border-sky-500/20 bg-sky-500/5">
+                    <div className="flex items-center gap-3 mb-3">
+                        <Clock className="w-5 h-5 text-sky-400" />
+                        <p className="text-[10px] font-black text-sky-400 uppercase tracking-widest">À venir</p>
+                    </div>
+                    <p className="text-4xl font-black text-sky-400">{upcoming}</p>
+                    <p className="text-xs text-sky-400/60 mt-1">dans les 30 prochains jours</p>
+                </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex gap-2 items-center">
+                    <Globe className="w-4 h-4 text-slate-500" />
+                    {countries.map(c => (
+                        <button
+                            key={c}
+                            onClick={() => setFilterCountry(c)}
+                            className={cn(
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all",
+                                filterCountry === c ? "bg-white text-slate-900 border-white" : "text-slate-400 border-white/5 hover:text-white"
+                            )}
+                        >
+                            {c === "ALL" ? "Tous pays" : `${COUNTRY_FLAGS[c] || ""} ${c}`}
                         </button>
-                    </div>
+                    ))}
+                </div>
+                <div className="w-px h-6 bg-white/10" />
+                <div className="flex gap-2 items-center">
+                    <Filter className="w-4 h-4 text-slate-500" />
+                    {types.map(t => (
+                        <button
+                            key={t}
+                            onClick={() => setFilterType(t)}
+                            className={cn(
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all",
+                                filterType === t ? "bg-white text-slate-900 border-white" : "text-slate-400 border-white/5 hover:text-white"
+                            )}
+                        >
+                            {t === "ALL" ? "Tous types" : t}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* View Selector */}
-            <div className="flex justify-between items-center bg-slate-900/40 p-6 rounded-[32px] border border-white/5">
-                <div className="flex gap-4">
-                    <button
-                        onClick={() => setView("calendar")}
-                        className={cn(
-                            "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                            view === "calendar" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-white"
-                        )}
-                    >
-                        Vue Calendrier
-                    </button>
-                    <button
-                        onClick={() => setView("list")}
-                        className={cn(
-                            "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                            view === "list" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-white"
-                        )}
-                    >
-                        Vue Liste (Échéancier)
-                    </button>
-                </div>
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Urgent
-                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 ml-2" /> Moyen
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ml-2" /> Planifié
-                    </div>
-                </div>
-            </div>
+            {/* Timeline */}
+            <div className="space-y-4">
+                {filtered.map((ob, idx) => {
+                    const isOverdue = ob.status === "OVERDUE";
+                    const isUrgent = ob.status === "URGENT";
 
-            {/* Content Area */}
-            {view === "list" ? (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div className="lg:col-span-8 space-y-6">
-                        {MOCK_OBLIGATIONS.map((ob) => (
-                            <div
-                                key={ob.id}
-                                className="glass-card p-8 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-white/[0.02] transition-all flex items-center justify-between group"
-                            >
-                                <div className="flex items-center gap-8">
-                                    <div className={cn(
-                                        "w-12 h-12 rounded-2xl flex items-center justify-center border",
-                                        ob.priority === "Haute" ? "bg-rose-500/10 border-rose-500/20 text-rose-400" : "bg-white/5 border-white/5 text-slate-500"
-                                    )}>
-                                        <Calendar className="w-6 h-6" />
+                    return (
+                        <div
+                            key={ob.id}
+                            className={cn(
+                                "glass-card p-6 rounded-[28px] border transition-all hover:scale-[1.005] cursor-pointer group",
+                                isOverdue ? "border-rose-500/30 bg-rose-500/5" :
+                                    isUrgent ? "border-amber-500/30 bg-amber-500/5" :
+                                        "border-white/5 bg-slate-900/40"
+                            )}
+                        >
+                            <div className="flex items-center gap-6">
+                                {/* Day countdown */}
+                                <div className={cn(
+                                    "flex-none w-20 h-20 rounded-2xl flex flex-col items-center justify-center border",
+                                    isOverdue ? "bg-rose-500/20 border-rose-500/30" :
+                                        isUrgent ? "bg-amber-500/20 border-amber-500/30" :
+                                            "bg-slate-800 border-white/5"
+                                )}>
+                                    {isOverdue ? (
+                                        <AlertTriangle className="w-6 h-6 text-rose-400 mb-1" />
+                                    ) : (
+                                        <>
+                                            <p className={cn("text-2xl font-black", isUrgent ? "text-amber-400" : "text-white")}>
+                                                {Math.abs(ob.daysLeft)}
+                                            </p>
+                                            <p className="text-[8px] font-black uppercase text-slate-500">JOURS</p>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-start gap-3 flex-wrap mb-2">
+                                        <span className="text-lg">{COUNTRY_FLAGS[ob.country] || "🌍"}</span>
+                                        <h3 className="font-black text-white text-base">{ob.label}</h3>
+                                        <span className={cn("px-2 py-0.5 rounded-full text-[9px] font-black border uppercase", TYPE_COLORS[ob.type])}>
+                                            {ob.type}
+                                        </span>
+                                        {isOverdue && (
+                                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black border bg-rose-500/20 text-rose-400 border-rose-500/30 uppercase">
+                                                En Retard
+                                            </span>
+                                        )}
+                                        {isUrgent && (
+                                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black border bg-amber-500/20 text-amber-400 border-amber-500/30 uppercase animate-pulse">
+                                                Urgent
+                                            </span>
+                                        )}
                                     </div>
-                                    <div>
-                                        <h4 className="text-white font-bold text-lg">{ob.title}</h4>
-                                        <div className="flex items-center gap-4 mt-1">
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{ob.type}</span>
-                                            <span className="text-xs font-mono font-bold text-slate-400">Échéance : {ob.deadline}</span>
-                                        </div>
+                                    <p className="text-sm text-slate-400">{ob.description}</p>
+                                    <div className="flex items-center gap-4 mt-2">
+                                        <p className="text-xs text-slate-500 font-mono">
+                                            📅 {ob.dueDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
+                                        </p>
+                                        <p className="text-xs text-slate-600">
+                                            {ob.clientCount} client{ob.clientCount > 1 ? "s" : ""} concerné{ob.clientCount > 1 ? "s" : ""}
+                                        </p>
+                                        {ob.amount && (
+                                            <p className="text-xs font-mono text-emerald-400">
+                                                {ob.amount.toLocaleString()} FCFA estimé
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-8">
-                                    <div className="flex flex-col items-end">
-                                        <span className="text-[10px] font-black text-slate-600 uppercase mb-1">Assigné à</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[8px] font-black text-white">{ob.assignedTo.split(' ').map(n => n[0]).join('')}</div>
-                                            <span className="text-xs font-bold text-slate-300">{ob.assignedTo}</span>
-                                        </div>
-                                    </div>
-                                    <div className={cn(
-                                        "px-4 py-2 rounded-xl text-[10px] font-black uppercase border",
-                                        ob.status === "VALIDE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                            ob.status === "EN_COURS" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                "bg-slate-800 text-slate-500 border-white/5"
+
+                                {/* Actions */}
+                                <div className="flex-none flex flex-col gap-2">
+                                    <button className={cn(
+                                        "px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all",
+                                        isOverdue ? "bg-rose-600 text-white border-rose-500 hover:bg-rose-500" :
+                                            isUrgent ? "bg-amber-600 text-white border-amber-500 hover:bg-amber-500" :
+                                                "bg-slate-800 text-slate-300 border-white/5 hover:bg-slate-700"
                                     )}>
-                                        {ob.status.replace('_', ' ')}
-                                    </div>
-                                    <button className="p-3 hover:bg-white/10 rounded-xl text-slate-500 group-hover:text-white transition-all">
-                                        <ArrowRight className="w-5 h-5" />
+                                        {isOverdue ? "Traiter" : isUrgent ? "Préparer" : "Planifier"}
+                                    </button>
+                                    <button className="px-4 py-2 bg-transparent text-slate-500 text-[10px] font-black uppercase border border-white/5 rounded-xl hover:text-white hover:border-white/20 transition-all flex items-center gap-1 justify-center">
+                                        <FileText className="w-3 h-3" /> Formulaire
                                     </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-
-                    {/* Workload Insights */}
-                    <div className="lg:col-span-4 space-y-6">
-                        <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
-                            <h3 className="text-xl font-black text-white mb-8">Plan de Charge (RH)</h3>
-                            <div className="space-y-6">
-                                <WorkloadItem name="Moussa Sarr" load={92} color="bg-indigo-500" />
-                                <WorkloadItem name="Aissatou Diop" load={112} color="bg-rose-500" status="Attention" />
-                                <WorkloadItem name="Fatima Kouyaté" load={75} color="bg-emerald-500" />
-                            </div>
                         </div>
-
-                        <div className="p-8 rounded-[40px] bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20">
-                            <div className="flex items-center gap-3 mb-4">
-                                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Pic de Mars Anticipé</span>
-                            </div>
-                            <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                                Le volume de DSF (Déclarations Statistiques & Fiscales) sera 20% supérieur à l'an dernier. Prévoyez 2 stagiaires renfort.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="glass-card p-20 rounded-[48px] border border-white/5 bg-slate-900/20 text-center">
-                    <Sparkles className="w-16 h-16 text-indigo-400 mx-auto mb-6" />
-                    <h3 className="text-2xl font-black text-white mb-2">Génération du Calendrier Dynamique...</h3>
-                    <p className="text-slate-500">Intégration des obligations fiscales OHADA 2024 en cours.</p>
-                </div>
-            )}
-        </div>
-    );
-}
-
-function WorkloadItem({ name, load, color, status }: any) {
-    return (
-        <div className="space-y-2">
-            <div className="flex justify-between text-xs font-bold">
-                <span className="text-white">{name}</span>
-                <span className={cn(status === "Attention" ? "text-rose-400" : "text-slate-500")}>{load}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden">
-                <div className={cn("h-full transition-all", color)} style={{ width: `${Math.min(100, load)}%` }} />
+                    );
+                })}
             </div>
         </div>
     );

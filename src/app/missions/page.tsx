@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import prisma from "@/lib/prisma";
 import {
@@ -16,7 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Mission, Client, User } from "@prisma/client";
+import { Mission, Client, User } from "@/types/prisma";
 
 type MissionWithRelations = Mission & { client: Client | null; assignedTo: User | null };
 
@@ -155,4 +155,7 @@ export default async function MissionsPage() {
         </div>
     );
 }
+
+
+
 

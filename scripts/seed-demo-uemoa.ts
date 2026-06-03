@@ -1,5 +1,6 @@
-
-import { PrismaClient, ClientType, MissionStatus, InvoiceStatus, FiscalRegime, MissionType, DeclarationType, DeclarationStatus } from '@prisma/client';
+﻿
+import { PrismaClient } from '@prisma/client';
+import { ClientType, MissionStatus, InvoiceStatus, FiscalRegime, MissionType, DeclarationType, DeclarationStatus } from '../src/types/prisma';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -198,3 +199,6 @@ main()
     .finally(async () => {
         await prisma.$disconnect();
     });
+
+
+

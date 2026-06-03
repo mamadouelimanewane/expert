@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ import {
     Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Client } from "@prisma/client";
+import { Client } from "@/types/prisma";
 import { ResponsiveDataList } from "@/components/layout/ResponsiveComponents";
 
 interface ClientWithCount extends Client {
@@ -358,3 +358,6 @@ function ActionButton({ icon: Icon }: { icon: any }) {
         </button>
     );
 }
+
+
+

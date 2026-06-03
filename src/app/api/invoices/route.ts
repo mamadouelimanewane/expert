@@ -1,114 +1,106 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { AuthService } from '@/lib/auth';
-import { AuditService } from '@/lib/audit';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-export async function GET(request: NextRequest) {
+const prisma = new PrismaClient();
+
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
-
-        const { searchParams } = new URL(request.url);
-        const status = searchParams.get('status');
-
         const where: any = {};
-        if (status && status !== 'tous') {
-            // Mapping UI status to Prisma status
+        if (status && status !== "tous") {
             const statusMap: Record<string, string> = {
-                'payee': 'PAID',
-                'en_attente': 'SENT',
-                'retard': 'OVERDUE',
-                'brouillon': 'DRAFT'
+                payee: "PAID",
+                retard: "OVERDUE",
+                brouillon: "DRAFT",
+                envoyee: "SENT"
             };
-            where.status = statusMap[status] || status;
+            where.status = statusMap[status] || status.toUpperCase();
         }
 
         const invoices = await prisma.invoice.findMany({
             where,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                client: {
-                    select: {
-                        id: true,
-                        companyName: true,
-                    }
-                }
-            }
+            include: { client: true },
+            orderBy: { issueDate: "desc" }
         });
 
-        // Calcul des KPIs
-        const totalPaid = await prisma.invoice.aggregate({
+        // KPIs
+        const paidTotal = await prisma.invoice.aggregate({
             _sum: { total: true },
-            where: { status: 'PAID' }
+            where: { status: "PAID" }
         });
-
-        const totalPending = await prisma.invoice.aggregate({
+        const pendingTotal = await prisma.invoice.aggregate({
             _sum: { total: true },
-            where: { OR: [{ status: 'SENT' }, { status: 'OVERDUE' }] }
+            where: { status: { in: ["SENT", "OVERDUE"] } }
         });
-
-        const overdueCount = await prisma.invoice.count({
-            where: { status: 'OVERDUE' }
-        });
+        const overdueCount = await prisma.invoice.count({ where: { status: "OVERDUE" } });
 
         return NextResponse.json({
             invoices,
             kpis: {
-                paid: totalPaid._sum.total || 0,
-                pending: totalPending._sum.total || 0,
+                paid: paidTotal._sum.total || 0,
+                pending: pendingTotal._sum.total || 0,
                 overdueCount
             }
         });
-    } catch (error) {
-        console.error('❌ Error fetching invoices:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch invoices' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error("Invoices GET error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
-
         const body = await request.json();
-        const { invoiceNumber, clientId, dueDate, subtotal, taxRate, taxAmount, total, notes, status } = body;
+        
+        const subtotal = body.lines?.reduce((acc: number, l: any) => acc + l.quantity * l.unitPrice, 0) || 0;
+        const taxAmount = subtotal * (body.taxRate || 18) / 100;
+        const total = subtotal + taxAmount;
 
-        if (!clientId || !invoiceNumber) {
-            return NextResponse.json({ error: 'Client et numéro de facture requis' }, { status: 400 });
-        }
+        // Generate invoice number
+        const count = await prisma.invoice.count();
+        const invoiceNumber = `FAC-${new Date().getFullYear()}-${String(count + 1).padStart(3, "0")}`;
 
         const invoice = await prisma.invoice.create({
             data: {
                 invoiceNumber,
-                clientId,
-                dueDate: new Date(dueDate),
-                subtotal: subtotal || 0,
-                taxRate: taxRate || 18,
-                taxAmount: taxAmount || 0,
-                total: total || 0,
-                notes: notes || null,
-                status: status || 'DRAFT',
+                issueDate: new Date(),
+                dueDate: new Date(body.dueDate),
+                status: "DRAFT",
+                subtotal,
+                taxRate: body.taxRate || 18,
+                taxAmount,
+                total,
+                notes: body.notes || "",
+                clientId: body.clientId
             },
-            include: { client: { select: { id: true, companyName: true } } },
+            include: { client: true }
         });
 
-        await AuditService.log({
-            action: 'CREATE',
-            entity: 'INVOICE',
-            entityId: invoice.id,
-            newValue: { invoiceNumber, total, status },
+        return NextResponse.json({ invoice });
+    } catch (error: any) {
+        console.error("Invoice POST error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const body = await request.json();
+        const { id, status, paidDate } = body;
+
+        const invoice = await prisma.invoice.update({
+            where: { id },
+            data: {
+                status,
+                ...(status === "PAID" && { paidDate: paidDate ? new Date(paidDate) : new Date() })
+            }
         });
 
-        return NextResponse.json({ invoice }, { status: 201 });
-    } catch (error) {
-        console.error('❌ Error creating invoice:', error);
-        return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 });
+        return NextResponse.json({ invoice });
+    } catch (error: any) {
+        console.error("Invoice PATCH error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
