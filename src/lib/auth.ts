@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "./prisma";
@@ -21,12 +22,12 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.isActive) {
-          // Si l'utilisateur n'existe pas en DB, pour les besoins de la DEMO, on accepte certaines identifiants :
+          // Comptes de démo pour les tests
           if (credentials.email === "expert@gravity.sn" && credentials.password === "password") {
-             return { id: "demo-expert", email: credentials.email, name: "Mamadou Eliman", role: "EXPERT" };
+             return { id: "demo-expert", email: credentials.email, name: "Mamadou Eliman", role: "EXPERT" } as any;
           }
           if (credentials.email === "collab@gravity.sn" && credentials.password === "password") {
-             return { id: "demo-collab", email: credentials.email, name: "Aminata Fall", role: "COLLABORATOR" };
+             return { id: "demo-collab", email: credentials.email, name: "Aminata Fall", role: "COLLABORATOR" } as any;
           }
           throw new Error("Identifiants incorrects ou compte inactif");
         }
@@ -42,7 +43,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
           role: user.role,
-        };
+        } as any;
       },
     }),
   ],
@@ -69,3 +70,45 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
 };
+
+// ──────────────────────────────────────────────
+// AuthService — compatibilité avec le code existant
+// Utilisé dans audit.ts, les API routes, etc.
+// ──────────────────────────────────────────────
+export class AuthService {
+  /**
+   * Récupère la session serveur courante (pour les Server Components & Route Handlers)
+   */
+  static async getSession() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return null;
+    return {
+      id: (session.user as any).id as string,
+      email: session.user.email as string,
+      name: session.user.name as string,
+      role: (session.user as any).role as string,
+    };
+  }
+
+  /**
+   * Vérifie si la session est valide côté serveur
+   */
+  static async requireAuth() {
+    const session = await AuthService.getSession();
+    if (!session) {
+      throw new Error("Non authentifié");
+    }
+    return session;
+  }
+
+  /**
+   * Vérifie si l'utilisateur a un rôle spécifique
+   */
+  static async requireRole(roles: string[]) {
+    const session = await AuthService.requireAuth();
+    if (!roles.includes(session.role)) {
+      throw new Error("Accès refusé : rôle insuffisant");
+    }
+    return session;
+  }
+}
