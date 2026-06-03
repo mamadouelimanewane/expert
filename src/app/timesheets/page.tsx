@@ -1,229 +1,264 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Clock,
+    CalendarDays,
     Play,
     Pause,
-    RotateCcw,
+    Plus,
+    BarChart3,
+    AlertTriangle,
+    CheckCircle2,
     Save,
-    Calendar as CalendarIcon,
-    User,
-    Briefcase,
-    TrendingUp,
     ChevronLeft,
     ChevronRight,
-    Loader2
+    TrendingDown,
+    Briefcase,
+    Zap,
+    Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function TimeTrackingPage() {
-    const [isTracking, setIsTracking] = useState(false);
-    const [timer, setTimer] = useState("00:00:00");
-    const [entries, setEntries] = useState<any[]>([]);
-    const [stats, setStats] = useState({ totalHours: 0, unbilledHours: 0 });
-    const [loading, setLoading] = useState(true);
-    const [clients, setClients] = useState<any[]>([]);
+// Données statiques
+const DAYS = ["Lundi 03", "Mardi 04", "Mercredi 05", "Jeudi 06", "Vendredi 07"];
 
-    useEffect(() => {
-        fetchData();
-        fetchClients();
-    }, []);
+interface TimeEntry {
+    client: string;
+    mission: string;
+    hours: number[]; // Index correspond à DAYS
+    budget: number; // en heures
+    consumed: number; // en heures avant cette semaine
+}
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch("/api/timesheets");
-            const data = await res.json();
-            if (data.entries) setEntries(data.entries);
-            if (data.stats) setStats(data.stats);
-        } catch (error) {
-            console.error("Failed to fetch timesheets:", error);
-        } finally {
-            setLoading(false);
-        }
+const MOCK_ENTRIES: TimeEntry[] = [
+    { client: "Société Ivoirienne de Banque", mission: "Audit Légal Annuel", hours: [7, 8, 4, 0, 0], budget: 120, consumed: 95 },
+    { client: "Pharmacie Dior", mission: "Tenue Comptable", hours: [1, 0, 2, 2, 0], budget: 24, consumed: 12 },
+    { client: "Groupe SONELEC", mission: "Conseil Fiscal", hours: [0, 0, 2, 6, 4], budget: 15, consumed: 14 }, // Dépassement de budget probable
+];
+
+export default function TimesheetsPage() {
+    const [entries, setEntries] = useState<TimeEntry[]>(MOCK_ENTRIES);
+    const [activeTimer, setActiveTimer] = useState(false);
+    const [timerSeconds, setTimerSeconds] = useState(0);
+
+    const updateHour = (entryIndex: number, dayIndex: number, val: string) => {
+        const newEntries = [...entries];
+        const numVal = parseFloat(val) || 0;
+        newEntries[entryIndex].hours[dayIndex] = numVal > 24 ? 24 : numVal;
+        setEntries(newEntries);
     };
 
-    const fetchClients = async () => {
-        try {
-            const res = await fetch("/api/clients");
-            const data = await res.json();
-            if (data.clients) setClients(data.clients);
-        } catch (error) {
-            console.error("Failed to fetch clients:", error);
-        }
+    const addRow = () => {
+        setEntries([...entries, { client: "", mission: "", hours: [0,0,0,0,0], budget: 0, consumed: 0 }]);
     };
+
+    const totalHoursThisWeek = entries.reduce((acc, entry) => acc + entry.hours.reduce((a,b) => a+b, 0), 0);
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-3">
-                    <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-                        <Clock className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                        <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                            Saisie des Temps
+        <div className="space-y-8 animate-in fade-in duration-700">
+            {/* Header Premium */}
+            <div className="bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+                    <Clock className="w-64 h-64 text-indigo-400" />
+                </div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20">
+                                Semaine S23
+                            </span>
+                            <span className="text-slate-500 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                                <CalendarDays className="w-4 h-4" /> 03 Juin - 07 Juin 2026
+                            </span>
+                        </div>
+                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                            Suivi des Temps & <span className="text-indigo-400">Rentabilité</span>
                         </h2>
-                        <p className="text-slate-400 mt-1 text-sm sm:text-base">Suivi de la productivité et rentabilité des missions client.</p>
-                    </div>
-                </div>
-                <div className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 flex items-center justify-between sm:justify-start gap-4  w-full sm:w-auto">
-                    <span className="text-xs font-bold text-slate-500 uppercase">Total Cumulé :</span>
-                    <span className="text-white font-bold text-sm sm:text-base">{stats.totalHours}h <span className="text-indigo-400">/ 160h</span></span>
-                </div>
-            </div>
-
-            {/* Active Timer Bar */}
-            <div className={cn(
-                "glass-card p-4 sm:p-6 rounded-2xl border transition-all duration-500",
-                isTracking ? "border-indigo-500 shadow-lg shadow-indigo-500/10 bg-indigo-500/5" : "border-slate-700/50"
-            )}>
-                <div className="flex flex-col gap-4 sm:gap-6">
-                    <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">Client</label>
-                            <select className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none">
-                                <option>Choisir un client...</option>
-                                {clients.map(c => (
-                                    <option key={c.id} value={c.id}>{c.companyName}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">Mission</label>
-                            <input type="text" placeholder="Sur quoi travaillez-vous ?" className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none" />
-                        </div>
-                        <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">Catégorie</label>
-                            <select className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none">
-                                <option>Production</option>
-                                <option>Audit</option>
-                                <option>Conseil</option>
-                                <option>Déplacement</option>
-                            </select>
-                        </div>
-                        <div className="flex items-center justify-center gap-6 sm:col-span-2 lg:col-span-1">
-                            <div className="text-2xl sm:text-3xl font-mono font-bold text-white tracking-widest">{timer}</div>
-                        </div>
+                        <p className="text-slate-400 mt-2 font-medium max-w-xl">
+                            Saisissez vos heures pour analyser la rentabilité des missions et facturer le hors-forfait.
+                        </p>
                     </div>
 
-                    <div className="flex gap-3 justify-center sm:justify-end">
-                        {isTracking ? (
-                            <button
-                                onClick={() => setIsTracking(false)}
-                                className="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-500/20 transition-all active:scale-90"
-                            >
-                                <Pause className="w-6 h-6" />
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => setIsTracking(true)}
-                                className="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 transition-all active:scale-90"
-                            >
-                                <Play className="w-6 h-6 fill-current" />
-                            </button>
-                        )}
-                        <button className="w-14 h-14 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 border border-slate-700 transition-all">
-                            <Save className="w-6 h-6" />
+                    {/* Timer Widget */}
+                    <div className="p-4 bg-slate-950/50 border border-white/10 rounded-3xl flex items-center gap-6 shadow-xl backdrop-blur-xl">
+                        <div className="text-center">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Chronomètre Actif</p>
+                            <p className="text-3xl font-mono font-black text-white">
+                                {String(Math.floor(timerSeconds / 3600)).padStart(2, '0')}:
+                                {String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0')}:
+                                {String(timerSeconds % 60).padStart(2, '0')}
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => setActiveTimer(!activeTimer)}
+                            className={cn(
+                                "w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg",
+                                activeTimer ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/30"
+                            )}
+                        >
+                            {activeTimer ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 text-white">
-                {/* Recent Entries */}
-                <div className="lg:col-span-2 space-y-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 gap-3">
-                        <h3 className="font-bold">Entrées Récentes (Réelles)</h3>
-                        <div className="flex items-center gap-2">
-                            <button className="p-1 hover:bg-slate-800 rounded text-slate-500"><ChevronLeft className="w-5 h-5" /></button>
-                            <span className="text-sm font-medium">Récent</span>
-                            <button className="p-1 hover:bg-slate-800 rounded text-slate-500"><ChevronRight className="w-5 h-5" /></button>
+            {/* KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                    { label: "Heures saisies", val: totalHoursThisWeek, sub: "/ 35h attendues", icon: Clock, color: "text-indigo-400 bg-indigo-500/10" },
+                    { label: "Taux de facturabilité", val: "88%", sub: "Objectif: 85%", icon: TrendingDown, color: "text-emerald-400 bg-emerald-500/10" },
+                    { label: "Alertes Budget", val: "2", sub: "Dossiers en dépassement", icon: AlertTriangle, color: "text-rose-400 bg-rose-500/10" },
+                    { label: "Dossiers Actifs", val: "14", sub: "Collaborateur: J. Dupont", icon: Briefcase, color: "text-blue-400 bg-blue-500/10" }
+                ].map((k, i) => (
+                    <div key={i} className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-colors">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className={cn("p-3 rounded-2xl", k.color)}>
+                                <k.icon className="w-5 h-5" />
+                            </div>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{k.label}</p>
                         </div>
+                        <h3 className="text-3xl font-black text-white">{k.val}</h3>
+                        <p className="text-xs text-slate-400 mt-1 font-medium">{k.sub}</p>
                     </div>
+                ))}
+            </div>
 
-                    <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden divide-y divide-slate-800/50">
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-20 gap-4">
-                                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-                                <p className="text-slate-500 font-medium">Chargement des temps...</p>
-                            </div>
-                        ) : entries.length === 0 ? (
-                            <div className="p-12 text-center text-slate-500">Aucune saisie de temps pour le moment.</div>
-                        ) : entries.map((entry) => (
-                            <div key={entry.id} className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 hover:bg-slate-800/30 transition-colors group">
-                                <div className="flex items-center gap-3 sm:gap-4 flex-1 w-full">
-                                    <div className={cn(
-                                        "w-10 h-10 rounded-xl flex items-center justify-center border shrink-0",
-                                        entry.category === "Audit" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                            entry.category === "Conseil" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                    )}>
-                                        {entry.category === "Audit" ? <Briefcase className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-sm sm:text-base text-slate-100 truncate">{entry.client?.companyName || "Client"}</p>
-                                        <p className="text-xs text-slate-500 truncate">{entry.mission?.title || entry.description} • {entry.category}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-8 w-full sm:w-auto">
-                                    <div className="text-left sm:text-right">
-                                        <p className="font-mono font-bold text-white text-base sm:text-lg">{entry.duration}h</p>
-                                        <p className="text-[10px] text-slate-600 uppercase font-bold">{new Date(entry.date).toLocaleDateString()}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className={cn(
-                                            "px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap",
-                                            entry.status === "facture" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-700/50 text-slate-500 border-slate-600/50"
-                                        )}>
-                                            {entry.status}
-                                        </span>
-                                        <button className="hidden sm:block opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-white transition-all">
-                                            <RotateCcw className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+            {/* Grille de Saisie */}
+            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
+                <div className="p-6 border-b border-white/5 bg-slate-900/80 flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                        <Users className="w-5 h-5 text-indigo-400" />
+                        <h3 className="text-lg font-black text-white uppercase tracking-widest">Feuille de Temps</h3>
+                    </div>
+                    <div className="flex gap-2">
+                        <button className="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 text-slate-400 transition-colors"><ChevronLeft className="w-4 h-4" /></button>
+                        <button className="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 text-slate-400 transition-colors"><ChevronRight className="w-4 h-4" /></button>
                     </div>
                 </div>
 
-                {/* Profitability Stats */}
-                <div className="glass-card rounded-2xl p-4 sm:p-6 border border-slate-700/50 space-y-6 sm:space-y-8 bg-gradient-to-br from-slate-900 to-indigo-900/10">
-                    <div>
-                        <h3 className="font-bold flex items-center gap-2 mb-6">
-                            <TrendingUp className="w-5 h-5 text-emerald-400" />
-                            Rentabilité des Missions
-                        </h3>
-                        <div className="space-y-6">
-                            {[
-                                { label: "Audit Annuel SIB", val: 85, color: "bg-indigo-500" },
-                                { label: "Tenue Traoré", val: 62, color: "bg-amber-500" },
-                                { label: "Conseil Fiscal Tech", val: 94, color: "bg-emerald-400" },
-                            ].map((item, i) => (
-                                <div key={i} className="space-y-2">
-                                    <div className="flex justify-between text-xs font-bold">
-                                        <span className="text-slate-400 uppercase tracking-tighter">{item.label}</span>
-                                        <span className="text-white">{item.val}%</span>
-                                    </div>
-                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={cn("h-full rounded-full transition-all duration-1000", item.color)} style={{ width: `${item.val}%` }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                <div className="overflow-x-auto p-6">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr>
+                                <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-1/4">Client & Mission</th>
+                                {DAYS.map(d => (
+                                    <th key={d} className="pb-4 text-[10px] font-black text-slate-400 uppercase text-center w-24">{d}</th>
+                                ))}
+                                <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Total</th>
+                                <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest pl-8">État du Budget</th>
+                            </tr>
+                        </thead>
+                        <tbody className="space-y-4">
+                            {entries.map((entry, idx) => {
+                                const rowTotal = entry.hours.reduce((a,b)=>a+b,0);
+                                const totalConsumed = entry.consumed + rowTotal;
+                                const budgetPercent = entry.budget > 0 ? (totalConsumed / entry.budget) * 100 : 0;
+                                const isOverBudget = budgetPercent > 100;
 
-                    <div className="pt-8 border-t border-slate-800">
-                        <div className="p-4 bg-indigo-600 rounded-2xl text-center space-y-1 shadow-xl shadow-indigo-600/20">
-                            <p className="text-xs text-indigo-200 font-bold uppercase tracking-widest">Temps Valorisé</p>
-                            <p className="text-2xl font-bold text-white">{(stats.unbilledHours * 25000).toLocaleString()} FCFA</p>
-                            <p className="text-[10px] text-indigo-300">Base : 25 000 FCFA / h</p>
-                        </div>
-                    </div>
+                                return (
+                                    <tr key={idx} className="group">
+                                        <td className="py-2 pr-4">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Client..." 
+                                                value={entry.client}
+                                                onChange={(e) => { const n = [...entries]; n[idx].client = e.target.value; setEntries(n); }}
+                                                className="w-full bg-slate-900 border border-white/5 rounded-t-lg px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-indigo-500"
+                                            />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Mission..." 
+                                                value={entry.mission}
+                                                onChange={(e) => { const n = [...entries]; n[idx].mission = e.target.value; setEntries(n); }}
+                                                className="w-full bg-slate-900/50 border border-t-0 border-white/5 rounded-b-lg px-3 py-1.5 text-xs text-slate-400 focus:outline-none focus:border-indigo-500"
+                                            />
+                                        </td>
+                                        {entry.hours.map((h, dayIdx) => (
+                                            <td key={dayIdx} className="py-2 px-1 text-center">
+                                                <input 
+                                                    type="number" 
+                                                    min="0" max="24" step="0.5"
+                                                    value={h || ""}
+                                                    onChange={(e) => updateHour(idx, dayIdx, e.target.value)}
+                                                    className={cn(
+                                                        "w-14 h-12 text-center rounded-xl bg-slate-800/50 border focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors",
+                                                        h > 0 ? "border-indigo-500/50 text-indigo-300 font-black bg-indigo-500/10" : "border-white/5 text-slate-500"
+                                                    )}
+                                                />
+                                            </td>
+                                        ))}
+                                        <td className="py-2 px-4 text-right">
+                                            <span className="font-mono text-lg font-black text-white">{rowTotal}h</span>
+                                        </td>
+                                        <td className="py-2 pl-8">
+                                            {entry.budget > 0 ? (
+                                                <div className="space-y-2 w-48">
+                                                    <div className="flex justify-between text-[10px] font-black uppercase">
+                                                        <span className={isOverBudget ? "text-rose-400" : "text-emerald-400"}>
+                                                            {totalConsumed}h / {entry.budget}h
+                                                        </span>
+                                                        <span className="text-slate-500">{Math.round(budgetPercent)}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                        <div 
+                                                            className={cn("h-full rounded-full transition-all duration-1000", isOverBudget ? "bg-rose-500" : budgetPercent > 80 ? "bg-amber-500" : "bg-emerald-500")}
+                                                            style={{ width: `${Math.min(budgetPercent, 100)}%` }}
+                                                        />
+                                                    </div>
+                                                    {isOverBudget && (
+                                                        <p className="text-[9px] text-rose-400 font-bold flex items-center gap-1">
+                                                            <AlertTriangle className="w-3 h-3" /> Dépassement ! Facturer hors-forfait.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-slate-500 italic">Non budgété</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colSpan={6} className="pt-6">
+                                    <button 
+                                        onClick={addRow}
+                                        className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2 hover:text-indigo-300 transition-colors"
+                                    >
+                                        <Plus className="w-4 h-4" /> Ajouter une ligne
+                                    </button>
+                                </td>
+                                <td colSpan={2} className="pt-6 text-right">
+                                    <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 active:scale-95 flex items-center gap-2 ml-auto">
+                                        <Save className="w-4 h-4" /> Enregistrer la semaine
+                                    </button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
+
+            {/* AI Insights */}
+            <div className="p-6 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/20 rounded-[32px] flex items-start gap-4 shadow-xl">
+                <div className="p-3 bg-indigo-500/20 rounded-2xl shrink-0 mt-1">
+                    <Zap className="w-6 h-6 text-indigo-400" />
+                </div>
+                <div>
+                    <h4 className="text-sm font-black text-indigo-300 uppercase tracking-widest mb-2">Nexus IA — Analyse de Rentabilité</h4>
+                    <p className="text-slate-400 text-sm leading-relaxed max-w-4xl">
+                        Le dossier <strong>Groupe SONELEC</strong> a consommé <span className="text-rose-400 font-bold">113%</span> de son budget initial (15h). 
+                        Vous avez saisi 12h cette semaine. Il est recommandé de déclencher une facturation complémentaire ou de revoir la lettre de mission avec le client.
+                    </p>
+                    <button className="mt-4 px-4 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 rounded-xl text-xs font-black transition-colors">
+                        Générer Facture Hors-Forfait
+                    </button>
+                </div>
+            </div>
+
         </div>
     );
 }
