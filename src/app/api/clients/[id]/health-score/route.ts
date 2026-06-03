@@ -1,13 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+
+type RouteContext = { params: Promise<{ id: string }> };
 
 /**
  * Calcule et sauvegarde le score de santé financière d'un client PMI.
  * Le score est basé sur plusieurs facteurs pondérés (0-100).
  */
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: RouteContext) {
   try {
-    const clientId = params.id;
+    const { id: clientId } = await context.params;
 
     // 1. Récupérer les données du client
     const client = await prisma.client.findUnique({
@@ -28,18 +30,16 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const lastFinancial = client.financialData[0];
 
     // Facteur 1 : Régularité de transmission (40 points)
-    // On vérifie combien de semaines des 12 dernières ont eu des entrées
     const regularityScore = Math.min(40, journals.length > 0 ? (journals.length / 30) * 40 : 5);
 
     // Facteur 2 : Santé de trésorerie (30 points)
-    // Ratio Entrées / (Entrées + Sorties)
     const totalEntree = journals.reduce((sum, j) => sum + j.entree, 0);
     const totalSortie = journals.reduce((sum, j) => sum + j.sortie, 0);
     const cashRatio = totalEntree + totalSortie > 0 ? totalEntree / (totalEntree + totalSortie) : 0.5;
     const cashScore = Math.round(cashRatio * 30);
 
     // Facteur 3 : Croissance (20 points)
-    let growthScore = 10; // neutre par défaut
+    let growthScore = 10;
     if (lastFinancial && lastFinancial.ca > 0) {
       growthScore = lastFinancial.ebitda > 0 ? 20 : 8;
     }
@@ -91,9 +91,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
   const client = await prisma.client.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { healthScore: true, rating: true },
   });
   return NextResponse.json(client ?? { healthScore: 0, rating: 'C' });

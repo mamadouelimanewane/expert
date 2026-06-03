@@ -4,10 +4,10 @@ import prisma from '@/lib/prisma';
 // GET /api/portal/[token] — Récupérer les données client par portalToken
 export async function GET(
     request: NextRequest,
-    { params }: { params: { token: string } }
+    context: { params: Promise<{ token: string }> }
 ) {
     try {
-        const { token } = params;
+        const { token } = await context.params;
 
         const client = await prisma.client.findUnique({
             where: { portalToken: token },
