@@ -83,20 +83,28 @@ const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
 
 const menuItems: MenuItem[] = [
-    // --- 1. PRODUCTION COMPTABLE & FISCALE (En Premier) ---
-    { header: "PRODUCTION & FISCALITÉ" },
+    // --- 1. EXPERTISE & PRODUCTION COMPTABLE ---
+    { header: "EXPERTISE & PRODUCTION" },
     { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
-    { icon: FileSpreadsheet, label: "États Financiers", href: "/etats-financiers" },
-    { icon: CalendarDays, label: "Fiscalité OHADA", href: "/fiscalite" },
-    { icon: Clock, label: "Échéancier Fiscal", href: "/fiscalite/obligations" },
-    { icon: Calculator, label: "Paie & Social", href: "/payroll" },
+    { icon: FileSpreadsheet, label: "Liasse Fiscale Auto", href: "/comptabilite/liasse-fiscale" },
+    { icon: CalendarDays, label: "Fiscalité & Simulateur", href: "/fiscalite" },
+    { icon: Calculator, label: "Paie & Social (SN)", href: "/payroll" },
+    { icon: FolderPlus, label: "GED Intelligente", href: "/documents" },
     { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
-    { icon: FilePieChart, label: "Reporting Client", href: "/comptabilite/reporting" },
-    { icon: Users, label: "Abonnés TPE (BPO)", href: "/comptabilite/tpe-dashboard" },
-    { icon: FileDigit, label: "Révision Journaux TPE", href: "/comptabilite/tpe-processing" },
-    { icon: Smartphone, label: "Portail Client PMI", href: "/portal/saisie" },
-    { icon: LayoutGrid, label: "Dashboard PMI", href: "/portal/dashboard" },
-    { icon: TrendingUp, label: "Scores Santé Financière", href: "/comptabilite/health-scores" },
+    
+    // --- 2. BPO & INCLUSION FINANCIÈRE (TPE) ---
+    { header: "BPO TPE / INFORMEL" },
+    { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
+    { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
+    { icon: Users, label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" },
+
+    // --- 3. MODULES EXPERTS & IA ---
+    { header: "MODULES EXPERTS" },
+    { icon: ShieldAlert, label: "Audit IA (FEC Analyzer)", href: "/audit" },
+    { icon: Timer, label: "Suivi des Temps & Rentabilité", href: "/timesheets" },
+    { icon: UserCheck, label: "Onboarding & KYC", href: "/onboarding" },
+    { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
+    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
     { icon: FileText, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
 
     // --- 2. CŒUR DU MÉTIER & PILOTAGE ---
