@@ -32,6 +32,7 @@ export default async function Home() {
           <h2 className="text-3xl font-black text-white tracking-tight">Tableau de Bord</h2>
           <p className="text-slate-400 mt-1 text-sm sm:text-base font-medium">Bienvenue, voici le pilotage de votre cabinet OHADA en temps réel.</p>
         </div>
+        <div className="flex items-center gap-3 flex-wrap">
           <a href="/dashboard/confidentiel" className="flex-1 sm:flex-none px-6 py-3 bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-amber-500/20 flex items-center justify-center gap-2 shadow-lg">
             <Lock className="w-4 h-4" /> Stats Confidentielles
           </a>
