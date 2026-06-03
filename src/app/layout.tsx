@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { OnboardingGuide } from "@/components/onboarding/OnboardingGuide";
 
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -18,17 +18,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body className={`antialiased text-foreground bg-background`}>
-        <ThemeProvider>
-          {/* Background ambient glow effect */}
-          <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none opacity-50 dark:opacity-100" />
+        <html lang="fr">
+          <body className={`antialiased text-foreground bg-background`}>
+            <AuthProvider>
+              <ThemeProvider>
+                {/* Background ambient glow effect */}
+                <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background pointer-events-none opacity-50 dark:opacity-100" />
 
-          <AppShell>
-            {children}
-          </AppShell>
-        </ThemeProvider>
-      </body>
-    </html>
+                <AppShell>
+                  {children}
+                </AppShell>
+              </ThemeProvider>
+            </AuthProvider>
+          </body>
+        </html>
   );
 }

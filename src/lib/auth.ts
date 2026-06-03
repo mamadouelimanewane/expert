@@ -1,72 +1,71 @@
-import jwt from "jsonwebtoken";
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
+import prisma from "./prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev-only";
-const COOKIE_NAME = "cabinet360_session";
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Mot de passe", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email et mot de passe requis");
+        }
 
-export interface SessionUser {
-    id: string;
-    email: string;
-    role: string;
-    firstName: string;
-    lastName: string;
-}
-
-export class AuthService {
-    /**
-     * Hache un mot de passe
-     */
-    static async hashPassword(password: string): Promise<string> {
-        return bcrypt.hash(password, 12);
-    }
-
-    /**
-     * Vérifie un mot de passe
-     */
-    static async comparePasswords(password: string, hash: string): Promise<boolean> {
-        return bcrypt.compare(password, hash);
-    }
-
-    /**
-     * Génère un token JWT et l'enregistre dans un cookie
-     */
-    static async createSession(user: SessionUser) {
-        const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1d" });
-
-        const cookieStore = await cookies();
-        cookieStore.set(COOKIE_NAME, token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 60 * 60 * 24, // 1 jour
-            path: "/"
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
         });
 
-        return token;
-    }
-
-    /**
-     * Récupère la session actuelle
-     */
-    static async getSession(): Promise<SessionUser | null> {
-        const cookieStore = await cookies();
-        const token = cookieStore.get(COOKIE_NAME)?.value;
-
-        if (!token) return null;
-
-        try {
-            return jwt.verify(token, JWT_SECRET) as SessionUser;
-        } catch (error) {
-            return null;
+        if (!user || !user.isActive) {
+          // Si l'utilisateur n'existe pas en DB, pour les besoins de la DEMO, on accepte certaines identifiants :
+          if (credentials.email === "expert@gravity.sn" && credentials.password === "password") {
+             return { id: "demo-expert", email: credentials.email, name: "Mamadou Eliman", role: "EXPERT" };
+          }
+          if (credentials.email === "collab@gravity.sn" && credentials.password === "password") {
+             return { id: "demo-collab", email: credentials.email, name: "Aminata Fall", role: "COLLABORATOR" };
+          }
+          throw new Error("Identifiants incorrects ou compte inactif");
         }
-    }
 
-    /**
-     * Détruit la session
-     */
-    static async logout() {
-        const cookieStore = await cookies();
-        cookieStore.delete(COOKIE_NAME);
-    }
-}
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordValid) {
+          throw new Error("Mot de passe incorrect");
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          role: user.role,
+        };
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
+};

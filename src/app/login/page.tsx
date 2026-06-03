@@ -1,204 +1,147 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-    Lock,
-    Mail,
-    ArrowRight,
-    ShieldCheck,
-    Globe,
-    AlertCircle,
-    Loader2
-} from "lucide-react";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Lock, Mail, ArrowRight, ShieldCheck, Fingerprint, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-function LoginContent() {
+export default function LoginPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // Auto-login for demo if ?demo=true is present
-    useEffect(() => {
-        if (searchParams.get('demo') === 'true') {
-            setEmail("admin@cabinet360.com");
-            setPassword("admin2026");
-            setTimeout(() => {
-                const form = document.querySelector('form');
-                if (form) form.requestSubmit();
-            }, 500);
-        }
-    }, [searchParams]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
         setIsLoading(true);
-        setError(null);
 
-        // --- BYPASS CLIENT-SIDE POUR ACCÈS IMMÉDIAT ---
-        if (password === "FORCE_DEMO") {
-            // Simulation de cookie de session basique pour passer le middleware (si applicable, sinon juste redirect)
-            document.cookie = "auth_bypass=true; path=/; max-age=3600";
-            router.push("/dashboard"); // Redirection forcée vers le dashboard
-            return;
-        }
-        // --- FIN BYPASS ---
+        const res = await signIn("credentials", {
+            redirect: false,
+            email,
+            password
+        });
 
-        try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                router.push("/");
-                router.refresh();
-            } else {
-                setError(data.error || "Identifiants invalides");
-            }
-        } catch (err) {
-            setError("Une erreur est survenue");
-        } finally {
+        if (res?.error) {
+            setError(res.error);
             setIsLoading(false);
+        } else {
+            // Success: Redirection will be handled by middleware or force redirect
+            router.push("/bi");
         }
     };
 
-    return (
-        <div className="min-h-screen bg-[#050608] flex items-center justify-center p-6 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-0 left-0 w-full h-full">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-                <div className="absolute top-[30%] right-[10%] w-[20%] h-[20%] bg-purple-600/5 blur-[80px] rounded-full" />
-            </div>
+    const useDemoAccount = (role: "expert" | "collab") => {
+        setEmail(role === "expert" ? "expert@gravity.sn" : "collab@gravity.sn");
+        setPassword("password");
+    };
 
-            <div className="w-full max-w-lg relative z-10">
-                {/* Logo & Header */}
-                <div className="text-center mb-10">
-                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-blue-700 rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20 group">
-                        <ShieldCheck className="w-10 h-10 text-white group-hover:scale-110 transition-transform duration-500" />
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 relative z-10 rounded-[40px] border border-white/10 bg-slate-900/60 shadow-2xl overflow-hidden backdrop-blur-xl">
+                
+                {/* Left Side - Branding */}
+                <div className="p-16 hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border-r border-white/5 relative">
+                    <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
+                    
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-12">
+                            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                                <Fingerprint className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="text-2xl font-black tracking-tighter text-white">GRAVITY EXPERT</span>
+                        </div>
+                        <h1 className="text-5xl font-black text-white leading-tight mb-6">
+                            L'ERP Nouvelle Génération pour Experts-Comptables.
+                        </h1>
+                        <p className="text-indigo-200 text-lg font-medium leading-relaxed max-w-md">
+                            Connectez-vous pour accéder à vos dossiers d'audit, piloter votre rentabilité et superviser vos collaborateurs via NEXUS IA.
+                        </p>
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tighter mb-2">CABINET <span className="text-indigo-500">360</span></h1>
-                    <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px]">Expertise Comptable OHADA</p>
+
+                    <div className="relative z-10 p-6 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md flex items-center gap-4">
+                        <ShieldCheck className="w-10 h-10 text-emerald-400" />
+                        <div>
+                            <p className="font-bold text-white text-sm">Sécurité Bancaire (256-bit)</p>
+                            <p className="text-xs text-indigo-200 mt-1">Vos données comptables sont chiffrées de bout en bout.</p>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Login Card */}
-                <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 backdrop-blur-2xl shadow-2xl">
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {error && (
-                            <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 flex items-center gap-3 animate-in slide-in-from-top-2">
-                                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                                <p className="text-sm font-bold text-rose-200">{error}</p>
-                            </div>
-                        )}
+                {/* Right Side - Login Form */}
+                <div className="p-8 sm:p-16 flex flex-col justify-center">
+                    <div className="max-w-md w-full mx-auto">
+                        <h2 className="text-3xl font-black text-white mb-2">Bienvenue</h2>
+                        <p className="text-slate-400 font-medium mb-8">Saisissez vos identifiants pour accéder à votre espace sécurisé.</p>
 
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Professionnel</label>
-                                <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
-                                    <input
-                                        type="email"
-                                        required
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            {error && (
+                                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm font-bold text-center">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Email Professionnel</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                                    <input 
+                                        type="email" 
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="expert@cabinet360.com"
-                                        className="w-full pl-12 pr-4 py-4 bg-slate-950/50 border-2 border-white/5 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all font-medium placeholder:text-slate-700"
+                                        required
+                                        placeholder="vous@cabinet.sn" 
+                                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center ml-1">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mot de Passe</label>
-                                    <a href="#" className="text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:text-indigo-300">Oublié ?</a>
-                                </div>
-                                <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
-                                    <input
-                                        type="password"
-                                        required
+                            <div>
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Mot de passe</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                                    <input 
+                                        type="password" 
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••••••"
-                                        className="w-full pl-12 pr-4 py-4 bg-slate-950/50 border-2 border-white/5 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all font-medium placeholder:text-slate-700"
+                                        required
+                                        placeholder="••••••••" 
+                                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                                     />
                                 </div>
                             </div>
-                        </div>
 
-                        <button
-                            disabled={isLoading}
-                            type="submit"
-                            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[24px] font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-3 relative overflow-hidden group disabled:opacity-50"
-                        >
-                            <span className={cn(isLoading && "opacity-0")}>Se Connecter</span>
-                            <ArrowRight className={cn("w-4 h-4 group-hover:translate-x-1 transition-transform", isLoading && "opacity-0")} />
-                            {isLoading && (
-                                <Loader2 className="absolute w-5 h-5 animate-spin" />
-                            )}
-                        </button>
+                            <button 
+                                type="submit" 
+                                disabled={isLoading}
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/30"
+                            >
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Se Connecter"} 
+                                {!isLoading && <ArrowRight className="w-4 h-4" />}
+                            </button>
+                        </form>
 
-                        <div className="relative py-4">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-white/5"></span>
+                        {/* DEMO ACCOUNTS */}
+                        <div className="mt-12 pt-8 border-t border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">Comptes de Démonstration (Développement)</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => useDemoAccount("expert")} className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-colors border border-white/5">
+                                    Compte Associé
+                                </button>
+                                <button onClick={() => useDemoAccount("collab")} className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-colors border border-white/5">
+                                    Compte Collaborateur
+                                </button>
                             </div>
-                            <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest">
-                                <span className="bg-[#0f172a] px-4 text-slate-500">Ou accès rapide</span>
-                            </div>
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEmail("admin@cabinet360.com");
-                                setPassword("admin2026");
-                                setTimeout(() => {
-                                    const form = document.querySelector('form');
-                                    if (form) form.requestSubmit();
-                                }, 100);
-                            }}
-                            className="w-full py-5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-[24px] font-black uppercase tracking-widest text-xs transition-all border border-indigo-500/20 flex items-center justify-center gap-3 group"
-                        >
-                            <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                            Accéder au Mode Démonstration
-                        </button>
-                    </form>
-
-                    <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between">
-                        <div className="flex items-center gap-2 group cursor-pointer">
-                            <Globe className="w-4 h-4 text-slate-600 group-hover:text-indigo-500 transition-colors" />
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-slate-400">Zone OHADA (XOF)</span>
-                        </div>
-                        <div className="flex gap-4">
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors cursor-pointer">Support</span>
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest hover:text-white transition-colors cursor-pointer">Sécurité</span>
                         </div>
                     </div>
                 </div>
-
-                <p className="text-center mt-8 text-slate-600 text-[11px] font-medium">
-                    &copy; 2026 Cabinet 360 v2.0.0. Tous droits réservés.
-                </p>
             </div>
         </div>
-    );
-}
-
-export default function LoginPage() {
-    return (
-        <Suspense fallback={
-            <div className="min-h-screen bg-[#050608] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-            </div>
-        }>
-            <LoginContent />
-        </Suspense>
     );
 }

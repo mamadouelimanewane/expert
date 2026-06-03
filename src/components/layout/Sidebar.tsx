@@ -77,6 +77,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "@/context/ThemeContext";
 import { Moon, Sun, Monitor, Palette, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
 
@@ -159,11 +160,11 @@ const menuItems: MenuItem[] = [
 export function Sidebar() {
     const pathname = usePathname();
     const { theme, setTheme } = useTheme();
-    const [isOpen, setIsOpen] = useState(false);
-
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [isFabOpen, setIsFabOpen] = useState(false);
     const [isVoiceActive, setIsVoiceActive] = useState(false);
     const [transcription, setTranscription] = useState("");
+    const { data: session } = useSession();
 
     const startNexusGo = () => {
         setIsVoiceActive(true);
@@ -297,11 +298,13 @@ export function Sidebar() {
                     {/* Compact User Profile & Actions */}
                     <div className="flex items-center gap-2 px-1">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm border border-white/10">
-                            <span className="font-bold text-[10px] text-white">EP</span>
+                            <span className="font-bold text-[10px] text-white">
+                                {session?.user?.name ? session.user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase() : "ME"}
+                            </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-foreground truncate leading-tight">Expert Principal</p>
-                            <p className="text-[9px] text-muted-foreground truncate leading-tight opacity-80">admin@cabinet360.com</p>
+                            <p className="text-xs font-bold text-foreground truncate leading-tight">{session?.user?.name || "Expert Comptable"}</p>
+                            <p className="text-[9px] text-muted-foreground truncate leading-tight opacity-80">{session?.user?.email || ""}</p>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                             <Link
@@ -312,10 +315,7 @@ export function Sidebar() {
                                 <Settings className="w-4 h-4" />
                             </Link>
                             <button
-                                onClick={async () => {
-                                    await fetch("/api/auth/logout", { method: "POST" });
-                                    window.location.href = "/login";
-                                }}
+                                onClick={() => signOut({ callbackUrl: "/login" })}
                                 className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                 title="Déconnexion"
                             >

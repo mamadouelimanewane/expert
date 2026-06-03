@@ -1,40 +1,39 @@
-import { NextResponse, NextRequest } from 'next/server';
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-// List of public paths that don't require authentication
-const publicPaths = ['/login', '/api/auth/login', '/api/payments/webhook', '/api/audit/risk-score', '/api/banking/reconcile', '/api/signature/process'];
+export default withAuth(
+  function middleware(req) {
+    const { token } = req.nextauth;
+    const pathname = req.nextUrl.pathname;
 
-export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-
-    // Check if the path is public
-    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-
-    // Get the session cookie
-    const session = request.cookies.get('cabinet360_session')?.value;
-
-    // 1. If trying to access a protected path without a session, redirect to login
-    if (!session && !isPublicPath && pathname !== '/login') {
-        return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    // 2. If already logged in and trying to access login page, redirect to dashboard
-    if (session && pathname === '/login') {
-        return NextResponse.redirect(new URL('/', request.url));
+    // Redirection selon le rôle après login
+    if (pathname === "/login" && token) {
+      const role = token.role as string;
+      if (role === "EXPERT" || role === "ADMIN") {
+        return NextResponse.redirect(new URL("/bi", req.url));
+      }
+      return NextResponse.redirect(new URL("/comptabilite/production", req.url));
     }
 
     return NextResponse.next();
-}
+  },
+  {
+    callbacks: {
+      authorized({ req, token }) {
+        const { pathname } = req.nextUrl;
+        // Routes publiques : login et la landing page
+        if (pathname === "/login" || pathname === "/" || pathname.startsWith("/api/auth")) {
+          return true;
+        }
+        // Toutes les autres routes nécessitent une authentification
+        return !!token;
+      },
+    },
+  }
+);
 
-// See "Matching Paths" below to learn more
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api/auth (auth API)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         */
-        '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg).*)',
-    ],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/auth).*)",
+  ],
 };
