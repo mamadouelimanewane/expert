@@ -25,6 +25,9 @@ export async function GET(
                     orderBy: { dueDate: 'desc' },
                     take: 5,
                 },
+                documents: {
+                    orderBy: { createdAt: 'desc' }
+                },
                 _count: {
                     select: {
                         tpeJournals: true,

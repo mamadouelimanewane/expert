@@ -28,6 +28,7 @@ interface ClientData {
   tpeJournals: any[];
   missions: any[];
   declarations: any[];
+  documents: any[];
   _count: { tpeJournals: number; missions: number; invoices: number };
 }
 
@@ -344,7 +345,7 @@ export default function PortalByToken() {
               <h3 className="font-black flex items-center gap-2 text-sm mb-4">
                 <FileText className="w-4 h-4 text-indigo-400" /> Documents & Déclarations
               </h3>
-              {client.declarations.length === 0 ? (
+              {(!client.documents || client.documents.length === 0) ? (
                 <div className="text-center py-12">
                   <FileText className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                   <p className="text-slate-500 text-sm">Aucun document disponible</p>
@@ -352,18 +353,25 @@ export default function PortalByToken() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {client.declarations.map((d: any) => (
-                    <div key={d.id} className="flex items-center gap-3 p-4 bg-slate-800/40 rounded-xl border border-white/5">
-                      <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-xs font-bold">{d.type} — {d.period}</p>
-                        <p className="text-[10px] text-slate-500">Échéance: {new Date(d.dueDate).toLocaleDateString("fr-FR")}</p>
+                  {client.documents.map((d: any) => (
+                    <a 
+                      key={d.id} 
+                      href={d.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 p-4 bg-slate-800/40 hover:bg-slate-800/60 rounded-xl border border-white/5 transition-colors group cursor-pointer"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
                       </div>
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black border ${
-                        d.status === "SUBMITTED" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
-                        "text-amber-400 bg-amber-500/10 border-amber-500/20"
-                      }`}>{d.status}</span>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold truncate text-white">{d.originalName || d.fileName}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Ajouté le: {new Date(d.createdAt).toLocaleDateString("fr-FR")}</p>
+                      </div>
+                      <span className="text-[9px] px-2 py-0.5 rounded-full font-black border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 uppercase">
+                        Nouveau
+                      </span>
+                    </a>
                   ))}
                 </div>
               )}

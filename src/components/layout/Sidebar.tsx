@@ -129,6 +129,8 @@ const menuItems: MenuItem[] = [
     { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
     { icon: Globe, label: "Hub Multi-Devises", href: "/strategy/devises" },
 
+
+
     // --- 6. AUDIT & CONFORMITÉ ---
     { header: "AUDIT & CONFORMITÉ" },
     { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
