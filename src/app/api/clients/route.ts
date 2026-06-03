@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuditService } from '@/lib/audit';
+import { randomUUID } from 'crypto';
 
 export async function GET(request: NextRequest) {
     try {
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
+        // Générer un token unique pour le portail PMI
+        const portalToken = randomUUID().replace(/-/g, '').slice(0, 16);
+
         const client = await prisma.client.create({
             data: {
                 type: body.type || 'ENTREPRISE',
@@ -71,7 +75,12 @@ export async function POST(request: NextRequest) {
                 address: body.address,
                 city: body.city,
                 postalCode: body.postalCode,
+                subjectToTva: body.subjectToTva || false,
                 isActive: body.isActive !== undefined ? body.isActive : true,
+                // Portail PMI auto-généré
+                portalToken,
+                portalEnabled: true,
+                portalCreatedAt: new Date(),
             },
         });
 
@@ -79,12 +88,20 @@ export async function POST(request: NextRequest) {
         await AuditService.log({
             action: 'CREATE',
             entity: 'CLIENT',
+            details: `Nouveau client créé : ${client.companyName || (client.firstName + ' ' + client.lastName)} — Portail activé (${portalToken})`,
             entityId: client.id,
-            details: `Nouveau client créé : ${client.companyName || (client.firstName + ' ' + client.lastName)}`,
             newValue: client
         });
 
-        return NextResponse.json({ client }, { status: 201 });
+        // Construire l'URL du portail
+        const baseUrl = request.headers.get('origin') || request.headers.get('host') || 'http://localhost:3000';
+        const portalUrl = `${baseUrl}/portal/${portalToken}`;
+
+        return NextResponse.json({ 
+            client, 
+            portalUrl,
+            portalToken,
+        }, { status: 201 });
     } catch (error) {
         console.error('❌ Error creating client:', error);
         return NextResponse.json(
@@ -93,4 +110,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
 

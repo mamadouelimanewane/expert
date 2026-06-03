@@ -14,7 +14,11 @@ import {
     AlertCircle,
     ArrowLeft,
     Save,
-    Loader2
+    Loader2,
+    Copy,
+    Check,
+    ExternalLink,
+    PartyPopper
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +26,9 @@ export default function NewClientPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [portalUrl, setPortalUrl] = useState<string | null>(null);
+    const [createdName, setCreatedName] = useState("");
+    const [copied, setCopied] = useState(false);
 
     const [formData, setFormData] = useState({
         type: "ENTREPRISE",
@@ -56,14 +63,81 @@ export default function NewClientPage() {
 
             if (!res.ok) throw new Error("Erreur lors de la création du client");
 
-            router.push("/clients");
-            router.refresh();
+            const data = await res.json();
+            const name = data.client.companyName || `${data.client.firstName} ${data.client.lastName}`;
+            setCreatedName(name);
+            setPortalUrl(data.portalUrl || `${window.location.origin}/portal/${data.portalToken}`);
         } catch (err) {
             setError("Impossible de créer le client. Vérifiez les informations.");
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleCopy = () => {
+        if (portalUrl) {
+            navigator.clipboard.writeText(portalUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    // === MODALE SUCCÈS AVEC LIEN PORTAIL ===
+    if (portalUrl) {
+        return (
+            <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
+                <div className="glass-card rounded-[32px] p-10 border border-white/5 bg-slate-900/40 shadow-2xl text-center space-y-8">
+                    <div className="w-20 h-20 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
+                        <PartyPopper className="w-10 h-10 text-emerald-400" />
+                    </div>
+
+                    <div>
+                        <h2 className="text-3xl font-black text-white tracking-tight">Client créé avec succès !</h2>
+                        <p className="text-slate-400 mt-2">
+                            Le portail de <span className="text-indigo-400 font-bold">{createdName}</span> est prêt.
+                        </p>
+                    </div>
+
+                    {/* Lien Portail */}
+                    <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center gap-2 justify-center">
+                            <ExternalLink className="w-4 h-4 text-indigo-400" />
+                            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">URL du Portail PMI</span>
+                        </div>
+
+                        <div className="bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
+                            <code className="text-sm text-indigo-300 font-mono flex-1 truncate text-left">{portalUrl}</code>
+                            <button onClick={handleCopy}
+                                className={cn(
+                                    "flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-black transition-all flex-shrink-0",
+                                    copied
+                                        ? "bg-emerald-600 text-white"
+                                        : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                                )}>
+                                {copied ? <><Check className="w-3.5 h-3.5" /> Copié !</> : <><Copy className="w-3.5 h-3.5" /> Copier</>}
+                            </button>
+                        </div>
+
+                        <p className="text-[10px] text-slate-500">
+                            Partagez ce lien avec votre client PMI. Il pourra saisir ses recettes/dépenses,
+                            consulter son score de santé et suivre ses échéances — sans aucune installation.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3 justify-center pt-4">
+                        <button onClick={() => router.push("/clients")}
+                            className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-colors border border-white/10">
+                            Voir les clients
+                        </button>
+                        <button onClick={() => { setPortalUrl(null); setFormData({ type: "ENTREPRISE", companyName: "", firstName: "", lastName: "", email: "", phone: "", rccm: "", ninea: "", sector: "", country: "CI", city: "", address: "" }); }}
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs transition-colors shadow-lg shadow-indigo-500/20">
+                            Nouveau client
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">

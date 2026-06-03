@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 // Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
     Users,
     Building2,
@@ -25,13 +26,18 @@ import {
     ArrowUpRight,
     PieChart,
     Download,
-    Loader2
+    Loader2,
+    Copy,
+    Check,
+    ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Client } from "@/types/prisma";
 import { ResponsiveDataList } from "@/components/layout/ResponsiveComponents";
 
 interface ClientWithCount extends Client {
+    portalToken?: string;
+    portalEnabled?: boolean;
     _count?: {
         missions: number;
         invoices: number;
@@ -44,6 +50,14 @@ export default function ClientsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [clients, setClients] = useState<ClientWithCount[]>([]);
     const [loading, setLoading] = useState(true);
+    const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    const copyPortalLink = (token: string, clientId: string) => {
+        const url = `${window.location.origin}/portal/${token}`;
+        navigator.clipboard.writeText(url);
+        setCopiedId(clientId);
+        setTimeout(() => setCopiedId(null), 2000);
+    };
 
     useEffect(() => {
         fetchClients();
@@ -179,6 +193,20 @@ export default function ClientsPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Lien Portail PMI */}
+                                {(client as any).portalToken && (client as any).portalEnabled && (
+                                    <div className="flex items-center gap-2 p-2.5 bg-indigo-500/5 border border-indigo-500/15 rounded-xl relative z-10">
+                                        <ExternalLink className="w-3 h-3 text-indigo-400 flex-shrink-0" />
+                                        <span className="text-[10px] text-indigo-400 font-bold flex-1 truncate">Portail actif</span>
+                                        <button
+                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); copyPortalLink((client as any).portalToken, client.id); }}
+                                            className="flex items-center gap-1 px-2 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 rounded-lg text-indigo-400 text-[9px] font-black transition-colors"
+                                        >
+                                            {copiedId === client.id ? <><Check className="w-3 h-3" /> Copié!</> : <><Copy className="w-3 h-3" /> Copier URL</>}
+                                        </button>
+                                    </div>
+                                )}
 
                                 <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-2 relative z-10">
                                     <div className="flex gap-1">

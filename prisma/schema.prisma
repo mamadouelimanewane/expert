@@ -103,6 +103,12 @@ model Client {
   // Status
   subjectToTva      Boolean      @default(false) // Paramétrage flexible de la TVA
   isActive          Boolean      @default(true)
+  
+  // Portail PMI
+  portalToken       String?      @unique  // Token unique pour l'URL du portail client
+  portalEnabled     Boolean      @default(false)
+  portalCreatedAt   DateTime?
+  
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   
