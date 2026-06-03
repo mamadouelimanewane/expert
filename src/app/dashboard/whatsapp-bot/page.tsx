@@ -1,242 +1,266 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MessageCircle, Zap, Copy, CheckCircle, Phone, Settings2, Users, Activity, ArrowRight, Send, Loader2 } from "lucide-react";
+import { useState } from "react";
+import {
+  MessageCircle, Bot, Zap, Phone, Users, Send, RefreshCw,
+  CheckCircle2, Clock, AlertTriangle, Smartphone, Mic,
+  ArrowRight, TrendingUp, Activity, Globe, Loader2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function WhatsAppBotConfig() {
-  const [copied, setCopied] = useState(false);
-  const webhookUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://cabinet360.app'}/api/webhooks/whatsapp`;
-  
-  const [recentJournals, setRecentJournals] = useState<any[]>([]);
-  const [loadingJournals, setLoadingJournals] = useState(true);
+const MOCK_CONVERSATIONS = [
+  {
+    id: "conv1", name: "Boutique Awa", phone: "+221 77 123 45 67",
+    lastMsg: "J'ai vendu pour 80 000 aujourd'hui", time: "14:02",
+    unread: 2, status: "active", avatar: "A"
+  },
+  {
+    id: "conv2", name: "Atelier Moussa", phone: "+221 76 987 65 43",
+    lastMsg: "J'ai payé 15 000 pour le tissu", time: "12:30",
+    unread: 0, status: "pending", avatar: "M"
+  },
+  {
+    id: "conv3", name: "Transport Ibra", phone: "+221 78 321 09 87",
+    lastMsg: "Carburant: 20 000 F dépensé", time: "Hier",
+    unread: 0, status: "processed", avatar: "I"
+  },
+  {
+    id: "conv4", name: "Pharmacie Dior", phone: "+221 70 456 78 90",
+    lastMsg: "Vente médicaments: 150 000 F", time: "09:15",
+    unread: 5, status: "active", avatar: "D"
+  },
+];
 
-  // Simulator state
-  const [simPhone, setSimPhone] = useState("");
-  const [simMessage, setSimMessage] = useState("");
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simResult, setSimResult] = useState<string | null>(null);
+const MOCK_MESSAGES: Record<string, any[]> = {
+  conv1: [
+    { from: "client", text: "Bonjour, j'ai vendu pour 80 000 aujourd'hui Alhamdulilah", time: "14:01" },
+    { from: "bot", text: "✅ *Reçu !* Votre vente de 80 000 FCFA a été enregistrée.\n\n📊 *Traduction OHADA :*\n• Débit 521 (Caisse) : 80 000 F\n• Crédit 701 (Ventes) : 80 000 F\n\n_En cours de validation par votre cabinet…_", time: "14:01" },
+    { from: "client", text: "Merci ! Et j'ai aussi dépensé 12 000 pour du carburant", time: "14:02" },
+    { from: "bot", text: "✅ *Enregistré !*\n\n🚗 Frais de transport: -12 000 FCFA\n• Débit 613 (Transports) : 12 000 F\n• Crédit 521 (Caisse) : 12 000 F\n\n💰 *Bilan du jour :* +68 000 F net", time: "14:02" },
+  ],
+  conv2: [
+    { from: "client", text: "J'ai payé 15 000 pour le tissu", time: "12:29" },
+    { from: "bot", text: "📦 *Achat enregistré* — 15 000 FCFA\n• Catégorie : Achats matières premières\n• Débit 601 : 15 000 F\n• Crédit 521 : 15 000 F\n\n_En attente de validation…_", time: "12:30" },
+  ],
+  conv3: [],
+  conv4: [
+    { from: "client", text: "Vente médicaments: 150 000 F", time: "09:14" },
+    { from: "bot", text: "💊 *Vente enregistrée* — 150 000 FCFA\n• Débit 521 (Caisse) : 150 000 F\n• Crédit 701 (Ventes) : 150 000 F", time: "09:15" },
+    { from: "client", text: "Et j'ai reçu un paiement Wave de 35 000", time: "09:16" },
+    { from: "bot", text: "📱 *Paiement Wave détecté* — 35 000 FCFA\n• Débit 521100 (Wave) : 35 000 F\n• Crédit 701 (Ventes) : 35 000 F\n\n✅ Synchronisé avec votre compte Mobile Money", time: "09:16" },
+    { from: "client", text: "Merci vous êtes au top!", time: "09:17" },
+  ],
+};
 
-  useEffect(() => {
-    fetchRecent();
-  }, []);
+const STATUS_STYLE: Record<string, string> = {
+  active: "bg-emerald-500",
+  pending: "bg-amber-500",
+  processed: "bg-slate-500",
+};
 
-  const fetchRecent = async () => {
-    setLoadingJournals(true);
-    try {
-      // Pour la démo, on récupère tous les clients avec leurs TPE journals récents
-      const res = await fetch("/api/clients");
-      const data = await res.json();
-      
-      let allJournals: any[] = [];
-      data.clients?.forEach((client: any) => {
-        // En vrai, il faudrait une API spécifique qui ramène les écritures globales
-        // On mock ici avec un state statique si on ne trouve pas de route spécifique
-      });
-      // Pour l'instant on garde une liste mockée mélangée avec les vrais ajouts si besoin,
-      // ou on peut faire un fetch spécifique
-    } catch (e) {
-      console.error(e);
-    }
-    setLoadingJournals(false);
+export default function WhatsAppBotHub() {
+  const [selected, setSelected] = useState(MOCK_CONVERSATIONS[0]);
+  const [messages, setMessages] = useState(MOCK_MESSAGES["conv1"]);
+  const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSelect = (conv: any) => {
+    setSelected(conv);
+    setMessages(MOCK_MESSAGES[conv.id] || []);
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(webhookUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const handleSendAsBot = async () => {
+    if (!input.trim()) return;
+    setIsSending(true);
+    const userMsg = { from: "client", text: input, time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) };
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    await new Promise(r => setTimeout(r, 1200));
 
-  const handleSimulate = async () => {
-    if (!simPhone || !simMessage) return;
-    setIsSimulating(true);
-    setSimResult(null);
-
-    const payload = {
-      entry: [{
-        changes: [{
-          value: {
-            messages: [{
-              from: simPhone,
-              type: "text",
-              text: { body: simMessage }
-            }]
-          }
-        }]
-      }]
+    // Simulation réponse Bot
+    const botResponse = {
+      from: "bot",
+      text: `✅ *Traité par NEXUS IA*\n\nJ'ai analysé votre message et enregistré l'opération dans votre journal OHADA.\n\n_Confiance IA: 94% — En attente de validation cabinet…_`,
+      time: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
     };
-
-    try {
-      const res = await fetch("/api/webhooks/whatsapp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      
-      if (data.status === "unknown_client") {
-        setSimResult("❌ Client introuvable. Créez un client avec ce numéro.");
-      } else if (data.status === "processed") {
-        setSimResult(`✅ Écriture créée : "${data.libelle}" (Confiance OCR: ${data.confidence}%)`);
-        setSimMessage("");
-        // On ajouterait la nouvelle ligne dans les récents
-      } else {
-        setSimResult("⚠️ Erreur ou non géré.");
-      }
-    } catch (err) {
-      setSimResult("❌ Erreur serveur.");
-    } finally {
-      setIsSimulating(false);
-    }
+    setMessages(prev => [...prev, botResponse]);
+    setIsSending(false);
   };
+
+  const totalUnread = MOCK_CONVERSATIONS.reduce((a, c) => a + c.unread, 0);
+  const activeCount = MOCK_CONVERSATIONS.filter(c => c.status === "active").length;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
+    <div className="p-8 max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-700">
+
       {/* Header */}
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-green-500/20 to-emerald-600/10 border border-green-500/20 flex items-center justify-center shadow-xl shadow-green-500/10">
-          <MessageCircle className="w-8 h-8 text-green-400" />
-        </div>
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-3xl font-black text-white tracking-tight">WhatsApp Bot</h2>
-            <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-400 text-[10px] font-black uppercase tracking-widest">Option</span>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex gap-4 items-center">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-green-600/10 border border-emerald-500/20 flex items-center justify-center shadow-xl shadow-emerald-500/10">
+            <MessageCircle className="w-8 h-8 text-emerald-400" />
           </div>
-          <p className="text-slate-400">Vos clients PMI transmettent leurs dépenses directement par WhatsApp. L'IA s'occupe du reste.</p>
+          <div>
+            <h2 className="text-3xl font-black text-white tracking-tight">Hub WhatsApp Bot PMI</h2>
+            <p className="text-slate-400 mt-1">Toutes les conversations client. Le Bot NEXUS transcrit, catégorise et génère les écritures OHADA automatiquement.</p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-black">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Bot Actif · {activeCount} en ligne
+          </div>
+          {totalUnread > 0 && (
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs font-black">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              {totalUnread} non lus
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Stats rapides */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Messages reçus (30j)", val: "247", icon: MessageCircle, color: "text-green-400", bg: "bg-green-500/10 border-green-500/20" },
-          { label: "Clients connectés", val: "12", icon: Users, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
-          { label: "Écritures automatisées", val: "231", icon: Activity, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-        ].map(s => (
-          <div key={s.label} className={`p-5 rounded-[20px] border ${s.bg} bg-slate-900/30 flex items-center gap-4`}>
-            <s.icon className={`w-6 h-6 ${s.color}`} />
+          { icon: Users, label: "TPE connectés", val: MOCK_CONVERSATIONS.length, color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20" },
+          { icon: MessageCircle, label: "Messages auj.", val: "47", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+          { icon: Bot, label: "Écritures auto", val: "38", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+          { icon: Clock, label: "En attente valid.", val: "9", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+        ].map((k, i) => (
+          <div key={i} className={cn("rounded-[20px] border p-4 flex items-center gap-4", k.color)}>
+            <k.icon className="w-5 h-5 shrink-0" />
             <div>
-              <p className={`text-2xl font-black ${s.color}`}>{s.val}</p>
-              <p className="text-xs text-slate-500 font-bold">{s.label}</p>
+              <p className="text-2xl font-black tabular-nums">{k.val}</p>
+              <p className="text-[10px] font-bold opacity-70">{k.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Colonne Gauche : Config & Simulateur */}
-        <div className="space-y-6">
-          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-6">
-            <div className="flex items-center gap-3">
-              <Settings2 className="w-5 h-5 text-slate-400" />
-              <h3 className="font-black text-white">Configuration Meta API</h3>
-            </div>
+      {/* Interface de messagerie */}
+      <div className="grid lg:grid-cols-12 gap-0 bg-slate-900/40 border border-white/5 rounded-[28px] overflow-hidden" style={{ height: "600px" }}>
 
-            <div>
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">URL du Webhook</label>
-              <div className="flex items-center gap-2 bg-slate-800 rounded-xl p-3 border border-white/5">
-                <code className="text-xs text-indigo-400 flex-1 truncate">{webhookUrl}</code>
-                <button onClick={handleCopy} className="p-1.5 text-slate-400 hover:text-white transition-colors">
-                  {copied ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Numéro WhatsApp Business</label>
-              <div className="flex items-center gap-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
-                <Phone className="w-4 h-4 text-green-400" />
-                <span className="text-green-400 font-bold text-sm">+225 07 00 00 00</span>
-                <span className="ml-auto text-[10px] text-green-600 font-black">CONNECTÉ</span>
-              </div>
-            </div>
+        {/* Liste conversations */}
+        <div className="lg:col-span-4 border-r border-white/5 flex flex-col">
+          <div className="p-4 border-b border-white/5">
+            <p className="text-xs font-black uppercase tracking-widest text-slate-500">Conversations ({MOCK_CONVERSATIONS.length})</p>
           </div>
-
-          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-              <MessageCircle className="w-32 h-32 text-indigo-500" />
-            </div>
-            
-            <div className="flex items-center gap-3 relative z-10">
-              <MessageCircle className="w-5 h-5 text-indigo-400" />
-              <h3 className="font-black text-white">Simulateur WhatsApp</h3>
-            </div>
-            <p className="text-xs text-slate-400 relative z-10 mb-4">Testez l'envoi de dépenses via le numéro de téléphone d'un client existant dans votre CRM.</p>
-
-            <div className="space-y-3 relative z-10">
-              <input 
-                type="text" 
-                placeholder="Numéro Client (ex: +225... ou celui d'un client de la base)"
-                value={simPhone}
-                onChange={e => setSimPhone(e.target.value)}
-                className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500"
-              />
-              <textarea 
-                placeholder="Ex: J'ai acheté du gasoil pour 25 000 FCFA à la station Shell"
-                value={simMessage}
-                onChange={e => setSimMessage(e.target.value)}
-                rows={3}
-                className="w-full bg-slate-800 border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
-              />
-              <button 
-                onClick={handleSimulate}
-                disabled={isSimulating || !simPhone || !simMessage}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-black transition-colors disabled:opacity-50"
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {MOCK_CONVERSATIONS.map(conv => (
+              <div
+                key={conv.id}
+                onClick={() => handleSelect(conv)}
+                className={cn(
+                  "flex items-center gap-3 p-4 cursor-pointer transition-all border-b border-white/5",
+                  selected.id === conv.id ? "bg-emerald-600/10" : "hover:bg-slate-800/40"
+                )}
               >
-                {isSimulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Envoyer au Webhook
-              </button>
-
-              {simResult && (
-                <div className={`p-3 rounded-xl text-xs font-bold mt-2 ${simResult.startsWith("✅") ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>
-                  {simResult}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Activité récente */}
-        <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <Activity className="w-5 h-5 text-slate-400" />
-            <h3 className="font-black text-white">Console d'Activité Récente</h3>
-          </div>
-
-          <div className="space-y-3">
-            {[
-              { phone: "+225 07 12 34 56", name: "PMI Dakar SARL", msg: "Achat gasoil 25000 FCFA", time: "Il y a 2 min", status: "processed" },
-              { phone: "+225 05 98 76 54", name: "Tech Startup CI", msg: "📸 [Photo facture Sonatel]", time: "Il y a 15 min", status: "ocr_pending" },
-              { phone: "+221 77 45 32 10", name: "Chez Marie Traiteur", msg: "Vente du jour 85000 frs reçu", time: "Il y a 1h", status: "processed" },
-            ].map((msg, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 bg-slate-800/40 rounded-2xl border border-white/5 hover:border-green-500/20 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0 text-sm">
-                  {msg.status === "ocr_pending" ? "📸" : "✅"}
+                <div className="relative shrink-0">
+                  <div className="w-11 h-11 rounded-full bg-slate-700 border border-white/10 flex items-center justify-center font-black text-white">
+                    {conv.avatar}
+                  </div>
+                  <div className={cn("absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-slate-900", STATUS_STYLE[conv.status])} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <p className="font-bold text-white text-sm truncate">{msg.name}</p>
-                    <span className="text-[10px] text-slate-600 flex-shrink-0">{msg.time}</span>
+                  <div className="flex items-center justify-between">
+                    <p className="font-bold text-sm text-white truncate">{conv.name}</p>
+                    <p className="text-[10px] text-slate-500 shrink-0 ml-2">{conv.time}</p>
                   </div>
-                  <p className="text-xs text-slate-400 truncate">{msg.msg}</p>
-                  <p className="text-[10px] text-slate-600 mt-0.5">{msg.phone}</p>
+                  <p className="text-[11px] text-slate-400 truncate mt-0.5">{conv.lastMsg}</p>
                 </div>
-                {msg.status === "ocr_pending" && (
-                  <span className="flex-shrink-0 px-2 py-1 bg-amber-500/10 text-amber-400 rounded-lg text-[9px] font-black border border-amber-500/20">OCR EN COURS</span>
-                )}
-                {msg.status === "processed" && (
-                  <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-green-400 transition-colors flex-shrink-0 cursor-pointer" title="Voir l'écriture comptable" />
+                {conv.unread > 0 && (
+                  <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] font-black text-white shrink-0">
+                    {conv.unread}
+                  </div>
                 )}
               </div>
             ))}
           </div>
+        </div>
 
-          <div className="pt-4 mt-4 border-t border-white/5">
-             <button className="w-full py-3 bg-green-600/10 hover:bg-green-600/20 border border-green-500/20 text-green-400 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2">
-                <Zap className="w-4 h-4" /> Traiter les écritures en attente
+        {/* Fenêtre de conversation */}
+        <div className="lg:col-span-8 flex flex-col">
+          {/* Header conversation */}
+          <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-800/20">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-emerald-600/30 border border-emerald-500/30 flex items-center justify-center font-black text-emerald-400 text-sm">
+                {selected.avatar}
+              </div>
+              <div>
+                <p className="font-bold text-white text-sm">{selected.name}</p>
+                <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                  <Phone className="w-2.5 h-2.5" /> {selected.phone}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black flex items-center gap-1">
+                <Bot className="w-3 h-3" /> Bot Actif
+              </div>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
+            {messages.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center opacity-40 text-center">
+                <MessageCircle className="w-12 h-12 text-slate-600 mb-3" />
+                <p className="text-slate-400 text-sm">Aucun message pour le moment.</p>
+                <p className="text-slate-600 text-xs mt-1">Simulez l'envoi d'un message client ci-dessous.</p>
+              </div>
+            ) : messages.map((msg, i) => (
+              <div key={i} className={cn("flex", msg.from === "client" ? "justify-start" : "justify-end")}>
+                <div className={cn(
+                  "max-w-[75%] rounded-2xl px-4 py-3 text-sm",
+                  msg.from === "client"
+                    ? "bg-slate-800 text-white rounded-tl-sm"
+                    : "bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-tr-sm shadow-lg shadow-emerald-500/20"
+                )}>
+                  {msg.from === "bot" && (
+                    <div className="flex items-center gap-1.5 mb-2 opacity-70">
+                      <Bot className="w-3 h-3" />
+                      <span className="text-[9px] font-black uppercase tracking-widest">NEXUS IA</span>
+                    </div>
+                  )}
+                  <p className="leading-relaxed whitespace-pre-line">{msg.text}</p>
+                  <p className="text-[9px] opacity-50 text-right mt-1">{msg.time}</p>
+                </div>
+              </div>
+            ))}
+            {isSending && (
+              <div className="flex justify-end">
+                <div className="bg-slate-700 rounded-2xl px-4 py-3 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                  <span className="text-xs text-slate-400">NEXUS IA analyse…</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input simulateur */}
+          <div className="p-4 border-t border-white/5 bg-slate-800/20">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSendAsBot()}
+                  placeholder={`Simuler un message de ${selected.name}…`}
+                  className="w-full bg-slate-700/50 border border-white/10 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <button
+                onClick={handleSendAsBot}
+                disabled={!input.trim() || isSending}
+                className="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center text-white shrink-0 disabled:opacity-50 transition-all"
+              >
+                <Send className="w-4 h-4 ml-0.5" />
               </button>
-              <p className="text-[10px] text-slate-500 text-center mt-2">Toutes les écritures générées par le bot sont en attente de validation dans votre section "Révision Journaux TPE".</p>
+            </div>
+            <p className="text-[10px] text-slate-600 mt-2 text-center">Le Bot NEXUS répond et génère les écritures OHADA automatiquement</p>
           </div>
         </div>
+
       </div>
     </div>
   );
