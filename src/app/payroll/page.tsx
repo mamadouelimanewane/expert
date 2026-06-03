@@ -1,316 +1,282 @@
 "use client";
 
-import { useState } from "react";
-import {
-    Users,
-    FileText,
-    Calculator,
-    Globe,
-    Plus,
-    Search,
-    Download,
-    CheckCircle2,
-    AlertCircle,
-    MoreVertical,
-    Clock,
-    Banknote,
-    HeartPulse,
-    ShieldAlert,
-    TrendingUp,
-    ArrowRight,
-    Briefcase
+import { useState, useEffect } from "react";
+import { 
+  Calculator, Users, Mic, Play, CheckCircle2, AlertTriangle, 
+  Send, Loader2, Smartphone, FileText, ChevronRight, Building2,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface Employee {
-    id: string;
-    name: string;
-    position: string;
-    country: string;
-    salary: string;
-    status: "Actif" | "Congé" | "Sortie";
-    lastPayslip: string;
-}
+export default function PayrollDashboard() {
+  const [clients, setClients] = useState<any[]>([]);
+  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  
+  // Simulation de la voix
+  const [voiceTranscript, setVoiceTranscript] = useState("");
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  
+  // Variables extraites
+  const [variables, setVariables] = useState<any[] | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
 
-const MOCK_EMPLOYEES: Employee[] = [
-    { id: "1", name: "Amadou Diallo", position: "Comptable", country: "Sénégal", salary: "450 000", status: "Actif", lastPayslip: "Avril 2024" },
-    { id: "2", name: "Fatou Binetou", position: "Assistante", country: "Côte d'Ivoire", salary: "380 000", status: "Actif", lastPayslip: "Avril 2024" },
-    { id: "3", name: "Jean-Pierre", position: "Manager", country: "Gabon", salary: "1 200 000", status: "Congé", lastPayslip: "Mars 2024" },
-];
+  useEffect(() => {
+    fetch("/api/clients")
+      .then(res => res.json())
+      .then(data => {
+        if (data.clients) setClients(data.clients);
+      });
+  }, []);
 
-export default function PayrollPage() {
-    const [selectedCountry, setSelectedCountry] = useState("Tous");
-    const [isCalcOpen, setIsCalcOpen] = useState(false);
-    const [calcData, setCalcData] = useState({
-        gross: 500000,
-        country: "Sénégal"
-    });
+  const handleProcessVoice = async () => {
+    if (!selectedClient || !voiceTranscript) return;
+    setIsProcessingVoice(true);
+    
+    try {
+      const res = await fetch("/api/payroll/process-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedClient,
+          transcript: voiceTranscript
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setVariables(data.variables);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsProcessingVoice(false);
+    }
+  };
 
-    const rates: any = {
-        "Sénégal": 0.215,
-        "Côte d'Ivoire": 0.23,
-        "Gabon": 0.255,
-        "Cameroun": 0.162,
-        "Mali": 0.22
-    };
+  const handleVariableChange = (empId: string, field: string, value: number) => {
+    if (!variables) return;
+    setVariables(variables.map(v => 
+      v.employeeId === empId ? { ...v, [field]: value } : v
+    ));
+  };
 
-    const employerCost = calcData.gross * (1 + (rates[calcData.country] || 0.2));
+  const calculateNet = (base: number, abs: number, over: number, bonus: number) => {
+    const dailyRate = base / 30;
+    const hourlyRate = (base / 173.33) * 1.15; // +15% overtime
+    return Math.round(base - (abs * dailyRate) + (over * hourlyRate) + bonus);
+  };
 
-    return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                    <Banknote className="w-40 h-40 text-emerald-400" />
-                </div>
+  const totalPayroll = variables ? variables.reduce((acc, v) => acc + calculateNet(v.baseSalary, v.absencesDays, v.overtimeHours, v.bonuses), 0) : 0;
 
-                <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
-                        <div className="p-3 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-600/30">
-                            <Calculator className="w-8 h-8 text-white" />
-                        </div>
-                        Paie & Social (Multi-Pays)
-                    </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
-                        Gestion des salaires, cotisations sociales et déclarations IPRES/CSS/CNPS.
-                    </p>
-                </div>
+  const handlePay = async () => {
+    setIsGenerating(true);
+    // Simuler le traitement de la paie et le push vers Mobile Money + Portail
+    await new Promise(r => setTimeout(r, 2000));
+    setIsGenerating(false);
+    setIsPaid(true);
+  };
 
-                <div className="flex gap-4 relative z-10">
-                    <button className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-2 transition-all">
-                        <FileText className="w-4 h-4" /> Déclarations Sociales
-                    </button>
-                    <button className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 transition-all shadow-xl shadow-emerald-600/30 active:scale-95">
-                        <Plus className="w-4 h-4" /> Nouveau Bulletin
-                    </button>
-                </div>
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+      
+      {/* Header */}
+      <div className="flex items-start gap-4">
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-600/10 border border-blue-500/20 flex items-center justify-center shadow-xl shadow-blue-500/10">
+          <Calculator className="w-8 h-8 text-blue-400" />
+        </div>
+        <div>
+          <h2 className="text-3xl font-black text-white tracking-tight">Paie & Social IA</h2>
+          <p className="text-slate-400 mt-1">Générez la paie sans saisie à partir d'un simple message vocal du client (Pointage IA).</p>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-12 gap-8">
+        
+        {/* Colonne Gauche : Sélection et Pointage */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-4">
+            <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">1</span> 
+              Sélectionner la PMI
+            </h3>
+            
+            <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar">
+              {clients.map(client => {
+                const isSelected = selectedClient === client.id;
+                const name = client.companyName || `${client.firstName} ${client.lastName}`;
+                return (
+                  <div 
+                    key={client.id}
+                    onClick={() => { setSelectedClient(client.id); setVariables(null); setIsPaid(false); }}
+                    className={cn(
+                      "cursor-pointer p-4 rounded-2xl border transition-all flex items-center gap-3",
+                      isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-800/30 border-transparent hover:bg-slate-800/50"
+                    )}
+                  >
+                    <Building2 className={cn("w-5 h-5", isSelected ? "text-blue-400" : "text-slate-500")} />
+                    <p className={cn("font-bold truncate text-sm flex-1", isSelected ? "text-blue-400" : "text-white")}>{name}</p>
+                    {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-500" />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className={cn(
+            "bg-slate-900/40 border rounded-[28px] p-6 space-y-4 transition-all duration-500",
+            selectedClient ? "border-blue-500/20 shadow-lg shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
+          )}>
+            <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">2</span> 
+              Pointage Vocal (WhatsApp)
+            </h3>
+            <p className="text-xs text-slate-400">Simulez ici le message vocal ou texte envoyé par le gérant.</p>
+            
+            <div className="relative">
+              <textarea 
+                value={voiceTranscript}
+                onChange={(e) => setVoiceTranscript(e.target.value)}
+                placeholder="Ex: Moussa a été malade 2 jours, Fatou a fait 5 heures supplémentaires et a eu une prime de 50000..."
+                className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-white resize-none h-32 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              />
+              <div className="absolute right-3 bottom-3 flex gap-2">
+                <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 transition-colors">
+                  <Mic className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Country Selector */}
-            <div className="flex gap-4 p-1 bg-slate-900 border border-white/5 rounded-3xl w-fit overflow-x-auto no-scrollbar">
-                {["Tous", "Sénégal", "Côte d'Ivoire", "Gabon", "Cameroun", "Mali"].map((country) => (
-                    <button
-                        key={country}
-                        onClick={() => setSelectedCountry(country)}
-                        className={cn(
-                            "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
-                            selectedCountry === country ? "bg-emerald-600 text-white shadow-xl shadow-emerald-600/20" : "text-slate-500 hover:text-slate-200"
-                        )}
+            <button 
+              onClick={handleProcessVoice}
+              disabled={!voiceTranscript || isProcessingVoice}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isProcessingVoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+              Analyser via LLM
+            </button>
+          </div>
+        </div>
+
+        {/* Colonne Droite : Variables et Paiement */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className={cn(
+            "bg-slate-900/40 border rounded-[28px] p-8 transition-all duration-500",
+            variables ? "border-blue-500/20 shadow-2xl shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
+          )}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">3</span> 
+                Validation & Paiement
+              </h3>
+              {variables && (
+                <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> IA : {variables.length} employés traités
+                </div>
+              )}
+            </div>
+
+            {variables ? (
+              <div className="space-y-6">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                        <th className="pb-3 px-2">Employé</th>
+                        <th className="pb-3 px-2 text-right">Salaire Base</th>
+                        <th className="pb-3 px-2 text-center text-rose-400">Jours Abs</th>
+                        <th className="pb-3 px-2 text-center text-indigo-400">Heures Sup</th>
+                        <th className="pb-3 px-2 text-right text-emerald-400">Primes</th>
+                        <th className="pb-3 px-2 text-right">Net à payer</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {variables.map(v => (
+                        <tr key={v.employeeId} className="group hover:bg-slate-800/30 transition-colors">
+                          <td className="py-4 px-2 font-bold text-white text-sm flex items-center gap-2">
+                            <Users className="w-4 h-4 text-slate-500" />
+                            {v.employeeName}
+                          </td>
+                          <td className="py-4 px-2 text-right text-slate-400 text-sm tabular-nums">
+                            {v.baseSalary.toLocaleString()} F
+                          </td>
+                          <td className="py-4 px-2 text-center">
+                            <input 
+                              type="number" 
+                              value={v.absencesDays}
+                              onChange={(e) => handleVariableChange(v.employeeId, 'absencesDays', parseInt(e.target.value) || 0)}
+                              className={cn(
+                                "w-16 bg-slate-950/50 border rounded-lg px-2 py-1 text-center text-sm font-mono focus:outline-none focus:border-blue-500",
+                                v.absencesDays > 0 ? "border-rose-500/50 text-rose-400" : "border-white/10 text-white"
+                              )}
+                            />
+                          </td>
+                          <td className="py-4 px-2 text-center">
+                            <input 
+                              type="number" 
+                              value={v.overtimeHours}
+                              onChange={(e) => handleVariableChange(v.employeeId, 'overtimeHours', parseInt(e.target.value) || 0)}
+                              className={cn(
+                                "w-16 bg-slate-950/50 border rounded-lg px-2 py-1 text-center text-sm font-mono focus:outline-none focus:border-blue-500",
+                                v.overtimeHours > 0 ? "border-indigo-500/50 text-indigo-400" : "border-white/10 text-white"
+                              )}
+                            />
+                          </td>
+                          <td className="py-4 px-2 text-right">
+                            <input 
+                              type="number" 
+                              value={v.bonuses}
+                              onChange={(e) => handleVariableChange(v.employeeId, 'bonuses', parseInt(e.target.value) || 0)}
+                              className={cn(
+                                "w-24 bg-slate-950/50 border rounded-lg px-2 py-1 text-right text-sm font-mono focus:outline-none focus:border-blue-500",
+                                v.bonuses > 0 ? "border-emerald-500/50 text-emerald-400" : "border-white/10 text-white"
+                              )}
+                            />
+                          </td>
+                          <td className="py-4 px-2 text-right font-black text-blue-400 text-sm tabular-nums">
+                            {calculateNet(v.baseSalary, v.absencesDays, v.overtimeHours, v.bonuses).toLocaleString()} F
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Total Masse Salariale Nette</p>
+                    <p className="text-3xl font-black text-white tabular-nums">{totalPayroll.toLocaleString()} FCFA</p>
+                  </div>
+                  
+                  {!isPaid ? (
+                    <button 
+                      onClick={handlePay}
+                      disabled={isGenerating}
+                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-400 hover:to-rose-400 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-3"
                     >
-                        <Globe className="w-3 h-3" />
-                        {country}
+                      {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Smartphone className="w-5 h-5" />}
+                      Payer via Wave / Orange Money
                     </button>
-                ))}
-            </div>
-
-            {/* KPI Section */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <SocialKpi title="Masse Salariale" value="18.2M" subtext="Total Cabinet (FCFA)" icon={Banknote} color="text-emerald-400" />
-                <SocialKpi title="Cotisations" value="4.5M" subtext="A déclarer ce mois" icon={HeartPulse} color="text-rose-400" />
-                <SocialKpi title="Effectif" value="32" subtext="Collaborateurs actifs" icon={Users} color="text-indigo-400" />
-                <SocialKpi title="Congés" value="04" subtext="En cours de validation" icon={Clock} color="text-amber-400" />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Employee List */}
-                <div className="lg:col-span-2 glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
-                    <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <Users className="w-5 h-5 text-emerald-400" />
-                            Répertoire Salariés
-                        </h3>
+                  ) : (
+                    <div className="px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex flex-col items-end">
+                      <span className="text-emerald-400 font-black text-sm flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5" /> Salaires virés avec succès
+                      </span>
+                      <span className="text-[10px] text-slate-400 mt-1">Bulletins envoyés sur le portail et WhatsApp.</span>
                     </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                <tr>
-                                    <th className="px-8 py-6">Salarié / Poste</th>
-                                    <th className="px-6 py-6 font-black">Pays</th>
-                                    <th className="px-6 py-6 font-black text-right">Salaire Base</th>
-                                    <th className="px-6 py-6 font-black">Dernier Bulletin</th>
-                                    <th className="px-8 py-6 font-black text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {MOCK_EMPLOYEES.map((employee) => (
-                                    <tr key={employee.id} className="hover:bg-white/[0.02] transition-colors group">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-emerald-400">
-                                                    {employee.name[0]}
-                                                </div>
-                                                <div>
-                                                    <span className="font-bold text-white block">{employee.name}</span>
-                                                    <span className="text-[10px] text-slate-500 font-bold uppercase">{employee.position}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-6">
-                                            <span className="text-xs font-bold text-slate-400 flex items-center gap-2">
-                                                <Globe className="w-3 h-3" /> {employee.country}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-6 text-right">
-                                            <span className="font-mono font-black text-white">{employee.salary} FCFA</span>
-                                        </td>
-                                        <td className="px-6 py-6">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                <span className="text-xs font-bold text-slate-300">{employee.lastPayslip}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <Download className="w-4 h-4" />
-                                                </button>
-                                                <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                  )}
                 </div>
-
-                {/* Social Audit & Compliance Sidebar */}
-                <div className="space-y-6">
-                    <div className="glass-card rounded-[40px] p-8 border border-rose-500/10 bg-rose-500/[0.02]">
-                        <h3 className="text-rose-400 font-black text-[10px] uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <ShieldAlert className="w-4 h-4" />
-                            Alertes Conformité Sociale
-                        </h3>
-                        <div className="space-y-4">
-                            <ComplianceTask title="Sénégal: Déclaration IPRES" desc="Échéance dans 2 jours (Mai 2024)" status="Urgent" />
-                            <ComplianceTask title="Mise à jour barème" desc="Nouveau SMIG Côte d'Ivoire" status="Info" />
-                            <ComplianceTask title="Congés payés" desc="3 reliquats > 30 jours (A. Koné)" status="Avertissement" />
-                        </div>
-                    </div>
-
-                    <div className="glass-card rounded-[40px] p-8 bg-slate-900/40 border border-white/5 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5">
-                            <TrendingUp className="w-20 h-20" />
-                        </div>
-                        <h4 className="text-white font-bold mb-2">Simulateur de Coût Salarial</h4>
-                        <p className="text-xs text-slate-500 mb-6 font-medium">Estimez le coût total d'une embauche incluant les charges patronales par pays.</p>
-                        <button 
-                            onClick={() => setIsCalcOpen(true)}
-                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3"
-                        >
-                            Calculer le coût total <ArrowRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Payroll Simulator Modal */}
-            {isCalcOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
-                    <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setIsCalcOpen(false)} />
-                    <div className="glass-card w-full max-w-2xl bg-slate-900 border border-emerald-500/30 rounded-[40px] shadow-[0_0_80px_rgba(16,185,129,0.15)] overflow-hidden relative z-10">
-                        <div className="p-10">
-                            <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-2xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
-                                    <div className="p-3 bg-emerald-500/20 rounded-xl">
-                                        <Calculator className="w-6 h-6 text-emerald-400" />
-                                    </div>
-                                    Simulation Coût Employeur
-                                </h3>
-                                <button onClick={() => setIsCalcOpen(false)} className="text-slate-500 hover:text-white transition-colors">
-                                    Fermer
-                                </button>
-                            </div>
-
-                            <div className="space-y-8">
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 block">Juridiction Sociale</label>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {Object.keys(rates).map(c => (
-                                            <button 
-                                                key={c}
-                                                onClick={() => setCalcData({ ...calcData, country: c })}
-                                                className={cn(
-                                                    "px-4 py-3 rounded-xl text-[10px] font-bold border transition-all",
-                                                    calcData.country === c ? "bg-emerald-600 border-emerald-500 text-white shadow-lg" : "bg-white/5 border-white/5 text-slate-400 hover:bg-white/10"
-                                                )}
-                                            >
-                                                {c}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="flex justify-between mb-4">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Salaire Brut Mensuel</label>
-                                        <span className="text-emerald-400 font-mono font-black">{calcData.gross.toLocaleString()} FCFA</span>
-                                    </div>
-                                    <input 
-                                        type="range" min="100000" max="5000000" step="50000"
-                                        value={calcData.gross}
-                                        onChange={(e) => setCalcData({ ...calcData, gross: parseInt(e.target.value) })}
-                                        className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                                    />
-                                </div>
-
-                                <div className="p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl space-y-4">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs font-bold text-slate-400">Taux Charges Patronales ({calcData.country})</span>
-                                        <span className="text-sm font-black text-white">+{(rates[calcData.country] * 100).toFixed(1)}%</span>
-                                    </div>
-                                    <div className="h-px bg-white/5" />
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-black text-emerald-400 flex items-center gap-2">
-                                            <TrendingUp className="w-4 h-4" /> COÛT TOTAL CABINET
-                                        </span>
-                                        <span className="text-2xl font-black text-white">{Math.round(employerCost).toLocaleString()} FCFA</span>
-                                    </div>
-                                </div>
-
-                                <p className="text-[10px] text-slate-500 italic text-center">
-                                    Note: Cette simulation inclut les cotisations sociales standards (Retraite, Accident, Prestations Familiales).
-                                </p>
-
-                                <button className="w-full py-4 bg-white text-emerald-950 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-[1.02] transition-all">
-                                    Générer simulation détaillée (.pdf)
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
+            ) : (
+              <div className="text-center py-16 opacity-50">
+                <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                <p className="text-slate-400 text-sm">Sélectionnez un client et simulez un pointage vocal pour voir la grille.</p>
+              </div>
             )}
+          </div>
         </div>
-    );
-}
 
-function SocialKpi({ title, value, subtext, icon: Icon, color }: any) {
-    return (
-        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 group hover:scale-[1.02] transition-transform">
-            <div className={cn("p-3 rounded-2xl w-fit mb-4", color.replace("text-", "bg-").replace("-400", "-500/10"))}>
-                <Icon className={cn("w-5 h-5", color)} />
-            </div>
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{title}</p>
-            <h3 className="text-2xl font-black text-white">{value}</h3>
-            <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-1">{subtext}</p>
-        </div>
-    );
-}
-
-function ComplianceTask({ title, desc, status }: any) {
-    return (
-        <div className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all cursor-pointer">
-            <div className="flex justify-between items-start mb-1">
-                <h4 className="text-xs font-bold text-white">{title}</h4>
-                <span className={cn(
-                    "text-[8px] px-1.5 py-0.5 rounded-full font-black uppercase",
-                    status === "Urgent" ? "bg-rose-500 text-white" : "bg-indigo-500 text-white"
-                )}>{status}</span>
-            </div>
-            <p className="text-[10px] text-slate-500 font-medium">{desc}</p>
-        </div>
-    );
+      </div>
+    </div>
+  );
 }

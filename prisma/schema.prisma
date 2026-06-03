@@ -124,6 +124,8 @@ model Client {
   creditScores      CreditScore[]
   informelBusiness  InformelBusiness?
   tpeJournals       TpeJournal[]
+  employees         Employee[]
+  payrollPeriods    PayrollPeriod[]
   
   @@map("clients")
 }
@@ -693,4 +695,68 @@ model AccountingRuleMapping {
 
 
 
+// --- 3. MODULE PAIE & SOCIAL (PHASE 3) ---
+model Employee {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String
+  lastName        String
+  phone           String?
+  email           String?
+  position        String?
+  baseSalary      Float
+  
+  // Relations
+  clientId        String   @db.ObjectId
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  payslips        Payslip[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
+  @@map("employees")
+}
+
+model PayrollPeriod {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  periodName      String   // Ex: "Juin 2026"
+  status          String   @default("DRAFT") // DRAFT, VALIDATED, PAID
+  
+  // Relations
+  clientId        String   @db.ObjectId
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  payslips        Payslip[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("payroll_periods")
+}
+
+model Payslip {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Variables de paie extraites (IA)
+  absencesDays    Int      @default(0)
+  overtimeHours   Int      @default(0)
+  bonuses         Float    @default(0)
+  
+  // Calculs finaux
+  grossSalary     Float
+  netSalary       Float
+  
+  status          String   @default("DRAFT") // DRAFT, VALIDATED, PAID
+  
+  // Relations
+  employeeId      String   @db.ObjectId
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  periodId        String   @db.ObjectId
+  period          PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("payslips")
+}
