@@ -95,7 +95,9 @@ const menuItems: MenuItem[] = [
     { icon: Users, label: "Abonnés TPE (BPO)", href: "/comptabilite/tpe-dashboard" },
     { icon: FileDigit, label: "Révision Journaux TPE", href: "/comptabilite/tpe-processing" },
     { icon: Smartphone, label: "Portail Client PMI", href: "/portal/saisie" },
+    { icon: LayoutGrid, label: "Dashboard PMI", href: "/portal/dashboard" },
     { icon: TrendingUp, label: "Scores Santé Financière", href: "/comptabilite/health-scores" },
+    { icon: FileText, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
 
     // --- 2. CŒUR DU MÉTIER & PILOTAGE ---
     { header: "PILOTAGE & CABINET" },
