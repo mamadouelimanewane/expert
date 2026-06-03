@@ -93,7 +93,9 @@ const menuItems: MenuItem[] = [
     { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
     { icon: FilePieChart, label: "Reporting Client", href: "/comptabilite/reporting" },
     { icon: Users, label: "Abonnés TPE (BPO)", href: "/comptabilite/tpe-dashboard" },
-    { icon: FileDigit, label: "Importer Cahier de Caisse", href: "/comptabilite/informel" },
+    { icon: FileDigit, label: "Révision Journaux TPE", href: "/comptabilite/tpe-processing" },
+    { icon: Smartphone, label: "Portail Client PMI", href: "/portal/saisie" },
+    { icon: TrendingUp, label: "Scores Santé Financière", href: "/comptabilite/health-scores" },
 
     // --- 2. CŒUR DU MÉTIER & PILOTAGE ---
     { header: "PILOTAGE & CABINET" },
@@ -136,7 +138,7 @@ const menuItems: MenuItem[] = [
     { header: "NEXUS INTELLIGENCE" },
     { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
-    { icon: MessageCircle, label: "Hub WhatsApp Bot", href: "/nexus/whatsapp" },
+    { icon: MessageCircle, label: "Hub WhatsApp Bot PMI", href: "/dashboard/whatsapp-bot" },
     { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
 ];

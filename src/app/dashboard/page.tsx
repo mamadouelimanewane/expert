@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { StatCard } from "@/components/dashboard/StatCard";
-import { Users, Briefcase, AlertCircle, Wallet, Plus, Scan } from "lucide-react";
+import { Plus, Scan, Lock } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -13,9 +12,7 @@ type AuditLogWithUser = any; // Will be typed correctly from AuditService
 
 export default async function Home() {
   // Récupération des données réelles
-  const [clientCount, missionCount, recentDeclarations, recentLogs] = await Promise.all([
-    prisma.client.count({ where: { isActive: true } }),
-    prisma.mission.count(),
+  const [recentDeclarations, recentLogs] = await Promise.all([
     prisma.taxDeclaration.findMany({
       take: 4,
       orderBy: { dueDate: 'asc' },
@@ -25,12 +22,7 @@ export default async function Home() {
   ]);
 
 
-  // Calcul du CA simplifié (somme des factures payées)
-  const invoices = await prisma.invoice.aggregate({
-    _sum: { total: true },
-    where: { status: 'PAID' }
-  });
-  const totalCA = invoices._sum.total || 0;
+
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -40,7 +32,9 @@ export default async function Home() {
           <h2 className="text-3xl font-black text-white tracking-tight">Tableau de Bord</h2>
           <p className="text-slate-400 mt-1 text-sm sm:text-base font-medium">Bienvenue, voici le pilotage de votre cabinet OHADA en temps réel.</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
+          <a href="/dashboard/confidentiel" className="flex-1 sm:flex-none px-6 py-3 bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-amber-500/20 flex items-center justify-center gap-2 shadow-lg">
+            <Lock className="w-4 h-4" /> Stats Confidentielles
+          </a>
           <button className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-95">
             <Plus className="w-4 h-4" /> Nouveau Dossier
           </button>
@@ -50,41 +44,7 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Chiffre d'Affaires"
-          value={`${totalCA.toLocaleString()} FCFA`}
-          trend="+12% vs M-1"
-          trendUp
-          icon={Wallet}
-          color="indigo"
-        />
-        <StatCard
-          title="Clients Actifs"
-          value={clientCount.toString()}
-          trend="+3 ce mois"
-          trendUp
-          icon={Users}
-          color="cyan"
-        />
-        <StatCard
-          title="Missions en cours"
-          value={missionCount.toString()}
-          trend="85% complétion"
-          trendUp
-          icon={Briefcase}
-          color="emerald"
-        />
-        <StatCard
-          title="Alertes Fiscales"
-          value={recentDeclarations.length.toString()}
-          trend="Urgences J-7"
-          trendUp={false}
-          icon={AlertCircle}
-          color="purple"
-        />
-      </div>
+
 
       {/* Main Content Areas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

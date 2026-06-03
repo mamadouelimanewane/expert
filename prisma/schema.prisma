@@ -101,6 +101,7 @@ model Client {
   rating            String?      // AAA, AA, B, etc.
   
   // Status
+  subjectToTva      Boolean      @default(false) // Paramétrage flexible de la TVA
   isActive          Boolean      @default(true)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -669,6 +670,19 @@ model BankTransaction {
   updatedAt       DateTime  @updatedAt
 
   @@map("bank_transactions")
+}
+
+// --- 2. MACHINE LEARNING & AUTO-APPRENTISSAGE ---
+model AccountingRuleMapping {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  keyword         String   // Ex: "sonatel", "shell"
+  debitCompte     String
+  creditCompte    String
+  clientId        String?  @db.ObjectId // Si null, la règle est globale au cabinet
+  usageCount      Int      @default(1)
+  createdAt       DateTime @default(now())
+  
+  @@map("accounting_rule_mappings")
 }
 
 
