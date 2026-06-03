@@ -1,193 +1,328 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Users, FileDigit, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, RefreshCw, ChevronDown, ChevronRight, Building2, FileSpreadsheet } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import {
+  Users, TrendingUp, Wallet, MessageCircle, Star, ShieldCheck,
+  AlertTriangle, ArrowUpRight, ArrowDownRight, Zap, BarChart3,
+  FileText, Loader2, CheckCircle2, Building2, Phone, Plus, Search
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function TpeDashboardPage() {
-    const [clients, setClients] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [expanded, setExpanded] = useState<string | null>(null);
+// --- Données Mock des TPE ---
+const MOCK_TPE: any[] = [
+  {
+    id: "tpe-001", businessName: "Boutique Awa", owner: "Awa Diallo", phone: "+221 77 123 45 67",
+    activity: "Commerce Général", since: "Jan 2026", country: "SN",
+    creditScore: 87, creditRating: "A",
+    weeklyCA: 450000, weeklyExpenses: 120000,
+    totalJournals: 142, pendingJournals: 3,
+    mobileMoneyVol: 1800000,
+    trend: "UP", trendPct: 12,
+    lastMessage: "J'ai vendu pour 80 000 aujourd'hui Alhamdulilah",
+    lastActivity: "Il y a 2h"
+  },
+  {
+    id: "tpe-002", businessName: "Atelier Moussa", owner: "Moussa Koné", phone: "+221 76 987 65 43",
+    activity: "Artisanat / Couture", since: "Mar 2026", country: "SN",
+    creditScore: 61, creditRating: "B",
+    weeklyCA: 210000, weeklyExpenses: 95000,
+    totalJournals: 78, pendingJournals: 12,
+    mobileMoneyVol: 620000,
+    trend: "DOWN", trendPct: 4,
+    lastMessage: "J'ai payé 15 000 pour le tissu",
+    lastActivity: "Il y a 5h"
+  },
+  {
+    id: "tpe-003", businessName: "Pharmacie Dior", owner: "Dior Sene", phone: "+221 70 456 78 90",
+    activity: "Santé / Parapharmacie", since: "Nov 2025", country: "SN",
+    creditScore: 94, creditRating: "AAA",
+    weeklyCA: 1200000, weeklyExpenses: 550000,
+    totalJournals: 342, pendingJournals: 0,
+    mobileMoneyVol: 5400000,
+    trend: "UP", trendPct: 22,
+    lastMessage: "Vente de médicaments: 150 000 F",
+    lastActivity: "Il y a 30min"
+  },
+  {
+    id: "tpe-004", businessName: "Transport Ibra", owner: "Ibrahima Ba", phone: "+221 78 321 09 87",
+    activity: "Transport / Logistique", since: "Feb 2026", country: "SN",
+    creditScore: 43, creditRating: "C",
+    weeklyCA: 95000, weeklyExpenses: 88000,
+    totalJournals: 22, pendingJournals: 8,
+    mobileMoneyVol: 190000,
+    trend: "DOWN", trendPct: 15,
+    lastMessage: "Carburant: 20 000 F dépensé",
+    lastActivity: "Il y a 1j"
+  },
+];
 
-    const fetchStats = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/comptabilite/tpe-stats');
-            if (res.ok) setClients(await res.json());
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    };
+const RATING_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  AAA: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
+  A: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
+  B: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20" },
+  C: { bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
+};
 
-    useEffect(() => { fetchStats(); }, []);
+function ScoreBar({ score, color }: { score: number; color: string }) {
+  return (
+    <div className="relative h-2 w-full bg-white/5 rounded-full overflow-hidden">
+      <div
+        className="absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out"
+        style={{ width: `${score}%`, backgroundColor: color }}
+      />
+    </div>
+  );
+}
 
-    const f = (v: number) => new Intl.NumberFormat('fr-FR').format(Math.round(v));
+export default function TpeDashboard() {
+  const [tpeList] = useState(MOCK_TPE);
+  const [selected, setSelected] = useState<any>(MOCK_TPE[0]);
+  const [search, setSearch] = useState("");
+  const [isSendingReport, setIsSendingReport] = useState(false);
+  const [reportSent, setReportSent] = useState(false);
 
-    const totalClients = clients.length;
-    const totalEcritures = clients.reduce((a, c) => a + c.totalEcritures, 0);
-    const totalPeriodes = clients.reduce((a, c) => a + c.periodes.length, 0);
-    const pendingCount = clients.reduce((a, c) => a + c.periodes.filter((p: any) => p.status === 'PENDING').length, 0);
+  const filtered = tpeList.filter(t =>
+    t.businessName.toLowerCase().includes(search.toLowerCase()) ||
+    t.owner.toLowerCase().includes(search.toLowerCase())
+  );
 
-    return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
+  const totalCA = tpeList.reduce((a, t) => a + t.weeklyCA, 0);
+  const totalEcritures = tpeList.reduce((a, t) => a + t.totalJournals, 0);
+  const totalPending = tpeList.reduce((a, t) => a + t.pendingJournals, 0);
 
-            {/* Header */}
-            <header className="flex justify-between items-end border-b border-border/50 pb-6">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <h1 className="text-3xl font-black tracking-tight">Gestion Abonnés TPE</h1>
+  const handleSendReport = async () => {
+    setIsSendingReport(true);
+    await new Promise(r => setTimeout(r, 1500));
+    setIsSendingReport(false);
+    setReportSent(true);
+    setTimeout(() => setReportSent(false), 3000);
+  };
+
+  const handleGenerateCredit = () => {
+    alert(`Attestation de Revenus Informels générée pour ${selected?.businessName}\n\nScore: ${selected?.creditRating} (${selected?.creditScore}/100)\nCA Hebdo: ${selected?.weeklyCA.toLocaleString()} F\n\nFichier prêt à être signé par l'Expert-Comptable.`);
+  };
+
+  return (
+    <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-violet-500/20 to-purple-600/10 border border-violet-500/20 flex items-center justify-center shadow-xl shadow-violet-500/10">
+            <BarChart3 className="w-8 h-8 text-violet-400" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black text-white tracking-tight">Dashboard BPO TPE</h2>
+            <p className="text-slate-400 mt-1">Pilotez vos abonnés du secteur informel. Flux WhatsApp, scores de crédit et attestations en temps réel.</p>
+          </div>
+        </div>
+        <button className="px-5 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+          <Plus className="w-4 h-4" /> Ajouter un TPE
+        </button>
+      </div>
+
+      {/* KPI Globaux */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { icon: Users, label: "TPE Abonnés", val: tpeList.length, sub: "+1 ce mois", color: "text-violet-400 bg-violet-500/10 border-violet-500/20" },
+          { icon: TrendingUp, label: "CA Hebdo Cumulé", val: totalCA.toLocaleString() + " F", sub: "+18% vs semaine préc.", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+          { icon: FileText, label: "Écritures Générées", val: totalEcritures, sub: `${totalPending} en attente`, color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+          { icon: AlertTriangle, label: "En Attente Validation", val: totalPending, sub: "À traiter aujourd'hui", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+        ].map((kpi, i) => (
+          <div key={i} className={cn("rounded-[24px] border p-5", kpi.color)}>
+            <kpi.icon className="w-5 h-5 mb-4" />
+            <p className="text-3xl font-black tabular-nums">{kpi.val}</p>
+            <p className="text-xs font-bold mt-1 opacity-70">{kpi.label}</p>
+            <p className="text-[10px] mt-2 opacity-50">{kpi.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Contenu principal */}
+      <div className="grid lg:grid-cols-12 gap-8">
+
+        {/* Liste des TPE */}
+        <div className="lg:col-span-4 bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Rechercher..."
+              className="w-full bg-slate-800/50 border border-white/5 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-violet-500"
+            />
+          </div>
+
+          <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
+            {filtered.map(tpe => {
+              const r = RATING_STYLES[tpe.creditRating] || RATING_STYLES.C;
+              const isSelected = selected?.id === tpe.id;
+              return (
+                <div
+                  key={tpe.id}
+                  onClick={() => setSelected(tpe)}
+                  className={cn(
+                    "cursor-pointer p-4 rounded-2xl border transition-all",
+                    isSelected ? "bg-violet-600/10 border-violet-500/30" : "bg-slate-800/20 border-transparent hover:bg-slate-800/40"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0", r.bg, r.text)}>
+                        {tpe.businessName.charAt(0)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("font-bold text-sm truncate", isSelected ? "text-violet-300" : "text-white")}>{tpe.businessName}</p>
+                        <p className="text-[10px] text-slate-500 truncate">{tpe.activity}</p>
+                      </div>
                     </div>
-                    <p className="text-muted-foreground">Suivi des cahiers de caisse reçus et de leur traitement comptable au cabinet.</p>
+                    <div className={cn("px-2 py-1 rounded-lg text-[10px] font-black border shrink-0", r.bg, r.text, r.border)}>
+                      {tpe.creditRating}
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <ScoreBar score={tpe.creditScore} color={tpe.creditRating === "AAA" ? "#10b981" : tpe.creditRating === "A" ? "#3b82f6" : tpe.creditRating === "B" ? "#f59e0b" : "#ef4444"} />
+                    <span className={cn("ml-3 text-xs font-black shrink-0 flex items-center gap-1", tpe.trend === "UP" ? "text-emerald-400" : "text-rose-400")}>
+                      {tpe.trend === "UP" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                      {tpe.trendPct}%
+                    </span>
+                  </div>
+                  <p className="text-[9px] text-slate-600 mt-2">{tpe.lastActivity}</p>
                 </div>
-                <div className="flex gap-3">
-                    <button onClick={fetchStats} className="flex items-center gap-2 px-4 py-2 border border-border/50 hover:bg-muted/40 rounded-xl text-sm font-bold transition-colors">
-                        <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Actualiser
-                    </button>
-                    <Link href="/comptabilite/informel" className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">
-                        <Plus className="w-4 h-4" /> Importer un Cahier
-                    </Link>
-                </div>
-            </header>
+              );
+            })}
+          </div>
+        </div>
 
-            {/* KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'Abonnés TPE actifs', value: totalClients, icon: <Building2 className="w-5 h-5" />, color: 'text-indigo-500', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5' },
-                    { label: 'Périodes importées', value: totalPeriodes, icon: <FileSpreadsheet className="w-5 h-5" />, color: 'text-blue-500', border: 'border-blue-500/20', bg: 'bg-blue-500/5' },
-                    { label: 'Écritures générées', value: totalEcritures, icon: <FileDigit className="w-5 h-5" />, color: 'text-purple-500', border: 'border-purple-500/20', bg: 'bg-purple-500/5' },
-                    { label: 'En attente de déversement', value: pendingCount, icon: <Clock className="w-5 h-5" />, color: pendingCount > 0 ? 'text-orange-500' : 'text-emerald-500', border: pendingCount > 0 ? 'border-orange-500/20' : 'border-emerald-500/20', bg: pendingCount > 0 ? 'bg-orange-500/5' : 'bg-emerald-500/5' },
-                ].map((kpi, i) => (
-                    <div key={i} className={`glass-card p-5 rounded-2xl border ${kpi.border} ${kpi.bg}`}>
-                        <div className={`${kpi.color} mb-3`}>{kpi.icon}</div>
-                        <p className="text-xs font-bold text-muted-foreground mb-1">{kpi.label}</p>
-                        <p className={`text-3xl font-black ${kpi.color}`}>{kpi.value}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Liste des clients */}
-            <div className="glass-card rounded-3xl border border-border/50 overflow-hidden">
-                <div className="p-6 border-b border-border/50 bg-muted/10 flex items-center justify-between">
-                    <h2 className="font-bold text-lg flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-indigo-500" /> Tableau de Suivi par Client
-                    </h2>
-                    <span className="text-xs text-muted-foreground">{totalClients} client{totalClients !== 1 ? 's' : ''}</span>
-                </div>
-
-                {loading ? (
-                    <div className="p-12 text-center text-muted-foreground animate-pulse">Chargement des données…</div>
-                ) : clients.length === 0 ? (
-                    <div className="p-12 text-center space-y-4">
-                        <div className="text-5xl">📂</div>
-                        <p className="font-bold text-lg">Aucun cahier importé pour l'instant</p>
-                        <p className="text-muted-foreground text-sm">Importez le premier cahier de caisse d'un client TPE pour commencer.</p>
-                        <Link href="/comptabilite/informel" className="inline-flex items-center gap-2 mt-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg transition-all">
-                            <Plus className="w-4 h-4" /> Importer maintenant
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="divide-y divide-border/30">
-                        {clients.map((client, i) => {
-                            const isOpen = expanded === client.businessName;
-                            const allDone = client.periodes.every((p: any) => p.status === 'EXPORTED');
-                            const hasPending = client.periodes.some((p: any) => p.status === 'PENDING');
-
-                            return (
-                                <div key={i}>
-                                    {/* Row principale */}
-                                    <button
-                                        onClick={() => setExpanded(isOpen ? null : client.businessName)}
-                                        className="w-full flex items-center gap-4 px-6 py-5 hover:bg-muted/20 transition-colors text-left"
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-black text-sm shrink-0">
-                                            {client.businessName.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-bold truncate">{client.businessName}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {client.totalEcritures} écritures · {client.periodes.length} période{client.periodes.length > 1 ? 's' : ''} · Dernier import : {new Date(client.lastImport).toLocaleDateString('fr-FR')}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-3 shrink-0">
-                                            <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${allDone ? 'bg-emerald-500/10 text-emerald-500' : hasPending ? 'bg-orange-500/10 text-orange-500' : 'bg-muted text-muted-foreground'}`}>
-                                                {allDone ? <CheckCircle2 className="w-3 h-3" /> : hasPending ? <Clock className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                                                {allDone ? 'Tout traité' : hasPending ? 'En attente' : 'Partiel'}
-                                            </span>
-                                            {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-                                        </div>
-                                    </button>
-
-                                    {/* Détail périodes */}
-                                    {isOpen && (
-                                        <div className="px-6 pb-4 bg-muted/10">
-                                            <table className="w-full text-sm">
-                                                <thead className="text-xs text-muted-foreground uppercase border-b border-border/30 mb-2">
-                                                    <tr>
-                                                        <th className="py-2 text-left">Période</th>
-                                                        <th className="py-2 text-right">Écritures</th>
-                                                        <th className="py-2 text-right">Entrées</th>
-                                                        <th className="py-2 text-right">Sorties</th>
-                                                        <th className="py-2 text-center">Statut</th>
-                                                        <th className="py-2 text-right">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-border/20">
-                                                    {client.periodes.map((p: any, j: number) => (
-                                                        <tr key={j} className="hover:bg-muted/20">
-                                                            <td className="py-3 font-mono font-bold text-xs">{p.periode}</td>
-                                                            <td className="py-3 text-right">{p.count}</td>
-                                                            <td className="py-3 text-right text-emerald-500 font-bold">+{f(p.totalEntrees)}</td>
-                                                            <td className="py-3 text-right text-rose-500 font-bold">-{f(p.totalSorties)}</td>
-                                                            <td className="py-3 text-center">
-                                                                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${p.status === 'EXPORTED' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
-                                                                    {p.status === 'EXPORTED' ? '✓ Déversé' : '⏳ En attente'}
-                                                                </span>
-                                                            </td>
-                                                            <td className="py-3 text-right">
-                                                                {p.status === 'PENDING' && (
-                                                                    <Link href="/comptabilite/informel" className="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-lg font-bold transition-colors">
-                                                                        Ouvrir
-                                                                    </Link>
-                                                                )}
-                                                                {p.status === 'EXPORTED' && (
-                                                                    <span className="text-xs text-muted-foreground">
-                                                                        {p.exportedAt ? new Date(p.exportedAt).toLocaleDateString('fr-FR') : '-'}
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-
-            {/* Rappel modèle à distribuer */}
-            <div className="glass-card rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-6 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-indigo-500/10 rounded-xl text-indigo-500 shrink-0">
-                        <FileSpreadsheet className="w-6 h-6" />
+        {/* Détail TPE sélectionnée */}
+        <div className="lg:col-span-8 space-y-6">
+          {selected ? (
+            <>
+              {/* Fiche identité */}
+              <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black border", RATING_STYLES[selected.creditRating]?.bg, RATING_STYLES[selected.creditRating]?.text, RATING_STYLES[selected.creditRating]?.border)}>
+                      {selected.businessName.charAt(0)}
                     </div>
                     <div>
-                        <p className="font-bold">Modèle Excel à distribuer aux clients</p>
-                        <p className="text-sm text-muted-foreground">Remettez ce fichier à vos abonnés TPE. Ils n'ont qu'à remplir 4 colonnes : Date, Libellé, Entrées, Sorties.</p>
+                      <h3 className="text-xl font-black text-white">{selected.businessName}</h3>
+                      <p className="text-sm text-slate-400">{selected.owner} · {selected.activity}</p>
+                      <p className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                        <Phone className="w-3 h-3" /> {selected.phone}
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex gap-3 flex-wrap">
+                    <button
+                      onClick={handleSendReport}
+                      disabled={isSendingReport}
+                      className="px-4 py-2.5 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-400 rounded-xl font-black text-xs transition-all flex items-center gap-2"
+                    >
+                      {reportSent
+                        ? <><CheckCircle2 className="w-4 h-4" /> Envoyé !</>
+                        : isSendingReport
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                        : <><MessageCircle className="w-4 h-4" /> Rapport WhatsApp</>
+                      }
+                    </button>
+                    <button
+                      onClick={handleGenerateCredit}
+                      className="px-4 py-2.5 bg-violet-600/20 border border-violet-500/30 hover:bg-violet-600/30 text-violet-400 rounded-xl font-black text-xs transition-all flex items-center gap-2"
+                    >
+                      <ShieldCheck className="w-4 h-4" /> Attestation Crédit
+                    </button>
+                  </div>
                 </div>
-                <a href="/api/comptabilite/tpe-template" download className="shrink-0 flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all whitespace-nowrap">
-                    <FileSpreadsheet className="w-4 h-4" /> Télécharger le Modèle
-                </a>
+
+                {/* Score de Crédit */}
+                <div className="mt-8 grid sm:grid-cols-2 gap-6">
+                  <div className={cn("p-6 rounded-2xl border", RATING_STYLES[selected.creditRating]?.bg, RATING_STYLES[selected.creditRating]?.border)}>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Score de Crédit IA</p>
+                    <div className="flex items-end gap-3">
+                      <span className={cn("text-6xl font-black tabular-nums", RATING_STYLES[selected.creditRating]?.text)}>
+                        {selected.creditScore}
+                      </span>
+                      <div className="pb-1">
+                        <p className={cn("text-2xl font-black", RATING_STYLES[selected.creditRating]?.text)}>{selected.creditRating}</p>
+                        <p className="text-[10px] text-slate-500">/ 100 pts</p>
+                      </div>
+                    </div>
+                    <ScoreBar score={selected.creditScore} color={selected.creditRating === "AAA" ? "#10b981" : selected.creditRating === "A" ? "#3b82f6" : selected.creditRating === "B" ? "#f59e0b" : "#ef4444"} />
+                    <p className="text-xs text-slate-400 mt-3">
+                      {selected.creditScore >= 80 ? "✅ Éligible au micro-crédit bancaire" :
+                       selected.creditScore >= 60 ? "⚡ Profil en cours de consolidation" :
+                       "⚠️ Profil à risque — accompagnement renforcé"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      { label: "CA Hebdomadaire", val: selected.weeklyCA.toLocaleString() + " F", icon: TrendingUp, color: "text-emerald-400" },
+                      { label: "Dépenses Hebdo", val: selected.weeklyExpenses.toLocaleString() + " F", icon: Wallet, color: "text-rose-400" },
+                      { label: "Bénéfice Estimé", val: (selected.weeklyCA - selected.weeklyExpenses).toLocaleString() + " F", icon: Star, color: "text-amber-400" },
+                      { label: "Volume Mobile Money", val: selected.mobileMoneyVol.toLocaleString() + " F", icon: Zap, color: "text-violet-400" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-2">
+                          <item.icon className={cn("w-4 h-4", item.color)} />
+                          <span className="text-xs text-slate-400 font-medium">{item.label}</span>
+                        </div>
+                        <span className={cn("text-sm font-black tabular-nums", item.color)}>{item.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Dernier message + activité */}
+              <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6">
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" /> Dernier message reçu
+                </h4>
+                <div className="flex items-start gap-4">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600/20 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black shrink-0">
+                    {selected.businessName.charAt(0)}
+                  </div>
+                  <div className="flex-1 bg-slate-800/40 rounded-2xl rounded-tl-none p-4 border border-white/5">
+                    <p className="text-white text-sm italic">"{selected.lastMessage}"</p>
+                    <p className="text-[10px] text-slate-500 mt-2 font-bold">via WhatsApp · {selected.lastActivity}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Écritures */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-white">{selected.totalJournals}</p>
+                    <p className="text-xs text-slate-400">Écritures générées</p>
+                  </div>
+                </div>
+                <div className="bg-slate-900/40 border border-amber-500/20 rounded-[24px] p-5 flex items-center gap-4 bg-amber-500/5">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-amber-400">{selected.pendingJournals}</p>
+                    <p className="text-xs text-slate-400">En attente de validation</p>
+                  </div>
+                </div>
+              </div>
+
+            </>
+          ) : (
+            <div className="h-full flex items-center justify-center opacity-40">
+              <p className="text-slate-400">Sélectionnez une TPE pour voir les détails</p>
             </div>
+          )}
         </div>
-    );
+
+      </div>
+    </div>
+  );
 }
