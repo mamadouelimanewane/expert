@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   Calculator, Users, Mic, Play, CheckCircle2, AlertTriangle, 
   Send, Loader2, Smartphone, FileText, ChevronRight, Building2,
-  RefreshCw
+  RefreshCw, Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,7 @@ export default function PayrollDashboard() {
   
   // Variables extraites
   const [variables, setVariables] = useState<any[] | null>(null);
+  const [countryCode, setCountryCode] = useState<string>("SN");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
 
@@ -45,6 +46,7 @@ export default function PayrollDashboard() {
       const data = await res.json();
       if (data.success) {
         setVariables(data.variables);
+        setCountryCode(data.country || "SN");
       }
     } catch (e) {
       console.error(e);
@@ -53,20 +55,9 @@ export default function PayrollDashboard() {
     }
   };
 
-  const handleVariableChange = (empId: string, field: string, value: number) => {
-    if (!variables) return;
-    setVariables(variables.map(v => 
-      v.employeeId === empId ? { ...v, [field]: value } : v
-    ));
-  };
-
-  const calculateNet = (base: number, abs: number, over: number, bonus: number) => {
-    const dailyRate = base / 30;
-    const hourlyRate = (base / 173.33) * 1.15; // +15% overtime
-    return Math.round(base - (abs * dailyRate) + (over * hourlyRate) + bonus);
-  };
-
-  const totalPayroll = variables ? variables.reduce((acc, v) => acc + calculateNet(v.baseSalary, v.absencesDays, v.overtimeHours, v.bonuses), 0) : 0;
+  const totalPayroll = variables ? variables.reduce((acc, v) => acc + v.netSalary, 0) : 0;
+  const totalTaxes = variables ? variables.reduce((acc, v) => acc + v.taxes, 0) : 0;
+  const totalSocial = variables ? variables.reduce((acc, v) => acc + v.socialSecurity + v.employerContributions, 0) : 0;
 
   const handlePay = async () => {
     setIsGenerating(true);
@@ -77,16 +68,16 @@ export default function PayrollDashboard() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+    <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
       
       {/* Header */}
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-500/20 to-cyan-600/10 border border-blue-500/20 flex items-center justify-center shadow-xl shadow-blue-500/10">
           <Calculator className="w-8 h-8 text-blue-400" />
         </div>
-        <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Paie & Social IA</h2>
-          <p className="text-slate-400 mt-1">Générez la paie sans saisie à partir d'un simple message vocal du client (Pointage IA).</p>
+        <div className="flex-1">
+          <h2 className="text-3xl font-black text-white tracking-tight">Paie & Social IA Multi-Pays</h2>
+          <p className="text-slate-400 mt-1">Générez la paie sans saisie. Le moteur fiscal s'adapte automatiquement au pays du client (Sénégal, CI, etc.).</p>
         </div>
       </div>
 
@@ -115,7 +106,10 @@ export default function PayrollDashboard() {
                     )}
                   >
                     <Building2 className={cn("w-5 h-5", isSelected ? "text-blue-400" : "text-slate-500")} />
-                    <p className={cn("font-bold truncate text-sm flex-1", isSelected ? "text-blue-400" : "text-white")}>{name}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("font-bold truncate text-sm flex-1", isSelected ? "text-blue-400" : "text-white")}>{name}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{client.country === 'SN' ? 'Sénégal 🇸🇳' : client.country}</p>
+                    </div>
                     {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-500" />}
                   </div>
                 )
@@ -129,9 +123,9 @@ export default function PayrollDashboard() {
           )}>
             <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">2</span> 
-              Pointage Vocal (WhatsApp)
+              Pointage Vocal IA
             </h3>
-            <p className="text-xs text-slate-400">Simulez ici le message vocal ou texte envoyé par le gérant.</p>
+            <p className="text-xs text-slate-400">Dictez les absences, heures supplémentaires ou primes exceptionnelles.</p>
             
             <div className="relative">
               <textarea 
@@ -153,7 +147,7 @@ export default function PayrollDashboard() {
               className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isProcessingVoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-              Analyser via LLM
+              Lancer le Moteur {countryCode && `(${countryCode})`}
             </button>
           </div>
         </div>
@@ -165,76 +159,68 @@ export default function PayrollDashboard() {
             variables ? "border-blue-500/20 shadow-2xl shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
           )}>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">3</span> 
-                Validation & Paiement
-              </h3>
+              <div>
+                <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">3</span> 
+                  Bulletin de Paie & Déclarations
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (Barème IR, TRIMF, IPRES, CSS)' : countryCode}</span></p>
+              </div>
               {variables && (
                 <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> IA : {variables.length} employés traités
+                  <CheckCircle2 className="w-3 h-3" /> {variables.length} employés traités
                 </div>
               )}
             </div>
 
             {variables ? (
               <div className="space-y-6">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
-                      <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500">
-                        <th className="pb-3 px-2">Employé</th>
-                        <th className="pb-3 px-2 text-right">Salaire Base</th>
-                        <th className="pb-3 px-2 text-center text-rose-400">Jours Abs</th>
-                        <th className="pb-3 px-2 text-center text-indigo-400">Heures Sup</th>
-                        <th className="pb-3 px-2 text-right text-emerald-400">Primes</th>
-                        <th className="pb-3 px-2 text-right">Net à payer</th>
+                      <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-800/30">
+                        <th className="p-3 rounded-tl-xl">Employé</th>
+                        <th className="p-3 text-right">Base</th>
+                        <th className="p-3 text-center text-rose-400">Absences</th>
+                        <th className="p-3 text-center text-indigo-400">HS</th>
+                        <th className="p-3 text-right text-emerald-400">Primes</th>
+                        <th className="p-3 text-right text-orange-400 border-l border-white/5">Impôts (IR)</th>
+                        <th className="p-3 text-right text-purple-400">Cotis. (Sal)</th>
+                        <th className="p-3 text-right text-blue-400 border-l border-white/5 rounded-tr-xl">Net à payer</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {variables.map(v => (
                         <tr key={v.employeeId} className="group hover:bg-slate-800/30 transition-colors">
-                          <td className="py-4 px-2 font-bold text-white text-sm flex items-center gap-2">
-                            <Users className="w-4 h-4 text-slate-500" />
-                            {v.employeeName}
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-slate-500" />
+                              <div>
+                                <p className="font-bold text-white text-sm">{v.employeeName}</p>
+                                <p className="text-[9px] text-slate-500 uppercase tracking-widest">{v.maritalStatus} · {v.childrenCount} Enf. {v.isCadre && "· CADRE"}</p>
+                              </div>
+                            </div>
                           </td>
-                          <td className="py-4 px-2 text-right text-slate-400 text-sm tabular-nums">
+                          <td className="py-3 px-3 text-right text-slate-400 text-sm tabular-nums">
                             {v.baseSalary.toLocaleString()} F
                           </td>
-                          <td className="py-4 px-2 text-center">
-                            <input 
-                              type="number" 
-                              value={v.absencesDays}
-                              onChange={(e) => handleVariableChange(v.employeeId, 'absencesDays', parseInt(e.target.value) || 0)}
-                              className={cn(
-                                "w-16 bg-slate-950/50 border rounded-lg px-2 py-1 text-center text-sm font-mono focus:outline-none focus:border-blue-500",
-                                v.absencesDays > 0 ? "border-rose-500/50 text-rose-400" : "border-white/10 text-white"
-                              )}
-                            />
+                          <td className="py-3 px-3 text-center text-rose-400 font-mono text-sm">
+                            {v.absencesDays} j
                           </td>
-                          <td className="py-4 px-2 text-center">
-                            <input 
-                              type="number" 
-                              value={v.overtimeHours}
-                              onChange={(e) => handleVariableChange(v.employeeId, 'overtimeHours', parseInt(e.target.value) || 0)}
-                              className={cn(
-                                "w-16 bg-slate-950/50 border rounded-lg px-2 py-1 text-center text-sm font-mono focus:outline-none focus:border-blue-500",
-                                v.overtimeHours > 0 ? "border-indigo-500/50 text-indigo-400" : "border-white/10 text-white"
-                              )}
-                            />
+                          <td className="py-3 px-3 text-center text-indigo-400 font-mono text-sm">
+                            {v.overtimeHours} h
                           </td>
-                          <td className="py-4 px-2 text-right">
-                            <input 
-                              type="number" 
-                              value={v.bonuses}
-                              onChange={(e) => handleVariableChange(v.employeeId, 'bonuses', parseInt(e.target.value) || 0)}
-                              className={cn(
-                                "w-24 bg-slate-950/50 border rounded-lg px-2 py-1 text-right text-sm font-mono focus:outline-none focus:border-blue-500",
-                                v.bonuses > 0 ? "border-emerald-500/50 text-emerald-400" : "border-white/10 text-white"
-                              )}
-                            />
+                          <td className="py-3 px-3 text-right text-emerald-400 font-mono text-sm">
+                            {v.bonuses > 0 ? `+${v.bonuses.toLocaleString()}` : "-"}
                           </td>
-                          <td className="py-4 px-2 text-right font-black text-blue-400 text-sm tabular-nums">
-                            {calculateNet(v.baseSalary, v.absencesDays, v.overtimeHours, v.bonuses).toLocaleString()} F
+                          <td className="py-3 px-3 text-right text-orange-400/80 font-mono text-xs tabular-nums border-l border-white/5 bg-orange-500/5">
+                            -{v.taxes.toLocaleString()} F
+                          </td>
+                          <td className="py-3 px-3 text-right text-purple-400/80 font-mono text-xs tabular-nums bg-purple-500/5">
+                            -{v.socialSecurity.toLocaleString()} F
+                          </td>
+                          <td className="py-3 px-3 text-right font-black text-blue-400 text-sm tabular-nums border-l border-white/5 bg-blue-500/5">
+                            {v.netSalary.toLocaleString()} F
                           </td>
                         </tr>
                       ))}
@@ -242,35 +228,51 @@ export default function PayrollDashboard() {
                   </table>
                 </div>
 
-                <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Total Masse Salariale Nette</p>
-                    <p className="text-3xl font-black text-white tabular-nums">{totalPayroll.toLocaleString()} FCFA</p>
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                  <div className="p-4 bg-slate-800/30 rounded-2xl border border-white/5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total Net</p>
+                    <p className="text-2xl font-black text-blue-400 tabular-nums">{totalPayroll.toLocaleString()} F</p>
                   </div>
-                  
+                  <div className="p-4 bg-orange-500/10 rounded-2xl border border-orange-500/20">
+                    <p className="text-[10px] text-orange-500/70 font-bold uppercase tracking-widest">Impôts Dus (IR/TRIMF)</p>
+                    <p className="text-2xl font-black text-orange-400 tabular-nums">{totalTaxes.toLocaleString()} F</p>
+                  </div>
+                  <div className="p-4 bg-purple-500/10 rounded-2xl border border-purple-500/20">
+                    <p className="text-[10px] text-purple-500/70 font-bold uppercase tracking-widest">Charges Sociales (Sal+Pat)</p>
+                    <p className="text-2xl font-black text-purple-400 tabular-nums">{totalSocial.toLocaleString()} F</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-6">
                   {!isPaid ? (
                     <button 
                       onClick={handlePay}
                       disabled={isGenerating}
-                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-400 hover:to-rose-400 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-orange-500/20 flex items-center justify-center gap-3"
+                      className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3"
                     >
                       {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Smartphone className="w-5 h-5" />}
-                      Payer via Wave / Orange Money
+                      Valider la Paie & Virement Mobile Money
                     </button>
                   ) : (
-                    <div className="px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex flex-col items-end">
-                      <span className="text-emerald-400 font-black text-sm flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5" /> Salaires virés avec succès
-                      </span>
-                      <span className="text-[10px] text-slate-400 mt-1">Bulletins envoyés sur le portail et WhatsApp.</span>
+                    <div className="w-full px-6 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-emerald-400">
+                        <CheckCircle2 className="w-6 h-6" />
+                        <div>
+                          <p className="font-black text-sm">Salaires virés et bordereaux générés</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Les fiches de paie et déclarations IPRES/CSS/Impôts ont été poussées sur le portail.</p>
+                        </div>
+                      </div>
+                      <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold border border-white/5 transition-colors">
+                        Voir les déclarations
+                      </button>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
               <div className="text-center py-16 opacity-50">
-                <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-                <p className="text-slate-400 text-sm">Sélectionnez un client et simulez un pointage vocal pour voir la grille.</p>
+                <Globe className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                <p className="text-slate-400 text-sm">Le moteur chargera les règles du pays correspondant.</p>
               </div>
             )}
           </div>

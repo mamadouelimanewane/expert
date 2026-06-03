@@ -705,6 +705,12 @@ model Employee {
   position        String?
   baseSalary      Float
   
+  // Paramètres Multi-Pays (ex: Sénégal)
+  maritalStatus   String?  @default("CELIBATAIRE")
+  childrenCount   Int      @default(0)
+  isCadre         Boolean  @default(false)
+  transportAllowance Float @default(0)
+  
   // Relations
   clientId        String   @db.ObjectId
   client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -745,6 +751,12 @@ model Payslip {
   // Calculs finaux
   grossSalary     Float
   netSalary       Float
+  
+  // Détails Multi-Pays (Cotisations et Impôts)
+  taxableIncome   Float    @default(0)
+  taxes           Float    @default(0) // IR, TRIMF
+  employeeSocials Float    @default(0) // IPRES part salariale
+  employerSocials Float    @default(0) // IPRES part patronale, CSS, CFCE
   
   status          String   @default("DRAFT") // DRAFT, VALIDATED, PAID
   
