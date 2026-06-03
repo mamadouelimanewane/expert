@@ -4,7 +4,7 @@ import { useState } from "react";
 import { BrainCircuit, Server, Key, Save, CheckCircle2, ShieldAlert, Cpu, Sparkles, Activity, RefreshCw } from "lucide-react";
 
 export default function AILlmSettings() {
-  const [provider, setProvider] = useState<"ollama" | "mistral" | "openai" | "anthropic">("ollama");
+  const [provider, setProvider] = useState<"ollama" | "mistral" | "openai" | "anthropic" | "deepseek">("ollama");
   const [endpoint, setEndpoint] = useState("http://localhost:11434");
   const [modelName, setModelName] = useState("llama3");
   const [apiKey, setApiKey] = useState("");
@@ -106,6 +106,22 @@ export default function AILlmSettings() {
                 <p className="text-[10px] text-slate-500 mt-1">Excellente compréhension des documents complexes et factures.</p>
                 <div className="mt-3 px-2 py-1 bg-slate-700/50 text-slate-400 text-[9px] font-black uppercase rounded w-fit border border-slate-600">
                   API Cloud
+                </div>
+              </div>
+
+              {/* DeepSeek */}
+              <div 
+                onClick={() => { setProvider("deepseek"); setEndpoint("https://api.deepseek.com/v1"); setModelName("deepseek-reasoner"); }}
+                className={`cursor-pointer p-5 rounded-2xl border-2 transition-all ${provider === "deepseek" ? "bg-blue-600/10 border-blue-500" : "bg-slate-800/50 border-transparent hover:border-slate-700"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <BrainCircuit className={`w-6 h-6 ${provider === "deepseek" ? "text-blue-400" : "text-slate-500"}`} />
+                  {provider === "deepseek" && <CheckCircle2 className="w-5 h-5 text-blue-500" />}
+                </div>
+                <h4 className="font-bold text-white">DeepSeek</h4>
+                <p className="text-[10px] text-slate-500 mt-1">Rapport performance/prix imbattable. Modèles très doués en raisonnement logique.</p>
+                <div className="mt-3 px-2 py-1 bg-slate-700/50 text-slate-400 text-[9px] font-black uppercase rounded w-fit border border-slate-600">
+                  API Cloud / Local
                 </div>
               </div>
             </div>
