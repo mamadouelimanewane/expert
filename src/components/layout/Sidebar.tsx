@@ -160,7 +160,7 @@ const menuItems: MenuItem[] = [
 export function Sidebar() {
     const pathname = usePathname();
     const { theme, setTheme } = useTheme();
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [isFabOpen, setIsFabOpen] = useState(false);
     const [isVoiceActive, setIsVoiceActive] = useState(false);
     const [transcription, setTranscription] = useState("");

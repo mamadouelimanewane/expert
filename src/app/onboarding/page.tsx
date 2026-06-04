@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
     UserPlus, FileSignature, ShieldCheck, CheckCircle2, ChevronRight,
-    Building2, FileText, Banknote, Mail, Smartphone, ArrowRight, Zap, RefreshCw
+    Building2, FileText, Banknote, Mail, Smartphone, ArrowRight, Zap, RefreshCw, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
