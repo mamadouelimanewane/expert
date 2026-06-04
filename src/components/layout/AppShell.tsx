@@ -9,7 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     // Routes that should NOT have the sidebar (Marketing, Login, Landing, Client Portal)
-    const isPublicRoute = pathname === "/login" || pathname === "/public" || pathname === "/v2-home" || pathname.startsWith("/portal");
+    const isPublicRoute = pathname === "/" || pathname === "/login" || pathname === "/public" || pathname === "/v2-home" || pathname.startsWith("/portal");
 
     // If we're on a public route, just render children
     if (isPublicRoute) {
