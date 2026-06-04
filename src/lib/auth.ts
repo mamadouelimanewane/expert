@@ -23,10 +23,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.isActive) {
           // Comptes de démo pour les tests
-          if (credentials.email === "expert@gravity.sn" && credentials.password === "password") {
+          if (credentials.email === "expert@gantic360.com" && credentials.password === "password") {
              return { id: "demo-expert", email: credentials.email, name: "Mamadou Eliman", role: "EXPERT" } as any;
           }
-          if (credentials.email === "collab@gravity.sn" && credentials.password === "password") {
+          if (credentials.email === "collab@gantic360.com" && credentials.password === "password") {
              return { id: "demo-collab", email: credentials.email, name: "Aminata Fall", role: "COLLABORATOR" } as any;
           }
           throw new Error("Identifiants incorrects ou compte inactif");

@@ -84,31 +84,6 @@ const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
 
 const menuItems: MenuItem[] = [
-    // --- 1. EXPERTISE & PRODUCTION COMPTABLE ---
-    { header: "EXPERTISE & PRODUCTION" },
-    { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
-    { icon: FileSpreadsheet, label: "Liasse Fiscale Auto", href: "/comptabilite/liasse-fiscale" },
-    { icon: CalendarDays, label: "Fiscalité & Simulateur", href: "/fiscalite" },
-    { icon: Calculator, label: "Paie & Social (SN)", href: "/payroll" },
-    { icon: FolderPlus, label: "GED Intelligente", href: "/documents" },
-    { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
-    
-    // --- 2. BPO & INCLUSION FINANCIÈRE (TPE) ---
-    { header: "BPO TPE / INFORMEL" },
-    { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
-    { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
-    { icon: Users, label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" },
-
-    // --- 3. MODULES EXPERTS & IA ---
-    { header: "MODULES EXPERTS" },
-    { icon: ShieldAlert, label: "Audit IA (FEC Analyzer)", href: "/audit" },
-    { icon: Timer, label: "Suivi des Temps & Rentabilité", href: "/timesheets" },
-    { icon: UserCheck, label: "Onboarding & KYC", href: "/onboarding" },
-    { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
-    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
-    { icon: FileText, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
-
-    // --- 2. CŒUR DU MÉTIER & PILOTAGE ---
     { header: "PILOTAGE & CABINET" },
     { icon: LayoutDashboard, label: "Tableau de Bord", href: "/dashboard" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
@@ -118,19 +93,28 @@ const menuItems: MenuItem[] = [
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
 
-    { header: "FINTECH & MOBILE MONEY" },
-    { icon: Smartphone, label: "Mobile Money", href: "/mobile-money" },
-    { icon: CreditCard, label: "Paiements Intégrés", href: "/fintech/payments" },
-    { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
-    { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
+    { header: "EXPERTISE & PRODUCTION" },
+    { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
+    { icon: FileSpreadsheet, label: "Liasse Fiscale Auto", href: "/comptabilite/liasse-fiscale" },
+    { icon: CalendarDays, label: "Fiscalité & Simulateur", href: "/fiscalite" },
+    { icon: Calculator, label: "Paie & Social (SN)", href: "/payroll" },
+    { icon: FolderPlus, label: "GED Intelligente", href: "/documents" },
+    { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
 
-    // --- 4. ACCOMPAGNEMENT & DOUANES ---
-    { header: "ACCOMPAGNEMENT & DOUANES" },
-    { icon: FolderPlus, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
-    { icon: Ship, label: "Simulateur Douanier", href: "/douanes/simulateur" },
-    { icon: Anchor, label: "Suivi Transitaire", href: "/douanes/transitaire" },
+    { header: "AUDIT & CONFORMITÉ" },
+    { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
+    { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
+    { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
+    { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
 
-    // --- 5. STRATÉGIE & CONSEIL ---
+    { header: "MODULES EXPERTS" },
+    { icon: ShieldAlert, label: "Audit IA (FEC Analyzer)", href: "/audit" },
+    { icon: Timer, label: "Suivi des Temps & Rentabilité", href: "/timesheets" },
+    { icon: UserCheck, label: "Onboarding & KYC", href: "/onboarding" },
+    { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
+    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
+    { icon: FileText, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
+
     { header: "STRATÉGIE & CONSEIL" },
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
     { icon: Radar, label: "Radar Fiscal IA", href: "/strategy/radar" },
@@ -138,16 +122,22 @@ const menuItems: MenuItem[] = [
     { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
     { icon: Globe, label: "Hub Multi-Devises", href: "/strategy/devises" },
 
+    { header: "ACCOMPAGNEMENT & DOUANES" },
+    { icon: FolderPlus, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
+    { icon: Ship, label: "Simulateur Douanier", href: "/douanes/simulateur" },
+    { icon: Anchor, label: "Suivi Transitaire", href: "/douanes/transitaire" },
 
+    { header: "BPO TPE / INFORMEL" },
+    { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
+    { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
+    { icon: Users, label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" },
 
-    // --- 6. AUDIT & CONFORMITÉ ---
-    { header: "AUDIT & CONFORMITÉ" },
-    { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
-    { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
-    { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
-    { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
+    { header: "FINTECH & MOBILE MONEY" },
+    { icon: Smartphone, label: "Mobile Money", href: "/mobile-money" },
+    { icon: CreditCard, label: "Paiements Intégrés", href: "/fintech/payments" },
+    { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
+    { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
 
-    // --- 7. NEXUS INTELLIGENCE & OUTILS ---
     { header: "NEXUS INTELLIGENCE" },
     { icon: BrainCircuit, label: "Moteur IA & LLM", href: "/settings/ai" },
     { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },

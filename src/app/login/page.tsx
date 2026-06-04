@@ -34,7 +34,7 @@ export default function LoginPage() {
     };
 
     const useDemoAccount = (role: "expert" | "collab") => {
-        setEmail(role === "expert" ? "expert@gravity.sn" : "collab@gravity.sn");
+        setEmail(role === "expert" ? "expert@gantic360.com" : "collab@gantic360.com");
         setPassword("password");
     };
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
                             <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
                                 <Fingerprint className="w-6 h-6 text-white" />
                             </div>
-                            <span className="text-2xl font-black tracking-tighter text-white">GRAVITY EXPERT</span>
+                            <span className="text-2xl font-black tracking-tighter text-white">GANTIC360 EXPERT</span>
                         </div>
                         <h1 className="text-5xl font-black text-white leading-tight mb-6">
                             L'ERP Nouvelle Génération pour Experts-Comptables.
