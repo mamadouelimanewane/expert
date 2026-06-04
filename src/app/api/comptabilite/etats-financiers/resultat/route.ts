@@ -22,17 +22,17 @@ export async function GET(request: Request) {
 
         // Aggregate actual DB entries into the mock
         entries.forEach(entry => {
-            const amount = entry.amount;
+            const amount = (entry.entree || 0) + (entry.sortie || 0);
             
             // Charges 6xx
-            if (entry.ohadaDebit?.startsWith('60')) achats.netN -= amount;
-            if (entry.ohadaDebit?.startsWith('61') || entry.ohadaDebit?.startsWith('62')) servicesExt.netN -= amount;
-            if (entry.ohadaDebit?.startsWith('64')) impots.netN -= amount;
-            if (entry.ohadaDebit?.startsWith('66')) personnel.netN -= amount;
+            if (entry.debitCompte?.startsWith('60')) achats.netN -= amount;
+            if (entry.debitCompte?.startsWith('61') || entry.debitCompte?.startsWith('62')) servicesExt.netN -= amount;
+            if (entry.debitCompte?.startsWith('64')) impots.netN -= amount;
+            if (entry.debitCompte?.startsWith('66')) personnel.netN -= amount;
             
             // Produits 7xx
-            if (entry.ohadaCredit?.startsWith('701')) ventes.netN += amount;
-            if (entry.ohadaCredit?.startsWith('706')) services.netN += amount;
+            if (entry.creditCompte?.startsWith('701')) ventes.netN += amount;
+            if (entry.creditCompte?.startsWith('706')) services.netN += amount;
         });
 
         const totalProduits = ventes.netN + services.netN;
