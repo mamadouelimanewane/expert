@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
         // Aggregate real entries into the base mock data
         entries.forEach(entry => {
-            const amount = entry.amount;
+            const amount = (entry.entree || 0) + (entry.sortie || 0);
             
             // Very simplified aggregation logic for Bilan based on OHADA accounts
             // Classes 2 (Immo), 3 (Stocks), 4 (Tiers), 5 (Tréso) -> Actif/Passif
