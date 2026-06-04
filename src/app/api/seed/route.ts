@@ -180,7 +180,6 @@ export async function POST() {
 
         // ── 3. BANK TRANSACTIONS ──────────────────────────────────
         await prisma.bankTransaction.createMany({
-            skipDuplicates: true,
             data: [
                 { date: new Date("2026-06-01"), description: "Virement Groupe Traoré - FAC-001", amount: 2950000, type: "CREDIT", status: "RECONCILED", invoiceId: invoices[0].id },
                 { date: new Date("2026-06-02"), description: "ENEO - Facture électricité", amount: 125000, type: "DEBIT", status: "PENDING" },
@@ -194,7 +193,6 @@ export async function POST() {
 
         // ── 4. MOBILE MONEY ──────────────────────────────────────
         await prisma.mobileMoneyTransaction.createMany({
-            skipDuplicates: true,
             data: [
                 { operator: "Wave", reference: "WAVE-SEED-001", senderName: "Mamadou Coulibaly", senderPhone: "+221771234567", amount: 150000, type: "IN", status: "RECONCILED", transactionDate: new Date("2026-06-01"), reconciledAt: new Date("2026-06-01"), clientId: clients[1].id },
                 { operator: "Orange Money", reference: "OM-SEED-002", senderName: "Fatoumata Diallo", senderPhone: "+22507654321", amount: 75000, type: "IN", status: "PENDING", transactionDate: new Date("2026-06-02"), clientId: clients[0].id },
