@@ -64,11 +64,13 @@ export async function POST(request: NextRequest) {
             data: {
                 title,
                 clientId,
-                type: type || 'COMPTABILITE',
+                type: type || 'TENUE_COMPTABLE',
                 deadline: deadline ? new Date(deadline) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-                budget: budget ? parseFloat(budget) : null,
+                fixedPrice: budget ? parseFloat(budget) : null,
                 description: description || null,
                 status: 'DRAFT',
+                startDate: new Date(),
+                createdById: session.id,
             },
             include: {
                 client: { select: { id: true, companyName: true } },

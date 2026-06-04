@@ -36,27 +36,27 @@ export async function GET(request: Request) {
             
             // Very simplified aggregation logic for Bilan based on OHADA accounts
             // Classes 2 (Immo), 3 (Stocks), 4 (Tiers), 5 (Tréso) -> Actif/Passif
-            if (entry.ohadaDebit?.startsWith('5')) { // Tréso Actif
+            if (entry.debitCompte?.startsWith('5')) { // Tréso Actif
                 const bq = actif.find(a => a.code === 'BQ');
                 if (bq) bq.netN += amount;
             }
-            if (entry.ohadaCredit?.startsWith('5')) { // Tréso sortie
+            if (entry.creditCompte?.startsWith('5')) { // Tréso sortie
                 const bq = actif.find(a => a.code === 'BQ');
                 if (bq) bq.netN -= amount;
             }
-            if (entry.ohadaDebit?.startsWith('40')) { // Dettes Fournisseurs (Règlement)
+            if (entry.debitCompte?.startsWith('40')) { // Dettes Fournisseurs (Règlement)
                 const db = passif.find(p => p.code === 'DB');
                 if (db) db.netN -= amount;
             }
-            if (entry.ohadaCredit?.startsWith('40')) { // Dettes Fournisseurs (Augmentation)
+            if (entry.creditCompte?.startsWith('40')) { // Dettes Fournisseurs (Augmentation)
                 const db = passif.find(p => p.code === 'DB');
                 if (db) db.netN += amount;
             }
-            if (entry.ohadaDebit?.startsWith('41')) { // Créances Clients
+            if (entry.debitCompte?.startsWith('41')) { // Créances Clients
                 const bb = actif.find(a => a.code === 'BB');
                 if (bb) bb.netN += amount;
             }
-            if (entry.ohadaCredit?.startsWith('41')) { // Règlement Clients
+            if (entry.creditCompte?.startsWith('41')) { // Règlement Clients
                 const bb = actif.find(a => a.code === 'BB');
                 if (bb) bb.netN -= amount;
             }
