@@ -225,8 +225,8 @@ export function Sidebar() {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
-                                <div key={`header-${idx}`} className="px-4 py-3 mt-6 mb-2">
-                                    <h3 className="text-[10px] font-black pointer-events-none text-muted-foreground/60 uppercase tracking-[0.2em]">
+                                <div key={`header-${idx}`} className="px-3 py-1.5 mt-6 mb-2 mx-2 bg-foreground text-background rounded-md text-center shadow-md">
+                                    <h3 className="text-[10px] font-black pointer-events-none uppercase tracking-[0.2em]">
                                         {item.header}
                                     </h3>
                                 </div>
