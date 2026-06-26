@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -68,7 +68,7 @@ export default function LibraryPage() {
             {/* Header with Search */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-slate-900/40 p-8 rounded-3xl border border-white/5">
                 <div className="flex-1">
-                    <h2 className="text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
                         <Library className="w-10 h-10 text-indigo-400" />
                         Bibliothèque OHADA
                     </h2>

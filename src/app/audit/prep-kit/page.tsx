@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -81,7 +81,7 @@ export default function CompleteAuditKitPage() {
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
             {/* Mission Header */}
-            <div className="relative p-10 rounded-[40px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
+            <div className="relative p-4 sm:p-6 lg:p-10 rounded-[40px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-900/20 to-transparent pointer-events-none" />
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
                     <div>
@@ -89,7 +89,7 @@ export default function CompleteAuditKitPage() {
                             <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
                                 <Briefcase className="w-8 h-8 text-white" />
                             </div>
-                            <h2 className="text-4xl font-black text-white tracking-tighter">Pilotage Mission 360°</h2>
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Pilotage Mission 360°</h2>
                         </div>
                         <p className="text-slate-400 font-medium text-lg">Kit complet : De la planification au rapport final.</p>
                     </div>
@@ -104,7 +104,7 @@ export default function CompleteAuditKitPage() {
             </div>
 
             {/* Dynamic Content based on Phase */}
-            <div className="min-h-[500px]">
+            <div className="min-h-[300px] sm:h-[400px] lg:h-[500px]">
                 {/* ---------------- PHASE 1: PLANNING ---------------- */}
                 {currentPhase === "planning" && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -145,7 +145,7 @@ export default function CompleteAuditKitPage() {
                             {materiality > 0 && (
                                 <div className="mt-8 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-center animate-in zoom-in">
                                     <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Seuil de Signification (PM)</p>
-                                    <p className="text-3xl font-black text-white mt-2">{materiality.toLocaleString()} FCFA</p>
+                                    <p className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-2">{materiality.toLocaleString()} FCFA</p>
                                     <p className="text-[10px] text-slate-400 mt-2">Seuil de remonter (5% PM) : {(materiality * 0.05).toLocaleString()} FCFA</p>
                                 </div>
                             )}
@@ -270,7 +270,7 @@ export default function CompleteAuditKitPage() {
                 {/* ---------------- PHASE 4: REPORTING ---------------- */}
                 {currentPhase === "reporting" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col items-center text-center">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col items-center text-center">
                             <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
                                 <FileText className="w-10 h-10 text-indigo-400" />
                             </div>
@@ -281,7 +281,7 @@ export default function CompleteAuditKitPage() {
                             </button>
                         </div>
 
-                        <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col items-center text-center">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col items-center text-center">
                             <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
                                 <ShieldCheck className="w-10 h-10 text-emerald-400" />
                             </div>

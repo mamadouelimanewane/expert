@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -59,7 +59,7 @@ export default function NexusAuditAssurancePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-64 h-64 text-emerald-400" />
                 </div>
@@ -74,7 +74,7 @@ export default function NexusAuditAssurancePage() {
                                 Global Audit & Assurance
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-emerald-400">Audit & Assurance</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -112,7 +112,7 @@ export default function NexusAuditAssurancePage() {
                         </div>
 
                         <div className="flex items-end gap-3 mb-4">
-                            <span className="text-5xl font-black text-white">40<span className="text-xl text-slate-500">%</span></span>
+                            <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">40<span className="text-xl text-slate-500">%</span></span>
                             <div className="flex flex-col mb-1">
                                 <span className="text-[10px] font-black text-emerald-400 uppercase leading-none">On Track</span>
                                 <span className="text-[9px] text-slate-500 uppercase leading-none mt-1">Completion rate</span>
@@ -222,7 +222,7 @@ export default function NexusAuditAssurancePage() {
                     </div>
 
                     {/* Report Generation Footer Elite */}
-                    <div className="p-10 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-900/20 rounded-[50px] border border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 shadow-2xl">
+                    <div className="p-4 sm:p-6 lg:p-10 bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-900/20 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10 shadow-2xl">
                         <div className="flex gap-6 items-center">
                             <div className="w-16 h-16 bg-white/5 rounded-[24px] flex items-center justify-center border border-white/5">
                                 <FileText className="w-8 h-8 text-slate-500" />
@@ -250,15 +250,15 @@ export default function NexusAuditAssurancePage() {
             {showResults && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 animate-in zoom-in duration-300">
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setShowResults(false)} />
-                    <div className="glass-card w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-[50px] shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-hidden relative z-10">
-                        <div className="absolute top-0 right-0 p-12 opacity-5">
+                    <div className="glass-card w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-hidden relative z-10">
+                        <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5">
                             <Cpu className="w-64 h-64 text-indigo-400" />
                         </div>
 
                         <div className="p-10 sm:p-16">
                             <div className="flex justify-between items-start mb-12">
                                 <div>
-                                    <h3 className="text-3xl font-black text-white flex items-center gap-5">
+                                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white flex items-center gap-5">
                                         <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
                                             <Zap className="w-6 h-6 text-white" />
                                         </div>
@@ -277,15 +277,15 @@ export default function NexusAuditAssurancePage() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                                 <div className="p-6 bg-rose-500/5 border border-rose-500/20 rounded-3xl">
                                     <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Risque Anomalies</p>
-                                    <p className="text-4xl font-black text-white">High <span className="text-xs text-rose-500 underline">82%</span></p>
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">High <span className="text-xs text-rose-500 underline">82%</span></p>
                                 </div>
                                 <div className="p-6 bg-amber-500/5 border border-amber-500/20 rounded-3xl">
                                     <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Conformité AUDCIF</p>
-                                    <p className="text-4xl font-black text-white">Full <span className="text-xs text-emerald-500">100%</span></p>
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">Full <span className="text-xs text-emerald-500">100%</span></p>
                                 </div>
                                 <div className="p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-3xl">
                                     <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Neural Mapping</p>
-                                    <p className="text-4xl font-black text-white">Active</p>
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">Active</p>
                                 </div>
                             </div>
 

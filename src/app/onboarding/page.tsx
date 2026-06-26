@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -23,8 +23,8 @@ export default function OnboardingPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <UserPlus className="w-48 h-48 text-indigo-400" />
                 </div>
                 <div className="relative z-10">
@@ -33,7 +33,7 @@ export default function OnboardingPage() {
                             Nouveau Dossier
                         </span>
                     </div>
-                    <h2 className="text-4xl font-black text-white tracking-tight">Onboarding & <span className="text-indigo-400">KYC</span></h2>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">Onboarding & <span className="text-indigo-400">KYC</span></h2>
                     <p className="text-slate-400 mt-2 max-w-xl font-medium">
                         Créez un nouveau dossier client en 3 étapes. Génération automatique de la Lettre de Mission et vérifications légales LCB-FT.
                     </p>
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl p-10 min-h-[500px]">
+            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl p-4 sm:p-6 lg:p-10 min-h-[300px] sm:h-[400px] lg:h-[500px]">
                 
                 {step === 1 && (
                     <div className="max-w-3xl mx-auto space-y-8 animate-in slide-in-from-right-8 duration-500">
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                         </div>
 
                         {kycResult === "pending" ? (
-                            <div className="glass-card p-12 border-2 border-dashed border-indigo-500/30 rounded-[40px] text-center bg-slate-900/40">
+                            <div className="glass-card p-4 sm:p-8 lg:p-12 border-2 border-dashed border-indigo-500/30 rounded-[40px] text-center bg-slate-900/40">
                                 {isCheckingKYC ? (
                                     <>
                                         <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-6">

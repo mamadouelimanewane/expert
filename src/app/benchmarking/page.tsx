@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -54,7 +54,7 @@ export default function NexusMarketIntelligencePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Globe className="w-64 h-64 text-cyan-400" />
                 </div>
@@ -69,7 +69,7 @@ export default function NexusMarketIntelligencePage() {
                                 Market Intelligence
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-cyan-400">Market Intelligence</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -127,7 +127,7 @@ export default function NexusMarketIntelligencePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Main Benchmark Table */}
                 <div className="lg:col-span-8 flex flex-col gap-6">
-                    <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 shadow-2xl">
                         <div className="flex justify-between items-center mb-10">
                             <div>
                                 <h3 className="text-xl font-black text-white uppercase tracking-tight">Analyse Comparative</h3>
@@ -156,7 +156,7 @@ export default function NexusMarketIntelligencePage() {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-[9px] font-black text-cyan-500 uppercase mb-1">Votre Valeur</p>
-                                                <p className="text-3xl font-black text-white">{item.clientValue}</p>
+                                                <p className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{item.clientValue}</p>
                                             </div>
                                             <div className={cn(
                                                 "px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-2 mb-1",

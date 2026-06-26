@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -81,7 +81,7 @@ export default function CapacityPlanningPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-indigo-500/20">
                         <Users className="w-3 h-3" /> Planification RH
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Plan de Charge Équipe
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
@@ -212,7 +212,7 @@ function CapacityKpi({ title, value, status, subtitle }: any) {
     return (
         <div className="glass-card p-6 rounded-2xl border border-white/5 bg-slate-900/40">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{title}</p>
-            <h3 className={cn("text-3xl font-black mb-1",
+            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black mb-1",
                 status === "warning" ? "text-amber-400" :
                     status === "danger" ? "text-rose-400" :
                         status === "success" ? "text-emerald-400" : "text-white"

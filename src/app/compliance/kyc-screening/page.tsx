@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -55,8 +55,8 @@ export default function KycScreeningPage() {
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
 
             {/* Header Kanta Style */}
-            <div className="bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-48 h-48 text-emerald-400" />
                 </div>
 
@@ -65,7 +65,7 @@ export default function KycScreeningPage() {
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-emerald-500/20">
                             Conformité LCB-FT
                         </div>
-                        <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                             <UserCheck className="w-10 h-10 text-emerald-500" />
                             Screening KYC & Risques
                         </h1>
@@ -87,7 +87,7 @@ export default function KycScreeningPage() {
                 <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Conformité Portefeuille</p>
                     <div className="flex items-end gap-2">
-                        <h3 className="text-4xl font-black text-white">92%</h3>
+                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">92%</h3>
                         <span className="text-emerald-400 font-bold mb-1.5">+4%</span>
                     </div>
                     <div className="w-full bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
@@ -98,7 +98,7 @@ export default function KycScreeningPage() {
                 <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Dossiers à Risque</p>
                     <div className="flex items-end gap-2">
-                        <h3 className="text-4xl font-black text-rose-500">3</h3>
+                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-rose-500">3</h3>
                         <span className="text-slate-500 text-xs font-bold mb-1.5 font-mono">CRITICAL</span>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -37,7 +37,7 @@ export default function WealthOptimizerPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.1)]">
                         <Gem className="w-3 h-3" /> Stratégie Patrimoniale & Dirigeant
                     </div>
-                    <h1 className="text-5xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight flex items-center gap-4">
                         Wealth Optimizer
                     </h1>
                     <p className="text-slate-400 mt-4 max-w-2xl text-lg leading-relaxed">
@@ -86,7 +86,7 @@ export default function WealthOptimizerPage() {
 
                         <div className="mt-8 pt-6 border-t border-white/5">
                             <p className="text-xs text-slate-500 font-bold uppercase mb-1">Total Patrimoine Net</p>
-                            <div className="text-4xl font-black text-white tabular-nums">857 000 000 <span className="text-sm font-medium text-amber-500">FCFA</span></div>
+                            <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tabular-nums">857 000 000 <span className="text-sm font-medium text-amber-500">FCFA</span></div>
                         </div>
                     </div>
 
@@ -129,12 +129,12 @@ export default function WealthOptimizerPage() {
                         </button>
                     </div>
 
-                    <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-950/50 min-h-[400px] flex flex-col justify-between">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-950/50 min-h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col justify-between">
                         {optimizationMode === "rem" ? (
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <h3 className="text-2xl font-black text-white mb-8">Salaire vs Dividendes</h3>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 lg:gap-12">
                                     {/* Scenario A */}
                                     <div className="space-y-6">
                                         <div className="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-white/5">

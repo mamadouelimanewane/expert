@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -147,7 +147,7 @@ export default function PortalByToken() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <p className="text-3xl font-black tabular-nums" style={{ color: ratingColor }}>{score}</p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-black tabular-nums" style={{ color: ratingColor }}>{score}</p>
               <p className="text-[10px] text-slate-500 font-bold">Score Santé</p>
             </div>
             <div className="px-3 py-1.5 rounded-xl text-xs font-black border"
@@ -204,7 +204,7 @@ export default function PortalByToken() {
               ].map((s, i) => (
                 <div key={i} className={`rounded-[20px] border p-5 ${s.color}`}>
                   <s.icon className="w-5 h-5 mb-3" />
-                  <p className="text-3xl font-black tabular-nums">{s.val}</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-black tabular-nums">{s.val}</p>
                   <p className="text-xs mt-1 opacity-70">{s.label}</p>
                 </div>
               ))}

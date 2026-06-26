@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -251,7 +251,7 @@ export default function DiagnosticPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Stethoscope className="w-8 h-8 text-rose-400" />
                         Diagnostic IA États Financiers
                     </h2>
@@ -280,7 +280,7 @@ export default function DiagnosticPage() {
             </div>
 
             {!diagnosticVisible && !isGenerating && (
-                <div className="h-96 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-800 rounded-3xl p-12 bg-gradient-to-br from-slate-900/50 to-rose-900/5">
+                <div className="h-96 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-800 rounded-3xl p-4 sm:p-8 lg:p-12 bg-gradient-to-br from-slate-900/50 to-rose-900/5">
                     <div className="relative mb-6">
                         <Stethoscope className="w-20 h-20 text-slate-700 opacity-20" />
                         <Brain className="w-10 h-10 text-rose-500 absolute -top-2 -right-2 animate-pulse" />
@@ -321,7 +321,7 @@ export default function DiagnosticPage() {
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Score Global de Santé</h3>
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-5xl font-black text-white">{globalScoreHealth}</span>
+                                    <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">{globalScoreHealth}</span>
                                     <span className="text-2xl text-slate-500">/100</span>
                                 </div>
                             </div>
@@ -639,7 +639,7 @@ export default function DiagnosticPage() {
                             </div>
 
                             {/* Report Content - Scrollable */}
-                            <div className="flex-1 overflow-y-auto p-12 bg-white text-slate-900">
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 bg-white text-slate-900">
                                 <div className="max-w-4xl mx-auto space-y-10">
                                     {/* Metadata */}
                                     <div className="flex justify-between items-start pb-6 border-b-2 border-slate-200">

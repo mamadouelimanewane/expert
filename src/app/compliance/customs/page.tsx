@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -151,7 +151,7 @@ Fait à ${countryData.id === 'SN' ? 'Dakar' : 'Abidjan'}, le ${date}`;
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-blue-500/20">
                         <Anchor className="w-3 h-3" /> Contentieux Douanier (UEMOA)
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Cellule de Crise Douanière
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-sm sm:text-lg">
@@ -438,7 +438,7 @@ Fait à ${countryData.id === 'SN' ? 'Dakar' : 'Abidjan'}, le ${date}`;
                                     </div>
                                 </div>
 
-                                <div className="p-10 bg-[#fdfdfd] text-slate-800 rounded-2xl shadow-2xl font-serif text-sm leading-relaxed border-t-[16px] border-blue-900 min-h-[600px]">
+                                <div className="p-4 sm:p-6 lg:p-10 bg-[#fdfdfd] text-slate-800 rounded-2xl shadow-2xl font-serif text-sm leading-relaxed border-t-[16px] border-blue-900 min-h-[350px] sm:h-[450px] lg:h-[600px]">
                                     <div className="whitespace-pre-wrap opacity-90 italic">
                                         {generateAppealLetter()}
                                     </div>

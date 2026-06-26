@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -71,7 +71,7 @@ export default function TimeEntryPage() {
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Mobile-Optimized Header */}
             <div className="bg-slate-900/60 p-8 md:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <Timer className="w-48 h-48 text-indigo-400" />
                 </div>
 
@@ -81,7 +81,7 @@ export default function TimeEntryPage() {
                             Queoval-Style Time Tracking
                         </span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                         Saisie <span className="text-indigo-400">Rapide des Temps</span>
                     </h2>
                     <p className="text-slate-400 mt-4 text-base md:text-lg font-medium leading-relaxed max-w-2xl">
@@ -102,11 +102,11 @@ export default function TimeEntryPage() {
                 {/* LEFT: Timer & Quick Entry */}
                 <div className="lg:col-span-5 space-y-8">
                     {/* Timer Card */}
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 text-center shadow-2xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 text-center shadow-2xl">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8">Chronomètre en Temps Réel</h3>
 
                         <div className="mb-10">
-                            <div className="text-6xl font-black text-white font-mono tracking-tight mb-4">
+                            <div className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white font-mono tracking-tight mb-4">
                                 {formatTime(timerSeconds)}
                             </div>
                             <div className={cn(
@@ -145,7 +145,7 @@ export default function TimeEntryPage() {
                     </div>
 
                     {/* Manual Entry Card */}
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/20">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
                             <Zap className="w-4 h-4 text-amber-400" /> Saisie Manuelle Express
                         </h3>
@@ -184,7 +184,7 @@ export default function TimeEntryPage() {
                 {/* RIGHT: Client/Mission Selection & Recent Entries */}
                 <div className="lg:col-span-7 space-y-8">
                     {/* Client Selection */}
-                    <div className="glass-card p-8 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter">Sélectionner une Mission</h3>
                             <div className="relative">
@@ -233,7 +233,7 @@ export default function TimeEntryPage() {
                     </div>
 
                     {/* Recent Entries */}
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden">
                         <div className="p-8 border-b border-white/5 bg-slate-900/60">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                                 <Clock className="w-6 h-6 text-indigo-400" />

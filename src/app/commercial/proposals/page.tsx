@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -49,7 +49,7 @@ export default function ProposalsHub() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Proposals & Engagement Letters */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <FileText className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -64,7 +64,7 @@ export default function ProposalsHub() {
                                 OHADA Compliant Templates
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Lettres de <span className="text-indigo-400">Mission & Devis</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -95,7 +95,7 @@ export default function ProposalsHub() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         {/* Proposals List */}
-                        <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 flex flex-col shadow-2xl overflow-hidden">
+                        <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
                             <div className="flex justify-between items-center mb-10">
                                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Propositions Récentes</h3>
                                 <div className="flex gap-4">
@@ -159,8 +159,8 @@ export default function ProposalsHub() {
 
                         {/* Sidebar: Templates & AI */}
                         <div className="lg:col-span-4 space-y-8">
-                            <div className="glass-card p-10 rounded-[48px] border border-indigo-500/20 bg-indigo-600/5 relative overflow-hidden group shadow-2xl">
-                                <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform">
+                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-indigo-500/20 bg-indigo-600/5 relative overflow-hidden group shadow-2xl">
+                                <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-10 group-hover:scale-110 transition-transform">
                                     <Sparkles className="w-32 h-32 text-indigo-400" />
                                 </div>
                                 <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
@@ -193,7 +193,7 @@ export default function ProposalsHub() {
                                 </div>
                             </div>
 
-                            <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center">
                                         <PenTool className="w-6 h-6 text-emerald-400" />
@@ -210,7 +210,7 @@ export default function ProposalsHub() {
                     </div>
                 </>
             ) : (
-                <div className="glass-card rounded-[60px] border border-white/5 bg-slate-900/40 p-12 shadow-2xl animate-in zoom-in-95 duration-500">
+                <div className="glass-card rounded-[60px] border border-white/5 bg-slate-900/40 p-4 sm:p-8 lg:p-12 shadow-2xl animate-in zoom-in-95 duration-500">
                     <div className="flex justify-between items-center mb-12">
                         <button onClick={() => setView("list")} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center gap-2 transition-all">
                             <ChevronRight className="w-4 h-4 rotate-180" /> Retour
@@ -219,7 +219,7 @@ export default function ProposalsHub() {
                         <div className="w-24" />
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12">
                         <div className="space-y-8">
                             <div>
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Rechercher un Client / Prospect</label>
@@ -258,7 +258,7 @@ export default function ProposalsHub() {
                             </div>
                         </div>
 
-                        <div className="bg-slate-950/50 border border-white/5 rounded-[48px] p-10 relative flex flex-col items-center justify-center text-center">
+                        <div className="bg-slate-950/50 border border-white/5 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] p-4 sm:p-6 lg:p-10 relative flex flex-col items-center justify-center text-center">
                             <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-indigo-600 rounded-full text-[8px] font-black text-white uppercase tracking-[0.3em] shadow-lg shadow-indigo-600/20">
                                 Aperçu Interactive
                             </div>
@@ -319,7 +319,7 @@ function PropStat({ icon: Icon, label, value, unit, color }: any) {
                 <div className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-black text-slate-500 uppercase tracking-tighter">Live</div>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{label}</p>
-            <h3 className="text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Download, Printer, ShieldCheck, Cpu, Globe, Zap, BarChart3, Lock, Server } from "lucide-react";
 import Image from "next/image";
@@ -29,7 +29,7 @@ export default function PresentationPage() {
                 <header className="border-b-4 border-indigo-600 pb-8 mb-12">
                     <div className="flex justify-between items-end">
                         <div className="space-y-2">
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Cabinet 360</h1>
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight uppercase">Cabinet 360</h1>
                             <p className="text-indigo-600 font-bold text-lg">Expertise Comptable OHADA & Audit</p>
                         </div>
                         <div className="text-right space-y-1">

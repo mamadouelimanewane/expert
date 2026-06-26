@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { 
@@ -71,7 +71,7 @@ export default function TpeProcessing() {
             <Smartphone className="w-8 h-8 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Usine BPO (TPE / Informel)</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Usine BPO (TPE / Informel)</h2>
             <p className="text-slate-400 mt-1">Transformez les notes vocales WhatsApp de vos TPE en écritures comptables OHADA (Zéro Saisie).</p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function TpeProcessing() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8 h-[calc(100vh-200px)] min-h-[600px]">
+      <div className="grid lg:grid-cols-12 gap-8 h-[calc(100vh-200px)] min-h-[350px] sm:h-[450px] lg:h-[600px]">
         
         {/* Colonne Gauche : Simulateur WhatsApp */}
         <div className="lg:col-span-4 flex flex-col gap-4">

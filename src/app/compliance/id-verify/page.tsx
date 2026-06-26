@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -93,7 +93,7 @@ export default function NexusIDVerifyPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Nexus ID Verify */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Fingerprint className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -107,7 +107,7 @@ export default function NexusIDVerifyPage() {
                             Identity Science
                         </span>
                     </div>
-                    <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                         Nexus <span className="text-indigo-400">ID Verify</span>
                     </h2>
                     <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -195,7 +195,7 @@ export default function NexusIDVerifyPage() {
 
                 <div className="lg:col-span-8 flex flex-col gap-6">
                     {isVerifying ? (
-                        <div className="flex-1 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center animate-pulse">
+                        <div className="flex-1 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center animate-pulse">
                             <div className="w-24 h-24 rounded-full bg-indigo-500/10 flex items-center justify-center mb-8 border border-indigo-500/20">
                                 <ScanFace className="w-12 h-12 text-indigo-400 animate-bounce" />
                             </div>
@@ -205,7 +205,7 @@ export default function NexusIDVerifyPage() {
                             </p>
                         </div>
                     ) : result ? (
-                        <div className="flex-1 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl animate-in zoom-in-95 duration-500">
+                        <div className="flex-1 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl animate-in zoom-in-95 duration-500">
                             <div className="flex justify-between items-start mb-10">
                                 <div className="flex items-center gap-6">
                                     <div className={cn(
@@ -215,7 +215,7 @@ export default function NexusIDVerifyPage() {
                                         <BadgeCheck className="w-10 h-10" />
                                     </div>
                                     <div>
-                                        <h3 className="text-3xl font-black text-white mb-1">{result.entityName}</h3>
+                                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{result.entityName}</h3>
                                         <div className="flex items-center gap-3">
                                             <span className={cn(
                                                 "px-3 py-1 rounded-full text-[10px] font-black uppercase border",
@@ -230,7 +230,7 @@ export default function NexusIDVerifyPage() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-4xl font-black text-white">{result.matchScore}%</div>
+                                    <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{result.matchScore}%</div>
                                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Score de Confiance</div>
                                 </div>
                             </div>
@@ -286,7 +286,7 @@ export default function NexusIDVerifyPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex-1 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
+                        <div className="flex-1 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
                             <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/10">
                                 <Database className="w-12 h-12 text-slate-600" />
                             </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -36,8 +36,8 @@ export default function CashFlowPredictivePage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000">
             {/* Header Premium - Nexus AI Flow */}
-            <div className="bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <BrainCircuit className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -51,7 +51,7 @@ export default function CashFlowPredictivePage() {
                                 <Zap className="w-3 h-3" /> Temps Réel
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Nexus <span className="text-indigo-400">Cash-Flow Pro</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -63,7 +63,7 @@ export default function CashFlowPredictivePage() {
                         <div className="p-6 bg-slate-950/80 rounded-3xl border border-white/10 shadow-xl backdrop-blur-xl">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Solde Actuel (Consolidé)</p>
                             <div className="flex items-center gap-3">
-                                <span className="text-3xl font-black text-white">42.500.000 <span className="text-xs text-slate-500">FCFA</span></span>
+                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">42.500.000 <span className="text-xs text-slate-500">FCFA</span></span>
                                 <Wallet className="w-6 h-6 text-indigo-400" />
                             </div>
                         </div>
@@ -109,7 +109,7 @@ export default function CashFlowPredictivePage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Main Prediction Graph */}
-                <div className="lg:col-span-8 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden h-[600px] flex flex-col">
+                <div className="lg:col-span-8 glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
                     <div className="flex justify-between items-center mb-10 relative z-10">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <LineChart className="w-6 h-6 text-indigo-400" />
@@ -159,7 +159,7 @@ export default function CashFlowPredictivePage() {
 
                 {/* What-If Scenarios */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                             <Sparkles className="w-6 h-6 text-amber-400" />
                             Scénarios "What-If"
@@ -243,7 +243,7 @@ function ForecastCard({ title, value, trend, icon: Icon, status, desc }: any) {
                 </div>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-3xl font-black text-white mt-1 tracking-tighter">{value}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}</h3>
             <p className="text-[9px] text-slate-600 font-bold mt-2 uppercase tracking-widest">{desc}</p>
         </div>
     );
@@ -290,7 +290,7 @@ function CashDetailList({ title, type }: { title: string, type: "in" | "out" }) 
     ];
 
     return (
-        <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
             <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                 {type === "in" ? <TrendingUp className="w-5 h-5 text-emerald-400" /> : <TrendingDown className="w-5 h-5 text-rose-400" />}
                 {title}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -37,8 +37,8 @@ export default function AIAssistedAuditPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header Premium - Audit CAC */}
-            <div className="bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -52,7 +52,7 @@ export default function AIAssistedAuditPage() {
                                 Certifié ISA
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Commissariat aux Comptes <span className="text-indigo-400">Nexus AI</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -83,7 +83,7 @@ export default function AIAssistedAuditPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Risk Mapping */}
-                <div className="lg:col-span-8 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl overflow-hidden relative">
+                <div className="lg:col-span-8 glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl overflow-hidden relative">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <Layers className="w-6 h-6 text-indigo-400" />
@@ -122,7 +122,7 @@ export default function AIAssistedAuditPage() {
 
                 {/* AI Investigations */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                             <Search className="w-6 h-6 text-indigo-400" />
                             Investigations IA Nexus
@@ -179,7 +179,7 @@ function AuditKpiCard({ title, value, unit, desc, icon: Icon, color }: any) {
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
             <div className="flex items-baseline gap-1 mt-1">
-                <h3 className="text-3xl font-black text-white tracking-tighter">{value}</h3>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tighter">{value}</h3>
                 {unit && <span className="text-xs font-bold text-slate-500">{unit}</span>}
             </div>
             <p className="text-[9px] text-slate-600 font-bold mt-2 uppercase tracking-widest">{desc}</p>

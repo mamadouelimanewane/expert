@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import {
@@ -63,14 +63,14 @@ export default function BillingPage() {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        <Receipt className="w-8 h-8 text-indigo-400" />
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                        <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
                         Facturation & Honoraires
                     </h2>
-                    <p className="text-slate-400 mt-1">Gérez vos factures, abonnements récurrents et encaissements.</p>
+                    <p className="text-slate-400 mt-1 text-sm">Gérez vos factures, abonnements récurrents et encaissements.</p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <div className="p-1.5 bg-slate-900 border border-slate-700 rounded-2xl flex gap-1">
                         <button
                             onClick={() => setView("invoices")}
@@ -94,7 +94,7 @@ export default function BillingPage() {
                             </div>
                         </button>
                     </div>
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition-all active:scale-95">
+                    <button className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-95">
                         <Plus className="w-5 h-5" />
                         Nouvelle Facture
                     </button>
@@ -102,12 +102,12 @@ export default function BillingPage() {
             </div>
 
             {/* PENNYLANE INSPIRED: All-in-One Dashboard & Real-time Treasury */}
-            <div className="bg-slate-950 p-8 rounded-[40px] border border-white/5 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="bg-slate-950 p-4 sm:p-8 rounded-[24px] sm:rounded-[40px] border border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <CreditCard className="w-48 h-48 text-indigo-400" />
                 </div>
 
-                <div className="flex flex-col lg:flex-row justify-between gap-12 relative z-10">
+                <div className="flex flex-col lg:flex-row justify-between gap-4 sm:gap-8 lg:gap-12 relative z-10">
                     <div className="max-w-md">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase rounded tracking-widest border border-emerald-500/20">Synced Real-time</span>
@@ -150,7 +150,7 @@ export default function BillingPage() {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Encaissé ce mois</p>
-                            <h3 className="text-3xl font-bold text-white mt-1">{(kpis.paid / 1000000).toFixed(1)}M <span className="text-sm text-slate-500 italic">FCFA</span></h3>
+                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{(kpis.paid / 1000000).toFixed(1)}M <span className="text-sm text-slate-500 italic">FCFA</span></h3>
                         </div>
                         <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
                             <ArrowDownRight className="w-6 h-6" />
@@ -166,7 +166,7 @@ export default function BillingPage() {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">En attente / Retard</p>
-                            <h3 className="text-3xl font-bold text-rose-400 mt-1">{(kpis.pending / 1000000).toFixed(1)}M <span className="text-sm text-slate-500 italic">FCFA</span></h3>
+                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-400 mt-1">{(kpis.pending / 1000000).toFixed(1)}M <span className="text-sm text-slate-500 italic">FCFA</span></h3>
                         </div>
                         <div className="p-2 bg-rose-500/10 rounded-lg text-rose-400">
                             <ArrowUpRight className="w-6 h-6" />
@@ -180,7 +180,7 @@ export default function BillingPage() {
 
                 <div className="glass-card p-6 rounded-2xl border border-slate-700/50 bg-indigo-600 shadow-xl shadow-indigo-600/20">
                     <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest">Temps non facturé</p>
-                    <h3 className="text-3xl font-bold text-white mt-1">4.2M <span className="text-sm text-indigo-200 italic">FCFA</span></h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">4.2M <span className="text-sm text-indigo-200 italic">FCFA</span></h3>
                     <button className="mt-4 w-full py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg border border-white/20 backdrop-blur-sm transition-all">
                         Facturer les heures
                     </button>

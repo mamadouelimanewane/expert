@@ -49,7 +49,7 @@ export function NexusCopilot() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-4 sm:right-6 z-50">
             {/* Floating Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -61,10 +61,14 @@ export function NexusCopilot() {
                 <Sparkles className="w-7 h-7" />
             </button>
 
-            {/* Chat Window */}
+            {/* Chat Window — responsive: full-width on mobile, 400px on sm+ */}
             <div
                 className={cn(
-                    "absolute bottom-0 right-0 w-[400px] h-[600px] bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/20 rounded-[40px] shadow-2xl flex flex-col overflow-hidden transition-all duration-500 origin-bottom-right",
+                    "fixed sm:absolute bottom-0 right-0 sm:bottom-0 sm:right-0",
+                    "w-screen sm:w-[400px] h-[85dvh] sm:h-[600px]",
+                    "bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/20",
+                    "rounded-t-[40px] sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden",
+                    "transition-all duration-500 origin-bottom-right",
                     isOpen ? "scale-100 opacity-100" : "scale-50 opacity-0 pointer-events-none"
                 )}
             >

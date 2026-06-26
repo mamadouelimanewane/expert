@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -70,7 +70,7 @@ export default function ProductionDashboard() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Activity className="w-64 h-64 text-emerald-400" />
                 </div>
@@ -85,7 +85,7 @@ export default function ProductionDashboard() {
                                 {criticalMissions} Missions Critiques
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Dashboard <span className="text-emerald-400">Production Cabinet</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -122,7 +122,7 @@ export default function ProductionDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Team Performance Matrix */}
-                <div className="lg:col-span-7 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl">
+                <div className="lg:col-span-7 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <Users className="w-6 h-6 text-emerald-400" />
@@ -198,7 +198,7 @@ export default function ProductionDashboard() {
 
                 {/* Mission Critical List */}
                 <div className="lg:col-span-5 space-y-8">
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden">
                         <div className="p-8 border-b border-white/5 bg-slate-900/60">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                                 <Flame className="w-6 h-6 text-rose-500" />
@@ -258,7 +258,7 @@ export default function ProductionDashboard() {
                     </div>
 
                     {/* Production Velocity */}
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/20">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8">Vélocité Production (7 jours)</h3>
 
                         <div className="h-32 flex items-end gap-2">
@@ -299,7 +299,7 @@ function KpiCard({ icon: Icon, label, value, trend, color }: any) {
                 <div className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-black text-slate-500 uppercase">{trend}</div>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{label}</p>
-            <h3 className={cn("text-3xl font-black mt-1 tracking-tighter", color)}>{value}</h3>
+            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black mt-1 tracking-tighter", color)}>{value}</h3>
         </div>
     );
 }

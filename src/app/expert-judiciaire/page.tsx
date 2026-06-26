@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -98,7 +98,7 @@ export default function NexusJudicialCommandPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Gavel className="w-64 h-64 text-amber-400" />
                 </div>
@@ -113,7 +113,7 @@ export default function NexusJudicialCommandPage() {
                                 Judicial Expertise & Arb.
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-amber-400">Judicial Command</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -206,7 +206,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
 
                             {/* Progress Stepper Elite */}
-                            <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
                                 <div className="flex justify-between items-center mb-12">
                                     {steps.map((step, idx) => (
                                         <div key={idx} className="flex flex-col items-center gap-3 relative flex-1">
@@ -232,7 +232,7 @@ export default function NexusJudicialCommandPage() {
                                     ))}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-white/5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 pt-8 border-t border-white/5">
                                     {/* Forensic Tools */}
                                     <div className="space-y-6">
                                         <h4 className="text-[11px] font-black text-white uppercase tracking-widest flex items-center gap-2">
@@ -310,7 +310,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
                         </>
                     ) : (
-                        <div className="h-[600px] glass-card rounded-[50px] border border-white/5 bg-slate-900/40 flex flex-col items-center justify-center text-center p-20">
+                        <div className="h-[350px] sm:h-[450px] lg:h-[600px] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 bg-slate-900/40 flex flex-col items-center justify-center text-center p-20">
                             <ScaleIcon className="w-20 h-20 text-slate-800 mb-6" />
                             <h3 className="text-2xl font-black text-slate-600 uppercase tracking-widest">Nexus Command Center</h3>
                             <p className="text-slate-700 mt-2 max-w-sm">Sélectionnez une affaire judiciaire dans le portfolio pour piloter votre mission d'expertise.</p>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -50,7 +50,7 @@ export default function FinancialHealthRadarPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Financial Command Center */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <RadarIcon className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -62,7 +62,7 @@ export default function FinancialHealthRadarPage() {
                                 Diagnostique Prédictif 360°
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Radar de <span className="text-indigo-400">Santé Financière</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -82,7 +82,7 @@ export default function FinancialHealthRadarPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Radar Chart Section (Left) */}
-                <div className="lg:col-span-7 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 flex flex-col items-center justify-center shadow-2xl relative">
+                <div className="lg:col-span-7 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center shadow-2xl relative">
                     {loading ? (
                         <div className="animate-pulse flex flex-col items-center">
                             <div className="w-48 h-48 bg-white/5 rounded-full mb-8" />
@@ -127,14 +127,14 @@ export default function FinancialHealthRadarPage() {
                                 <div className="absolute -left-6 top-1/3 font-black text-[10px] text-white uppercase tracking-widest">Social</div>
                             </div>
 
-                            <div className="mt-10 flex gap-10">
+                            <div className="mt-10 flex gap-4 sm:gap-6 lg:gap-10">
                                 <div className="text-center">
                                     <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Health Index (Actual)</p>
-                                    <div className="text-5xl font-black text-emerald-400 tracking-tighter">{selectedClient.score}%</div>
+                                    <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-emerald-400 tracking-tighter">{selectedClient.score}%</div>
                                 </div>
                                 <div className="text-center border-l border-white/10 pl-10">
                                     <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Rating OHADA</p>
-                                    <div className="text-5xl font-black text-white tracking-tighter">{selectedClient.rating}</div>
+                                    <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter">{selectedClient.rating}</div>
                                 </div>
                             </div>
                         </>
@@ -143,7 +143,7 @@ export default function FinancialHealthRadarPage() {
 
                 {/* 2. Insights & Risks (Right) */}
                 <div className="lg:col-span-5 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                             <BarChart3 className="w-6 h-6 text-indigo-400" />
                             Ratios Calculés (DB)
@@ -169,7 +169,7 @@ export default function FinancialHealthRadarPage() {
                         </div>
                     </div>
 
-                    <div className="p-8 rounded-[48px] bg-gradient-to-br from-indigo-600/20 to-transparent border border-indigo-500/20 shadow-xl relative overflow-hidden">
+                    <div className="p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-gradient-to-br from-indigo-600/20 to-transparent border border-indigo-500/20 shadow-xl relative overflow-hidden">
                         <div className="absolute -right-4 -top-4 opacity-10">
                             <Sparkles className="w-24 h-24 text-white" />
                         </div>

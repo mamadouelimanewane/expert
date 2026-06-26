@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -50,7 +50,7 @@ export default function FundraisingPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <TrendingUp className="w-8 h-8 text-emerald-400" />
                         Pôle Levée de Fonds & Financement
                     </h2>
@@ -383,7 +383,7 @@ function FinanceDocsSection() {
                 desc="Multi-currency model (EUR/XOF/USD) avec retraitements."
                 tags={["Excel", "Forecast", "OHADA"]}
             />
-            <div className="glass-card rounded-2xl border border-dashed border-slate-700 flex flex-col items-center justify-center p-12 gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
+            <div className="glass-card rounded-2xl border border-dashed border-slate-700 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
                 <Plus className="w-10 h-10 text-slate-500" />
                 <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Générer Nouveau Document<br /><span className="text-[10px] lowercase font-normal">via IA Prompt</span></p>
             </div>
@@ -420,7 +420,7 @@ function PitchSimulatorSection() {
     const [input, setInput] = useState("");
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[350px] sm:h-[450px] lg:h-[600px]">
             {/* Chat Area */}
             <div className="lg:col-span-3 flex flex-col glass-card rounded-2xl border border-slate-700/50 overflow-hidden bg-slate-950/20">
                 <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">

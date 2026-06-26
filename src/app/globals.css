@@ -259,8 +259,8 @@ body {
   max-width: 100vw;
 }
 
-/* Smooth transitions for responsive changes */
-* {
+/* Smooth transitions for responsive changes — scoped to avoid perf regression */
+.transition-responsive {
   transition-property: padding, margin, font-size;
   transition-duration: 0.2s;
   transition-timing-function: ease-in-out;

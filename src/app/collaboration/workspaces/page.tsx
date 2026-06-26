@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -140,7 +140,7 @@ export default function HighQPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Workflow className="w-64 h-64 text-cyan-400" />
                 </div>
@@ -155,7 +155,7 @@ export default function HighQPage() {
                                 NEXUS Collab
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Client <span className="text-cyan-400">Workspaces</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -174,28 +174,28 @@ export default function HighQPage() {
                 <div className="glass-card p-8 rounded-[40px] bg-cyan-500/5 border border-cyan-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Projets Actifs</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-cyan-400">{activeCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-cyan-400">{activeCount}</span>
                         <Zap className="w-5 h-5 text-cyan-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Documents Partagés</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-white">{totalDocs}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{totalDocs}</span>
                         <FileText className="w-5 h-5 text-slate-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Collaborateurs</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-white">{totalMembers}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{totalMembers}</span>
                         <Users className="w-5 h-5 text-slate-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-emerald-500/5 border border-emerald-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Taux Complétion</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-emerald-400">
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">
                             {Math.round(workspaces.reduce((acc, ws) => acc + ws.progress, 0) / workspaces.length)}%
                         </span>
                     </div>

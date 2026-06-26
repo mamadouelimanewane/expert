@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Upload, Plus, FileSpreadsheet, Save, ScanLine, TrendingUp, Smartphone } from "lucide-react";
@@ -47,7 +47,7 @@ export default function SaisieSimplifiee() {
         <div className="lg:col-span-2 flex flex-col justify-center space-y-3">
           <div>
             <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Portail Client — Cabinet 360</p>
-            <h2 className="text-4xl font-black text-white tracking-tight leading-tight">Votre Cahier<br />de Caisse Digital</h2>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">Votre Cahier<br />de Caisse Digital</h2>
           </div>
           <p className="text-slate-400 text-sm max-w-md">
             Transmettez vos dépenses et recettes simplement. Pas de numéros de compte, pas de jargon comptable. Notre IA s'occupe du reste.
@@ -155,7 +155,7 @@ export default function SaisieSimplifiee() {
       )}
 
       {activeTab === "upload" && (
-        <div className="glass-card rounded-[32px] p-12 border border-white/5 bg-slate-900/40 text-center">
+        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-white/5 bg-slate-900/40 text-center">
           <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <Upload className="w-10 h-10 text-indigo-400" />
           </div>
@@ -172,7 +172,7 @@ export default function SaisieSimplifiee() {
       )}
 
       {activeTab === "ocr" && (
-        <div className="glass-card rounded-[32px] p-12 border border-dashed border-indigo-500/30 bg-slate-900/40 text-center hover:border-indigo-500/60 transition-colors">
+        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-dashed border-indigo-500/30 bg-slate-900/40 text-center hover:border-indigo-500/60 transition-colors">
           <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-indigo-500/10">
             <ScanLine className="w-10 h-10 text-indigo-400" />
           </div>

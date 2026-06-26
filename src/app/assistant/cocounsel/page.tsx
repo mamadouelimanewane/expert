@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -192,7 +192,7 @@ Consulter les documents sources pour une analyse approfondie.
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col overflow-hidden">
+            <div className="flex-1 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col overflow-hidden">
                 {/* Messages */}
                 <div className="flex-1 overflow-auto p-8 space-y-6">
                     {messages.map(message => (

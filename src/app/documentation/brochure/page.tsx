@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import {
@@ -42,17 +42,17 @@ export default function BrochurePage() {
                     <div className="relative z-10 space-y-12">
                         <div className="flex flex-col items-center gap-6">
                             <div className="w-24 h-24 bg-indigo-600 rounded-[30px] flex items-center justify-center shadow-2xl shadow-indigo-500/20">
-                                <span className="text-5xl font-black text-white">C</span>
+                                <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">C</span>
                             </div>
                             <div className="space-y-2">
-                                <h1 className="text-6xl font-black text-white tracking-tighter">CABINET <span className="text-indigo-500">360</span></h1>
+                                <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white tracking-tighter">CABINET <span className="text-indigo-500">360</span></h1>
                                 <p className="text-indigo-400 font-bold uppercase tracking-[0.4em] text-xs">Innovation Comptable OHADA</p>
                             </div>
                         </div>
 
                         <div className="h-px w-32 bg-gradient-to-r from-transparent via-white/20 to-transparent mx-auto" />
 
-                        <h2 className="text-4xl font-light text-slate-300 leading-tight max-w-2xl mx-auto">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-slate-300 leading-tight max-w-2xl mx-auto">
                             L'IA au service de l'expertise comptable : <br />
                             <span className="font-bold text-white">Précision, Automatisation, Excellence.</span>
                         </h2>
@@ -81,7 +81,7 @@ export default function BrochurePage() {
                 {/* Page 2: VISION & CORE VALUES */}
                 <div className="p-20 flex flex-col gap-16 min-h-[29.7cm] break-after-page text-slate-800">
                     <div className="flex justify-between items-start">
-                        <h3 className="text-4xl font-black tracking-tight flex items-center gap-4">
+                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight flex items-center gap-4">
                             <span className="w-2 h-10 bg-indigo-600 rounded-full" />
                             Notre Vision
                         </h3>
@@ -95,7 +95,7 @@ export default function BrochurePage() {
                         Cabinet 360 transforme la complexité réglementaire en agilité stratégique."
                     </p>
 
-                    <div className="grid grid-cols-2 gap-12 pt-10">
+                    <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:gap-12 pt-10">
                         <FeatureBlock
                             title="Conformité Native"
                             desc="Une plateforme pensée pour le SYSCOHADA et les spécificités fiscales locales (UEMOA/CEMAC)."
@@ -120,9 +120,9 @@ export default function BrochurePage() {
                 </div>
 
                 {/* Page 3: Key Features & Modules */}
-                <div className="p-20 bg-slate-50 min-h-[29.7cm] flex flex-col gap-12 text-slate-800">
+                <div className="p-20 bg-slate-50 min-h-[29.7cm] flex flex-col gap-4 sm:gap-8 lg:gap-12 text-slate-800">
                     <div className="space-y-4">
-                        <h3 className="text-3xl font-black tracking-tight uppercase">Solutions & Modules</h3>
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight uppercase">Solutions & Modules</h3>
                         <p className="text-slate-500 font-medium">L'écosystème le plus complet du marché.</p>
                     </div>
 
@@ -145,7 +145,7 @@ export default function BrochurePage() {
                         />
                     </div>
 
-                    <div className="mt-auto p-10 bg-white shadow-xl rounded-3xl border border-slate-200">
+                    <div className="mt-auto p-4 sm:p-6 lg:p-10 bg-white shadow-xl rounded-3xl border border-slate-200">
                         <div className="flex gap-8 items-center">
                             <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-600">
                                 <CheckCircle2 className="w-10 h-10" />
@@ -162,11 +162,11 @@ export default function BrochurePage() {
                 <div className="p-20 flex flex-col justify-end min-h-[29.7cm] bg-slate-900 text-white">
                     <div className="space-y-10">
                         <div className="space-y-4 text-center md:text-left">
-                            <h3 className="text-5xl font-black">Prêt pour l'excellence ?</h3>
+                            <h3 className="text-2xl sm:text-3xl lg:text-5xl font-black">Prêt pour l'excellence ?</h3>
                             <p className="text-xl text-slate-400">Rejoignez les cabinets qui mènent la transformation digitale en Afrique.</p>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 pt-10 border-t border-white/10">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-10 pt-10 border-t border-white/10">
                             <div>
                                 <p className="text-indigo-500 font-bold uppercase tracking-widest text-[10px] mb-4">Contact</p>
                                 <p className="text-lg">contact@cabinet360.com</p>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef } from "react";
 import { TrendingUp, TrendingDown, Star, Award, AlertTriangle, ShieldCheck } from "lucide-react";
@@ -128,7 +128,7 @@ export function FinancialHealthGauge({ score, rating, clientName, compact = fals
       {/* Rating badge */}
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`text-3xl font-black ${config.text}`}>{rating}</span>
+          <span className={`text-xl sm:text-2xl lg:text-3xl font-black ${config.text}`}>{rating}</span>
           <span className="text-slate-400 text-sm">{config.label}</span>
         </div>
         <div className="flex gap-1">

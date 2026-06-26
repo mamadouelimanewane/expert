@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -46,12 +46,12 @@ export default function GovernancePage() {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <Scale className="w-40 h-40 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30">
                             <Gavel className="w-8 h-8 text-white" />
                         </div>

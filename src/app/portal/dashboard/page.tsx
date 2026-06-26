@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default function PortalDashboard() {
             <LayoutGrid className="w-8 h-8 text-indigo-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Portail Cabinet — PMI & BPO</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Portail Cabinet — PMI & BPO</h2>
             <p className="text-slate-400 mt-1">Vision 360° de tous vos clients. TPE informels, PMI, et grands comptes dans un seul écran.</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function PortalDashboard() {
                   <div className="sm:col-span-2 p-5 rounded-2xl border" style={{ background: RATING_COLOR[selected.rating] + "08", borderColor: RATING_COLOR[selected.rating] + "25" }}>
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">Score Santé Financière</p>
                     <div className="flex items-center gap-4">
-                      <p className="text-5xl font-black tabular-nums" style={{ color: RATING_COLOR[selected.rating] }}>{selected.score}</p>
+                      <p className="text-2xl sm:text-3xl lg:text-5xl font-black tabular-nums" style={{ color: RATING_COLOR[selected.rating] }}>{selected.score}</p>
                       <div>
                         <ScorePill rating={selected.rating} />
                         <p className="text-[10px] text-slate-500 mt-2">

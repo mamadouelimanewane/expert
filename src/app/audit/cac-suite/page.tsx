@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -43,7 +43,7 @@ export default function CACSuitePage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-indigo-500/20">
                         <Microscope className="w-3 h-3" /> Suite Commissariat aux Comptes (CAC)
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         CAC Workbench <span className="text-indigo-500/50 font-light">| Smart Audit</span>
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">

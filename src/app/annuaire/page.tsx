@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -73,7 +73,7 @@ export default function AnnuairePage() {
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-700">
             {/* Hero Section */}
-            <div className="relative h-[400px] rounded-[40px] overflow-hidden bg-slate-900 border border-white/5 shadow-2xl">
+            <div className="relative h-[280px] sm:h-[350px] lg:h-[400px] rounded-[40px] overflow-hidden bg-slate-900 border border-white/5 shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20" />
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80')] bg-cover opacity-10" />
 
@@ -110,7 +110,7 @@ export default function AnnuairePage() {
             </div>
 
             {/* Filters & Results */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8 lg:gap-12">
                 <div className="lg:col-span-1 space-y-8">
                     <div className="glass-card p-8 rounded-[30px] border border-white/5 bg-slate-900/40 sticky top-24">
                         <h3 className="text-white font-black text-xs uppercase tracking-widest mb-8 flex items-center gap-2">
@@ -199,7 +199,7 @@ function ExpertCard({ expert }: any) {
             </div>
 
             <div className="flex items-start gap-6 mb-8">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-3xl font-black text-white shadow-2xl border border-white/10 group-hover:scale-105 transition-transform">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-xl sm:text-2xl lg:text-3xl font-black text-white shadow-2xl border border-white/10 group-hover:scale-105 transition-transform">
                     {expert.avatar}
                 </div>
                 <div className="flex-1">

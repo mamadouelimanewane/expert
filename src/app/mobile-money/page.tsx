@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -122,11 +122,11 @@ export default function MobileMoneyPage() {
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <Smartphone className="w-40 h-40 text-emerald-400" />
                 </div>
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <div className="p-3 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-600/30">
                             <Smartphone className="w-8 h-8 text-white" />
                         </div>
@@ -174,7 +174,7 @@ export default function MobileMoneyPage() {
                             <Clock className="w-5 h-5 text-amber-400" />
                         </div>
                     </div>
-                    <div className="text-3xl font-black text-amber-400 tracking-tighter">{stats.pending}</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400 tracking-tighter">{stats.pending}</div>
                     <p className="text-[10px] text-slate-500 mt-2">flux à rapprocher</p>
                 </div>
             </div>

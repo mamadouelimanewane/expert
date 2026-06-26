@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 // Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
@@ -128,7 +128,7 @@ export default function ClientsPage() {
                     <p className="text-slate-500 font-medium">Chargement de votre portefeuille...</p>
                 </div>
             ) : filteredClients.length === 0 ? (
-                <div className="glass-card p-12 rounded-[32px] border border-white/5 bg-slate-900/10 flex flex-col items-center justify-center text-center gap-4">
+                <div className="glass-card p-4 sm:p-8 lg:p-12 rounded-[32px] border border-white/5 bg-slate-900/10 flex flex-col items-center justify-center text-center gap-4">
                     <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center shadow-inner">
                         <Users className="w-10 h-10 text-slate-600" />
                     </div>

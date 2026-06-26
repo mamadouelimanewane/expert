@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { 
@@ -67,7 +67,7 @@ export default function FiscalMirrorPage() {
     return (
         <div className="min-h-screen space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Globe className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -82,7 +82,7 @@ export default function FiscalMirrorPage() {
                         </div>
                     </div>
                     
-                    <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
                         Nexus <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Fiscal Mirror</span>
                     </h1>
                     <p className="text-lg sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
@@ -120,7 +120,7 @@ export default function FiscalMirrorPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Metrics Table */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-10 flex items-center gap-3">
                             <Scale className="w-6 h-6 text-indigo-400" /> Profil Fiscal Comparatif
                         </h3>
@@ -142,7 +142,7 @@ export default function FiscalMirrorPage() {
 
                 {/* AI Recommendation Sidebar */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/10 to-transparent">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/10 to-transparent">
                         <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                             <BrainCircuit className="w-8 h-8 text-indigo-400" />
                         </div>

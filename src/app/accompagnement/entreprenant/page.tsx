@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import { FolderPlus, ChevronRight, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -11,7 +11,7 @@ export default function EntreprenantPage() {
                     <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
                         <FolderPlus className="w-6 h-6" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight">Statut de l'Entreprenant OHADA</h1>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Statut de l'Entreprenant OHADA</h1>
                 </div>
                 <p className="text-muted-foreground">Accompagnez les acteurs de l'informel vers la formalisation en 3 étapes simples.</p>
             </header>

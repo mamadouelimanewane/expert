@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef } from "react";
 import { ScoreEvolutionChart } from "@/components/portal/ScoreEvolutionChart";
@@ -137,7 +137,7 @@ export default function HealthReportPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <FileText className="w-8 h-8 text-indigo-500" />
             Rapport de Santé Financière
           </h2>

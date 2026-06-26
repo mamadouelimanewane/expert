@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -35,8 +35,8 @@ export default function CollaborativeProductionPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Pennylane Style Hero */}
-            <div className="bg-slate-950 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="bg-slate-950 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                     <div>
@@ -45,7 +45,7 @@ export default function CollaborativeProductionPage() {
                                 All-in-One Production
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Production Comptable <span className="text-indigo-400">Collaborative</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -177,8 +177,8 @@ export default function CollaborativeProductionPage() {
 
             {/* 360 Client View Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                         <PieChart className="w-32 h-32 text-indigo-400" />
                     </div>
                     <h3 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
@@ -192,7 +192,7 @@ export default function CollaborativeProductionPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-950/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-950/40">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-amber-400" />
                         L'intelligence Pennylane x NEXUS
@@ -233,7 +233,7 @@ function KpiCard({ title, value, trend, subtext, icon: Icon, color }: any) {
                 )}
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-3xl font-black text-white mt-1">{value}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1">{value}</h3>
             {subtext && <p className="text-[10px] text-slate-600 font-bold mt-1">{subtext}</p>}
         </div>
     );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -77,14 +77,14 @@ export default function RevisionPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header SEPTEO Style */}
-            <div className="bg-slate-900/40 p-10 rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <ClipboardCheck className="w-48 h-48 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
                             <div className="p-4 bg-indigo-600 rounded-[24px] shadow-2xl shadow-indigo-600/30">
                                 <ClipboardCheck className="w-8 h-8 text-white" />
                             </div>
@@ -225,7 +225,7 @@ export default function RevisionPage() {
             </div>
 
             {/* Smart Audit Insights (AI) */}
-            <div className="glass-card rounded-[48px] p-10 border border-white/5 bg-gradient-to-br from-slate-900 to-indigo-900/10">
+            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-gradient-to-br from-slate-900 to-indigo-900/10">
                 <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                     <TrendingUp className="w-6 h-6 text-indigo-400" />
                     Analytique & Points de Vigilance IA

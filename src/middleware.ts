@@ -15,17 +15,37 @@ export default withAuth(
       return NextResponse.redirect(new URL("/comptabilite/production", req.url));
     }
 
+    // Routes API sans token → 401 JSON (pas de redirect HTML)
+    // /api/health et /api/auth sont publics
+    if (
+      pathname.startsWith("/api/") &&
+      !pathname.startsWith("/api/auth") &&
+      pathname !== "/api/health" &&
+      !token
+    ) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized({ req, token }) {
         const { pathname } = req.nextUrl;
-        // Routes publiques : login et la landing page
-        if (pathname === "/login" || pathname === "/" || pathname.startsWith("/api/auth")) {
+        // Routes publiques
+        if (
+          pathname === "/login" ||
+          pathname === "/" ||
+          pathname === "/api/health" ||
+          pathname.startsWith("/api/auth")
+        ) {
           return true;
         }
-        // Toutes les autres routes nécessitent une authentification
+        // Routes API : laisser passer (le middleware ci-dessus gère le 401)
+        if (pathname.startsWith("/api/")) {
+          return true;
+        }
+        // Pages UI : authentification requise
         return !!token;
       },
     },

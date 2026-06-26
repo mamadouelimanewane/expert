@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -77,7 +77,7 @@ export default function ManufacturingPortfolioPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-500/10 text-orange-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-orange-500/20">
                         <Factory className="w-3 h-3" /> Pôle Industrie
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Gestion Portefeuille Industriel
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
@@ -289,7 +289,7 @@ function KpiCard({ label, value, trend, trendColor = "text-emerald-400", icon: I
             </div>
             <div>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{label}</p>
-                <h3 className="text-3xl font-black text-white">{value}</h3>
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{value}</h3>
             </div>
         </div>
     );

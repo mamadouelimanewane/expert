@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -46,13 +46,13 @@ export default function PartnerDashboard() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <TrendingUp className="w-56 h-56 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-5xl font-black text-white tracking-tighter flex items-center gap-5">
+                    <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter flex items-center gap-5">
                         <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/40">
                             <Target className="w-10 h-10 text-white" />
                         </div>
@@ -66,7 +66,7 @@ export default function PartnerDashboard() {
                 <div className="flex flex-col items-end relative z-10">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mb-2">Chiffre d'Affaires Cabinet (Trimestre)</p>
                     <div className="flex items-baseline gap-3">
-                        <span className="text-5xl font-black text-white">42.8M</span>
+                        <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">42.8M</span>
                         <span className="text-xs text-emerald-400 font-bold flex items-center gap-1 bg-emerald-500/10 px-2 py-1 rounded-lg">
                             <ArrowUpRight className="w-3 h-3" /> +14.2%
                         </span>
@@ -173,7 +173,7 @@ export default function PartnerDashboard() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-[40px] p-10 bg-indigo-600 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer">
+                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 bg-indigo-600 shadow-2xl shadow-indigo-600/30 relative overflow-hidden group hover:scale-[1.02] transition-transform cursor-pointer">
                         <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:rotate-12 transition-transform">
                             <Activity className="w-20 h-20" />
                         </div>
@@ -204,7 +204,7 @@ function StrategicCard({ title, value, trend, subtext, icon: Icon, color, bgColo
                 </span>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{title}</p>
-            <h3 className="text-4xl font-black text-white tracking-tighter">{value}</h3>
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">{value}</h3>
             <p className="text-[10px] text-slate-600 font-medium mt-2">{subtext}</p>
         </div>
     );

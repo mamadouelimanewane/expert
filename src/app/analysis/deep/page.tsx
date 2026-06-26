@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -495,13 +495,14 @@ export default function NeuralForensicsPage() {
                                         <p>CLIENT: SOGECOM SA</p>
                                     </div>
                                     <div className="pt-8">
+                                        <div className="overflow-x-auto">
                                         <table className="w-full text-left">
                                             <thead><tr className="border-b"><th className="pb-2">Description</th><th className="pb-2 text-right">Montant</th></tr></thead>
                                             <tbody>
                                                 <tr><td className="py-2">Prestation de Conseil</td><td className="text-right">4.500.000</td></tr>
                                                 <tr><td className="py-2">Location Matériel</td><td className="text-right">8.000.000</td></tr>
                                             </tbody>
-                                        </table>
+                                        </table></div>
                                     </div>
                                     <div className="pt-8 text-right font-bold text-lg">TOTAL: 12.500.000 FCFA</div>
                                 </div>

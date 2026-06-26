@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -42,7 +42,7 @@ export default function ResourcePlanningPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30">
                             <CalendarIcon className="w-8 h-8 text-white" />
                         </div>
@@ -155,7 +155,7 @@ export default function ResourcePlanningPage() {
 
             {/* Planning Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
                     <h3 className="text-white font-black text-lg mb-6 flex items-center gap-3">
                         <AlertCircle className="w-6 h-6 text-amber-500" />
                         Alertes de Surcharge
@@ -174,7 +174,7 @@ export default function ResourcePlanningPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
                     <h3 className="text-white font-black text-lg mb-6 flex items-center gap-3">
                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                         Missions à Venir (Non affectées)
@@ -204,7 +204,7 @@ function StatBox({ icon: Icon, label, value, color }: any) {
             </div>
             <div>
                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{label}</p>
-                <h4 className="text-3xl font-black text-white">{value}</h4>
+                <h4 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{value}</h4>
             </div>
         </div>
     );

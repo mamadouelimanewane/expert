@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Award, CheckCircle2, TrendingUp, ShieldCheck, Zap, Globe, Briefcase, Mail } from "lucide-react";
 
@@ -21,7 +21,7 @@ export default function SuccessStoriesPDF() {
             <div className="max-w-[210mm] mx-auto bg-white border-x border-slate-100 shadow-2xl print:shadow-none">
                 {/* PAGE 1: COVER */}
                 <section className="h-[297mm] p-24 flex flex-col justify-between break-after-page relative overflow-hidden bg-slate-900 text-white">
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 -mr-64 -mt-64 rotate-45 rounded-[120px]" />
+                    <div className="absolute top-0 right-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-white/5 -mr-64 -mt-64 rotate-45 rounded-[120px]" />
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-32">
@@ -37,7 +37,7 @@ export default function SuccessStoriesPDF() {
                                 <span className="text-indigo-400">Succès</span>
                             </h1>
                             <div className="h-2 w-48 bg-indigo-500" />
-                            <p className="text-3xl text-slate-300 max-w-xl font-serif italic pt-10">
+                            <p className="text-xl sm:text-2xl lg:text-3xl text-slate-300 max-w-xl font-serif italic pt-10">
                                 Analyse des performances et transformations digitales au sein de la zone OHADA.
                             </p>
                         </div>
@@ -62,9 +62,9 @@ export default function SuccessStoriesPDF() {
                         <div className="flex-1 h-[1px] bg-slate-100" />
                     </div>
 
-                    <div className="grid grid-cols-12 gap-12">
+                    <div className="grid grid-cols-12 gap-4 sm:gap-8 lg:gap-12">
                         <div className="col-span-12">
-                            <h2 className="text-5xl font-sans font-black text-slate-900 leading-none mb-6">Industries du Sahel</h2>
+                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 leading-none mb-6">Industries du Sahel</h2>
                             <p className="text-xl font-bold text-slate-400 uppercase tracking-widest font-sans mb-12">Secteur : Industrie & Logistique (Dakar)</p>
                         </div>
 
@@ -89,7 +89,7 @@ export default function SuccessStoriesPDF() {
                         </div>
 
                         <div className="col-span-5">
-                            <div className="bg-slate-900 text-white p-10 rounded-[50px] space-y-8">
+                            <div className="bg-slate-900 text-white p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] space-y-8">
                                 <div className="text-center">
                                     <p className="text-7xl font-sans font-black text-indigo-400 leading-none">70%</p>
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-4 opacity-50">Gain de Productivité</p>

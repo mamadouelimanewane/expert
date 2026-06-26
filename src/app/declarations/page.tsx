@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -80,7 +80,7 @@ export default function DeclarationsPage() {
                         <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg shadow-orange-500/20">
                             <Calculator className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tighter">Fiscalité & Déclarations</h2>
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Fiscalité & Déclarations</h2>
                     </div>
                     <p className="text-slate-400 font-medium text-lg max-w-2xl">
                         Pilotage des échéances fiscales (TVA, IS, IRVM) synchronisé avec la comptabilité.
@@ -130,6 +130,7 @@ export default function DeclarationsPage() {
 
                     {/* Table Card */}
                     <div className="glass-card rounded-[32px] border border-white/5 overflow-hidden bg-slate-900/20">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                 <tr>
@@ -210,7 +211,7 @@ export default function DeclarationsPage() {
                                     ))
                                 )}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
 

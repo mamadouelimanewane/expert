@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from 'react';
 import {
@@ -26,7 +26,7 @@ const SECTIONS = [
         content: (
             <div className="space-y-8">
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-white">Bienvenue sur Cabinet 360</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">Bienvenue sur Cabinet 360</h3>
                     <p className="text-slate-400 leading-relaxed text-lg">
                         Cabinet 360 est conçu pour simplifier chaque aspect de votre vie professionnelle.
                         Voici comment bien démarrer votre première session.
@@ -65,7 +65,7 @@ const SECTIONS = [
         content: (
             <div className="space-y-8">
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-white">Le CRM OHADA 360°</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">Le CRM OHADA 360°</h3>
                     <p className="text-slate-400 leading-relaxed">
                         Chaque client dispose d'une fiche complète centralisant documents, missions,
                         échéances fiscales et communication.
@@ -102,7 +102,7 @@ const SECTIONS = [
         content: (
             <div className="space-y-8">
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-white">Moteur de Calcul OHADA</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">Moteur de Calcul OHADA</h3>
                     <p className="text-slate-400 leading-relaxed">
                         Générez vos bilans et comptes de résultat conformes à la norme AUDCIF en un clic.
                     </p>
@@ -129,7 +129,7 @@ const SECTIONS = [
         content: (
             <div className="space-y-8">
                 <div className="space-y-4">
-                    <h3 className="text-3xl font-black text-white">Sécurité de Niveau Bancaire</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">Sécurité de Niveau Bancaire</h3>
                     <p className="text-slate-400 leading-relaxed">
                         Vos données sont votre actif le plus précieux. Nous les protégeons avec la plus grande rigueur.
                     </p>
@@ -230,7 +230,7 @@ export default function UserManualPage() {
 function GuideStep({ number, title, desc }: { number: string; title: string; desc: string }) {
     return (
         <div className="p-8 bg-[#13161c] border border-white/5 rounded-3xl space-y-4 hover:border-indigo-500/30 transition-colors">
-            <span className="text-4xl font-black text-indigo-500/20">{number}</span>
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-indigo-500/20">{number}</span>
             <h4 className="text-xl font-bold text-white">{title}</h4>
             <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
         </div>

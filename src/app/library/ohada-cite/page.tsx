@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -130,7 +130,7 @@ export default function OhadaCitePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Scale className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -145,7 +145,7 @@ export default function OhadaCitePage() {
                                 NEXUS Premium
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             OHADA-<span className="text-indigo-400">Cite</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -156,7 +156,7 @@ export default function OhadaCitePage() {
             </div>
 
             {/* Document Input */}
-            <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-8 shadow-2xl">
+            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-8 shadow-2xl">
                 <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tighter">
                     <FileText className="w-5 h-5 text-indigo-400" />
                     Collez votre texte juridique pour validation
@@ -185,34 +185,34 @@ export default function OhadaCitePage() {
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Citations Analysées</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-white">{citations.length}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{citations.length}</span>
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-emerald-500/5 border border-emerald-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">En Vigueur</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-emerald-400">{validCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">{validCount}</span>
                         <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-amber-500/5 border border-amber-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Modifiées</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-amber-400">{modifiedCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400">{modifiedCount}</span>
                         <AlertTriangle className="w-5 h-5 text-amber-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-rose-500/5 border border-rose-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Abrogées</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-rose-400">{abrogatedCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-rose-400">{abrogatedCount}</span>
                         <XCircle className="w-5 h-5 text-rose-500" />
                     </div>
                 </div>
             </div>
 
             {/* Citations List */}
-            <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl">
+            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                         <BookMarked className="w-6 h-6 text-indigo-400" />

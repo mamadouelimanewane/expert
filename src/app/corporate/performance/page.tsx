@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -46,7 +46,7 @@ export default function NexusPerformancePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Nexus Performance CPB */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <BarChart3 className="w-64 h-64 text-emerald-400" />
                 </div>
@@ -61,7 +61,7 @@ export default function NexusPerformancePage() {
                                 Corporate Performance Management
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-emerald-400">Performance</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -123,7 +123,7 @@ export default function NexusPerformancePage() {
                     </div>
 
                     {/* Main Chart Card */}
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10">
                         <div className="flex justify-between items-center mb-10">
                             <div>
                                 <h3 className="text-xl font-black text-white uppercase tracking-tight">Analyse de Performance Prédictive</h3>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -46,7 +46,7 @@ export default function StrategySimulatorPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-violet-500/20">
                         <BrainCircuit className="w-3 h-3" /> Intelligence Prédictive
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Simulateur de Stratégie IA
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
@@ -55,7 +55,7 @@ export default function StrategySimulatorPage() {
                 </div>
 
                 {/* Visual Eye Candy */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0" />
+                <div className="absolute top-0 right-0 w-[500px] h-[300px] sm:h-[400px] lg:h-[500px] bg-violet-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0" />
 
                 <div className="flex gap-3 z-10">
                     <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function StrategySimulatorPage() {
                 <div className="lg:col-span-8 space-y-6">
 
                     {/* Main Prediction Graph Area */}
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/50 relative overflow-hidden min-h-[400px] flex flex-col">
+                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/50 relative overflow-hidden min-h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
                         <div className="flex justify-between items-start mb-8 z-10">
                             <div>
                                 <h2 className="text-2xl font-black text-white">Projection Trésorerie N+1</h2>
@@ -205,7 +205,7 @@ export default function StrategySimulatorPage() {
                             </div>
                             <h4 className="font-bold text-white text-lg mb-2">Score de Résilience</h4>
                             <div className="flex items-end gap-2 mb-4">
-                                <span className={cn("text-5xl font-black",
+                                <span className={cn("text-2xl sm:text-3xl lg:text-5xl font-black",
                                     resilienceScore > 75 ? "text-emerald-400" :
                                         resilienceScore > 50 ? "text-amber-400" : "text-rose-400"
                                 )}>{resilienceScore.toFixed(0)}/100</span>

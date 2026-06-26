@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -64,7 +64,7 @@ export default function ClientPortalPage() {
                 scrolled ? "bg-[#0B0F17]/95 backdrop-blur-xl py-4 shadow-2xl" : "bg-transparent py-6"
             )}>
                 <div className="max-w-[1400px] mx-auto px-6 flex justify-between items-center">
-                    <div className="flex items-center gap-12">
+                    <div className="flex items-center gap-4 sm:gap-8 lg:gap-12">
                         {/* Brand */}
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center shadow-lg shadow-indigo-600/20">
@@ -154,7 +154,7 @@ export default function ClientPortalPage() {
                     <div className="space-y-6 sm:space-y-8">
                         {/* Welcome Banner */}
                         <div className="relative rounded-3xl sm:rounded-[40px] bg-gradient-to-r from-indigo-900/40 to-violet-900/40 border border-white/5 p-6 sm:p-10 overflow-hidden">
-                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                            <div className="absolute top-0 right-0 w-[500px] h-[300px] sm:h-[400px] lg:h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                             <div className="relative z-10 max-w-2xl">
                                 <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">Bonjour, {CLIENT_INFO.manager.split(' ')[1]} 👋</h2>
                                 <p className="text-slate-300 text-sm sm:text-lg mb-6 sm:text-lg mb-8 leading-relaxed">
@@ -283,7 +283,7 @@ export default function ClientPortalPage() {
                                             </div>
                                         )}
                                         renderTable={() => (
-                                            <table className="w-full text-left">
+                                            <div className="overflow-x-auto"><table className="w-full text-left">
                                                 <thead className="bg-slate-900/50 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                                     <tr>
                                                         <th className="px-8 py-4">Nom du Fichier</th>
@@ -320,7 +320,7 @@ export default function ClientPortalPage() {
                                                         </tr>
                                                     ))}
                                                 </tbody>
-                                            </table>
+                                            </table></div>
                                         )}
                             />
                                 </div>
@@ -372,7 +372,7 @@ export default function ClientPortalPage() {
                                             </div>
                                         )}
                                         renderTable={() => (
-                                            <table className="w-full text-left">
+                                            <div className="overflow-x-auto"><table className="w-full text-left">
                                                 <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                                     <tr>
                                                         <th className="px-8 py-6">Facture / Date</th>
@@ -408,7 +408,7 @@ export default function ClientPortalPage() {
                                                         </tr>
                                                     ))}
                                                 </tbody>
-                                            </table>
+                                            </table></div>
                                         )}
                                     />
                                 </div>
@@ -474,7 +474,7 @@ function PortalCard({ title, value, unit, trend, trendUp, icon: Icon, color, bg,
             </div>
             <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">{title}</p>
             <div className="flex items-baseline gap-1">
-                <h4 className="text-3xl font-black text-white">{value}</h4>
+                <h4 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{value}</h4>
                 <span className="text-xs font-bold text-slate-500">{unit}</span>
             </div>
         </div>
@@ -488,7 +488,7 @@ function PortalChat() {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-auto sm:h-[600px] animate-in fade-in duration-500">
             <div className={cn(
-                "lg:col-span-4 glass-card rounded-[32px] border border-white/5 bg-slate-900/40 flex flex-col min-h-[400px]",
+                "lg:col-span-4 glass-card rounded-[32px] border border-white/5 bg-slate-900/40 flex flex-col min-h-[280px] sm:h-[350px] lg:h-[400px]",
                 view === "chat" && "hidden lg:flex"
             )}>
                 <div className="p-6 border-b border-white/5">

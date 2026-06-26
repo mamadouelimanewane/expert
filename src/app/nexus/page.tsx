@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -128,7 +128,7 @@ export default function NexusPage() {
         <div className="min-h-screen bg-black text-white overflow-hidden relative font-mono selection:bg-cyan-500/30">
             {/* Background Grid & Effects */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-            <div className="absolute top-0 left-0 w-full h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-[300px] sm:h-[400px] lg:h-[500px] bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
 
             {/* RESPONSE MODAL OVERLAY */}
             {aiResponse && (
@@ -148,11 +148,11 @@ export default function NexusPage() {
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="p-4 bg-cyan-900/10 border border-cyan-500/20 rounded-xl text-center">
                                         <p className="text-xs text-cyan-500 uppercase tracking-widest font-bold mb-1">Score de Faisabilité</p>
-                                        <p className="text-4xl font-black text-white">{aiResponse.data.score}</p>
+                                        <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{aiResponse.data.score}</p>
                                     </div>
                                     <div className="p-4 bg-emerald-900/10 border border-emerald-500/20 rounded-xl text-center">
                                         <p className="text-xs text-emerald-500 uppercase tracking-widest font-bold mb-1">Synergies Est.</p>
-                                        <p className="text-4xl font-black text-emerald-400">{aiResponse.data.synergy}</p>
+                                        <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-400">{aiResponse.data.synergy}</p>
                                     </div>
                                     <div className="col-span-2 p-4 bg-white/5 rounded-xl border border-white/5">
                                         <p className="text-sm text-cyan-100 leading-relaxed font-sans border-l-2 border-cyan-500 pl-4">
@@ -239,7 +239,7 @@ export default function NexusPage() {
                         <BrainCircuit className="w-8 h-8 text-cyan-400" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
                             NEXUS <span className="text-white">CORE</span>
                         </h1>
                         <p className="text-xs text-cyan-600 uppercase tracking-[0.2em] font-bold">Système Central d'Intelligence Cabinet</p>
@@ -291,7 +291,7 @@ export default function NexusPage() {
                 {/* CENTER - THE CORE */}
                 <div className="col-span-6 flex flex-col items-center justify-center relative">
                     {/* The Brain Visual */}
-                    <div className="relative w-[500px] h-[500px] flex items-center justify-center">
+                    <div className="relative w-[500px] h-[300px] sm:h-[400px] lg:h-[500px] flex items-center justify-center">
                         {/* Orbitals */}
                         <div className={cn("absolute inset-0 rounded-full border border-cyan-500/10 transition-all duration-1000", isProcessing ? "animate-[spin_2s_linear_infinite] border-cyan-500/30" : "animate-[spin_10s_linear_infinite]")} />
                         <div className={cn("absolute inset-10 rounded-full border border-cyan-500/20 transition-all duration-1000", isProcessing ? "animate-[spin_3s_linear_infinite_reverse] border-cyan-500/40" : "animate-[spin_15s_linear_infinite_reverse]")} />
@@ -409,7 +409,7 @@ function NexusMetric({ label, value, unit, trend, trendDown, icon: Icon }: any) 
             </div>
             <p className="text-[10px] text-cyan-700 uppercase tracking-widest font-bold mb-1">{label}</p>
             <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black text-white group-hover:text-cyan-200 transition-colors">{value}</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white group-hover:text-cyan-200 transition-colors">{value}</span>
                 <span className="text-xs font-bold text-cyan-600">{unit}</span>
             </div>
         </div>

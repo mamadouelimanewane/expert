@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -59,7 +59,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Legal Command Center */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Gavel className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -71,7 +71,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
                                 Rédaction d'Actes Assistée par IA
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-indigo-400">Legal Drafter</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -90,7 +90,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Selection & Configuration (Left) */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                             <Search className="w-6 h-6 text-indigo-400" />
                             Type d'Acte
@@ -143,7 +143,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
 
                 {/* 2. Editor & Preview (Right) */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl min-h-[600px] flex flex-col overflow-hidden">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl min-h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col overflow-hidden">
                         <div className="p-8 border-b border-white/5 bg-slate-950/40 flex justify-between items-center">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
@@ -159,7 +159,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
                             )}
                         </div>
 
-                        <div className="flex-1 p-12 overflow-y-auto">
+                        <div className="flex-1 p-4 sm:p-8 lg:p-12 overflow-y-auto">
                             {isDrafting ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center animate-pulse">
                                     <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
@@ -169,7 +169,7 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
                                     <p className="text-slate-500 text-sm font-medium">Analyse des clauses de l'AUSCGIE et application de votre style de cabinet...</p>
                                 </div>
                             ) : draftedContent ? (
-                                <div className="bg-white rounded-lg p-12 text-slate-950 font-serif leading-relaxed text-sm shadow-inner whitespace-pre-wrap">
+                                <div className="bg-white rounded-lg p-4 sm:p-8 lg:p-12 text-slate-950 font-serif leading-relaxed text-sm shadow-inner whitespace-pre-wrap">
                                     {draftedContent}
                                 </div>
                             ) : (

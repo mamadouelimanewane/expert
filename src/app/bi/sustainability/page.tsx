@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -78,7 +78,7 @@ export default function SustainabilityHubPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                         <Globe className="w-3 h-3" /> Dashboard Durabilité & RSE
                     </div>
-                    <h1 className="text-5xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight flex items-center gap-4">
                         Sustainability Hub
                     </h1>
                     <p className="text-slate-400 mt-4 max-w-2xl text-lg leading-relaxed">
@@ -162,7 +162,7 @@ export default function SustainabilityHubPage() {
 
                 {/* Right: Detailed Analysis View */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative min-h-[500px]">
+                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative min-h-[300px] sm:h-[400px] lg:h-[500px]">
                         <div className="flex justify-between items-center mb-8 pb-6 border-b border-white/5">
                             <h3 className="text-2xl font-bold text-white flex items-center gap-3">
                                 {activeData?.icon && <activeData.icon className={cn("w-6 h-6", activeData.color)} />}

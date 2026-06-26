@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -76,7 +76,7 @@ export default function BusinessPlanPage() {
                         <Rocket className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
                             {projectName}
                             <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[10px] font-bold text-emerald-400 uppercase">Premium AI Plan</div>
                         </h2>
@@ -132,7 +132,7 @@ export default function BusinessPlanPage() {
             </div>
 
             {/* Content Area */}
-            <div className="min-h-[600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="min-h-[350px] sm:h-[450px] lg:h-[600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {activeTab === "plan" && <PlanSection isEditMode={isEditMode} setIsEditMode={setIsEditMode} />}
                 {activeTab === "finance" && <FinanceSection projections={projections} setProjections={setProjections} />}
                 {activeTab === "valuation" && <ValuationSection valuation={valuation} />}
@@ -243,7 +243,7 @@ function PlanSection({ isEditMode, setIsEditMode }: any) {
                         <div className="w-48 h-48 rounded-full border-[16px] border-slate-800 relative flex items-center justify-center">
                             <div className="absolute inset-0 rounded-full border-[16px] border-indigo-500 border-t-transparent border-l-transparent rotate-[45deg]" />
                             <div className="text-center">
-                                <p className="text-4xl font-bold text-white">12%</p>
+                                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">12%</p>
                                 <p className="text-xs text-slate-500 uppercase font-bold">SOM Target</p>
                             </div>
                         </div>
@@ -389,7 +389,7 @@ function ValuationSection({ valuation }: any) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
-                <div className="glass-card rounded-3xl border border-slate-700/50 p-10 bg-gradient-to-br from-indigo-900/40 to-slate-900 shadow-2xl relative overflow-hidden">
+                <div className="glass-card rounded-3xl border border-slate-700/50 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-indigo-900/40 to-slate-900 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                         <Shield className="w-32 h-32 text-indigo-400" />
                     </div>
@@ -400,7 +400,7 @@ function ValuationSection({ valuation }: any) {
                         <div>
                             <p className="text-[10px] text-indigo-400 uppercase font-bold tracking-widest mb-1">Pre-Money Valuation</p>
                             <div className="flex items-baseline gap-2">
-                                <p className="text-5xl font-black text-white italic">{(valuation.preMoney / 1000).toFixed(1)}M</p>
+                                <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white italic">{(valuation.preMoney / 1000).toFixed(1)}M</p>
                                 <span className="text-xl font-bold text-slate-500">USD</span>
                             </div>
                         </div>

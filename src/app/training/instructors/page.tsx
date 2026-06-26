@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -103,7 +103,7 @@ export default function InstructorsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <Users className="w-3 h-3" /> Nos Formateurs
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                         Experts & Instructeurs
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">
@@ -183,7 +183,7 @@ export default function InstructorsPage() {
                         <div className="p-8 -mt-16 relative">
                             <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
                                 <div className={cn(
-                                    "w-28 h-28 rounded-3xl bg-gradient-to-br flex items-center justify-center text-4xl font-black text-white shadow-2xl border-4 border-slate-900 shrink-0",
+                                    "w-28 h-28 rounded-3xl bg-gradient-to-br flex items-center justify-center text-2xl sm:text-3xl lg:text-4xl font-black text-white shadow-2xl border-4 border-slate-900 shrink-0",
                                     selectedInstructor.color
                                 )}>
                                     {selectedInstructor.avatar}

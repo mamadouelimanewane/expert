@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, Image as ImageIcon, Bot, Clock, CheckCheck, Mic, Send } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function WhatsAppHubPage() {
                         <div className="p-2 bg-green-500/10 text-green-500 rounded-xl">
                             <MessageCircle className="w-6 h-6" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight">Hub WhatsApp & IA</h1>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Hub WhatsApp & IA</h1>
                     </div>
                     <p className="text-muted-foreground">Vos clients envoient leurs pièces sur WhatsApp, Nexus-Go s'occupe du reste.</p>
                 </div>
@@ -75,7 +75,7 @@ export default function WhatsAppHubPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* File d'attente IA */}
-                <div className="lg:col-span-1 glass-card rounded-3xl p-6 border border-border/50 h-[600px] flex flex-col">
+                <div className="lg:col-span-1 glass-card rounded-3xl p-6 border border-border/50 h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
                     <h2 className="text-lg font-bold mb-6 flex items-center gap-2"><Bot className="w-5 h-5 text-green-500" /> Historique (Simulé)</h2>
                     <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
                         {[
@@ -104,7 +104,7 @@ export default function WhatsAppHubPage() {
                 </div>
 
                 {/* Simulateur de conversation */}
-                <div className="lg:col-span-2 glass-card rounded-3xl border border-green-500/20 flex flex-col h-[600px] overflow-hidden bg-[url('https://i.imgur.com/KydrR2x.png')] bg-cover bg-center">
+                <div className="lg:col-span-2 glass-card rounded-3xl border border-green-500/20 flex flex-col h-[350px] sm:h-[450px] lg:h-[600px] overflow-hidden bg-[url('https://i.imgur.com/KydrR2x.png')] bg-cover bg-center">
                     <div className="p-4 bg-green-600/90 backdrop-blur-md text-white flex items-center gap-3 shadow-md z-10">
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">C</div>
                         <div>

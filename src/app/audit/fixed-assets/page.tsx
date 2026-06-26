@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -45,7 +45,7 @@ export default function FixedAssetsAuditPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Package className="w-8 h-8 text-amber-500" />
                         Audit & Inventaire des Immob.
                     </h2>
@@ -107,7 +107,7 @@ export default function FixedAssetsAuditPage() {
                                 <div className="text-xs font-bold text-slate-500 uppercase">Taux de couverture</div>
                                 <span className="text-emerald-400 font-bold text-xs">+85%</span>
                             </div>
-                            <div className="text-3xl font-bold text-white">124 / 145</div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">124 / 145</div>
                             <div className="mt-4 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                                 <div className="h-full w-[85%] bg-emerald-500 rounded-full" />
                             </div>
@@ -115,13 +115,13 @@ export default function FixedAssetsAuditPage() {
 
                         <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Valeur d'Acquisition</div>
-                            <div className="text-3xl font-bold text-white">45.8M</div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">45.8M</div>
                             <p className="text-[10px] text-slate-500 mt-2 uppercase">FCFA • Exercice 2024</p>
                         </div>
 
                         <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Écarts Détectés</div>
-                            <div className="text-3xl font-bold text-rose-500">12</div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-500">12</div>
                             <p className="text-[10px] text-rose-400 mt-2 flex items-center gap-1 font-bold">
                                 <AlertTriangle className="w-3 h-3" /> À régulariser
                             </p>
@@ -130,6 +130,7 @@ export default function FixedAssetsAuditPage() {
 
                     {/* Main List */}
                     <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-slate-900/50 text-slate-500 font-medium">
                                 <tr>
@@ -176,7 +177,7 @@ export default function FixedAssetsAuditPage() {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
             )}

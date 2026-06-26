@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Smartphone, RefreshCw, CheckCircle, AlertCircle, Zap, ChevronDown } from "lucide-react";
@@ -79,7 +79,7 @@ export function MobileMoneySync({ clientId }: { clientId?: string }) {
               disabled:opacity-50 disabled:cursor-not-allowed
             `}
           >
-            <span className="text-3xl block mb-2">{op.emoji}</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl block mb-2">{op.emoji}</span>
             <p className="text-xs font-black text-white">{op.name}</p>
             <p className="text-[9px] text-slate-500 mt-0.5">{op.countries.join(" · ")}</p>
 

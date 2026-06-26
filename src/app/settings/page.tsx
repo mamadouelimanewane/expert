@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -39,7 +39,7 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-3xl font-bold text-foreground tracking-tight">Paramètres</h2>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">Paramètres</h2>
                     <p className="text-muted-foreground mt-1">Configurez votre environnement de travail et les préférences du cabinet.</p>
                 </div>
                 <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
@@ -70,7 +70,7 @@ export default function SettingsPage() {
 
                 {/* Content Area */}
                 <div className="lg:col-span-3 space-y-6">
-                    <div className="glass-card rounded-2xl border border-border/50 p-8 min-h-[500px]">
+                    <div className="glass-card rounded-2xl border border-border/50 p-8 min-h-[300px] sm:h-[400px] lg:h-[500px]">
                         {activeTab === "général" && (
                             <div className="space-y-8">
                                 <h3 className="text-xl font-bold text-foreground border-b border-border/50 pb-4">Préférences Générales</h3>

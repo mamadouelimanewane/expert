@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -64,7 +64,7 @@ export default function NexusComplianceHubPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -79,7 +79,7 @@ export default function NexusComplianceHubPage() {
                                 Global Risk & Integrity
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase text-balance">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase text-balance">
                             Nexus <span className="text-indigo-400">Legal & Risk Integrity</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -257,10 +257,10 @@ export default function NexusComplianceHubPage() {
                         )}
                     </div>
 
-                    <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 shadow-xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40 shadow-xl">
                         <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Indice d'Intégrité Global</h4>
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-4xl font-black text-white">74.8<span className="text-xs text-slate-500 ml-1">%</span></span>
+                            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">74.8<span className="text-xs text-slate-500 ml-1">%</span></span>
                             <div className="flex flex-col items-end">
                                 <TrendingUp className="w-5 h-5 text-emerald-400" />
                                 <span className="text-[9px] font-black text-emerald-400">+1.2%</span>

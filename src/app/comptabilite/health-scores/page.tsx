@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -98,7 +98,7 @@ export default function HealthScoreDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-indigo-500" />
             Scores de Santé Financière
           </h2>
@@ -126,7 +126,7 @@ export default function HealthScoreDashboard() {
         ].map((s, i) => (
           <div key={i} className={`p-5 rounded-[20px] border ${s.bg} bg-slate-900/30`}>
             <s.icon className={`w-5 h-5 ${s.color} mb-3`} />
-            <p className={`text-3xl font-black tabular-nums ${s.color}`}>{s.val}</p>
+            <p className={`text-xl sm:text-2xl lg:text-3xl font-black tabular-nums ${s.color}`}>{s.val}</p>
             <p className="text-[10px] text-slate-500 font-bold mt-0.5">{s.unit}</p>
             <p className="text-xs text-slate-400 mt-1">{s.label}</p>
           </div>
@@ -210,6 +210,7 @@ export default function HealthScoreDashboard() {
       {/* Vue TABLEAU */}
       {viewMode === "table" && (
         <div className="bg-slate-900/40 border border-white/5 rounded-[28px] overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-white/10 bg-slate-800/50">
@@ -262,7 +263,7 @@ export default function HealthScoreDashboard() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>

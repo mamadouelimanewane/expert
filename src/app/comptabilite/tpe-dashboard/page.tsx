@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -112,7 +112,7 @@ export default function TpeDashboard() {
             <BarChart3 className="w-8 h-8 text-violet-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Dashboard BPO TPE</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Dashboard BPO TPE</h2>
             <p className="text-slate-400 mt-1">Pilotez vos abonnés du secteur informel. Flux WhatsApp, scores de crédit et attestations en temps réel.</p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function TpeDashboard() {
         ].map((kpi, i) => (
           <div key={i} className={cn("rounded-[24px] border p-5", kpi.color)}>
             <kpi.icon className="w-5 h-5 mb-4" />
-            <p className="text-3xl font-black tabular-nums">{kpi.val}</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black tabular-nums">{kpi.val}</p>
             <p className="text-xs font-bold mt-1 opacity-70">{kpi.label}</p>
             <p className="text-[10px] mt-2 opacity-50">{kpi.sub}</p>
           </div>
@@ -154,7 +154,7 @@ export default function TpeDashboard() {
             />
           </div>
 
-          <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
+          <div className="space-y-2 max-h-[350px] sm:h-[450px] lg:h-[600px] overflow-y-auto custom-scrollbar">
             {filtered.map(tpe => {
               const r = RATING_STYLES[tpe.creditRating] || RATING_STYLES.C;
               const isSelected = selected?.id === tpe.id;
@@ -241,7 +241,7 @@ export default function TpeDashboard() {
                   <div className={cn("p-6 rounded-2xl border", RATING_STYLES[selected.creditRating]?.bg, RATING_STYLES[selected.creditRating]?.border)}>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Score de Crédit IA</p>
                     <div className="flex items-end gap-3">
-                      <span className={cn("text-6xl font-black tabular-nums", RATING_STYLES[selected.creditRating]?.text)}>
+                      <span className={cn("text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black tabular-nums", RATING_STYLES[selected.creditRating]?.text)}>
                         {selected.creditScore}
                       </span>
                       <div className="pb-1">

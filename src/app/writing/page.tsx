@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -88,7 +88,7 @@ Première résolution : L'assemblée, après avoir entendu la lecture du rapport
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <PenTool className="w-8 h-8 text-cyan-400" />
                         Rédaction & Gestion de Courrier
                     </h2>
@@ -152,7 +152,7 @@ Première résolution : L'assemblée, après avoir entendu la lecture du rapport
                     </div>
 
                     {/* Editor Area */}
-                    <div className="lg:col-span-3 glass-card rounded-2xl border border-slate-700/50 flex flex-col overflow-hidden min-h-[600px]">
+                    <div className="lg:col-span-3 glass-card rounded-2xl border border-slate-700/50 flex flex-col overflow-hidden min-h-[350px] sm:h-[450px] lg:h-[600px]">
                         {selectedTemplate ? (
                             <>
                                 <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex justify-between items-center">
@@ -237,6 +237,7 @@ Première résolution : L'assemblée, après avoir entendu la lecture du rapport
 
                     {/* Mail List */}
                     <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-slate-900/50 text-slate-500 font-medium">
                                 <tr>
@@ -283,7 +284,7 @@ Première résolution : L'assemblée, après avoir entendu la lecture du rapport
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
             )}

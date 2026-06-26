@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -83,7 +83,7 @@ export default function MachineryInventoryPage() {
                     <Link href="/industries/manufacturing" className="inline-flex items-center gap-2 px-3 py-1 bg-slate-800 text-slate-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 hover:bg-slate-700 transition-colors">
                         <ArrowLeft className="w-3 h-3" /> Retour Industrie
                     </Link>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <Cog className="w-10 h-10 text-amber-500" />
                         Inventaire Parc Machines
                     </h1>

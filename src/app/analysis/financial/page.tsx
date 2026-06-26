@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -80,7 +80,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <FilePieChart className="w-8 h-8 text-purple-400" />
                         Analyse Financière Avancée
                     </h2>
@@ -133,12 +133,12 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
             </div>
 
             {/* CONTENT AREA */}
-            <div className="min-h-[500px]">
+            <div className="min-h-[300px] sm:h-[400px] lg:h-[500px]">
 
                 {/* === TAB 1: BILAN (Existing but Refined) === */}
                 {activeTab === "bilan" && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-2 glass-card rounded-[40px] p-10 border border-slate-700/50 bg-slate-900/40">
+                        <div className="lg:col-span-2 glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-slate-700/50 bg-slate-900/40">
                             <div className="flex justify-between items-center mb-10">
                                 <h3 className="font-bold text-white text-lg flex items-center gap-3">Visualisation Actif / Passif</h3>
                                 <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-3 py-1 rounded-full border border-white/5">ÉQUILIBRE FINANCIER</span>
@@ -192,7 +192,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                         <div className="space-y-6">
                             <div className="glass-card p-8 rounded-[40px] border border-purple-500/20 bg-gradient-to-br from-slate-900 to-purple-900/20 text-center relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-[60px] rounded-full pointer-events-none" />
-                                <h3 className="text-4xl font-black text-white mb-2">82/100</h3>
+                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">82/100</h3>
                                 <p className="text-xs font-black text-purple-400 uppercase tracking-widest mb-6">Score Santé Financière</p>
                                 <div className="space-y-3 text-left">
                                     <ScoreRow label="Solvabilité" score={90} />
@@ -222,7 +222,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
 
                 {/* === TAB 2: CASH FLOW WATERFALL === */}
                 {activeTab === "cashflow" && (
-                    <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h3 className="text-xl font-bold text-white mb-1">Tableau des Flux de Trésorerie (TFT)</h3>
@@ -233,7 +233,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                             </div>
                         </div>
 
-                        <div className="flex items-end justify-between h-[400px] gap-2 px-4 border-b border-white/5 pb-4">
+                        <div className="flex items-end justify-between h-[280px] sm:h-[350px] lg:h-[400px] gap-2 px-4 border-b border-white/5 pb-4">
                             {/* Opening Balance */}
                             <WaterfallBar label="Tréso. Ouverture" value={25} total={40} type="neutral" start={0} />
 
@@ -260,7 +260,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                 {activeTab === "advanced" && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* DuPont Analysis */}
-                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                        <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
                             <div className="flex items-center gap-3 mb-8">
                                 <Divide className="w-6 h-6 text-indigo-400" />
                                 <h3 className="text-xl font-bold text-white">Décomposition DuPont (ROE)</h3>
@@ -269,7 +269,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                             <div className="flex flex-col items-center gap-6">
                                 <div className="p-6 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-center w-full">
                                     <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-2">Return On Equity (ROE)</p>
-                                    <p className="text-4xl font-black text-white">18.5%</p>
+                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">18.5%</p>
                                 </div>
 
                                 <div className="flex items-center w-full gap-4">
@@ -291,7 +291,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                         </div>
 
                         {/* Altman Z-Score */}
-                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 relative overflow-hidden">
+                        <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-[50px] pointer-events-none" />
 
                             <div className="flex items-center gap-3 mb-8">
@@ -303,7 +303,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
                                 <div className="relative w-64 h-32 overflow-hidden mb-4">
                                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full border-[20px] border-slate-800 border-t-emerald-500 border-r-emerald-500 rotation-wrapper transform -rotate-45" />
                                     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 mb-4 text-center">
-                                        <span className="text-5xl font-black text-white">3.42</span>
+                                        <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">3.42</span>
                                         <p className="text-[10px] font-bold text-emerald-400 uppercase mt-1">Zone Sûre (Safe)</p>
                                     </div>
                                 </div>
@@ -329,7 +329,7 @@ L'entreprise dispose d'une bonne capacité de résilience. Une optimisation opé
 
                 {/* === TAB 4: REPORT (Existing) === */}
                 {activeTab === "rapport" && (
-                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 h-[600px] flex flex-col">
+                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-widest">
                                 <FileText className="w-5 h-5 text-purple-400" />

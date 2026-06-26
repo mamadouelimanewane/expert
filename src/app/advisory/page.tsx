@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -21,7 +21,7 @@ export default function AdvisoryPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Activity className="w-8 h-8 text-fuchsia-500" />
                         Conseil & Stratégie (CFO)
                     </h2>
@@ -50,7 +50,7 @@ export default function AdvisoryPage() {
                     <div>
                         <h3 className="text-slate-400 font-medium mb-1">Score de Santé Financière</h3>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-bold text-white">82</span>
+                            <span className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white">82</span>
                             <span className="text-xl text-slate-500">/100</span>
                         </div>
                         <div className="mt-4 flex gap-2">

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { 
@@ -112,7 +112,7 @@ export default function DocumentGenerationCenter() {
           <FileCheck className="w-8 h-8 text-indigo-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Générateur de Livrables</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Générateur de Livrables</h2>
           <p className="text-slate-400 mt-1">Générez et propulsez instantanément les documents certifiés vers le portail de la PMI.</p>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function DocumentGenerationCenter() {
             Sélectionner la PMI
           </h3>
           
-          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-4 max-h-[500px] overflow-y-auto custom-scrollbar space-y-2">
+          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-4 max-h-[300px] sm:h-[400px] lg:h-[500px] overflow-y-auto custom-scrollbar space-y-2">
             {clients.map(client => {
               const isSelected = selectedClient === client.id;
               const name = client.companyName || `${client.firstName} ${client.lastName}`;

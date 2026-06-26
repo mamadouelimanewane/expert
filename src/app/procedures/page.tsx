@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -68,7 +68,7 @@ Cette procédure définit les étapes de validation des factures fournisseurs au
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <BookOpen className="w-8 h-8 text-emerald-400" />
                         Conception de Manuels de Procédures
                     </h2>
@@ -121,7 +121,7 @@ Cette procédure définit les étapes de validation des factures fournisseurs au
                 <div className="lg:col-span-3 space-y-6">
                     {selectedProc ? (
                         <>
-                            <div className="glass-card rounded-2xl border border-slate-700/50 flex flex-col min-h-[500px] overflow-hidden">
+                            <div className="glass-card rounded-2xl border border-slate-700/50 flex flex-col min-h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
                                 <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex justify-between items-center">
                                     <div className="flex items-center gap-3">
                                         <FileEdit className="w-5 h-5 text-emerald-400" />
@@ -184,7 +184,7 @@ Cette procédure définit les étapes de validation des factures fournisseurs au
                             </div>
                         </>
                     ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-600 border-2 border-dashed border-slate-800 rounded-3xl p-12">
+                        <div className="h-full flex flex-col items-center justify-center text-slate-600 border-2 border-dashed border-slate-800 rounded-3xl p-4 sm:p-8 lg:p-12">
                             <BookOpen className="w-16 h-16 mb-4 opacity-10" />
                             <p>Sélectionnez une procédure pour l'éditer.</p>
                         </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -99,7 +99,7 @@ export default function RevisionCyclesPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Production Comptable
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <FileSearch className="w-10 h-10 text-violet-500" />
                         Cycles de Révision
                     </h1>
@@ -225,7 +225,7 @@ function MetricCard({ label, value, color, warning }: any) {
     return (
         <div className="glass-card p-6 rounded-2xl border border-white/5 bg-slate-900/40">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{label}</p>
-            <div className={cn("text-3xl font-black", color)}>{value}</div>
+            <div className={cn("text-xl sm:text-2xl lg:text-3xl font-black", color)}>{value}</div>
             {warning && <div className="mt-2 h-1 w-full bg-amber-500/20 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-1/2 animate-pulse" /></div>}
         </div>
     );

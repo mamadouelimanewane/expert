@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -249,7 +249,7 @@ export default function NexusGoPage() {
                         <Mic className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-black text-white tracking-tight">Nexus-Go</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nexus-Go</h2>
                         <p className="text-slate-400 text-sm font-medium">Assistant Expert-Comptable OHADA • IA Contextuelle</p>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -73,8 +73,8 @@ export default function DataCenterPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header Premium - Data Center */}
-            <div className="bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <Database className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -88,7 +88,7 @@ export default function DataCenterPage() {
                                 High Integrity Imports
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Centre de <span className="text-indigo-400">Données & Ingestion</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -119,7 +119,7 @@ export default function DataCenterPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Datasets Table */}
-                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
+                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
                     <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/60">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <FileSpreadsheet className="w-6 h-6 text-indigo-400" />
@@ -132,6 +132,7 @@ export default function DataCenterPage() {
                     </div>
 
                     <div className="flex-1 overflow-auto">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                 <tr>
@@ -189,13 +190,13 @@ export default function DataCenterPage() {
                                     ))
                                 )}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
 
                 {/* Automation & Connectors */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                             <RefreshCw className="w-6 h-6 text-indigo-400" />
                             Connecteurs Directs
@@ -211,7 +212,7 @@ export default function DataCenterPage() {
                         </button>
                     </div>
 
-                    <div className="p-10 rounded-[48px] bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden group">
+                    <div className="p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
                             <Sparkles className="w-32 h-32 text-indigo-400" />
                         </div>
@@ -241,7 +242,7 @@ function DataKpiCard({ title, value, unit, trend, icon: Icon, color }: any) {
                 </div>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
         </div>
     );
 }

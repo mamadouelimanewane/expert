@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -108,7 +108,7 @@ export default function CreditInsightsPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <TrendingUp className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -123,7 +123,7 @@ export default function CreditInsightsPage() {
                                 Scoring Alternatif IA
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-indigo-400">Credit Insights</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -140,14 +140,14 @@ export default function CreditInsightsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Score Overview */}
                 <div className="lg:col-span-8 flex flex-col gap-6">
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
                         <div className="flex justify-between items-start mb-12">
                             <div className="flex items-center gap-6">
                                 <div className="w-24 h-24 rounded-[32px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                                     {selectedScore.type === "individual" ? <Users className="w-12 h-12" /> : <Building2 className="w-12 h-12" />}
                                 </div>
                                 <div>
-                                    <h3 className="text-3xl font-black text-white mb-2">{selectedScore.entityName}</h3>
+                                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-2">{selectedScore.entityName}</h3>
                                     <div className="flex items-center gap-4">
                                         <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">ID: {selectedScore.id}</span>
                                         <div className="flex items-center gap-1 text-[10px] font-black uppercase text-emerald-400">
@@ -157,7 +157,7 @@ export default function CreditInsightsPage() {
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className={cn("text-6xl font-black leading-none mb-1", getScoreColor(selectedScore.riskCategory))}>
+                                <div className={cn("text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black leading-none mb-1", getScoreColor(selectedScore.riskCategory))}>
                                     {selectedScore.score}
                                 </div>
                                 <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Score Nexus / 850</div>

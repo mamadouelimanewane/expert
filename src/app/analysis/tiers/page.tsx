@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -74,7 +74,7 @@ Le délai moyen de paiement fournisseurs (DPO) est de 45 jours, ce qui est confo
         <div className="space-y-6 pb-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Users className="w-8 h-8 text-indigo-400" />
                         Analyse des Comptes Tiers
                     </h2>
@@ -95,21 +95,21 @@ Le délai moyen de paiement fournisseurs (DPO) est de 45 jours, ce qui est confo
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Encours Clients Global</p>
-                    <div className="text-3xl font-bold text-white mb-2">18 800 000 <span className="text-xs text-slate-600">FCFA</span></div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">18 800 000 <span className="text-xs text-slate-600">FCFA</span></div>
                     <div className="flex items-center gap-2 text-rose-500 text-xs font-bold">
                         <TrendingUp className="w-4 h-4" /> +15% vs mois dernier
                     </div>
                 </div>
                 <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Total Retards Clients</p>
-                    <div className="text-3xl font-bold text-rose-400 mb-2">10 100 000 <span className="text-xs text-slate-600">FCFA</span></div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-400 mb-2">10 100 000 <span className="text-xs text-slate-600">FCFA</span></div>
                     <div className="flex items-center gap-2 text-slate-500 text-xs">
                         <AlertTriangle className="w-4 h-4 text-amber-500" /> 3 clients à risque élevé
                     </div>
                 </div>
                 <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Délai Moyen (DSO)</p>
-                    <div className="text-3xl font-bold text-white mb-2">68 <span className="text-xs text-slate-600">jours</span></div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">68 <span className="text-xs text-slate-600">jours</span></div>
                     <div className="mt-2 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-amber-500 w-[68%]" />
                     </div>
@@ -214,7 +214,7 @@ Le délai moyen de paiement fournisseurs (DPO) est de 45 jours, ce qui est confo
 
             {activeTab === "rapport" && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 glass-card rounded-3xl border border-slate-700/50 flex flex-col min-h-[600px] overflow-hidden bg-slate-900/30">
+                    <div className="lg:col-span-2 glass-card rounded-3xl border border-slate-700/50 flex flex-col min-h-[350px] sm:h-[450px] lg:h-[600px] overflow-hidden bg-slate-900/30">
                         <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <FileText className="w-5 h-5 text-indigo-400" />

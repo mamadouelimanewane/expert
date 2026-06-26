@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -42,8 +42,8 @@ export default function BoniMaliPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header Tempolia Inspired */}
-            <div className="bg-slate-900/60 p-10 rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <TrendingUp className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -54,7 +54,7 @@ export default function BoniMaliPage() {
                                 Gestion Interne & Boni-Mali
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Analyse de <span className="text-indigo-400">Rentabilité Dossier</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -66,7 +66,7 @@ export default function BoniMaliPage() {
                         <div className="p-6 bg-slate-950/80 rounded-3xl border border-white/10 shadow-xl backdrop-blur-xl">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Marge Globale Cabine</p>
                             <div className="flex items-center gap-3">
-                                <span className="text-3xl font-black text-emerald-400">+24.5%</span>
+                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">+24.5%</span>
                                 <ArrowUpRight className="w-6 h-6 text-emerald-500" />
                             </div>
                         </div>
@@ -196,7 +196,7 @@ export default function BoniMaliPage() {
 
             {/* Strategic Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 relative overflow-hidden group">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 relative overflow-hidden group">
                     <h3 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
                         <TrendingDown className="w-6 h-6 text-rose-500" />
                         Alerte Productivité (Mali)
@@ -212,7 +212,7 @@ export default function BoniMaliPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-950/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-950/40">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <PieChart className="w-6 h-6 text-indigo-400" />
                         Répartition du CA par Mission
@@ -243,7 +243,7 @@ function KpiCard({ title, value, trend, icon: Icon, color }: any) {
                 )}
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-3xl font-black text-white mt-1">{value}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1">{value}</h3>
         </div>
     );
 }

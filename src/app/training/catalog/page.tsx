@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -232,7 +232,7 @@ export default function TrainingCatalogPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <BookOpen className="w-3 h-3" /> Catalogue Complet
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                         Toutes nos Formations
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">

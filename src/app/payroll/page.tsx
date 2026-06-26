@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { 
@@ -76,7 +76,7 @@ export default function PayrollDashboard() {
           <Calculator className="w-8 h-8 text-blue-400" />
         </div>
         <div className="flex-1">
-          <h2 className="text-3xl font-black text-white tracking-tight">Paie & Social IA Multi-Pays</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Paie & Social IA Multi-Pays</h2>
           <p className="text-slate-400 mt-1">Générez la paie sans saisie. Le moteur fiscal s'adapte automatiquement au pays du client (Sénégal, CI, etc.).</p>
         </div>
       </div>

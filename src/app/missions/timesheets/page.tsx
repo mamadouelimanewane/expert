@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -81,14 +81,14 @@ export default function TimesheetsPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header / Current Timer */}
-            <div className="bg-slate-900/60 p-10 rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <Timer className="w-64 h-64 text-indigo-400" />
                 </div>
 
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-10">
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10">
                     <div className="text-center lg:text-left">
-                        <h2 className="text-4xl font-black text-white tracking-tight flex items-center justify-center lg:justify-start gap-4">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center justify-center lg:justify-start gap-4">
                             <Clock className="w-10 h-10 text-indigo-500" />
                             Gestion des Temps
                         </h2>
@@ -100,7 +100,7 @@ export default function TimesheetsPage() {
                     <div className="bg-slate-950/80 p-8 rounded-[40px] border border-white/10 shadow-2xl flex flex-col items-center gap-6 min-w-[400px]">
                         <div className="flex flex-col items-center">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Chronomètre Actif</p>
-                            <span className="text-6xl font-black text-white font-mono tracking-tighter tabular-nums">
+                            <span className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white font-mono tracking-tighter tabular-nums">
                                 {formatTime(elapsedTime)}
                             </span>
                             <p className="text-xs font-bold text-indigo-400 mt-2 uppercase tracking-widest">
@@ -230,7 +230,7 @@ function SummaryCard({ title, value, subtext, color }: any) {
     return (
         <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden group hover:bg-slate-900/60 transition-all">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">{title}</p>
-            <h3 className={cn("text-3xl font-black mb-2", color)}>{value}</h3>
+            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black mb-2", color)}>{value}</h3>
             <p className="text-xs text-slate-600 font-bold">{subtext}</p>
         </div>
     );

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -146,7 +146,7 @@ export default function FraudDetectionPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/30 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/30 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <ShieldAlert className="w-64 h-64 text-rose-400" />
                 </div>
@@ -161,7 +161,7 @@ export default function FraudDetectionPage() {
                                 NEXUS Shield
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Fraud <span className="text-rose-400">Detection</span> Hub
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -180,21 +180,21 @@ export default function FraudDetectionPage() {
                 <div className="glass-card p-8 rounded-[40px] bg-rose-500/5 border border-rose-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Alertes Critiques</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-rose-400">{criticalCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-rose-400">{criticalCount}</span>
                         <AlertOctagon className="w-5 h-5 text-rose-500 animate-pulse" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-amber-500/5 border border-amber-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Risque Élevé</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-amber-400">{highCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400">{highCount}</span>
                         <AlertTriangle className="w-5 h-5 text-amber-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-indigo-500/5 border border-indigo-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Nouvelles Alertes</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-indigo-400">{newCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">{newCount}</span>
                         <Zap className="w-5 h-5 text-indigo-500" />
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -48,7 +48,7 @@ export default function NexusEntityHubPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Gavel className="w-64 h-64 text-amber-400" />
                 </div>
@@ -63,7 +63,7 @@ export default function NexusEntityHubPage() {
                                 Legal Entity Management
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-amber-400">Entity Hub</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -84,7 +84,7 @@ export default function NexusEntityHubPage() {
                         <Building2 className="w-6 h-6 text-amber-400" />
                         <span className="text-[10px] text-emerald-400 font-black uppercase">Forte Croissance</span>
                     </div>
-                    <div className="text-3xl font-black text-white mb-1">28</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">28</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Entités sous Gestion</div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
@@ -92,7 +92,7 @@ export default function NexusEntityHubPage() {
                         <Scale className="w-6 h-6 text-amber-400" />
                         <span className="text-[10px] text-amber-400 font-black uppercase">Période d'AG</span>
                     </div>
-                    <div className="text-3xl font-black text-white mb-1">14</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">14</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Instances Planifiées (Q2)</div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
@@ -100,7 +100,7 @@ export default function NexusEntityHubPage() {
                         <ShieldCheck className="w-6 h-6 text-emerald-400" />
                         <span className="text-[10px] text-emerald-400 font-black uppercase">100% Compliance</span>
                     </div>
-                    <div className="text-3xl font-black text-white mb-1">98%</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">98%</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Indice de Santé Juridique</div>
                 </div>
             </div>

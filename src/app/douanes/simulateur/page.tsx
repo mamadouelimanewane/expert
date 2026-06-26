@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from 'react';
 import { Ship, Anchor, Calculator, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -37,7 +37,7 @@ export default function SimulateurDouanePage() {
                     <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
                         <Ship className="w-6 h-6" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight">Simulateur de Droits de Douane</h1>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Simulateur de Droits de Douane</h1>
                 </div>
                 <p className="text-muted-foreground">Estimez les frais d'importation (TEC CEDEAO/CEMAC) en temps réel.</p>
             </header>
@@ -111,7 +111,7 @@ export default function SimulateurDouanePage() {
                         </div>
                         <div className="pt-4 flex justify-between items-end">
                             <span className="text-sm font-bold uppercase text-muted-foreground">Total Taxes à Payer</span>
-                            <span className="text-3xl font-black text-blue-500 transition-all">{formatFCFA(total)}</span>
+                            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-500 transition-all">{formatFCFA(total)}</span>
                         </div>
                         <button className="w-full mt-6 py-2 border border-blue-500/50 text-blue-500 font-bold rounded-xl hover:bg-blue-500/10 transition-colors">
                             Générer Rapport PDF

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Smartphone, ArrowRightLeft, CheckCircle2, AlertCircle, RefreshCw, Filter, Download, Zap, Plus } from 'lucide-react';
@@ -72,7 +72,7 @@ export default function MobileMoneyPage() {
                         <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
                             <Smartphone className="w-6 h-6" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight">Rapprochement Mobile Money</h1>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Rapprochement Mobile Money</h1>
                     </div>
                     <p className="text-muted-foreground">Synchronisation en temps réel avec Wave, Orange Money et MTN MoMo.</p>
                 </div>
@@ -95,21 +95,21 @@ export default function MobileMoneyPage() {
                         <Smartphone className="w-24 h-24 text-emerald-500" />
                     </div>
                     <h3 className="text-sm font-bold text-muted-foreground mb-4">Volume Transactions MoMo</h3>
-                    <p className="text-4xl font-black text-foreground">{formatFCFA(totalVolume)}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground">{formatFCFA(totalVolume)}</p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-emerald-500 font-medium">
                         <ArrowRightLeft className="w-4 h-4" /> {transactions.length} flux détectés
                     </div>
                 </div>
                 <div className="glass-card p-6 rounded-3xl border border-border/50 relative overflow-hidden">
                     <h3 className="text-sm font-bold text-muted-foreground mb-4">Transactions Rapprochées</h3>
-                    <p className="text-4xl font-black text-foreground">{reconciledCount}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground">{reconciledCount}</p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-emerald-500 font-medium">
                         <CheckCircle2 className="w-4 h-4" /> {aiSuccessRate}% de taux de succès IA
                     </div>
                 </div>
                 <div className="glass-card p-6 rounded-3xl border border-orange-500/20 relative overflow-hidden">
                     <h3 className="text-sm font-bold text-muted-foreground mb-4">En Attente de Lettrage</h3>
-                    <p className="text-4xl font-black text-foreground">{pendingCount}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground">{pendingCount}</p>
                     <div className={`mt-4 flex items-center gap-2 text-sm font-medium ${pendingCount > 0 ? 'text-orange-500' : 'text-muted-foreground'}`}>
                         <AlertCircle className="w-4 h-4" /> {pendingCount > 0 ? 'Action requise' : 'À jour'}
                     </div>
@@ -130,7 +130,7 @@ export default function MobileMoneyPage() {
                     ) : transactions.length === 0 ? (
                         <div className="p-8 text-center text-muted-foreground">Aucune transaction trouvée. Cliquez sur "Simuler Transaction" pour générer des flux.</div>
                     ) : (
-                        <table className="w-full text-sm text-left">
+                        <div className="overflow-x-auto"><table className="w-full text-sm text-left">
                             <thead className="text-xs text-muted-foreground uppercase bg-muted/10">
                                 <tr>
                                     <th className="px-6 py-4 font-bold">Opérateur</th>
@@ -162,7 +162,7 @@ export default function MobileMoneyPage() {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

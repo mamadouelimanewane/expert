@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -137,7 +137,7 @@ export default function CoursePlayerPage() {
                         </div>
 
                         {/* Instructor PiP */}
-                        <div className="absolute bottom-6 right-6 w-40 h-40 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-4xl font-black text-white shadow-2xl border-4 border-slate-900">
+                        <div className="absolute bottom-6 right-6 w-40 h-40 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-2xl sm:text-3xl lg:text-4xl font-black text-white shadow-2xl border-4 border-slate-900">
                             {COURSE_DATA.instructor.avatar}
                         </div>
                     </div>
@@ -184,7 +184,7 @@ export default function CoursePlayerPage() {
                     {/* Title & Actions */}
                     <div className="flex justify-between items-start">
                         <div>
-                            <h1 className="text-3xl font-black text-white">{COURSE_DATA.title}</h1>
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{COURSE_DATA.title}</h1>
                             <p className="text-slate-400 mt-2">{COURSE_DATA.subtitle}</p>
                         </div>
                         <div className="flex gap-3">

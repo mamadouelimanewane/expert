@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -83,7 +83,7 @@ export default function NexusTaxIntelligencePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Scale className="w-64 h-64 text-rose-400" />
                 </div>
@@ -98,7 +98,7 @@ export default function NexusTaxIntelligencePage() {
                                 Global Tax & Integrity
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-rose-400">Tax Intelligence</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -304,7 +304,7 @@ export default function NexusTaxIntelligencePage() {
                         </div>
 
                         {/* Analysis Grid */}
-                        <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                        <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
                             <h3 className="text-xl font-black text-white mb-8 uppercase tracking-tight">Comparatif des Régimes Fiscaux</h3>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
@@ -357,7 +357,7 @@ export default function NexusTaxIntelligencePage() {
 
             {activeTab === "integrity" && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40 min-h-[400px] flex items-center justify-center border-dashed">
+                    <div className="lg:col-span-2 glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 min-h-[280px] sm:h-[350px] lg:h-[400px] flex items-center justify-center border-dashed">
                         <div className="text-center">
                             <Globe className="w-16 h-16 text-slate-700 mx-auto mb-6" />
                             <h3 className="text-xl font-black text-slate-500 uppercase">Cadrage Fiscal Multi-Zones</h3>

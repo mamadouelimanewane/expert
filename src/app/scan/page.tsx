@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import {
@@ -111,7 +111,7 @@ export default function OCRPage() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight flex items-center gap-3">
                         <ScanLine className="w-8 h-8 text-indigo-500" />
                         Smart Scan OCR
                     </h2>
@@ -141,7 +141,7 @@ export default function OCRPage() {
                     />
 
                     <div className={cn(
-                        "border-2 border-dashed rounded-[32px] h-[500px] flex flex-col items-center justify-center text-center transition-all relative overflow-hidden group",
+                        "border-2 border-dashed rounded-[32px] h-[300px] sm:h-[400px] lg:h-[500px] flex flex-col items-center justify-center text-center transition-all relative overflow-hidden group",
                         step === "scanning"
                             ? "border-indigo-500 bg-slate-900/50"
                             : step === "review"

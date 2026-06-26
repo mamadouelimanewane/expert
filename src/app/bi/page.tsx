@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -15,17 +15,17 @@ export default function BusinessIntelligencePage() {
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-1000">
             {/* Header BI - High Tech Look */}
-            <div className="relative p-12 rounded-[60px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
+            <div className="relative p-4 sm:p-8 lg:p-12 rounded-[60px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-600/10 to-transparent pointer-events-none" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-10">
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10">
                     <div>
                         <div className="flex items-center gap-5 mb-6">
                             <div className="p-4 bg-indigo-600 rounded-[28px] shadow-[0_0_40px_rgba(79,70,229,0.4)]">
                                 <BarChart3 className="w-10 h-10 text-white" />
                             </div>
-                            <h2 className="text-5xl font-black text-white tracking-tighter">Business Intelligence</h2>
+                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter">Business Intelligence</h2>
                         </div>
                         <p className="text-slate-400 text-xl max-w-2xl font-medium leading-relaxed">
                             Visualisation avancée et analytique prédictive pour le pilotage stratégique de votre cabinet.
@@ -36,13 +36,13 @@ export default function BusinessIntelligencePage() {
                         <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/50">
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score Santé Cabinet</p>
                             <div className="flex items-center gap-3">
-                                <span className="text-3xl font-black text-emerald-400">94/100</span>
+                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">94/100</span>
                                 <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
                             </div>
                         </div>
                         <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/50">
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Prévision MRR T4</p>
-                            <h3 className="text-3xl font-black text-indigo-400">+18%</h3>
+                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">+18%</h3>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@ export default function BusinessIntelligencePage() {
                     <BiMetricCard label="Taux d'Attrition (Churn)" value="1.5%" trend="-0.5%" trendDir="down" color="text-indigo-400" />
                     <BiMetricCard label="Délai de Recouvrement" value="24 jours" trend="+5j" trendDir="down" color="text-rose-400" />
 
-                    <div className="glass-card p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-700 relative overflow-hidden group">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-700 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:rotate-12 transition-transform">
                             <BrainCircuit className="w-24 h-24 text-white" />
                         </div>
@@ -110,7 +110,7 @@ export default function BusinessIntelligencePage() {
                 <div className="lg:col-span-3 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Revenue Curve */}
-                        <div className="glass-card p-10 rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
                             <div className="flex justify-between items-center mb-10">
                                 <h3 className="text-white font-black uppercase text-xs tracking-widest">Croissance du CA (Mensuel)</h3>
                                 <div className="flex gap-2">
@@ -134,12 +134,12 @@ export default function BusinessIntelligencePage() {
                         </div>
 
                         {/* Category Mix */}
-                        <div className="glass-card p-10 rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
                             <h3 className="text-white font-black uppercase text-xs tracking-widest mb-8">Rentabilité par Pôle</h3>
                             <div className="flex-1 flex items-center justify-center relative">
                                 <div className="w-56 h-56 rounded-full border-[16px] border-slate-800 flex items-center justify-center relative">
                                     <div className="text-center">
-                                        <p className="text-4xl font-black text-white">38%</p>
+                                        <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">38%</p>
                                         <p className="text-[8px] text-slate-500 font-black uppercase">Marge Nette Moyenne</p>
                                     </div>
                                     {/* Abstract Segments */}
@@ -157,7 +157,7 @@ export default function BusinessIntelligencePage() {
                     </div>
 
                     {/* Operational Benchmarking */}
-                    <div className="glass-card p-10 rounded-[50px] bg-slate-900/40 border border-white/5">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-white font-black uppercase text-xs tracking-widest">Productivité & Temps non facturé</h3>
                             <button className="text-[10px] text-indigo-400 font-black uppercase flex items-center gap-2 hover:text-white transition-colors">
@@ -189,7 +189,7 @@ function BiMetricCard({ label, value, trend, trendDir, color }: any) {
                     {trend}
                 </div>
             </div>
-            <h3 className={cn("text-3xl font-black tracking-tighter", color)}>{value}</h3>
+            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter", color)}>{value}</h3>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -107,7 +107,7 @@ export function OnboardingGuide() {
                     {/* Content Area */}
                     <div className="p-10 pt-2 flex-1 flex flex-col justify-between">
                         <div className="text-center space-y-4">
-                            <h2 className="text-3xl font-black text-white tracking-tight animate-in slide-in-from-bottom-2 duration-500 key={step.title}">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight animate-in slide-in-from-bottom-2 duration-500 key={step.title}">
                                 {step.title}
                             </h2>
                             <p className="text-slate-400 text-lg font-medium leading-relaxed max-w-lg mx-auto animate-in slide-in-from-bottom-3 duration-700 key={step.desc}">

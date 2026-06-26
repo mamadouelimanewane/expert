@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -52,8 +52,8 @@ export default function CustomDashboardPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header */}
-            <div className="p-10 rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <LayoutDashboard className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -64,7 +64,7 @@ export default function CustomDashboardPage() {
                                 Client Experience
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Personnalisez votre <span className="text-indigo-400">Espace Pilotage</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -146,7 +146,7 @@ export default function CustomDashboardPage() {
                             <div
                                 key={widget.id}
                                 className={cn(
-                                    "glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden group transition-all hover:scale-[1.02]",
+                                    "glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden group transition-all hover:scale-[1.02]",
                                     widget.size === "large" ? "md:col-span-2" : ""
                                 )}
                             >
@@ -180,7 +180,7 @@ export default function CustomDashboardPage() {
 
                         {!isPreview && (
                             <div
-                                className="border-4 border-dashed border-white/5 rounded-[48px] h-[350px] flex flex-col items-center justify-center text-slate-700 hover:border-indigo-500/20 hover:text-indigo-500/40 transition-all cursor-pointer group"
+                                className="border-4 border-dashed border-white/5 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] h-[350px] flex flex-col items-center justify-center text-slate-700 hover:border-indigo-500/20 hover:text-indigo-500/40 transition-all cursor-pointer group"
                                 onClick={() => { }}
                             >
                                 <Plus className="w-12 h-12 mb-4 group-hover:scale-110 transition-transform" />

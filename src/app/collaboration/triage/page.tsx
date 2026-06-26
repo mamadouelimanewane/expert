@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -76,7 +76,7 @@ export default function TriagePage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Gestion du Travail Unifiée
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <Inbox className="w-10 h-10 text-sky-500" />
                         Triage & Mails
                     </h1>

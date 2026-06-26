@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -134,7 +134,7 @@ const menuItems: MenuItem[] = [
 
     { header: "FINTECH & MOBILE MONEY" },
     { icon: Smartphone, label: "Mobile Money", href: "/mobile-money" },
-    { icon: CreditCard, label: "Paiements Intégrés", href: "/fintech/payments" },
+    { icon: CreditCard, label: "Hub Paiements (Wave/OM)", href: "/fintech/payments" },
     { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
     { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
 
@@ -145,6 +145,11 @@ const menuItems: MenuItem[] = [
     { icon: MessageCircle, label: "Hub WhatsApp Bot PMI", href: "/dashboard/whatsapp-bot" },
     { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
+
+    { header: "PLATEFORME & ÉCOSYSTÈME" },
+    { icon: Users, label: "Portail TPE / Client", href: "/portal/tpe-client" },
+    { icon: Globe, label: "Mission Control SaaS", href: "/settings/saas-admin" },
+    { icon: FileDigit, label: "Developer Hub & API", href: "/settings/api-keys" },
 ];
 
 export function Sidebar() {
@@ -317,7 +322,7 @@ export function Sidebar() {
             </aside>
 
             {/* Mobile Roaming FAB (Floating Action Button) */}
-            <div className="lg:hidden fixed bottom-6 right-6 z-[70] flex flex-col items-end gap-3">
+            <div className="lg:hidden fixed bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe-area-bottom">
                 {isFabOpen && (
                     <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <button className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100">

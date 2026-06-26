@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -57,7 +57,7 @@ export default function IARiskAuditPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <Fingerprint className="w-8 h-8 text-indigo-400" />
                         Cartographie des Risques IA
                     </h2>
@@ -201,7 +201,7 @@ export default function IARiskAuditPage() {
                             Couverture d'Audit
                         </h4>
                         <div className="flex items-end gap-2 mb-2">
-                            <span className="text-3xl font-bold text-white">72%</span>
+                            <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">72%</span>
                             <span className="text-xs text-emerald-400 font-bold mb-1">+15%</span>
                         </div>
                         <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">

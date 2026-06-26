@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -109,7 +109,7 @@ export default function CertificatesPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-amber-500/20">
                         <Award className="w-3 h-3" /> Mes Certifications
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                         Centre de Certifications
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">
@@ -200,7 +200,7 @@ export default function CertificatesPage() {
                     {/* Certificate Display */}
                     <div className="relative">
                         {/* Certificate Card */}
-                        <div className="bg-gradient-to-br from-amber-900/20 via-slate-900 to-slate-900 rounded-[40px] border-2 border-amber-500/30 p-10 relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-amber-900/20 via-slate-900 to-slate-900 rounded-[40px] border-2 border-amber-500/30 p-4 sm:p-6 lg:p-10 relative overflow-hidden">
                             {/* Decorative Elements */}
                             <div className="absolute top-0 left-0 w-32 h-32 border-l-4 border-t-4 border-amber-500/20 rounded-tl-[40px]" />
                             <div className="absolute bottom-0 right-0 w-32 h-32 border-r-4 border-b-4 border-amber-500/20 rounded-br-[40px]" />
@@ -223,13 +223,13 @@ export default function CertificatesPage() {
                                 {/* Score & Grade */}
                                 <div className="flex justify-center gap-8 mb-8">
                                     <div className="text-center">
-                                        <p className="text-4xl font-black text-white">{selectedCert.score}<span className="text-lg text-slate-500">%</span></p>
+                                        <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{selectedCert.score}<span className="text-lg text-slate-500">%</span></p>
                                         <p className="text-[10px] text-slate-500 uppercase">Score Final</p>
                                     </div>
                                     <div className="w-px bg-white/10" />
                                     <div className="text-center">
                                         <p className={cn(
-                                            "text-4xl font-black",
+                                            "text-2xl sm:text-3xl lg:text-4xl font-black",
                                             selectedCert.grade.startsWith('A') ? "text-emerald-400" : "text-amber-400"
                                         )}>{selectedCert.grade}</p>
                                         <p className="text-[10px] text-slate-500 uppercase">Mention</p>

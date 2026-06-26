@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
     BarChart,
@@ -25,7 +25,7 @@ export default function ComptabilitePage() {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">Comptabilité Cabinet</h2>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">Comptabilité Cabinet</h2>
                     <p className="text-slate-400 mt-1">Suivi de la facturation et encaissement Mobile Money.</p>
                 </div>
                 <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2">
@@ -38,15 +38,15 @@ export default function ComptabilitePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                     <p className="text-sm font-medium text-slate-400">CA Facturé (Mois)</p>
-                    <h3 className="text-3xl font-bold text-white mt-1">12.5M <span className="text-lg text-slate-500">FCFA</span></h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">12.5M <span className="text-lg text-slate-500">FCFA</span></h3>
                 </div>
                 <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                     <p className="text-sm font-medium text-slate-400">Encaissé (Mobile Money)</p>
-                    <h3 className="text-3xl font-bold text-emerald-400 mt-1">8.2M <span className="text-lg text-emerald-500/50">FCFA</span></h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-400 mt-1">8.2M <span className="text-lg text-emerald-500/50">FCFA</span></h3>
                 </div>
                 <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                     <p className="text-sm font-medium text-slate-400">Reste à recouvrer</p>
-                    <h3 className="text-3xl font-bold text-rose-400 mt-1">4.3M <span className="text-lg text-rose-500/50">FCFA</span></h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-400 mt-1">4.3M <span className="text-lg text-rose-500/50">FCFA</span></h3>
                 </div>
             </div>
 

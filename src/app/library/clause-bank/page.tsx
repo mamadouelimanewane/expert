@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -171,7 +171,7 @@ export default function ClauseBankPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <BookOpen className="w-64 h-64 text-amber-400" />
                 </div>
@@ -186,7 +186,7 @@ export default function ClauseBankPage() {
                                 NEXUS Premium
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Clause Bank <span className="text-amber-400">OHADA</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -265,7 +265,7 @@ export default function ClauseBankPage() {
                 <div className="lg:col-span-9">
                     {selectedClause ? (
                         /* Clause Detail View */
-                        <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl animate-in fade-in duration-500">
+                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl animate-in fade-in duration-500">
                             <button
                                 onClick={() => setSelectedClause(null)}
                                 className="text-sm text-slate-500 hover:text-white mb-6 flex items-center gap-2 transition-colors"

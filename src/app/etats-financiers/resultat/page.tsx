@@ -55,6 +55,7 @@ export default function ResultatPage() {
             </div>
 
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900">
                         <tr>
@@ -111,7 +112,7 @@ export default function ResultatPage() {
                             )
                         })}
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>
     );

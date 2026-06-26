@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -140,7 +140,7 @@ export default function QuizPage() {
             <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 flex items-center justify-center animate-in zoom-in duration-500">
                 <div className="max-w-2xl w-full">
                     <div className={cn(
-                        "p-10 rounded-[40px] border-2 text-center relative overflow-hidden",
+                        "p-4 sm:p-6 lg:p-10 rounded-[40px] border-2 text-center relative overflow-hidden",
                         passed ? "bg-emerald-500/5 border-emerald-500/20" : "bg-rose-500/5 border-rose-500/20"
                     )}>
                         {/* Decorative background icon */}
@@ -155,7 +155,7 @@ export default function QuizPage() {
                             {passed ? <Trophy className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
                         </div>
 
-                        <h1 className="text-4xl font-black text-white mb-2">
+                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
                             {passed ? "Félicitations !" : "Encore un effort !"}
                         </h1>
                         <p className="text-slate-400 mb-8">
@@ -164,15 +164,15 @@ export default function QuizPage() {
                                 : "Vous n'avez pas atteint le score minimum de passage (70%)."}
                         </p>
 
-                        <div className="flex justify-center gap-12 mb-10">
+                        <div className="flex justify-center gap-4 sm:gap-8 lg:gap-12 mb-10">
                             <div className="text-center">
                                 <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Votre Score</p>
-                                <p className={cn("text-5xl font-black", passed ? "text-emerald-400" : "text-rose-400")}>{score}%</p>
+                                <p className={cn("text-2xl sm:text-3xl lg:text-5xl font-black", passed ? "text-emerald-400" : "text-rose-400")}>{score}%</p>
                             </div>
                             <div className="w-px bg-white/10" />
                             <div className="text-center">
                                 <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Objectif</p>
-                                <p className="text-5xl font-black text-white">{QUIZ_DATA.passingScore}%</p>
+                                <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">{QUIZ_DATA.passingScore}%</p>
                             </div>
                         </div>
 
@@ -264,7 +264,7 @@ export default function QuizPage() {
                         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour au cours
                     </Link>
                     <h2 className="text-[10px] font-black text-teal-500 uppercase tracking-widest mb-1">{QUIZ_DATA.course}</h2>
-                    <h1 className="text-3xl font-black text-white">{QUIZ_DATA.title}</h1>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{QUIZ_DATA.title}</h1>
                 </div>
 
                 <div className="flex items-center gap-6 p-4 bg-slate-900 border border-white/5 rounded-3xl shrink-0">
@@ -305,7 +305,7 @@ export default function QuizPage() {
 
                 {/* Question Card */}
                 <div className="group">
-                    <div className="p-10 rounded-[40px] bg-slate-900/50 border border-white/5 group-hover:border-teal-500/20 transition-all duration-500 mb-8">
+                    <div className="p-4 sm:p-6 lg:p-10 rounded-[40px] bg-slate-900/50 border border-white/5 group-hover:border-teal-500/20 transition-all duration-500 mb-8">
                         <h3 className="text-2xl font-bold text-white mb-10 leading-relaxed italic">
                             "{currentQuestion.question}"
                         </h3>

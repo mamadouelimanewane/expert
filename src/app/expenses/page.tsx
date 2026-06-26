@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -73,12 +73,12 @@ export default function ExpensesPage() {
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-3xl border border-white/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <Wallet className="w-40 h-40 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
                         <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/20">
                             <Plane className="w-8 h-8 text-white" />
                         </div>
@@ -114,7 +114,7 @@ export default function ExpensesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Advanced Validation Workflow */}
-                <div className="lg:col-span-2 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
+                <div className="lg:col-span-2 glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <CheckCircle2 className="w-6 h-6 text-indigo-400" />
                         Circuit de Validation de Frais
@@ -158,7 +158,7 @@ export default function ExpensesPage() {
                 </div>
 
                 {/* Expense Analytics Brief */}
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                     <h3 className="text-xl font-black text-white mb-8">Répartition Analytique</h3>
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
@@ -217,7 +217,7 @@ export default function ExpensesPage() {
                     <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center mb-8">
                         <Sparkles className="w-12 h-12 text-indigo-400 animate-spin" />
                     </div>
-                    <h3 className="text-3xl font-black text-white mb-4 uppercase tracking-tighter">Analyse IA du Reçu...</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-4 uppercase tracking-tighter">Analyse IA du Reçu...</h3>
                     <p className="text-slate-500 max-w-sm mx-auto font-medium">Extraction automatique du montant, de la date et de la catégorie fiscale.</p>
                 </div>
             ) : activeTab === "notes" ? (
@@ -405,7 +405,7 @@ function KpiCard({ title, value, currency, trend, subtext, icon: Icon, color, bg
             <div>
                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
                 <div className="flex items-baseline gap-1 mt-1">
-                    <h3 className="text-3xl font-black text-white tracking-tighter">{value}</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tighter">{value}</h3>
                     {currency && <span className="text-xs font-bold text-slate-600 italic">{currency}</span>}
                 </div>
                 {subtext && <p className="text-[10px] text-slate-500 font-medium mt-1">{subtext}</p>}

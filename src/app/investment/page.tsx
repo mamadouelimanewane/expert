@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -31,17 +31,17 @@ export default function InvestmentPage() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
             {/* Massive Premium Header */}
-            <div className="relative p-12 rounded-[50px] bg-slate-900/60 border border-white/5 overflow-hidden shadow-2xl">
+            <div className="relative p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/60 border border-white/5 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-10 blur-3xl bg-indigo-500 rounded-full animate-pulse" />
                 <div className="absolute -bottom-20 -left-20 p-20 opacity-5 bg-cyan-500 rounded-full" />
 
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10">
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6 lg:gap-10">
                     <div className="flex-1">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-500/40">
                                 <Rocket className="w-10 h-10 text-white" />
                             </div>
-                            <h2 className="text-5xl font-black text-white tracking-tighter">Valorisation & M&A IA</h2>
+                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter">Valorisation & M&A IA</h2>
                         </div>
                         <p className="text-slate-400 text-xl max-w-2xl font-medium leading-relaxed italic">
                             "Modélisez l'avenir de vos clients. Simulez des fusions, des acquisitions et des levées de fonds avec une précision institutionnelle."
@@ -52,7 +52,7 @@ export default function InvestmentPage() {
                         <div className="bg-slate-900/80 p-6 rounded-3xl border border-white/5 flex items-center gap-6">
                             <div>
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Capital Valorisés</p>
-                                <h3 className="text-3xl font-black text-white mt-1">14.8B <span className="text-xs text-slate-600">FCFA</span></h3>
+                                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1">14.8B <span className="text-xs text-slate-600">FCFA</span></h3>
                             </div>
                             <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
                                 <TrendingUp className="w-6 h-6" />
@@ -117,7 +117,7 @@ export default function InvestmentPage() {
                         <div className="glass-card rounded-[40px] p-8 bg-emerald-500/5 border border-emerald-500/10">
                             <h4 className="text-emerald-400 font-bold text-xs uppercase tracking-widest mb-4">Accrétion / Dilution</h4>
                             <div className="flex items-baseline gap-2">
-                                <h3 className="text-4xl font-black text-white">+12.4%</h3>
+                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">+12.4%</h3>
                                 <span className="text-emerald-500 text-xs font-bold font-mono">EPS Accretion</span>
                             </div>
                             <p className="text-[10px] text-slate-500 font-medium mt-2 leading-relaxed">
@@ -133,7 +133,7 @@ export default function InvestmentPage() {
                             <ResultCard title="Multiple EV/EBITDA Post-Op" value="7.2x" trend="-0.8x" icon={PieChart} />
                         </div>
 
-                        <div className="glass-card rounded-[40px] p-10 bg-slate-900/40 border border-white/5 min-h-[400px] flex flex-col">
+                        <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 bg-slate-900/40 border border-white/5 min-h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
                             <div className="flex justify-between items-center mb-10">
                                 <div>
                                     <h3 className="text-2xl font-black text-white tracking-tighter">Projections EBITDA (Post-Acquisition)</h3>
@@ -200,7 +200,7 @@ export default function InvestmentPage() {
                             <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 relative group">
                                 <Sparkles className="absolute top-4 right-4 w-5 h-5 text-indigo-400 opacity-20 group-hover:opacity-100 transition-opacity" />
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Valo. Estimée (DCF)</p>
-                                <h3 className="text-3xl font-black text-white">425M <span className="text-[10px] text-slate-500 uppercase">FCFA</span></h3>
+                                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">425M <span className="text-[10px] text-slate-500 uppercase">FCFA</span></h3>
                                 <div className="mt-4 flex items-center gap-2 text-[9px] font-bold text-emerald-400 uppercase">
                                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                                     Confiance IA: Haute (92%)
@@ -208,19 +208,19 @@ export default function InvestmentPage() {
                             </div>
                             <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Multiple Sectoriel</p>
-                                <h3 className="text-3xl font-black text-white">5.8x <span className="text-[10px] text-slate-500 uppercase">EBITDA</span></h3>
+                                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">5.8x <span className="text-[10px] text-slate-500 uppercase">EBITDA</span></h3>
                                 <p className="mt-4 text-[9px] text-slate-500 font-bold uppercase">Moyenne Afrique de l'Ouest</p>
                             </div>
                             <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
                                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score d'Attractivité</p>
-                                <h3 className="text-3xl font-black text-white">78/100</h3>
+                                <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">78/100</h3>
                                 <div className="mt-4 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-indigo-500" style={{ width: '78%' }} />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden h-[400px] flex flex-col justify-center items-center">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col justify-center items-center">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/5 via-transparent to-transparent" />
                             <div className="text-center space-y-4 relative z-10">
                                 <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 group hover:scale-110 transition-all cursor-pointer">
@@ -279,7 +279,7 @@ function ResultCard({ title, value, trend, icon: Icon }: any) {
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{title}</p>
             <div className="flex items-baseline gap-2">
-                <h3 className="text-4xl font-black text-white tracking-tighter">{value}</h3>
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">{value}</h3>
                 <span className="text-xs font-bold text-slate-600 italic">FCFA</span>
             </div>
         </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -73,7 +73,7 @@ export default function FinthesisReportingPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full text-xs font-bold tracking-widest uppercase mb-4 shadow-lg shadow-indigo-500/20">
                         Business Intelligence 2.0
                     </div>
-                    <h1 className="text-5xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight flex items-center gap-4">
                         <BarChart3 className="w-12 h-12 text-indigo-500" />
                         Reporting Visuel Interactif
                     </h1>
@@ -111,7 +111,7 @@ export default function FinthesisReportingPage() {
                         <div className="flex justify-between items-start mb-6">
                             <div>
                                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">{widget.title}</p>
-                                <h3 className="text-4xl font-black text-white tracking-tight">{widget.value}</h3>
+                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">{widget.value}</h3>
                             </div>
                             <div className={cn(
                                 "px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1",

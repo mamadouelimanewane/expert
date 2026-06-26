@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
     BookOpen,
@@ -124,7 +124,7 @@ export default function TrainingManualsPage() {
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-1000">
             {/* Premium Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-8 lg:p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-24 opacity-5 pointer-events-none">
                     <BookOpen className="w-80 h-80 text-white" />
                 </div>
@@ -137,7 +137,7 @@ export default function TrainingManualsPage() {
                             </span>
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                         </div>
-                        <h1 className="text-5xl font-black text-white tracking-tight leading-tight uppercase mb-6">
+                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight leading-tight uppercase mb-6">
                             Mastering <span className="text-indigo-400">Nexus Elite</span>
                         </h1>
                         <p className="text-slate-400 text-lg font-medium leading-relaxed">
@@ -165,7 +165,7 @@ export default function TrainingManualsPage() {
                     <div
                         key={guide.id}
                         className={cn(
-                            "glass-card p-10 rounded-[50px] border transition-all duration-500 hover:scale-[1.02] group relative overflow-hidden",
+                            "glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border transition-all duration-500 hover:scale-[1.02] group relative overflow-hidden",
                             guide.border
                         )}
                     >
@@ -203,13 +203,13 @@ export default function TrainingManualsPage() {
             </div>
 
             {/* Bottom Support Callout */}
-            <div className="p-12 rounded-[50px] bg-indigo-600 relative overflow-hidden shadow-2xl shadow-indigo-600/20">
-                <div className="absolute top-0 right-0 p-12 opacity-10">
+            <div className="p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-indigo-600 relative overflow-hidden shadow-2xl shadow-indigo-600/20">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-10">
                     <Zap className="w-64 h-64 text-white" />
                 </div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div>
-                        <h2 className="text-3xl font-black text-white uppercase tracking-tight mb-2">Besoin d'une formation sur site ?</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white uppercase tracking-tight mb-2">Besoin d'une formation sur site ?</h2>
                         <p className="text-indigo-100 font-medium opacity-80">Nos experts se déplacent dans vos bureaux pour des sessions de masterclass immersives.</p>
                     </div>
                     <button className="px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black uppercase tracking-widest text-[12px] hover:shadow-2xl transition-all h-fit whitespace-nowrap">

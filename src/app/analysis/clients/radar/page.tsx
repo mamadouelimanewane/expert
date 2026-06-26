@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -51,7 +51,7 @@ export default function ClientSuccessRadar() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Client Success Command Center */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Radar className="w-64 h-64 text-emerald-400" />
                 </div>
@@ -63,7 +63,7 @@ export default function ClientSuccessRadar() {
                                 Client Success Engine v2.0
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Radar de <span className="text-emerald-400">Réussite Client</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -89,7 +89,7 @@ export default function ClientSuccessRadar() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Client Health Registry (Left) */}
-                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 flex flex-col shadow-2xl overflow-hidden">
+                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Registre de Santé Client</h3>
                         <div className="flex gap-2">
@@ -122,7 +122,7 @@ export default function ClientSuccessRadar() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-10">
+                                    <div className="flex items-center gap-4 sm:gap-6 lg:gap-10">
                                         <div className="text-center">
                                             <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Health Score</p>
                                             <div className={cn(
@@ -163,8 +163,8 @@ export default function ClientSuccessRadar() {
                 {/* 2. AI Intelligence (Right) */}
                 <div className="lg:col-span-4 space-y-8">
                     {/* Churn Alert Card */}
-                    <div className="glass-card p-10 rounded-[48px] border border-rose-500/20 bg-rose-500/5 relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-rose-500/20 bg-rose-500/5 relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-10 group-hover:scale-110 transition-transform">
                             <ShieldAlert className="w-32 h-32 text-rose-400" />
                         </div>
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
@@ -183,12 +183,12 @@ export default function ClientSuccessRadar() {
                     </div>
 
                     {/* Interaction Sentiment Card */}
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 text-center">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 text-center">
                         <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                             <MessageSquare className="w-10 h-10 text-emerald-400" />
                         </div>
                         <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-2">Sentiment Moyen</h4>
-                        <div className="text-4xl font-black text-white tracking-widest uppercase">Positif</div>
+                        <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-widest uppercase">Positif</div>
                         <p className="text-[10px] text-slate-500 font-bold mt-4 leading-relaxed uppercase">
                             Basé sur l'analyse NLP de Nexux <br /> sur vos 150 derniers échanges.
                         </p>
@@ -216,7 +216,7 @@ function HealthStat({ icon: Icon, label, value, unit, trend, color }: any) {
                 )}
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{label}</p>
-            <h3 className="text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
         </div>
     );
 }

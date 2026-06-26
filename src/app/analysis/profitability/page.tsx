@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -45,13 +45,13 @@ export default function ClientProfitabilityPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <TrendingUp className="w-48 h-48 text-emerald-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
                         <div className="p-4 bg-emerald-600 rounded-3xl shadow-2xl shadow-emerald-600/30">
                             <Target className="w-8 h-8 text-white" />
                         </div>
@@ -175,7 +175,7 @@ export default function ClientProfitabilityPage() {
                 {/* Side Panels */}
                 <div className="space-y-8">
                     {/* Insights Card */}
-                    <div className="glass-card p-10 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[40px] border border-white/5 relative overflow-hidden group">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[40px] border border-white/5 relative overflow-hidden group">
                         <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform">
                             <PieChart className="w-40 h-40 text-white" />
                         </div>
@@ -242,7 +242,7 @@ function GlobalKPICard({ title, value, unit, trend, icon: Icon, color }: any) {
             </div>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{title}</p>
             <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white">{value}</span>
+                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{value}</span>
                 <span className="text-xs font-bold text-slate-600">{unit}</span>
             </div>
         </div>

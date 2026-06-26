@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -113,14 +113,14 @@ export default function ProspectsPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Hero Header */}
-            <div className="relative bg-slate-900/40 p-10 rounded-[50px] border border-white/5 overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="relative bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <Target className="w-48 h-48 text-emerald-400" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
                             <div className="p-4 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl shadow-2xl shadow-emerald-600/30">
                                 <Target className="w-8 h-8 text-white" />
                             </div>
@@ -186,7 +186,7 @@ export default function ProspectsPage() {
                                     </div>
 
                                     {/* Prospects Cards */}
-                                    <div className="flex-1 bg-slate-900/40 rounded-[32px] p-3 space-y-4 border border-white/5 min-h-[400px]">
+                                    <div className="flex-1 bg-slate-900/40 rounded-[32px] p-3 space-y-4 border border-white/5 min-h-[280px] sm:h-[350px] lg:h-[400px]">
                                         {prospects.length > 0 ? prospects.map((prospect) => (
                                             <ProspectCard key={prospect.id} prospect={prospect} stageColor={stage.color} />
                                         )) : (

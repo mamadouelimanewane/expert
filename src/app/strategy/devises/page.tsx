@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from 'react';
 import { Globe, ArrowRightLeft, DollarSign, RefreshCw, BarChart3 } from 'lucide-react';
@@ -44,7 +44,7 @@ export default function DevisesPage() {
                         <div className="p-2 bg-purple-500/10 text-purple-500 rounded-xl">
                             <Globe className="w-6 h-6" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight">Hub Multi-Devises</h1>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Hub Multi-Devises</h1>
                     </div>
                     <p className="text-muted-foreground">Gestion du risque de change et conversion en temps réel.</p>
                 </div>
@@ -130,7 +130,7 @@ export default function DevisesPage() {
                         </div>
                     </div>
 
-                    <table className="w-full text-sm text-left">
+                    <div className="overflow-x-auto"><table className="w-full text-sm text-left">
                         <thead className="text-xs text-muted-foreground uppercase border-b border-border/50">
                             <tr>
                                 <th className="py-2">Devise</th>
@@ -153,7 +153,7 @@ export default function DevisesPage() {
                                 <td className="text-emerald-500 font-bold">+450M</td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
             </div>
         </div>

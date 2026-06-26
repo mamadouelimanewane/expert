@@ -1,4 +1,4 @@
-
+﻿
 import {
     MousePointer2,
     Eye,
@@ -21,7 +21,7 @@ export function ChapterContent({ chapter }: any) {
                         <chapter.icon className="w-12 h-12 text-white" />
                     </div>
                     <div className="space-y-3 print:space-y-1">
-                        <h2 className="text-5xl font-black text-white tracking-tighter italic print:text-3xl print:text-black">
+                        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter italic print:text-3xl print:text-black">
                             {chapter.title}
                         </h2>
                         <p className="text-slate-400 text-lg leading-relaxed font-medium print:text-sm print:text-gray-700">
@@ -31,7 +31,7 @@ export function ChapterContent({ chapter }: any) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-12 mt-12 print:gap-8 print:mt-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:gap-12 mt-12 print:gap-8 print:mt-8">
                 {chapter.sections.map((section: any, sIdx: number) => (
                     <div key={sIdx} className="space-y-8 print:space-y-4 break-inside-avoid">
                         <h3 className="flex items-center gap-3 text-xl font-black text-white tracking-tight print:text-black print:text-lg">

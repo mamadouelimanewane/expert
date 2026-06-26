@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Users, Briefcase, AlertCircle, Wallet } from "lucide-react";
@@ -25,7 +25,7 @@ export default async function ConfidentielStats() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Statistiques Confidentielles</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Statistiques Confidentielles</h2>
           <p className="text-slate-400 mt-1 text-sm sm:text-base font-medium">Accès restreint aux données sensibles du cabinet.</p>
         </div>
         <div className="flex gap-3">

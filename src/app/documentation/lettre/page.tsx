@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from 'react';
 import {
@@ -46,7 +46,7 @@ export default function PresentationLetterPage() {
                 <div className="flex justify-between items-start mb-20">
                     <div className="space-y-4">
                         <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center">
-                            <span className="text-3xl font-black text-white">C</span>
+                            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">C</span>
                         </div>
                         <div className="space-y-1">
                             <h2
@@ -76,7 +76,7 @@ export default function PresentationLetterPage() {
                 </div>
 
                 {/* Date & Destination */}
-                <div className="flex flex-col gap-10 mb-20">
+                <div className="flex flex-col gap-4 sm:gap-6 lg:gap-10 mb-20">
                     <div className="text-right">
                         <p className="text-slate-600">
                             Fait à <span contentEditable suppressContentEditableWarning className="font-bold underline underline-offset-4 decoration-indigo-300">Dakar</span>, le {date}

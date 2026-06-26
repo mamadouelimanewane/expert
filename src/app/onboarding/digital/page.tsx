@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -32,7 +32,7 @@ export default function DigitalOnboardingPage() {
             {/* Background Ambience */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
             </div>
 
             {/* Clementine/Online Brand Header */}
@@ -95,7 +95,7 @@ export default function DigitalOnboardingPage() {
                                 <p className="text-slate-400">Pour respecter la réglementation (KYC), nous avons besoin d'une pièce d'identité.</p>
                             </div>
 
-                            <div className="border-2 border-dashed border-slate-700 hover:border-rose-500/50 rounded-3xl p-10 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all bg-slate-950/30 group">
+                            <div className="border-2 border-dashed border-slate-700 hover:border-rose-500/50 rounded-3xl p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all bg-slate-950/30 group">
                                 <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-rose-500/20 transition-colors">
                                     <UploadCloud className="w-8 h-8 text-slate-500 group-hover:text-rose-400" />
                                 </div>

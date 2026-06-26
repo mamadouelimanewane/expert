@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -70,7 +70,7 @@ export default function DataLinkPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Network className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -85,7 +85,7 @@ export default function DataLinkPage() {
                                 Big Data Engine (LinkID)
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-indigo-400">Data Link</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -175,7 +175,7 @@ export default function DataLinkPage() {
                 {/* Analysis Results / Graph Area */}
                 <div className="lg:col-span-8 space-y-6">
                     {isLinking ? (
-                        <div className="h-[600px] glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
+                        <div className="h-[350px] sm:h-[450px] lg:h-[600px] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
                             <div className="relative w-32 h-32 mb-8">
                                 <Network className="w-32 h-32 text-indigo-500 animate-pulse" />
                                 <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full animate-ping" />
@@ -202,12 +202,12 @@ export default function DataLinkPage() {
                             </div>
 
                             {/* Main Analysis Results */}
-                            <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10">
+                            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10">
                                 <h3 className="text-xl font-black text-white mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
                                     Synthèse des Connexions Identifiées
                                 </h3>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-10">
                                     <div className="space-y-6">
                                         <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest border-l-2 border-indigo-500 pl-3">Insights Stratégiques</h4>
                                         <div className="space-y-3">
@@ -259,6 +259,7 @@ export default function DataLinkPage() {
                                     </div>
                                 </div>
                                 <div className="overflow-hidden rounded-xl border border-white/5">
+                                    <div className="overflow-x-auto">
                                     <table className="w-full text-left">
                                         <thead className="bg-white/5">
                                             <tr>
@@ -279,12 +280,12 @@ export default function DataLinkPage() {
                                                 <td className="px-4 py-3 text-emerald-400 font-black">Almadies, Villa 45, Dakar</td>
                                             </tr>
                                         </tbody>
-                                    </table>
+                                    </table></div>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="h-[600px] glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
+                        <div className="h-[350px] sm:h-[450px] lg:h-[600px] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
                             <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/10">
                                 <Share2 className="w-12 h-12 text-slate-600" />
                             </div>

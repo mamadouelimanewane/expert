@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -135,14 +135,14 @@ export default function LettresMissionPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Hero Header */}
-            <div className="relative bg-slate-900/40 p-10 rounded-[50px] border border-white/5 overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="relative bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <FileSignature className="w-48 h-48 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
                             <div className="p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
                                 <FileSignature className="w-8 h-8 text-white" />
                             </div>
@@ -197,8 +197,8 @@ export default function LettresMissionPage() {
             </div>
 
             {/* TEMPOLIA INSPIRED: Obligations Distribution Table */}
-            <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <Gavel className="w-48 h-48 text-indigo-400" />
                 </div>
 
@@ -207,7 +207,7 @@ export default function LettresMissionPage() {
                     Répartition des Obligations (Annexe Contractuelle)
                 </h3>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 relative z-10">
                     <div className="space-y-6">
                         <p className="text-sm text-slate-400 font-medium leading-relaxed">
                             Conformément aux standards professionnels, Tempolia et le Cabinet 360 automatisent la répartition des tâches pour éviter toute ambiguïté lors des contrôles qualité.
@@ -354,7 +354,7 @@ function StatCard({ label, value, trend, unit, color }: any) {
         <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">{label}</p>
             <div className="flex items-baseline gap-1">
-                <h4 className={cn("text-3xl font-black", color)}>{value}</h4>
+                <h4 className={cn("text-xl sm:text-2xl lg:text-3xl font-black", color)}>{value}</h4>
                 {unit && <span className="text-xs text-slate-600 font-bold">{unit}</span>}
             </div>
             {trend && <p className="text-[10px] text-slate-600 mt-2">{trend}</p>}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -80,7 +80,7 @@ export default function IndustrialCostingPage() {
                     <Link href="/industries/manufacturing" className="inline-flex items-center gap-2 px-3 py-1 bg-slate-800 text-slate-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 hover:bg-slate-700 transition-colors">
                         <ArrowLeft className="w-3 h-3" /> Retour Industrie
                     </Link>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <Calculator className="w-10 h-10 text-violet-500" />
                         Analytique & Coûts de Revient
                     </h1>
@@ -238,7 +238,7 @@ export default function IndustrialCostingPage() {
                                             <p className="text-slate-500 text-sm">Seuil de rentabilité mensuel</p>
                                         </div>
                                         <div className="py-4 border-t border-b border-white/5">
-                                            <span className="text-3xl font-black text-white block">38 500</span>
+                                            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white block">38 500</span>
                                             <span className="text-xs uppercase tracking-widest text-slate-500">Unités à vendre</span>
                                         </div>
                                         <div className="text-xs text-emerald-400 font-bold bg-emerald-500/10 py-2 rounded-lg">

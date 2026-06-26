@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -88,7 +88,7 @@ export default function UsersSettingsPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-foreground tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-3">
                         <ShieldCheck className="w-8 h-8 text-indigo-400" />
                         Administration Système
                     </h2>
@@ -134,6 +134,7 @@ export default function UsersSettingsPage() {
                     </div>
 
                     <div className="glass-card rounded-2xl border border-border/50 overflow-hidden">
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-background/50 text-muted-foreground font-medium border-b border-border/50">
                                 <tr>
@@ -180,7 +181,7 @@ export default function UsersSettingsPage() {
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
             )}

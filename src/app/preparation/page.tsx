@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -289,7 +289,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                         </div>
 
                         <div className="flex-1 bg-slate-100 text-slate-900 p-8 overflow-y-auto">
-                            <div className="max-w-3xl mx-auto bg-white shadow-xl min-h-[800px] p-12">
+                            <div className="max-w-3xl mx-auto bg-white shadow-xl min-h-[800px] p-4 sm:p-8 lg:p-12">
                                 {/* Document Mock */}
                                 <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-4">
                                     <div>
@@ -303,7 +303,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                 </div>
 
                                 <textarea
-                                    className="w-full h-[600px] resize-none focus:outline-none text-sm font-serif leading-relaxed"
+                                    className="w-full h-[350px] sm:h-[450px] lg:h-[600px] resize-none focus:outline-none text-sm font-serif leading-relaxed"
                                     value={docContent}
                                     onChange={(e) => setDocContent(e.target.value)}
                                 />
@@ -809,7 +809,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                             </div>
 
                             {/* Report Body */}
-                            <div className="flex-1 bg-white p-12 overflow-y-auto">
+                            <div className="flex-1 bg-white p-4 sm:p-8 lg:p-12 overflow-y-auto">
                                 <div className="max-w-3xl mx-auto space-y-12">
                                     <EditableMissionSection
                                         title="1. Synthèse de la mission"

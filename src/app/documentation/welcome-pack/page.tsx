@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Award, CheckCircle2, Rocket, ShieldCheck, Zap, ArrowRight, Download, Printer, User, Mail, Globe } from "lucide-react";
 import Link from "next/link";
@@ -39,7 +39,7 @@ export default function WelcomePackPage() {
                         </div>
 
                         <div className="space-y-12 max-w-2xl">
-                            <h1 className="text-5xl font-sans font-black text-slate-900 tracking-tight leading-none uppercase">
+                            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 tracking-tight leading-none uppercase">
                                 Bienvenue dans <br />
                                 <span className="text-indigo-600">l'Excellence 4.0</span>
                             </h1>
@@ -83,20 +83,20 @@ export default function WelcomePackPage() {
 
                 {/* PAGE 2: QUICK START GUIDE (Visual) */}
                 <section className="h-[297mm] p-24 break-after-page bg-slate-50 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-12 opacity-5 rotate-12">
+                    <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 rotate-12">
                         <Rocket className="w-96 h-96 text-indigo-600" />
                     </div>
 
-                    <h2 className="text-3xl font-sans font-black uppercase tracking-tight mb-16 border-b-4 border-slate-900 pb-4 inline-block">Quick Start Guide</h2>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-sans font-black uppercase tracking-tight mb-16 border-b-4 border-slate-900 pb-4 inline-block">Quick Start Guide</h2>
 
-                    <div className="grid grid-cols-1 gap-12 relative z-10">
+                    <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:gap-12 relative z-10">
                         {[
                             { step: "01", title: "Activation du Profil", desc: "Connectez-vous à votre interface sécurisée et activez votre clé d'authentification biométrique Nexus ID.", icon: User },
                             { step: "02", title: "Synchronisation Bancaire", desc: "Liez vos comptes via le module Accounting pour démarrer le rapprochement automatique par l'IA.", icon: Zap },
                             { step: "03", title: "Migration des Données", desc: "Utilisez l'Entity Hub pour importer vos dossiers permanents et vos bases de données clients.", icon: ShieldCheck },
                             { step: "04", title: "Lancement de Mission", desc: "Créez votre première mission d'audit ou d'expertise et activez le scellement Blockchain.", icon: CheckCircle2 }
                         ].map((item, i) => (
-                            <div key={i} className="flex gap-8 items-start bg-white p-10 rounded-[40px] shadow-sm border border-slate-200/50">
+                            <div key={i} className="flex gap-8 items-start bg-white p-4 sm:p-6 lg:p-10 rounded-[40px] shadow-sm border border-slate-200/50">
                                 <div className="w-16 h-16 rounded-3xl bg-slate-900 text-white flex items-center justify-center font-sans font-black text-2xl shrink-0">
                                     {item.step}
                                 </div>
@@ -111,7 +111,7 @@ export default function WelcomePackPage() {
                         ))}
                     </div>
 
-                    <div className="mt-20 p-12 bg-slate-900 text-white rounded-[50px] relative overflow-hidden">
+                    <div className="mt-20 p-4 sm:p-8 lg:p-12 bg-slate-900 text-white rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] relative overflow-hidden">
                         <div className="relative z-10">
                             <h4 className="text-xl font-bold mb-4">Besoin d'aide immédiate ?</h4>
                             <p className="text-slate-400 text-sm mb-8">Nos experts onboarding sont disponibles 24/7 via la messagerie sécurisée.</p>

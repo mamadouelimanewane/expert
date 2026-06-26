@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -65,7 +65,7 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4 uppercase">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4 uppercase">
                         Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborateur</span>
                     </h1>
                     <p className="text-base sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
@@ -86,7 +86,7 @@ export default function MorningBriefPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Priorités Stratégiques IA */}
                 <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
                         <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-6 sm:mb-8 flex items-center gap-3">
                             <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /> Priorités du Cabinet (Réel)
                         </h3>
@@ -145,12 +145,12 @@ export default function MorningBriefPage() {
 
                 {/* 2. Side Console: Cabinet Health & Comms */}
                 <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent text-center">
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent text-center">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-indigo-500/20">
                             <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
                         </div>
                         <h4 className="text-white font-black uppercase text-xs tracking-widest mb-2">Santé du Cabinet</h4>
-                        <div className="text-5xl font-black text-white tracking-widest uppercase mb-4">92%</div>
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-widest uppercase mb-4">92%</div>
                         <p className="text-[10px] text-slate-500 font-bold leading-relaxed uppercase">
                             Facturation en hausse de 12% <br /> par rapport au mois dernier.
                         </p>

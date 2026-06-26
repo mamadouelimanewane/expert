@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -96,11 +96,11 @@ export default function FiscalObligationsPage() {
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <CalendarDays className="w-40 h-40 text-amber-400" />
                 </div>
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <div className="p-3 bg-amber-600 rounded-2xl shadow-xl shadow-amber-600/30">
                             <CalendarDays className="w-8 h-8 text-white" />
                         </div>
@@ -125,7 +125,7 @@ export default function FiscalObligationsPage() {
                         <AlertTriangle className="w-5 h-5 text-rose-400" />
                         <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">En retard</p>
                     </div>
-                    <p className="text-4xl font-black text-rose-400">{overdue}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-rose-400">{overdue}</p>
                     <p className="text-xs text-rose-400/60 mt-1">obligation{overdue > 1 ? "s" : ""} dépassée{overdue > 1 ? "s" : ""}</p>
                 </div>
                 <div className="glass-card p-6 rounded-[32px] border border-amber-500/20 bg-amber-500/5">
@@ -133,7 +133,7 @@ export default function FiscalObligationsPage() {
                         <Zap className="w-5 h-5 text-amber-400" />
                         <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Urgentes ≤7j</p>
                     </div>
-                    <p className="text-4xl font-black text-amber-400">{urgent}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-400">{urgent}</p>
                     <p className="text-xs text-amber-400/60 mt-1">à traiter immédiatement</p>
                 </div>
                 <div className="glass-card p-6 rounded-[32px] border border-sky-500/20 bg-sky-500/5">
@@ -141,7 +141,7 @@ export default function FiscalObligationsPage() {
                         <Clock className="w-5 h-5 text-sky-400" />
                         <p className="text-[10px] font-black text-sky-400 uppercase tracking-widest">À venir</p>
                     </div>
-                    <p className="text-4xl font-black text-sky-400">{upcoming}</p>
+                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-sky-400">{upcoming}</p>
                     <p className="text-xs text-sky-400/60 mt-1">dans les 30 prochains jours</p>
                 </div>
             </div>

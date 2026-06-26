@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -100,7 +100,7 @@ export default function WhatsAppBotHub() {
             <MessageCircle className="w-8 h-8 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Hub WhatsApp Bot PMI</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Hub WhatsApp Bot PMI</h2>
             <p className="text-slate-400 mt-1">Toutes les conversations client. Le Bot NEXUS transcrit, catégorise et génère les écritures OHADA automatiquement.</p>
           </div>
         </div>

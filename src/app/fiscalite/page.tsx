@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -103,7 +103,7 @@ export default function FiscaliteOhada() {
             <Flag className="w-8 h-8 text-rose-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Fiscalité OHADA — Sénégal 🇸🇳</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Fiscalité OHADA — Sénégal 🇸🇳</h2>
             <p className="text-slate-400 mt-1">Gestion intelligente des obligations fiscales et sociales. Déclarations générées et télétransmises automatiquement.</p>
           </div>
         </div>

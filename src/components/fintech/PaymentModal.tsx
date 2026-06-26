@@ -1,4 +1,4 @@
-import {
+﻿import {
     X,
     Smartphone,
     CreditCard,
@@ -198,7 +198,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                             <CheckCircle className="w-12 h-12 text-emerald-500" />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-black text-white tracking-tight">Succès !</h3>
+                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Succès !</h3>
                             <p className="text-slate-400 mt-2 font-medium">La facture {invoiceId} a été soldée.</p>
                         </div>
                         <div className="bg-white/5 p-6 rounded-[28px] border border-white/5 w-full shadow-inner">
@@ -226,7 +226,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                             <X className="w-12 h-12 text-rose-500" />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-black text-white tracking-tight">Échec</h3>
+                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Échec</h3>
                             <p className="text-slate-400 mt-2 font-medium">La transaction a été annulée ou a échoué.</p>
                         </div>
                         <button

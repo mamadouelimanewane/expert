@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -76,13 +76,13 @@ export default function SignaturePage() {
         <div className="space-y-8 animate-in fade-in duration-1000">
             {/* ... rest of the component (header, cards, etc.) ... */}
             {/* Header Premium */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <Fingerprint className="w-48 h-48 text-indigo-400" />
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
                         <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
                             <PenTool className="w-8 h-8 text-white" />
                         </div>
@@ -112,8 +112,8 @@ export default function SignaturePage() {
 
             {/* NEW: Certification Levels & Compliance Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                <div className="lg:col-span-2 glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                         <Lock className="w-48 h-48 text-indigo-400" />
                     </div>
 
@@ -144,7 +144,7 @@ export default function SignaturePage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col justify-center">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col justify-center">
                     <div className="text-center space-y-4">
                         <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Zap className="w-8 h-8 text-indigo-400" />
@@ -164,7 +164,7 @@ export default function SignaturePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Workflow Tracking Sidebar */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
                         <h3 className="text-xl font-black text-white mb-8">Workflows en Cours</h3>
                         <div className="space-y-6">
                             <WorkflowItem
@@ -202,7 +202,7 @@ export default function SignaturePage() {
 
                 {/* Main Documents Table */}
                 <div className="lg:col-span-8 flex flex-col gap-8">
-                    <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40">
                             <h3 className="text-xl font-black text-white flex items-center gap-3">
                                 <History className="w-5 h-5 text-indigo-400" />
@@ -285,8 +285,8 @@ export default function SignaturePage() {
                     </div>
 
                     {/* NEW: Probatory Vault Section */}
-                    <div className="glass-card rounded-[48px] border border-white/10 bg-slate-900/60 p-10 overflow-hidden relative shadow-[0_0_50px_rgba(99,102,241,0.1)]">
-                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/10 bg-slate-900/60 p-4 sm:p-6 lg:p-10 overflow-hidden relative shadow-[0_0_50px_rgba(99,102,241,0.1)]">
+                        <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                             <Lock className="w-48 h-48 text-indigo-400" />
                         </div>
                         

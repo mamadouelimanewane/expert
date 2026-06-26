@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -54,7 +54,7 @@ export default function MissionBudgetPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Queoval GPAO View */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <BarChart3 className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -66,7 +66,7 @@ export default function MissionBudgetPage() {
                                 GPAO & Analyse de Rentabilité
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Pilotage <span className="text-indigo-400">Budget vs Réalisé</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -77,7 +77,7 @@ export default function MissionBudgetPage() {
                     <div className="flex flex-col items-end gap-2">
                         <div className="text-right">
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Rentabilité Globale</p>
-                            <h3 className="text-4xl font-black text-emerald-400">{(100 - (avgConsumption - 50)).toFixed(1)}%</h3>
+                            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-400">{(100 - (avgConsumption - 50)).toFixed(1)}%</h3>
                         </div>
                         <div className="flex gap-2">
                             <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[8px] font-black rounded uppercase">Excellent</span>
@@ -96,7 +96,7 @@ export default function MissionBudgetPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Main Budget Table (Left) */}
-                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 flex flex-col shadow-2xl overflow-hidden">
+                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Analyse par Mission</h3>
                         <div className="flex gap-4">
@@ -167,8 +167,8 @@ export default function MissionBudgetPage() {
                 {/* 2. Side Analytics (Right) */}
                 <div className="lg:col-span-4 space-y-8">
                     {/* Insights Card */}
-                    <div className="glass-card p-10 rounded-[48px] border border-indigo-500/20 bg-indigo-600/5 relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-indigo-500/20 bg-indigo-600/5 relative overflow-hidden group shadow-2xl">
+                        <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-10 group-hover:scale-110 transition-transform">
                             <Sparkles className="w-32 h-32 text-indigo-400" />
                         </div>
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
@@ -200,7 +200,7 @@ export default function MissionBudgetPage() {
                     </div>
 
                     {/* Distribution Chart (Placeholder/Abstract) */}
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-8">Répartition par Expert</h3>
                         <div className="space-y-4">
                             <ExpertUsage name="Awa Diop" usage={92} color="bg-indigo-500" />
@@ -232,7 +232,7 @@ function AnalyticStat({ icon: Icon, label, value, color, trend }: any) {
                 )}
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{label}</p>
-            <h3 className={cn("text-3xl font-black text-white mt-1 tracking-tighter")}>{value}</h3>
+            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter")}>{value}</h3>
         </div>
     );
 }

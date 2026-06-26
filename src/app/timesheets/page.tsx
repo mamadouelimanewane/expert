@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -58,8 +58,8 @@ export default function TimesheetsPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header Premium */}
-            <div className="bg-slate-900/40 p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <Clock className="w-64 h-64 text-indigo-400" />
                 </div>
                 
@@ -73,7 +73,7 @@ export default function TimesheetsPage() {
                                 <CalendarDays className="w-4 h-4" /> 03 Juin - 07 Juin 2026
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Suivi des Temps & <span className="text-indigo-400">Rentabilité</span>
                         </h2>
                         <p className="text-slate-400 mt-2 font-medium max-w-xl">
@@ -85,7 +85,7 @@ export default function TimesheetsPage() {
                     <div className="p-4 bg-slate-950/50 border border-white/10 rounded-3xl flex items-center gap-6 shadow-xl backdrop-blur-xl">
                         <div className="text-center">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Chronomètre Actif</p>
-                            <p className="text-3xl font-mono font-black text-white">
+                            <p className="text-xl sm:text-2xl lg:text-3xl font-mono font-black text-white">
                                 {String(Math.floor(timerSeconds / 3600)).padStart(2, '0')}:
                                 {String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0')}:
                                 {String(timerSeconds % 60).padStart(2, '0')}
@@ -119,7 +119,7 @@ export default function TimesheetsPage() {
                             </div>
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{k.label}</p>
                         </div>
-                        <h3 className="text-3xl font-black text-white">{k.val}</h3>
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{k.val}</h3>
                         <p className="text-xs text-slate-400 mt-1 font-medium">{k.sub}</p>
                     </div>
                 ))}

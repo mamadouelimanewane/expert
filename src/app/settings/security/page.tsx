@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
     ShieldCheck,
@@ -21,8 +21,8 @@ export default function SecuritySovereigntyPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Hero Section */}
-            <div className="relative p-12 rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <div className="relative p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -33,7 +33,7 @@ export default function SecuritySovereigntyPage() {
                                 Certifié Souverain
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Audit, Sécurité & <span className="text-indigo-400">Souveraineté des Données</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed">
@@ -63,7 +63,7 @@ export default function SecuritySovereigntyPage() {
                         />
                     </div>
 
-                    <div className="glass-card rounded-[40px] p-10 border border-white/5 bg-slate-900/40">
+                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                             <History className="w-6 h-6 text-indigo-400" />
                             Journal d'Audit & Traçabilité (Temps Réel)

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
@@ -47,7 +47,7 @@ export default function LoginPage() {
             <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 relative z-10 rounded-[40px] border border-white/10 bg-slate-900/60 shadow-2xl overflow-hidden backdrop-blur-xl">
                 
                 {/* Left Side - Branding */}
-                <div className="p-16 hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border-r border-white/5 relative">
+                <div className="p-4 sm:p-8 lg:p-16 hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border-r border-white/5 relative">
                     <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
                     
                     <div className="relative z-10">
@@ -57,7 +57,7 @@ export default function LoginPage() {
                             </div>
                             <span className="text-2xl font-black tracking-tighter text-white">GANTIC360 EXPERT</span>
                         </div>
-                        <h1 className="text-5xl font-black text-white leading-tight mb-6">
+                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white leading-tight mb-6">
                             L'ERP Nouvelle Génération pour Experts-Comptables.
                         </h1>
                         <p className="text-indigo-200 text-lg font-medium leading-relaxed max-w-md">
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 {/* Right Side - Login Form */}
                 <div className="p-8 sm:p-16 flex flex-col justify-center">
                     <div className="max-w-md w-full mx-auto">
-                        <h2 className="text-3xl font-black text-white mb-2">Bienvenue</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-2">Bienvenue</h2>
                         <p className="text-slate-400 font-medium mb-8">Saisissez vos identifiants pour accéder à votre espace sécurisé.</p>
 
                         <form onSubmit={handleLogin} className="space-y-6">

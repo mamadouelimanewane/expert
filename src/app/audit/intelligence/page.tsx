@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback } from "react";
 import {
@@ -79,7 +79,7 @@ export default function AuditIntelligencePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Audit Intelligence Command Center */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Brain className="w-64 h-64 text-rose-400" />
                 </div>
@@ -94,7 +94,7 @@ export default function AuditIntelligencePage() {
                                 NEXUS Premium
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Audit <span className="text-rose-400">Intelligence</span> Analyze
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -122,35 +122,35 @@ export default function AuditIntelligencePage() {
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Transactions Analysées</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-white">{transactions.length}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{transactions.length}</span>
                         <span className="text-[10px] font-black text-emerald-400">+12 nouvelles</span>
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-rose-500/5 border border-rose-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Alertes Critiques</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-rose-400">{criticalCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-rose-400">{criticalCount}</span>
                         <ShieldAlert className="w-5 h-5 text-rose-500 animate-pulse" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-amber-500/5 border border-amber-500/20">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Points d'Attention</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-amber-400">{warningCount}</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400">{warningCount}</span>
                         <AlertTriangle className="w-5 h-5 text-amber-500" />
                     </div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score de Risque Moyen</p>
                     <div className="flex items-baseline gap-2">
-                        <span className={cn("text-3xl font-black", avgRisk > 50 ? "text-amber-400" : "text-emerald-400")}>{avgRisk}%</span>
+                        <span className={cn("text-xl sm:text-2xl lg:text-3xl font-black", avgRisk > 50 ? "text-amber-400" : "text-emerald-400")}>{avgRisk}%</span>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Transaction Table */}
-                <div className="lg:col-span-8 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-8 shadow-2xl">
+                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-8 shadow-2xl">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <FileSpreadsheet className="w-6 h-6 text-indigo-400" />
@@ -234,7 +234,7 @@ export default function AuditIntelligencePage() {
                 {/* Risk Rules & Sample */}
                 <div className="lg:col-span-4 space-y-8">
                     {/* Risk Rules */}
-                    <div className="glass-card p-8 rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="glass-card p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                         <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tighter">
                             <Flag className="w-5 h-5 text-amber-400" />
                             Règles de Risque Actives
@@ -260,7 +260,7 @@ export default function AuditIntelligencePage() {
                     </div>
 
                     {/* AI Sample Selection */}
-                    <div className="glass-card p-8 rounded-[48px] border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-transparent">
+                    <div className="glass-card p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-transparent">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-3 bg-indigo-500/20 rounded-2xl">
                                 <Sparkles className="w-6 h-6 text-indigo-400" />

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -50,8 +50,8 @@ export default function LiasseFiscalePage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header Premium - DSF OHADA */}
-            <div className="bg-slate-900/40 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-8 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <FileSpreadsheet className="w-64 h-64 text-indigo-400" />
                 </div>
 
@@ -65,10 +65,10 @@ export default function LiasseFiscalePage() {
                                 SYSCOHADA Révisé
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                             Liasse Fiscale <span className="text-indigo-400">Intelligente</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="text-slate-400 mt-4 text-sm sm:text-base lg:text-lg font-medium leading-relaxed max-w-2xl">
                             Générez vos liasses fiscales OHADA (DSF) en un clic à partir de votre balance. L'IA Nexus assure la cohérence des tableaux et détecte les anomalies fiscales.
                         </p>
                     </div>
@@ -123,7 +123,7 @@ export default function LiasseFiscalePage() {
                         </div>
                         <h4 className="text-white font-black text-sm uppercase mb-2 relative z-10 tracking-widest">Score de Cohérence IA</h4>
                         <div className="flex items-baseline gap-2 relative z-10 mb-4">
-                            <span className="text-4xl font-black text-emerald-400">92%</span>
+                            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-400">92%</span>
                             <span className="text-xs text-slate-500 font-bold">Optimal</span>
                         </div>
                         <p className="text-[10px] text-slate-400 leading-relaxed font-medium relative z-10">
@@ -179,8 +179,8 @@ export default function LiasseFiscalePage() {
                                 )}
 
                                 {/* Table Mockup */}
-                                <div className="border border-white/5 rounded-3xl overflow-hidden bg-slate-950/20">
-                                    <table className="w-full text-left text-xs">
+                                <div className="border border-white/5 rounded-3xl overflow-x-auto bg-slate-950/20">
+                                    <table className="w-full min-w-[600px] text-left text-xs">
                                         <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                             <tr>
                                                 <th className="px-6 py-4">Désignation</th>

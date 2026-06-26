@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -54,8 +54,8 @@ export default function ReportingAutomationPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             {/* Header SEPTEO Style */}
-            <div className="bg-slate-900/40 p-10 rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-16 opacity-5 pointer-events-none">
+            <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <FilePieChart className="w-56 h-56 text-indigo-400" />
                 </div>
 
@@ -68,7 +68,7 @@ export default function ReportingAutomationPage() {
                             <Sparkles className="w-3 h-3" /> AI Enhanced
                         </span>
                     </div>
-                    <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                         Centre de <span className="text-indigo-400">Reporting Automatisé</span>
                     </h2>
                     <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -81,7 +81,7 @@ export default function ReportingAutomationPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Settings Panel */}
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
                             <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                                 <Palette className="w-6 h-6 text-indigo-400" />
                                 1. Sélectionnez le Style du Rapport
@@ -113,7 +113,7 @@ export default function ReportingAutomationPage() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
                             <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                                 <Zap className="w-6 h-6 text-amber-400" />
                                 2. Contenu & Synthèse IA
@@ -235,7 +235,7 @@ export default function ReportingAutomationPage() {
                             <div className="flex justify-between items-end border-b-2 border-slate-950 pb-12 relative z-10">
                                 <div>
                                     <p className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-600 mb-2">Synthèse de Gestion</p>
-                                    <h1 className="text-5xl font-black text-slate-950 tracking-tighter">SOCIÉTÉ IVOIRIENNE DE BANQUE</h1>
+                                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-slate-950 tracking-tighter">SOCIÉTÉ IVOIRIENNE DE BANQUE</h1>
                                     <p className="text-slate-500 font-bold mt-2">Situation Mensuelle — {selectedPeriod}</p>
                                 </div>
                                 <div className="text-right">
@@ -255,24 +255,24 @@ export default function ReportingAutomationPage() {
                             </div>
 
                             {/* Key Figures Table Style */}
-                            <div className="grid grid-cols-3 gap-12 relative z-10">
+                            <div className="grid grid-cols-3 gap-4 sm:gap-8 lg:gap-12 relative z-10">
                                 <div className="space-y-2">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Chiffre d'Affaires</p>
-                                    <p className="text-3xl font-black text-slate-950">142.5M <span className="text-xs text-slate-400">FCFA</span></p>
+                                    <p className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-950">142.5M <span className="text-xs text-slate-400">FCFA</span></p>
                                     <div className="w-full h-1 bg-emerald-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-emerald-500 w-[75%]" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Excédent Brut (EBE)</p>
-                                    <p className="text-3xl font-black text-slate-950">42.8M <span className="text-xs text-slate-400">FCFA</span></p>
+                                    <p className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-950">42.8M <span className="text-xs text-slate-400">FCFA</span></p>
                                     <div className="w-full h-1 bg-indigo-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-indigo-500 w-[60%]" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <p className="text-[10px] font-black text-slate-400 uppercase">Trésorerie Nette</p>
-                                    <p className="text-3xl font-black text-slate-950">24.5M <span className="text-xs text-slate-400">FCFA</span></p>
+                                    <p className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-950">24.5M <span className="text-xs text-slate-400">FCFA</span></p>
                                     <div className="w-full h-1 bg-amber-100 rounded-full overflow-hidden">
                                         <div className="h-full bg-amber-500 w-[45%]" />
                                     </div>
@@ -290,7 +290,7 @@ export default function ReportingAutomationPage() {
 
                         {/* Report Options Sidebar */}
                         <div className="lg:col-span-4 space-y-8">
-                            <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
+                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl">
                                 <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                                     <Share2 className="w-6 h-6 text-indigo-400" />
                                     Actions de Diffusion

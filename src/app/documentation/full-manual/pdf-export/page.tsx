@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Book, Shield, Gavel, FileText, PieChart, Activity, Globe, Zap, Cpu, Briefcase, UserCheck, MessageSquare, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -59,7 +59,7 @@ export default function HandbookPDFExport() {
 
                 {/* 2. TABLE OF CONTENTS */}
                 <section className="min-h-[297mm] p-20 break-after-page font-sans">
-                    <h2 className="text-3xl font-black uppercase tracking-tight mb-16 underline decoration-4 underline-offset-8">Sommaire Général</h2>
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight mb-16 underline decoration-4 underline-offset-8">Sommaire Général</h2>
 
                     <div className="space-y-6">
                         {[
@@ -93,7 +93,7 @@ export default function HandbookPDFExport() {
                             <span className="font-black text-slate-900">PARTIE I</span>
                             <span className="flex-1 h-[1px] bg-slate-100" />
                         </header>
-                        <h3 className="text-5xl font-black text-slate-900 uppercase">Vision "Elite"</h3>
+                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-black text-slate-900 uppercase">Vision "Elite"</h3>
                         <p className="text-xl text-slate-700 leading-relaxed font-serif">
                             L'écosystème Nexus Elite n'est pas un simple logiciel. C'est le système nerveux central d'un cabinet proactif.
                             Face aux défis de la zone OHADA, nous fusionnons la rigueur comptable avec l'intelligence artificielle pour
@@ -119,7 +119,7 @@ export default function HandbookPDFExport() {
                             <span className="font-black text-slate-900">PARTIE IX</span>
                             <span className="flex-1 h-[1px] bg-slate-100" />
                         </header>
-                        <h3 className="text-5xl font-black text-slate-900 uppercase leading-none">Nexus Core <br />Accounting</h3>
+                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-black text-slate-900 uppercase leading-none">Nexus Core <br />Accounting</h3>
 
                         <div className="space-y-12">
                             <div>
@@ -139,9 +139,9 @@ export default function HandbookPDFExport() {
                                 </p>
                             </div>
 
-                            <div className="bg-slate-900 text-white p-10 rounded-[40px]">
+                            <div className="bg-slate-900 text-white p-4 sm:p-6 lg:p-10 rounded-[40px]">
                                 <p className="font-black uppercase text-xs tracking-[0.3em] mb-4 text-indigo-400">Section Technique</p>
-                                <h5 className="text-3xl font-black mb-6 leading-tight">États Financiers Annueled</h5>
+                                <h5 className="text-xl sm:text-2xl lg:text-3xl font-black mb-6 leading-tight">États Financiers Annueled</h5>
                                 <p className="text-slate-400 text-sm mb-8">Génération automatisée des états conformément au SYSCOHADA révisé (AUDCIF).</p>
                                 <ul className="space-y-4 font-sans font-bold">
                                     <li className="flex gap-4 items-center">

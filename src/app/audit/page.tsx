@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -82,7 +82,7 @@ export default function AuditIA() {
             <ShieldAlert className="w-8 h-8 text-rose-400" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tight">Audit & Conformité IA</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Audit & Conformité IA</h2>
             <p className="text-slate-400 mt-1">Détection automatique d'anomalies, Loi de Benford, FEC Analyzer. Rapport CAC généré en 1 clic.</p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function AuditIA() {
         ].map((k, i) => (
           <div key={i} className={cn("rounded-[24px] border p-5", k.color)}>
             <k.icon className="w-5 h-5 mb-4" />
-            <p className="text-3xl font-black tabular-nums">{k.val}</p>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black tabular-nums">{k.val}</p>
             <p className="text-xs font-bold mt-1 opacity-70">{k.label}</p>
           </div>
         ))}
@@ -238,7 +238,7 @@ export default function AuditIA() {
             </div>
 
             {activeAnomalies.length === 0 ? (
-              <div className="p-16 text-center opacity-50">
+              <div className="p-4 sm:p-8 lg:p-16 text-center opacity-50">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
                 <p className="text-white font-black">Aucune anomalie détectée</p>
                 <p className="text-slate-400 text-sm mt-1">Ce dossier est certifiable.</p>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { BrainCircuit, Server, Key, Save, CheckCircle2, ShieldAlert, Cpu, Sparkles, Activity, RefreshCw } from "lucide-react";
@@ -30,7 +30,7 @@ export default function AILlmSettings() {
           <BrainCircuit className="w-8 h-8 text-indigo-400" />
         </div>
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Configuration LLM & Moteur IA</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Configuration LLM & Moteur IA</h2>
           <p className="text-slate-400 mt-1">Gérez le modèle d'intelligence artificielle utilisé pour l'imputation automatique et l'OCR.</p>
         </div>
       </div>

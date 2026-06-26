@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -79,7 +79,7 @@ export default function RoadmapsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-violet-500/20">
                         <MapIcon className="w-3 h-3" /> Parcours de Carrière
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
                         Roadmaps Apprentissage
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">
@@ -155,7 +155,7 @@ export default function RoadmapsPage() {
                 {/* Detailed View */}
                 <div className="lg:col-span-8">
                     <div className={cn(
-                        "rounded-[48px] p-10 border border-white/5 relative overflow-hidden min-h-[600px] flex flex-col",
+                        "rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] p-4 sm:p-6 lg:p-10 border border-white/5 relative overflow-hidden min-h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col",
                         "bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 shadow-2xl"
                     )}>
                         {/* Background Decoration */}
@@ -167,7 +167,7 @@ export default function RoadmapsPage() {
                         <div className="relative z-10 flex-1">
                             <div className="flex justify-between items-start mb-8">
                                 <div>
-                                    <h2 className="text-4xl font-black text-white mb-4 tracking-tight">{selectedRoadmap.title}</h2>
+                                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-4 tracking-tight">{selectedRoadmap.title}</h2>
                                     <p className="text-slate-400 max-w-xl text-lg leading-relaxed">{selectedRoadmap.description}</p>
                                 </div>
                                 <div className={cn(

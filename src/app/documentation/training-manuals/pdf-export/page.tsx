@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { BookOpen, Award, Zap, ShieldCheck, Scale, Globe, Activity, Cpu, Briefcase, UserCheck, MessageSquare, CheckCircle2 } from "lucide-react";
 
@@ -21,7 +21,7 @@ export default function TrainingPDFExport() {
             <div className="max-w-[210mm] mx-auto bg-white shadow-2xl print:shadow-none">
                 {/* PAGE 1: COVER */}
                 <section className="h-[297mm] flex flex-col justify-between p-24 border-[15px] border-slate-900 relative overflow-hidden break-after-page">
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-900 -mr-64 -mt-64 rotate-12 opacity-5" />
+                    <div className="absolute top-0 right-0 w-[500px] h-[300px] sm:h-[400px] lg:h-[500px] bg-slate-900 -mr-64 -mt-64 rotate-12 opacity-5" />
 
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-20">
@@ -60,7 +60,7 @@ export default function TrainingPDFExport() {
 
                 {/* PAGE 2: TABLE OF CONTENTS */}
                 <section className="h-[297mm] p-24 break-after-page flex flex-col justify-center">
-                    <h2 className="text-4xl font-sans font-black uppercase tracking-tight mb-20 border-b-4 border-slate-900 pb-4 inline-block">Curriculum</h2>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-black uppercase tracking-tight mb-20 border-b-4 border-slate-900 pb-4 inline-block">Curriculum</h2>
 
                     <div className="grid grid-cols-1 gap-8">
                         {[
@@ -94,11 +94,11 @@ export default function TrainingPDFExport() {
                             Module 01 : Expertise Comptable
                         </div>
 
-                        <h3 className="text-5xl font-sans font-black text-slate-900 uppercase leading-none">
+                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 uppercase leading-none">
                             Nexus <br />Core Accounting
                         </h3>
 
-                        <div className="grid grid-cols-2 gap-12">
+                        <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:gap-12">
                             <div className="space-y-6">
                                 <h4 className="text-xl font-bold border-l-4 border-slate-900 pl-4">Objectif 01 : Zéro Saisie</h4>
                                 <p className="text-sm text-slate-600 leading-relaxed">
@@ -115,7 +115,7 @@ export default function TrainingPDFExport() {
                             </div>
                         </div>
 
-                        <div className="bg-slate-50 p-12 rounded-[50px] border border-slate-100 relative overflow-hidden mt-12">
+                        <div className="bg-slate-50 p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-slate-100 relative overflow-hidden mt-12">
                             <div className="absolute top-0 right-0 p-8 opacity-5">
                                 <Cpu className="w-40 h-40 text-slate-900" />
                             </div>
@@ -143,7 +143,7 @@ export default function TrainingPDFExport() {
                             Module 02 : Audit & Assurance
                         </div>
 
-                        <h3 className="text-5xl font-sans font-black text-slate-900 uppercase leading-none">
+                        <h3 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 uppercase leading-none">
                             Nexus <br />Audit Intelligence
                         </h3>
 

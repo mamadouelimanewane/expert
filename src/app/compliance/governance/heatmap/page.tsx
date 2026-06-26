@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -49,7 +49,7 @@ export default function GovernanceHeatmapPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Governance Command Center */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Grid className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -61,7 +61,7 @@ export default function GovernanceHeatmapPage() {
                                 Supervision Gouvernance OHADA
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Heatmap de <span className="text-indigo-400">Conformité Juridique</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -86,7 +86,7 @@ export default function GovernanceHeatmapPage() {
             </div>
 
             {/* Heatmap Grid */}
-            <div className="glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 shadow-2xl overflow-hidden">
+            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl overflow-hidden">
                 <div className="flex justify-between items-center mb-10">
                     <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Matrice de Risque</h3>
                     <div className="flex gap-4">
@@ -141,7 +141,7 @@ export default function GovernanceHeatmapPage() {
 
             {/* Predictive Alerts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
                     <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                         <AlertTriangle className="w-6 h-6 text-rose-500" />
                         Incidents Critiques Identifiés (Réel)
@@ -158,7 +158,7 @@ export default function GovernanceHeatmapPage() {
                         {clients.length === 0 && <p className="text-slate-500 italic text-sm">Aucun incident critique détecté.</p>}
                     </div>
                 </div>
-                <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-indigo-500/5 relative overflow-hidden group">
+                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-indigo-500/5 relative overflow-hidden group">
                     <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform">
                         <Gavel className="w-40 h-40 text-indigo-400" />
                     </div>
@@ -197,7 +197,7 @@ function StatusStat({ label, value, unit, trend, color }: any) {
         <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{label}</p>
             <div className="flex items-baseline gap-2">
-                <span className={cn("text-3xl font-black", color)}>{value}{unit || ""}</span>
+                <span className={cn("text-xl sm:text-2xl lg:text-3xl font-black", color)}>{value}{unit || ""}</span>
                 <span className="text-[10px] font-black text-slate-700 underline">{trend}</span>
             </div>
         </div>

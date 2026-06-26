@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -59,7 +59,7 @@ export default function ForensicAuditPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 text-rose-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-rose-500/20">
                         <Fingerprint className="w-3 h-3" /> Audit Forensique & Fraude
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         NEXUS DETECT
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">

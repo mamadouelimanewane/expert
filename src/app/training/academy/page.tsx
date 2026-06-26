@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -90,7 +90,7 @@ export default function TrainingAcademyPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <GraduationCap className="w-3 h-3" /> Formation & Veille
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Cabinet Academy
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
@@ -222,7 +222,7 @@ export default function TrainingAcademyPage() {
                                     <circle cx="80" cy="80" r="70" fill="transparent" stroke="#14b8a6" strokeWidth="12" strokeDasharray="440" strokeDashoffset="176" className="transition-all duration-1000" />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                    <span className="text-3xl font-black text-white">60%</span>
+                                    <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">60%</span>
                                     <span className="text-[10px] text-slate-500 uppercase">Objectif CPF</span>
                                 </div>
                             </div>

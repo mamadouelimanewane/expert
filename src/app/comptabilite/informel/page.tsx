@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useCallback } from 'react';
 import * as XLSX from 'xlsx';
@@ -242,7 +242,7 @@ export default function InformelPage() {
                             <FileDigit className="w-6 h-6" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black tracking-tight">Cahier de Caisse TPE</h1>
+                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Cahier de Caisse TPE</h1>
                             <p className="text-sm text-muted-foreground">Saisie simplifiée par le client → Moteur OHADA → Comptabilité SYSCOHADA au cabinet</p>
                         </div>
                     </div>
@@ -267,7 +267,7 @@ export default function InformelPage() {
                     onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                     onDragLeave={() => setDragging(false)}
                     onDrop={handleDrop}
-                    className={`glass-card rounded-3xl border-2 border-dashed p-12 flex flex-col items-center justify-center text-center space-y-6 transition-all duration-300
+                    className={`glass-card rounded-3xl border-2 border-dashed p-4 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-center space-y-6 transition-all duration-300
                         ${dragging ? 'border-indigo-500 bg-indigo-500/10 scale-[1.01]' : 'border-indigo-500/30 bg-indigo-500/5'}`}
                 >
                     <div className={`p-5 rounded-3xl transition-colors ${dragging ? 'bg-indigo-500/20' : 'bg-indigo-500/10'}`}>
@@ -303,7 +303,7 @@ export default function InformelPage() {
 
             {/* Animation de traitement */}
             {processing && (
-                <div className="glass-card rounded-3xl border border-indigo-500/20 p-16 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="glass-card rounded-3xl border border-indigo-500/20 p-4 sm:p-8 lg:p-16 flex flex-col items-center justify-center text-center space-y-6">
                     <div className="relative">
                         <div className="w-20 h-20 rounded-full border-4 border-indigo-500/20 animate-spin border-t-indigo-500"></div>
                         <Sparkles className="w-8 h-8 text-indigo-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />

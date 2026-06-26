@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import { Radar, AlertTriangle, Users, BookOpen, Send, Sparkles } from 'lucide-react';
@@ -12,7 +12,7 @@ export default function RadarImpactPage() {
                         <div className="p-2 bg-rose-500/10 text-rose-500 rounded-xl">
                             <Radar className="w-6 h-6 animate-pulse" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight">Radar d'Impact Réglementaire</h1>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Radar d'Impact Réglementaire</h1>
                     </div>
                     <p className="text-muted-foreground">Nexus IA surveille les lois de finances OHADA et prédit l'impact sur vos clients.</p>
                 </div>

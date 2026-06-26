@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -69,7 +69,7 @@ export default function CollaborationRequestsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Collaboration Client
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <MessageSquare className="w-10 h-10 text-emerald-500" />
                         Centre de Requêtes
                     </h1>
@@ -133,6 +133,7 @@ export default function CollaborationRequestsPage() {
 
             {/* Request List */}
             <div className="glass-card rounded-3xl border border-white/5 bg-slate-900/40 overflow-hidden">
+                <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="bg-slate-950/50 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">
                         <tr>
@@ -209,7 +210,7 @@ export default function CollaborationRequestsPage() {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </div>
     );

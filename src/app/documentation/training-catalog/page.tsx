@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import Link from 'next/link';
@@ -53,7 +53,7 @@ export default function CatalogMarketingPage() {
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-12">
 
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-teal-900/20 via-slate-900 to-slate-900 rounded-[50px] border border-white/5 p-16 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-teal-900/20 via-slate-900 to-slate-900 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 p-4 sm:p-8 lg:p-16 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <BookOpen className="w-64 h-64 text-teal-400" />
                 </div>
@@ -62,7 +62,7 @@ export default function CatalogMarketingPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-xs font-bold tracking-widest uppercase border border-teal-500/20">
                         Formation Continue Elite
                     </div>
-                    <h1 className="text-6xl font-black text-white tracking-tight leading-tight">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white tracking-tight leading-tight">
                         Élevez vos Compétences vers l'<span className="text-teal-400">Excellence</span>
                     </h1>
                     <p className="text-slate-400 text-xl leading-relaxed">
@@ -91,7 +91,7 @@ export default function CatalogMarketingPage() {
                         <div className="w-12 h-12 bg-teal-500/10 rounded-xl flex items-center justify-center text-teal-400 mb-4">
                             <stat.icon className="w-6 h-6" />
                         </div>
-                        <p className="text-3xl font-black text-white">{stat.value}</p>
+                        <p className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{stat.value}</p>
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">{stat.label}</p>
                     </div>
                 ))}
@@ -101,7 +101,7 @@ export default function CatalogMarketingPage() {
             <div className="space-y-8">
                 <div className="flex justify-between items-end">
                     <div>
-                        <h2 className="text-3xl font-black text-white">Parcours <span className="text-teal-400">Certifiants</span></h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">Parcours <span className="text-teal-400">Certifiants</span></h2>
                         <p className="text-slate-400 mt-2">Les formations les plus plébiscitées par nos membres.</p>
                     </div>
                     <Link href="/training/catalog" className="text-teal-400 font-bold text-sm hover:underline">Voir tout le catalogue</Link>
@@ -134,9 +134,9 @@ export default function CatalogMarketingPage() {
             </div>
 
             {/* E-Learning Features */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 py-12">
                 <div className="space-y-8">
-                    <h2 className="text-4xl font-black text-white tracking-tight">Une Expérience d'<span className="text-teal-400">E-Learning</span> Moderne</h2>
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">Une Expérience d'<span className="text-teal-400">E-Learning</span> Moderne</h2>
                     <p className="text-slate-400 text-lg leading-relaxed">
                         Notre plateforme offre une flexibilité totale alliée à une rigueur académique certifiée par les organisations professionnelles.
                     </p>
@@ -164,7 +164,7 @@ export default function CatalogMarketingPage() {
                 <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-indigo-500/20 blur-[100px] opacity-20" />
                     <div className="relative rounded-[40px] border border-white/10 bg-slate-900 shadow-2xl overflow-hidden aspect-video flex items-center justify-center">
-                        <div className="p-10 text-center animate-pulse">
+                        <div className="p-4 sm:p-6 lg:p-10 text-center animate-pulse">
                             <Monitor className="w-20 h-20 text-teal-500/30 mx-auto mb-4" />
                             <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xs">Preview Plateforme</p>
                         </div>
@@ -177,8 +177,8 @@ export default function CatalogMarketingPage() {
             </div>
 
             {/* CTA */}
-            <div className="bg-gradient-to-br from-indigo-600 to-teal-700 rounded-[50px] p-20 text-center shadow-2xl shadow-teal-500/20">
-                <h2 className="text-5xl font-black text-white mb-6">Prêt à transformer votre carrière ?</h2>
+            <div className="bg-gradient-to-br from-indigo-600 to-teal-700 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] p-20 text-center shadow-2xl shadow-teal-500/20">
+                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white mb-6">Prêt à transformer votre carrière ?</h2>
                 <p className="text-teal-100 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
                     Rejoignez les 2,500+ professionnels déjà inscrits et accédez à l'excellence dès aujourd'hui.
                 </p>

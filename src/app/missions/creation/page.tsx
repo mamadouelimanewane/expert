@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -60,7 +60,7 @@ export default function CreationMissionPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Mission Juridique
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         <Building2 className="w-10 h-10 text-indigo-500" />
                         Guichet de Création
                     </h1>
@@ -180,7 +180,7 @@ export default function CreationMissionPage() {
                                 <p className="text-slate-400">Ajoutez les personnes physiques ou morales participant au capital.</p>
                             </div>
 
-                            <div className="p-12 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-800/20 hover:bg-slate-800/40 group">
+                            <div className="p-4 sm:p-8 lg:p-12 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-800/20 hover:bg-slate-800/40 group">
                                 <div className="w-16 h-16 bg-slate-800 group-hover:bg-indigo-600 rounded-full flex items-center justify-center mb-4 transition-colors">
                                     <Users className="w-8 h-8 text-slate-400 group-hover:text-white" />
                                 </div>
@@ -219,7 +219,7 @@ export default function CreationMissionPage() {
                                 <div className="space-y-4 p-6 bg-slate-950 rounded-2xl border border-white/5">
                                     <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">Montant du Capital</label>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-4xl font-black text-white">1 000 000</span>
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">1 000 000</span>
                                         <span className="text-xl font-bold text-slate-500">FCFA</span>
                                     </div>
                                     <input type="range" className="w-full accent-indigo-500" min="1000000" max="100000000" step="100000" defaultValue="1000000" />
@@ -231,7 +231,7 @@ export default function CreationMissionPage() {
                                 <div className="space-y-4 p-6 bg-slate-950 rounded-2xl border border-white/5">
                                     <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">Valeur Nominale</label>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-4xl font-black text-white">10 000</span>
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">10 000</span>
                                         <span className="text-xl font-bold text-slate-500">FCFA / part</span>
                                     </div>
                                     <div className="flex justify-between text-sm text-slate-400 pt-4 border-t border-white/5">

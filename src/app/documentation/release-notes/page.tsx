@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import {
@@ -136,7 +136,7 @@ export default function ReleaseNotesPage() {
                 <div className="pt-20 text-center space-y-8">
                     <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-[10px]">Cabinet 360 Evolution Pipeline</p>
-                    <div className="flex justify-center gap-12">
+                    <div className="flex justify-center gap-4 sm:gap-8 lg:gap-12">
                         <div className="flex flex-col items-center gap-2">
                             <span className="text-2xl font-black text-white tracking-tighter">98.9%</span>
                             <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest text-center">Taux de Satisfaction</span>

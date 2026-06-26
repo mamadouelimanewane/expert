@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -86,13 +86,13 @@ export default function NewClientPage() {
     if (portalUrl) {
         return (
             <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                <div className="glass-card rounded-[32px] p-10 border border-white/5 bg-slate-900/40 shadow-2xl text-center space-y-8">
+                <div className="glass-card rounded-[32px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 shadow-2xl text-center space-y-8">
                     <div className="w-20 h-20 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
                         <PartyPopper className="w-10 h-10 text-emerald-400" />
                     </div>
 
                     <div>
-                        <h2 className="text-3xl font-black text-white tracking-tight">Client créé avec succès !</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Client créé avec succès !</h2>
                         <p className="text-slate-400 mt-2">
                             Le portail de <span className="text-indigo-400 font-bold">{createdName}</span> est prêt.
                         </p>
@@ -150,7 +150,7 @@ export default function NewClientPage() {
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">Nouveau Dossier Client</h1>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nouveau Dossier Client</h1>
                     <p className="text-slate-400 font-medium">Ajoutez un nouveau client à votre portefeuille OHADA.</p>
                 </div>
             </div>

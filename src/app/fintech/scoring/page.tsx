@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Coins, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Download, ExternalLink, RefreshCw } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function CreditScoringPage() {
                         <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl">
                             <Coins className="w-6 h-6" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight">Score Solvabilité IA</h1>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Score Solvabilité IA</h1>
                     </div>
                     <p className="text-muted-foreground">Évaluation automatique de la santé financière pour faciliter l'accès au crédit bancaire.</p>
                 </div>
@@ -99,7 +99,7 @@ export default function CreditScoringPage() {
                                         className={`transition-all duration-1000 ease-out ${isEligible ? 'text-emerald-500' : currentScore > 0 ? 'text-amber-500' : 'text-muted'}`} />
                                 </svg>
                                 <div className="text-center">
-                                    <span className={`text-6xl font-black ${evaluating ? 'animate-pulse text-muted' : isEligible ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                    <span className={`text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black ${evaluating ? 'animate-pulse text-muted' : isEligible ? 'text-emerald-500' : 'text-amber-500'}`}>
                                         {evaluating ? "..." : currentScore}
                                     </span>
                                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-1">/ 1000</p>

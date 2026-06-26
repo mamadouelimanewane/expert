@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -76,7 +76,7 @@ export default function ResourcesPlanning() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Resource Planning */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <CalendarIcon className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -88,7 +88,7 @@ export default function ResourcesPlanning() {
                                 Resource Management (GPAO)
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Planning & <span className="text-indigo-400">Charge de Travail</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -111,7 +111,7 @@ export default function ResourcesPlanning() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Main Resource Grid (Gantt-like) */}
-                <div className="lg:col-span-12 glass-card rounded-[48px] border border-white/5 bg-slate-900/40 p-10 flex flex-col shadow-2xl overflow-hidden">
+                <div className="lg:col-span-12 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <LayoutGrid className="w-6 h-6 text-indigo-400" />
@@ -225,7 +225,7 @@ export default function ResourcesPlanning() {
                         </h3>
                         <div className="flex items-center justify-center p-6 border-b border-white/5 mb-6">
                             <div className="text-center">
-                                <p className="text-5xl font-black text-white">72.4%</p>
+                                <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">72.4%</p>
                                 <p className="text-[9px] text-slate-500 font-bold uppercase mt-2">Moyenne Cabinet</p>
                             </div>
                         </div>

@@ -10,148 +10,69 @@
 
 **Logiciel de gestion tout-en-un pour cabinets d'expertise comptable en zone OHADA**
 
-> 🆕 **Dernière mise à jour** : 01/02/2026 - Module États Financiers OHADA ajouté à la sidebar
+> 🆕 **Dernière mise à jour majeure** : Intégration de l'Intelligence Artificielle (OCR & Analyse FEC)
 
-[🚀 Demo](https://cabinet360.vercel.app) • [📖 Documentation](./DOCUMENTATION.md) • [🐛 Report Bug](https://github.com/mamadouelimanewane/expert/issues)
+[🚀 Accéder à l'application (Local)](http://localhost:3000) • [📖 Documentation](#-documentation)
 
 </div>
 
 ---
 
-## 📋 Table des Matières
-
-- [À Propos](#-à-propos)
-- [Fonctionnalités](#-fonctionnalités)
-- [Technologies](#-technologies)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Utilisation](#-utilisation)
-- [Déploiement](#-déploiement)
-- [Tests](#-tests)
-- [Contribution](#-contribution)
-- [License](#-license)
-
----
-
 ## 🎯 À Propos
-
-**Cabinet 360** est une plateforme SaaS de nouvelle génération conçue spécifiquement pour les cabinets d'expertise comptable opérant en zone OHADA (UEMOA/CEMAC). 
-
-### Vision
-
-Allier **conformité réglementaire** et **intelligence artificielle** pour offrir une expérience premium aux experts-comptables et à leurs clients.
-
-### Pays Supportés
-
-🇨🇮 Côte d'Ivoire • 🇸🇳 Sénégal • 🇨🇲 Cameroun • 🇬🇦 Gabon • 🇧🇯 Bénin • 🇹🇬 Togo • 🇧🇫 Burkina Faso • 🇲🇱 Mali
+**Cabinet 360** est l'outil ultime pour les experts-comptables modernes de l'espace OHADA. 
+Plus qu'un ERP, c'est un assistant pro-actif qui élimine les saisies fastidieuses (grâce à la lecture automatique de factures), automatise les liasses fiscales et traque la fraude comptable via intelligence artificielle.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Nouveautés & Modules Premium (v2.0)
+
+1. **📊 Liasse Fiscale IA (Générateur SYSCOHADA)**
+   - Importez une Balance Générale (XLSX, CSV).
+   - L'application mappe les comptes et génère instantanément votre **Bilan (Actif/Passif)** et **Compte de Résultat**.
+   - Calculs 100% exécutés dans le navigateur (Zéro-Trust) pour une sécurité maximale.
+
+2. **🛡️ Audit Légal IA (FEC Analyzer)**
+   - Importez un Fichier des Écritures Comptables.
+   - Algorithme de détection : Alertes sur les soldes de caisse (57) créditeurs, les écritures passées le dimanche, et les montants "ronds" suspects.
+
+3. **📸 Scanner de Notes de Frais (Tesseract OCR)**
+   - Chargez l'image d'un ticket de caisse. L'OCR (Reconnaissance Optique) extrait le montant HT, la TVA, la date et le marchand.
+
+---
+
+## 📋 Fonctionnalités Classiques
 
 ### 🏦 Gestion Client (CRM)
-- Fiche client complète avec identifiants OHADA (RCCM, NINEA, IFU, NIF)
-- Gestion des régimes fiscaux (Réel Normal, Réel Simplifié, CME)
-- Historique complet des interactions
-- Segmentation par secteur d'activité
+- Fiche client complète avec identifiants OHADA (RCCM, NINEA, IFU)
+- Gestion des missions et du budget.
 
-### ⏱️ Suivi du Temps (Timesheets)
-- Chronomètre intégré pour saisie en temps réel
-- Saisie manuelle avec catégorisation
-- Calcul automatique de la valorisation
-- Export pour facturation
+### ⏱️ Suivi du Temps & Rentabilité (Timesheets)
+- Saisie des temps par collaborateur.
+- Vue croisée : Chiffre d'affaires facturé VS Coût horaire passé.
 
-### 📊 Missions & Tâches
-- Gestion complète du cycle de vie des missions
-- Types: Audit, Conseil, Tenue Comptable, Déclarations, Paie
-- Affectation aux collaborateurs
-- Suivi de l'avancement
-
-### 💰 Facturation & Honoraires
-- Génération automatique des factures
-- TVA 18% (norme OHADA)
-- Suivi des paiements
-- Relances automatiques
-
-### 📄 Gestion Documentaire + OCR
-- Upload de documents (factures, relevés, contrats)
-- **OCR automatique** pour extraction de données
-- Reconnaissance de:
-  - Numéro de facture
-  - Date
-  - Fournisseur
-  - Montants HT/TTC/TVA
-- Stockage sécurisé
-
-### 📅 Agenda & Réunions
-- Calendrier partagé
-- Réunions virtuelles (intégration visio)
-- **Génération automatique de comptes rendus par IA**
-- Notifications et rappels
-
-### 📈 Déclarations Fiscales
-- Suivi des échéances (TVA, IS, IRPP, Cotisations)
-- Alertes avant deadline
-- Historique des déclarations
-- Statuts: Draft, Pending, Submitted, Validated
-
-### 🌍 Benchmarking Sectoriel
-- Comparaison avec moyennes du marché OHADA
-- Indicateurs clés: Marge, DSO, Masse salariale, Endettement
-- **Insights IA** pour recommandations stratégiques
-- Export de rapports
-
-### 🤖 Intelligence Artificielle
-- Génération de rapports d'audit
-- Rédaction juridique assistée
-- Détection d'anomalies (Forensics)
-- Analyse prédictive
-
-### 🎨 Interface Premium
-- Design moderne avec glassmorphism
-- **Entièrement responsive** (mobile, tablette, desktop)
-- 3 thèmes: Dark, Light, Corporate
-- Animations fluides avec Framer Motion
+### 💰 Facturation
+- Émission de factures aux normes UEMOA.
+- Tableau de bord avec suivi de la trésorerie et intégration directe dans la comptabilité.
 
 ---
 
-## 🛠️ Technologies
+## 🛠️ Stack Technique
 
-### Frontend
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript 5](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Animations**: [Framer Motion 12](https://www.framer.com/motion/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-
-### Backend
-- **ORM**: [Prisma](https://www.prisma.io/)
-- **Database**: PostgreSQL 14+
-- **Authentication**: JWT + bcrypt
-- **API**: Next.js API Routes
-
-### OCR & AI
-- **OCR**: [Tesseract.js](https://tesseract.projectnaptha.com/)
-- **Image Processing**: [Sharp](https://sharp.pixelplumbing.com/)
-- **PDF Parsing**: pdf-parse
-
-### DevOps
-- **Hosting**: Vercel / VPS
-- **CI/CD**: GitHub Actions
-- **Monitoring**: Vercel Analytics
-- **Database**: Supabase / Neon
+- **Frontend & Backend** : Next.js 16 (App Router), React 19, TypeScript
+- **Design** : Tailwind CSS v4, Framer Motion, Lucide Icons
+- **Base de données** : PostgreSQL / MongoDB avec Prisma ORM
+- **Intelligence Artificielle** : Tesseract.js (OCR WebAssembly)
+- **Traitement de fichiers** : SheetJS (xlsx)
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation & Lancement Rapide
 
 ### Prérequis
+- Node.js 18+
+- Un accès réseau pour le premier lancement de l'OCR (téléchargement du modèle linguistique `fra`).
 
-- Node.js 18+ ([Download](https://nodejs.org/))
-- PostgreSQL 14+ ([Download](https://www.postgresql.org/download/))
-- Git ([Download](https://git-scm.com/))
-
-### Installation Rapide
+### Démarrage
 
 ```bash
 # 1. Cloner le repository
@@ -161,266 +82,33 @@ cd expert/cabinet-expert-ohada
 # 2. Installer les dépendances
 npm install
 
-# 3. Configurer l'environnement
-cp .env.example .env
-# Éditer .env avec vos paramètres
-
-# 4. Initialiser la base de données
+# 3. Base de données
+# Le projet utilise Prisma. Assurez-vous d'avoir configuré le fichier .env
 npx prisma generate
 npx prisma db push
-npx prisma db seed
 
-# 5. Démarrer le serveur de développement
+# 4. Peupler la base avec les données de simulation (CA et Dashboard)
+npm run seed:invoices
+
+# 5. Démarrer le projet
 npm run dev
 ```
 
-L'application sera accessible sur **http://localhost:3001**
-
-### Identifiants de Test
-
-```
-Admin:         admin@cabinet360.com / admin2026
-Expert:        expert@cabinet360.com / expert2026
-Collaborateur: collaborator@cabinet360.com / collab2026
-```
+L'application est maintenant disponible sur **http://localhost:3000**
 
 ---
 
-## ⚙️ Configuration
-
-### Variables d'Environnement
-
-Créer un fichier `.env` à la racine :
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/cabinet_ohada"
-
-# JWT
-JWT_SECRET="votre-secret-jwt-securise"
-
-# Application
-NEXT_PUBLIC_APP_URL="http://localhost:3001"
-NODE_ENV="development"
-
-# Upload
-MAX_FILE_SIZE="10485760"
-UPLOAD_DIR="./uploads"
-
-# Email (optionnel)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="votre-email@gmail.com"
-SMTP_PASSWORD="votre-mot-de-passe"
-```
-
-Voir [.env.example](./.env.example) pour la liste complète.
+## 🔒 Sécurité et Zéro-Trust
+Pour assurer le **secret professionnel de l'expert-comptable**, l'ensemble des modules d'Intelligence Artificielle et de traitement des fichiers (Balances, FEC, Tickets) s'exécute côté client (Navigateur). 
+Aucun fichier financier n'est envoyé à une API d'Intelligence Artificielle tierce. La puissance de calcul est déportée sur votre ordinateur (`Edge computing`).
 
 ---
 
-## 📖 Utilisation
-
-### Commandes Disponibles
-
-```bash
-# Développement
-npm run dev          # Démarrer en mode développement
-npm run build        # Build de production
-npm start            # Démarrer en production
-npm run lint         # Linter le code
-
-# Base de données
-npx prisma studio    # Interface graphique DB
-npx prisma generate  # Générer le client Prisma
-npx prisma db push   # Appliquer le schéma
-npx prisma db seed   # Seed avec données de test
-
-# Déploiement
-vercel               # Déployer sur Vercel
-```
-
-### Structure du Projet
-
-```
-cabinet-expert-ohada/
-├── src/
-│   ├── app/                 # Pages Next.js (App Router)
-│   │   ├── api/            # API Routes
-│   │   ├── dashboard/      # Dashboard
-│   │   ├── clients/        # Gestion clients
-│   │   ├── timesheets/     # Saisie des temps
-│   │   ├── agenda/         # Calendrier
-│   │   └── ...
-│   ├── components/         # Composants React
-│   │   ├── layout/         # Layout components
-│   │   ├── dashboard/      # Dashboard components
-│   │   └── ...
-│   ├── lib/                # Utilitaires
-│   │   ├── prisma.ts       # Client Prisma
-│   │   ├── ocr-engine.ts   # Moteur OCR
-│   │   └── utils.ts        # Helpers
-│   └── context/            # React Context
-├── prisma/
-│   ├── schema.prisma       # Schéma de base de données
-│   └── seed.ts             # Données de test
-├── public/                 # Assets statiques
-├── uploads/                # Fichiers uploadés
-└── ...
-```
-
----
-
-## 🚢 Déploiement
-
-### Déploiement Rapide (Vercel)
-
-```bash
-# Installer Vercel CLI
-npm install -g vercel
-
-# Déployer
-vercel --prod
-```
-
-### Déploiement VPS
-
-Voir le [Guide de Déploiement Complet](./DEPLOYMENT_GUIDE.md) pour:
-- Configuration serveur Ubuntu/Debian
-- Nginx + PM2
-- SSL avec Let's Encrypt
-- Docker
-- Backup automatique
-
----
-
-## 🧪 Tests
-
-### Tests UAT (User Acceptance Testing)
-
-Suivre le [Guide de Tests UAT](./UAT_TESTING_GUIDE.md) pour:
-- 8 scénarios de test détaillés
-- Formulaires de feedback
-- Rapport de bugs
-- Checklist de validation
-
-### Tests Automatisés (À venir)
-
-```bash
-npm run test          # Tests unitaires
-npm run test:e2e      # Tests end-to-end
-npm run test:coverage # Coverage
-```
-
----
-
-## 📚 Documentation
-
-- [📖 Documentation Complète](./DOCUMENTATION.md)
-- [🚀 Guide de Déploiement](./DEPLOYMENT_GUIDE.md)
-- [🧪 Guide de Tests UAT](./UAT_TESTING_GUIDE.md)
-- [📱 Guide Responsive](./RESPONSIVE_GUIDE.md)
-- [📊 Plan d'Implémentation](./IMPLEMENTATION_PLAN_OHADA.md)
-- [📈 Rapport de Projet](./PROJECT_REPORT.md)
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
-4. Push vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-### Guidelines
-
-- Suivre les conventions TypeScript
-- Ajouter des tests pour les nouvelles fonctionnalités
-- Mettre à jour la documentation
-- Respecter le style de code (ESLint)
-
----
-
-## 🐛 Rapport de Bugs
-
-Pour signaler un bug, ouvrir une [issue](https://github.com/mamadouelimanewane/expert/issues) avec:
-- Description détaillée
-- Étapes pour reproduire
-- Comportement attendu vs obtenu
-- Captures d'écran si applicable
-- Environnement (OS, navigateur, version)
-
----
-
-## 📊 Roadmap
-
-### Version 2.1 (Q1 2026)
-- [ ] Authentification multi-facteurs (2FA)
-- [ ] Intégration Mobile Money (Wave, Orange, MTN)
-- [ ] Application mobile (React Native)
-- [ ] Mode offline
-- [ ] Signature électronique avancée
-
-### Version 2.2 (Q2 2026)
-- [ ] Intégration bancaire (Open Banking)
-- [ ] IA avancée (GPT-4 pour rédaction)
-- [ ] Tableau de bord BI avancé
-- [ ] API publique pour intégrations
-- [ ] Marketplace d'extensions
-
-### Version 3.0 (Q3 2026)
-- [ ] Multi-cabinets (SaaS complet)
-- [ ] Portail client dédié
-- [ ] Conformité RGPD/GDPR
-- [ ] Audit trail complet
-- [ ] Certifications ISO
-
----
-
-## 📄 License
-
-**Proprietary** - © 2026 Cabinet 360. Tous droits réservés.
-
-Ce logiciel est la propriété exclusive de Cabinet 360. Toute utilisation, reproduction ou distribution non autorisée est strictement interdite.
-
-Pour obtenir une licence, contactez: [license@cabinet360.com](mailto:license@cabinet360.com)
-
----
-
-## 👥 Équipe
-
-**Développement**: Mamadou Eliman Ewane  
-**Design**: Antigravity AI  
-**Product Owner**: Cabinet Expert OHADA  
-
----
-
-## 📞 Contact
-
+## 📞 Support & Contacts
+Pour un accompagnement sur le déploiement sur VPS ou Vercel, ou pour remonter une erreur :
 - **Email**: contact@cabinet360.com
-- **Support**: support@cabinet360.com
-- **Website**: https://cabinet360.com
-- **GitHub**: https://github.com/mamadouelimanewane/expert
-
----
-
-## 🙏 Remerciements
-
-- [Next.js](https://nextjs.org/) pour le framework
-- [Vercel](https://vercel.com/) pour l'hébergement
-- [Prisma](https://www.prisma.io/) pour l'ORM
-- [Tailwind CSS](https://tailwindcss.com/) pour le styling
-- [Tesseract.js](https://tesseract.projectnaptha.com/) pour l'OCR
-- La communauté open-source
-
----
+- **Créateur**: Mamadou Eliman Ewane
 
 <div align="center">
-
-**Fait avec ❤️ pour les experts-comptables d'Afrique**
-
-[⬆ Retour en haut](#-cabinet-360---plateforme-saas-expert-ohada)
-
+Fait avec ❤️ pour les experts-comptables d'Afrique.
 </div>

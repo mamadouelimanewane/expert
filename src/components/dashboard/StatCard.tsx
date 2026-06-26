@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+﻿import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -26,7 +26,7 @@ export function StatCard({ title, value, trend, trendUp, icon: Icon, color = "in
             <div className="relative z-10 flex justify-between items-start">
                 <div>
                     <p className="text-sm font-medium text-slate-400 mb-1">{title}</p>
-                    <h3 className="text-3xl font-bold text-white tracking-tight">{value}</h3>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">{value}</h3>
                     {trend && (
                         <div className={cn(
                             "flex items-center gap-1 mt-2 text-xs font-semibold px-2 py-1 rounded-full w-fit bg-slate-800/50",

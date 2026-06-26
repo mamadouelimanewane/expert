@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -65,7 +65,7 @@ export default function DossierCreditAuto() {
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-3xl font-black text-white tracking-tight">Dossier Crédit Auto</h2>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Dossier Crédit Auto</h2>
             {DEMO_CLIENT.eligible && (
               <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
                 <Award className="w-3 h-3" /> Éligible
@@ -153,7 +153,7 @@ export default function DossierCreditAuto() {
           <div className="p-8 bg-slate-900/40 border border-white/5 rounded-[28px] text-center space-y-6">
             <div>
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Montant sollicité</p>
-              <p className="text-5xl font-black text-white tabular-nums">
+              <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tabular-nums">
                 {(montantDemande / 1000000).toFixed(1)} <span className="text-2xl text-slate-400">M FCFA</span>
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function DossierCreditAuto() {
                 className={`p-5 rounded-[24px] border text-left transition-all ${selectedBank === bank.id ? "bg-indigo-600/20 border-indigo-500/50" : "bg-slate-900/40 border-white/5 hover:border-white/20"}`}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-3xl">{bank.logo}</span>
+                  <span className="text-xl sm:text-2xl lg:text-3xl">{bank.logo}</span>
                   <div>
                     <p className="font-black text-white">{bank.name}</p>
                     {selectedBank === bank.id && <CheckCircle className="w-4 h-4 text-indigo-400 mt-0.5" />}

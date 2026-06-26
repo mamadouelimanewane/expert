@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -83,7 +83,7 @@ export default function SupervisionTimelinePage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-sky-500/20">
                         <Activity className="w-3 h-3" /> Supervision Temps Réel
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Flux d'Activité Live
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base font-medium">
@@ -113,7 +113,7 @@ export default function SupervisionTimelinePage() {
                             <p className="text-slate-500 font-medium font-bold uppercase tracking-widest text-xs">Chargement du flux live...</p>
                         </div>
                     ) : logs.length === 0 ? (
-                        <div className="glass-card p-12 text-center rounded-3xl border border-dashed border-slate-800">
+                        <div className="glass-card p-4 sm:p-8 lg:p-12 text-center rounded-3xl border border-dashed border-slate-800">
                             <Activity className="w-12 h-12 text-slate-700 mx-auto mb-4" />
                             <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Aucune activité enregistrée</p>
                         </div>

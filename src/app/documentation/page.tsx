@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import Link from 'next/link';
@@ -161,7 +161,7 @@ export default function DocumentationHubPage() {
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase">
                             Centre de Ressources Elite
                         </div>
-                        <h1 className="text-5xl font-black text-white tracking-tight">Documentation & <span className="text-indigo-500">Marketing</span></h1>
+                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight">Documentation & <span className="text-indigo-500">Marketing</span></h1>
                         <p className="text-slate-400 text-lg max-w-2xl">
                             Accédez à tous les supports officiels, guides d'utilisation et matériels marketing
                             conçus pour l'excellence de votre cabinet.
@@ -193,7 +193,7 @@ export default function DocumentationHubPage() {
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-1 gap-12">
+                <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:gap-12">
                     {documents.map((section, idx) => (
                         <section key={idx} className="space-y-6">
                             <h2 className="text-xl font-bold text-slate-400 flex items-center gap-3">
@@ -243,9 +243,9 @@ export default function DocumentationHubPage() {
                 </div>
 
                 {/* Integration Checklist / Help Area */}
-                <div className="mt-20 p-10 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[40px] text-white flex flex-col md:flex-row items-center gap-10 shadow-2xl shadow-indigo-500/20">
+                <div className="mt-20 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[40px] text-white flex flex-col md:flex-row items-center gap-4 sm:gap-6 lg:gap-10 shadow-2xl shadow-indigo-500/20">
                     <div className="flex-1 space-y-4">
-                        <h2 className="text-3xl font-black">Besoin d'un support personnalisé ?</h2>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black">Besoin d'un support personnalisé ?</h2>
                         <p className="text-indigo-100 text-lg">
                             Nos équipes sont disponibles pour vous accompagner dans la personnalisation de vos
                             documents juridiques et marketing.

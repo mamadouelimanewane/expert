@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -122,7 +122,7 @@ export default function ClientScoringPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-violet-500/20">
                         <Gauge className="w-3 h-3" /> Scoring & Risque Client
                     </div>
-                    <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
                         Client Intelligence
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
@@ -232,7 +232,7 @@ export default function ClientScoringPage() {
                                     />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                    <span className={cn("text-3xl font-black", getScoreColor(selectedClient.score))}>{selectedClient.score}</span>
+                                    <span className={cn("text-xl sm:text-2xl lg:text-3xl font-black", getScoreColor(selectedClient.score))}>{selectedClient.score}</span>
                                     <span className="text-[8px] text-slate-500 uppercase">Score Global</span>
                                 </div>
                             </div>

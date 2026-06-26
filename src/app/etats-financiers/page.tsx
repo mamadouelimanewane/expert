@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 
@@ -7,7 +7,7 @@ export default function EtatsFinanciersPage() {
         <div className="space-y-6">
             {/* Welcome Section */}
             <section className="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-8 text-white shadow-lg">
-                <h2 className="text-3xl font-bold">Tableau de bord - Clôture 2024</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">Tableau de bord - Clôture 2024</h2>
                 <p className="mt-2 text-indigo-100">
                     Générez vos états financiers conformes au SYSCOHADA Révisé.
                 </p>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import {
@@ -57,7 +57,7 @@ export default function CashFlowStressSimulatorPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Simulation Command Center */}
-            <div className="bg-slate-900/60 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Activity className="w-64 h-64 text-cyan-400" />
                 </div>
@@ -69,7 +69,7 @@ export default function CashFlowStressSimulatorPage() {
                                 Analyse de Scénarios "What-If"
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Simulateur de <span className="text-cyan-400">Stress Trésorerie</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -88,7 +88,7 @@ export default function CashFlowStressSimulatorPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Control Panel (Left) */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
                         <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-tighter">
                             <SlidersHorizontal className="w-6 h-6 text-cyan-400" />
                             Variables Stratégiques
@@ -144,7 +144,7 @@ export default function CashFlowStressSimulatorPage() {
                         <ResultCard label="Niveau de Risque" value={results.riskLevel} unit="Stress Test" icon={Activity} color={results.riskLevel === "CRITIQUE" ? "text-rose-400" : results.riskLevel === "MODÉRÉ" ? "text-amber-400" : "text-emerald-400"} />
                     </div>
 
-                    <div className="glass-card p-10 rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl h-[400px] flex flex-col">
+                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter">Évolution Projective du Cash-Flow</h3>
                             <div className="flex gap-2">

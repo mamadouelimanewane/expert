@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -51,7 +51,7 @@ export default function HandbookPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-10 rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
                     <Book className="w-64 h-64 text-indigo-400" />
                 </div>
@@ -63,7 +63,7 @@ export default function HandbookPage() {
                                 Documentation Elite
                             </span>
                         </div>
-                        <h2 className="text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Nexus <span className="text-indigo-400">Elite Handbook</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
@@ -125,13 +125,13 @@ export default function HandbookPage() {
 
                 {/* Content Viewer */}
                 <div className="lg:col-span-9">
-                    <div className="glass-card rounded-[50px] border border-white/5 bg-slate-900/40 p-12 min-h-[800px] shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 bg-slate-900/40 p-4 sm:p-8 lg:p-12 min-h-[800px] shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                             <CurrentIcon className="w-64 h-64 text-white" />
                         </div>
 
                         <div className="relative z-10 prose prose-invert max-w-none">
-                            <h2 className="text-3xl font-black text-white uppercase tracking-tight mb-8 flex items-center gap-4">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white uppercase tracking-tight mb-8 flex items-center gap-4">
                                 {currentTitle}
                                 <span className="h-[1px] flex-1 bg-white/5" />
                             </h2>
