@@ -6,8 +6,8 @@ export default withAuth(
     const { token } = req.nextauth;
     const pathname = req.nextUrl.pathname;
 
-    // Redirection selon le rôle après login
-    if (pathname === "/login" && token) {
+    // Redirection selon le rôle après login OU accès à la landing page "/"
+    if ((pathname === "/login" || pathname === "/") && token) {
       const role = token.role as string;
       if (role === "EXPERT" || role === "ADMIN") {
         return NextResponse.redirect(new URL("/bi", req.url));
