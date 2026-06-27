@@ -100,32 +100,99 @@
 }
 
 .light {
-  --background: #f8fafc;
-  /* Lighter background */
-  --foreground: #020617;
-  /* Very dark slate 950 */
+  /* Fond ultra-propre, très légèrement teinté de bleu/froid pour éviter l'effet 'sale' du gris */
+  --background: #f4f7fb;
+  --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --primary: #4338ca;
-  /* Indigo 700 */
+  --primary: #4f46e5;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
+  --secondary: #f0f4ff;
   --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #334155;
-  /* Much darker muted text */
-  --accent: #0e7490;
-  /* Cyan 700 */
+  --muted: #e8eeff;
+  --muted-foreground: #475569;
+  --accent: #0284c7;
   --accent-foreground: #ffffff;
-  --border: #e2e8f0;
+  --border: #c7d2fe;
   --input: #ffffff;
-  --ring: #4338ca;
+  --ring: #4f46e5;
   --sidebar-bg: #ffffff;
-  --sidebar-border: #e2e8f0;
+  --sidebar-border: #e0e7ff;
   --sidebar-text: #0f172a;
-  --sidebar-active-bg: rgba(67, 56, 202, 0.1);
+  --sidebar-active-bg: rgba(79, 70, 229, 0.08);
   --card-bg: #ffffff;
-  --footer-bg: #f1f5f9;
+  --footer-bg: #f0f4ff;
+}
+
+/* =============================================
+   LIGHT THEME — Overrides des classes Tailwind hardcodées
+   Les pages utilisent bg-slate-900/40, text-white, etc.
+   Ces règles les remappent vers des tons clairs.
+   ============================================= */
+
+/* --- Backgrounds : variantes slate-900 --- */
+.light .bg-slate-900 { background-color: #f8fafc !important; }
+.light .bg-slate-900\/10 { background-color: rgba(248,250,252,0.5) !important; }
+.light .bg-slate-900\/20 { background-color: rgba(255,255,255,0.7) !important; }
+.light .bg-slate-900\/40 { background-color: rgba(255,255,255,0.85) !important; }
+.light .bg-slate-900\/50 { background-color: rgba(255,255,255,0.9) !important; }
+.light .bg-slate-900\/60 { background-color: rgba(255,255,255,0.92) !important; }
+.light .bg-slate-900\/80 { background-color: rgba(255,255,255,0.95) !important; }
+.light .bg-slate-900\/95 { background-color: rgba(255,255,255,0.98) !important; }
+
+/* --- Backgrounds : variantes slate-800 --- */
+.light .bg-slate-800 { background-color: #f1f5f9 !important; }
+.light .bg-slate-800\/30 { background-color: rgba(241,245,249,0.6) !important; }
+.light .bg-slate-800\/50 { background-color: rgba(241,245,249,0.8) !important; }
+.light .bg-slate-800\/60 { background-color: rgba(241,245,249,0.9) !important; }
+
+/* --- Backgrounds : variantes slate-700 --- */
+.light .bg-slate-700 { background-color: #e2e8f0 !important; }
+.light .bg-slate-700\/30 { background-color: rgba(226,232,240,0.5) !important; }
+.light .bg-slate-700\/50 { background-color: rgba(226,232,240,0.7) !important; }
+
+/* --- Backgrounds : indigo dark → indigo clair --- */
+.light .bg-indigo-950\/30 { background-color: rgba(238,242,255,0.6) !important; }
+.light .bg-slate-950\/20 { background-color: rgba(248,250,252,0.6) !important; }
+
+/* --- Textes --- */
+.light .text-white { color: #0f172a !important; }
+.light .text-slate-200 { color: #1e293b !important; }
+.light .text-slate-300 { color: #334155 !important; }
+
+/* --- Bordures --- */
+.light .border-white\/5 { border-color: rgba(99,102,241,0.1) !important; }
+.light .border-white\/10 { border-color: rgba(99,102,241,0.15) !important; }
+.light .border-white\/20 { border-color: rgba(99,102,241,0.2) !important; }
+
+/* --- Gradients hero sections --- */
+.light .from-slate-900 { --tw-gradient-from: #eef2ff !important; }
+.light .from-slate-900\/80 { --tw-gradient-from: rgba(238,242,255,0.8) !important; }
+.light .to-indigo-950\/30 { --tw-gradient-to: rgba(224,231,255,0.5) !important; }
+.light .to-slate-900 { --tw-gradient-to: #f0f4ff !important; }
+.light .via-slate-900 { --tw-gradient-via: #f4f7ff !important; }
+
+/* --- glass-card en mode clair --- */
+.light .glass-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-color: rgba(99,102,241,0.12) !important;
+  box-shadow: 0 2px 16px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+/* --- Hover subtils en mode clair --- */
+.light .hover\:bg-white\/\[0\.02\]:hover { background-color: rgba(79,70,229,0.03) !important; }
+.light .hover\:bg-white\/5:hover { background-color: rgba(79,70,229,0.05) !important; }
+.light .bg-white\/5 { background-color: rgba(79,70,229,0.04) !important; }
+.light .bg-white\/10 { background-color: rgba(79,70,229,0.07) !important; }
+
+/* --- Dividers --- */
+.light .divide-white\/5 > * + * { border-color: rgba(99,102,241,0.08) !important; }
+
+/* --- NexusCopilot : fond du chat en mode clair --- */
+.light .bg-slate-900\/95.backdrop-blur-2xl,
+.light [class*="bg-slate-900"][class*="backdrop-blur"] {
+  background-color: rgba(255,255,255,0.97) !important;
 }
 
 .corporate {
