@@ -11,10 +11,18 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
+        _hp: { label: "Phone", type: "text" }, // honeypot
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email et mot de passe requis");
+        }
+
+        // Honeypot côté serveur : si _hp est rempli → bot
+        if (credentials._hp && credentials._hp.trim() !== "") {
+          // Délai artificiel pour ralentir l'attaquant, puis rejet silencieux
+          await new Promise((r) => setTimeout(r, 2000));
+          throw new Error("Identifiants incorrects ou compte inactif");
         }
 
         const user = await prisma.user.findUnique({
@@ -22,13 +30,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.isActive) {
-          // Comptes de démo pour les tests
-          if (credentials.email === "expert@gantic360.com" && credentials.password === "password") {
-             return { id: "demo-expert", email: credentials.email, name: "Mamadou Eliman", role: "EXPERT" } as any;
-          }
-          if (credentials.email === "collab@gantic360.com" && credentials.password === "password") {
-             return { id: "demo-collab", email: credentials.email, name: "Aminata Fall", role: "COLLABORATOR" } as any;
-          }
           throw new Error("Identifiants incorrects ou compte inactif");
         }
 

@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         });
     } catch (error: any) {
         console.error("Invoices GET error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }
 
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ invoice });
     } catch (error: any) {
         console.error("Invoice POST error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }
 
@@ -101,6 +101,6 @@ export async function PATCH(request: Request) {
         return NextResponse.json({ invoice });
     } catch (error: any) {
         console.error("Invoice PATCH error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }

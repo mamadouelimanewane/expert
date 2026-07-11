@@ -4,6 +4,13 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function POST() {
+    // Garde-fou supplémentaire : même protégée par rôle ADMIN au niveau du
+    // middleware, cette route écrase/peuple massivement la base et ne doit
+    // jamais pouvoir être invoquée en production.
+    if (process.env.NODE_ENV === "production") {
+        return NextResponse.json({ error: "Not available in production" }, { status: 403 });
+    }
+
     try {
         // ── 0. USER ADMIN (required for missions) ──────────────────
         const adminUser = await prisma.user.upsert({
@@ -274,9 +281,6 @@ export async function POST() {
 
     } catch (error: any) {
         console.error("Seed error:", error);
-        return NextResponse.json({ 
-            error: "Erreur seed: " + error.message,
-            detail: error.code
-        }, { status: 500 });
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }

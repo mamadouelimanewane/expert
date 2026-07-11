@@ -10,18 +10,29 @@ export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [honeypot, setHoneypot] = useState(""); // doit rester vide — bots remplissent
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+
+        // Honeypot : un vrai utilisateur ne remplit jamais ce champ
+        if (honeypot) {
+            // Simuler un délai et un échec silencieux pour ne pas alerter le bot
+            await new Promise((r) => setTimeout(r, 1200));
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
 
         const res = await signIn("credentials", {
             redirect: false,
             email,
-            password
+            password,
+            _hp: honeypot, // transmis au serveur pour double vérification
         });
 
         if (res?.error) {
@@ -31,11 +42,6 @@ export default function LoginPage() {
             // Success: Redirection will be handled by middleware or force redirect
             router.push("/bi");
         }
-    };
-
-    const useDemoAccount = (role: "expert" | "collab") => {
-        setEmail(role === "expert" ? "expert@gantic360.com" : "collab@gantic360.com");
-        setPassword("password");
     };
 
     return (
@@ -80,7 +86,20 @@ export default function LoginPage() {
                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-2">Bienvenue</h2>
                         <p className="text-slate-400 font-medium mb-8">Saisissez vos identifiants pour accéder à votre espace sécurisé.</p>
 
-                        <form onSubmit={handleLogin} className="space-y-6">
+                        <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
+                            {/* Honeypot — invisible pour les humains, attrayant pour les bots */}
+                            <div aria-hidden="true" style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0, overflow: "hidden" }}>
+                                <label htmlFor="phone_number">Téléphone</label>
+                                <input
+                                    id="phone_number"
+                                    name="phone_number"
+                                    type="text"
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                    value={honeypot}
+                                    onChange={(e) => setHoneypot(e.target.value)}
+                                />
+                            </div>
                             {error && (
                                 <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm font-bold text-center">
                                     {error}
@@ -126,19 +145,6 @@ export default function LoginPage() {
                                 {!isLoading && <ArrowRight className="w-4 h-4" />}
                             </button>
                         </form>
-
-                        {/* DEMO ACCOUNTS */}
-                        <div className="mt-12 pt-8 border-t border-white/5">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">Comptes de Démonstration (Développement)</p>
-                            <div className="grid grid-cols-2 gap-4">
-                                <button onClick={() => useDemoAccount("expert")} className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-colors border border-white/5">
-                                    Compte Associé
-                                </button>
-                                <button onClick={() => useDemoAccount("collab")} className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-colors border border-white/5">
-                                    Compte Collaborateur
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

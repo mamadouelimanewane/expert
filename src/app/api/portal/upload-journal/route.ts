@@ -1,19 +1,26 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getPortalClient } from '@/lib/portal-auth';
 
 export async function POST(req: Request) {
   try {
+    const client = await getPortalClient(req);
+    if (!client) {
+      return NextResponse.json({ error: 'Portail introuvable ou désactivé' }, { status: 401 });
+    }
+
     const data = await req.json();
-    // Expected data format: { clientId: string, entries: [{ date, libelle, entree, sortie }] }
-    
-    if (!data.clientId || !data.entries || !Array.isArray(data.entries)) {
+    // Expected data format: { entries: [{ date, libelle, entree, sortie }] }
+    // Le clientId n'est jamais accepté depuis le body : il est résolu via le portalToken.
+
+    if (!data.entries || !Array.isArray(data.entries)) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
 
     const tpeJournals = data.entries.map((entry: any) => {
       return {
         periode: new Date().toISOString().substring(0, 7), // YYYY-MM
-        businessName: "PMI Client", // Should be fetched from client info
+        businessName: client.companyName || `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim(),
         date: entry.date,
         libelle: entry.libelle,
         entree: parseFloat(entry.entree) || 0,
@@ -23,7 +30,7 @@ export async function POST(req: Request) {
         creditCompte: "",
         creditIntitule: "",
         montant: parseFloat(entry.entree) || parseFloat(entry.sortie) || 0,
-        clientId: data.clientId,
+        clientId: client.id,
         status: "PENDING"
       };
     });

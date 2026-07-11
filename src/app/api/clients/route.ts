@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuditService } from '@/lib/audit';
-import { randomUUID } from 'crypto';
+import { randomBytes } from 'crypto';
 
 export async function GET(request: NextRequest) {
     try {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Générer un token unique pour le portail PMI
-        const portalToken = randomUUID().replace(/-/g, '').slice(0, 16);
+        const portalToken = randomBytes(32).toString('hex');
 
         const client = await prisma.client.create({
             data: {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('❌ Error creating client:', error);
         return NextResponse.json(
-            { error: 'Failed to create client', details: error instanceof Error ? error.message : 'Unknown error' },
+            { error: 'Failed to create client' },
             { status: 500 }
         );
     }
