@@ -13,7 +13,7 @@ export async function getPortalClient(req: Request) {
 
   if (!token) return null;
 
-  const client = await prisma.client.findUnique({ where: { portalToken: token } });
+  const client = await prisma.client.findFirst({ where: { portalToken: token } });
   if (!client || !client.portalEnabled) return null;
 
   return client;

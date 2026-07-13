@@ -8,53 +8,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// --- Données Mock des TPE ---
-const MOCK_TPE: any[] = [
-  {
-    id: "tpe-001", businessName: "Boutique Awa", owner: "Awa Diallo", phone: "+221 77 123 45 67",
-    activity: "Commerce Général", since: "Jan 2026", country: "SN",
-    creditScore: 87, creditRating: "A",
-    weeklyCA: 450000, weeklyExpenses: 120000,
-    totalJournals: 142, pendingJournals: 3,
-    mobileMoneyVol: 1800000,
-    trend: "UP", trendPct: 12,
-    lastMessage: "J'ai vendu pour 80 000 aujourd'hui Alhamdulilah",
-    lastActivity: "Il y a 2h"
-  },
-  {
-    id: "tpe-002", businessName: "Atelier Moussa", owner: "Moussa Koné", phone: "+221 76 987 65 43",
-    activity: "Artisanat / Couture", since: "Mar 2026", country: "SN",
-    creditScore: 61, creditRating: "B",
-    weeklyCA: 210000, weeklyExpenses: 95000,
-    totalJournals: 78, pendingJournals: 12,
-    mobileMoneyVol: 620000,
-    trend: "DOWN", trendPct: 4,
-    lastMessage: "J'ai payé 15 000 pour le tissu",
-    lastActivity: "Il y a 5h"
-  },
-  {
-    id: "tpe-003", businessName: "Pharmacie Dior", owner: "Dior Sene", phone: "+221 70 456 78 90",
-    activity: "Santé / Parapharmacie", since: "Nov 2025", country: "SN",
-    creditScore: 94, creditRating: "AAA",
-    weeklyCA: 1200000, weeklyExpenses: 550000,
-    totalJournals: 342, pendingJournals: 0,
-    mobileMoneyVol: 5400000,
-    trend: "UP", trendPct: 22,
-    lastMessage: "Vente de médicaments: 150 000 F",
-    lastActivity: "Il y a 30min"
-  },
-  {
-    id: "tpe-004", businessName: "Transport Ibra", owner: "Ibrahima Ba", phone: "+221 78 321 09 87",
-    activity: "Transport / Logistique", since: "Feb 2026", country: "SN",
-    creditScore: 43, creditRating: "C",
-    weeklyCA: 95000, weeklyExpenses: 88000,
-    totalJournals: 22, pendingJournals: 8,
-    mobileMoneyVol: 190000,
-    trend: "DOWN", trendPct: 15,
-    lastMessage: "Carburant: 20 000 F dépensé",
-    lastActivity: "Il y a 1j"
-  },
-];
+type Tpe = {
+  id: string;
+  businessName: string;
+  owner: string;
+  phone: string;
+  activity: string;
+  since: string;
+  country: string;
+  creditScore: number;
+  creditRating: string;
+  periodCA: number;
+  periodExpenses: number;
+  totalJournals: number;
+  pendingJournals: number;
+  mobileMoneyVol: number;
+  trend: "UP" | "DOWN" | null;
+  trendPct: number;
+  lastEntry: { libelle: string; date: string } | null;
+};
 
 const RATING_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   AAA: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
@@ -75,32 +47,99 @@ function ScoreBar({ score, color }: { score: number; color: string }) {
 }
 
 export default function TpeDashboard() {
-  const [tpeList] = useState(MOCK_TPE);
-  const [selected, setSelected] = useState<any>(MOCK_TPE[0]);
+  const [tpeList, setTpeList] = useState<Tpe[]>([]);
+  const [selected, setSelected] = useState<Tpe | null>(null);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isSendingReport, setIsSendingReport] = useState(false);
   const [reportSent, setReportSent] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/clients").then(r => r.json()),
+      fetch("/api/comptabilite/tpe-stats").then(r => r.json()),
+      fetch("/api/fintech/mobile-money").then(r => r.json()),
+    ]).then(([clientsRes, tpeStats, mmTx]) => {
+      const clients = clientsRes.clients || [];
+      const stats: any[] = Array.isArray(tpeStats) ? tpeStats : [];
+      const transactions: any[] = Array.isArray(mmTx?.transactions) ? mmTx.transactions : [];
+
+      const list: Tpe[] = clients.map((c: any) => {
+        const businessName = c.companyName || `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim();
+        const stat = stats.find(s => s.businessName === businessName);
+        const periodes = (stat?.periodes || []).slice().sort((a: any, b: any) => a.periode.localeCompare(b.periode));
+        const lastPeriode = periodes[periodes.length - 1];
+        const prevPeriode = periodes[periodes.length - 2];
+
+        let trend: "UP" | "DOWN" | null = null;
+        let trendPct = 0;
+        if (lastPeriode && prevPeriode && prevPeriode.totalEntrees > 0) {
+          const delta = ((lastPeriode.totalEntrees - prevPeriode.totalEntrees) / prevPeriode.totalEntrees) * 100;
+          trend = delta >= 0 ? "UP" : "DOWN";
+          trendPct = Math.round(Math.abs(delta));
+        }
+
+        const pendingJournals = periodes
+          .filter((p: any) => p.status !== "EXPORTED")
+          .reduce((a: number, p: any) => a + p.count, 0);
+
+        const mobileMoneyVol = transactions
+          .filter(t => t.clientId === c.id)
+          .reduce((a, t) => a + (t.amount || 0), 0);
+
+        return {
+          id: c.id,
+          businessName: businessName || "—",
+          owner: c.type === "ENTREPRISE" ? `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || "—" : businessName,
+          phone: c.phone || "—",
+          activity: c.sector || "—",
+          since: c.createdAt ? new Date(c.createdAt).toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "—",
+          country: c.country || "—",
+          creditScore: c.healthScore ?? 0,
+          creditRating: c.rating || "C",
+          periodCA: lastPeriode?.totalEntrees || 0,
+          periodExpenses: lastPeriode?.totalSorties || 0,
+          totalJournals: stat?.totalEcritures || 0,
+          pendingJournals,
+          mobileMoneyVol,
+          trend,
+          trendPct,
+          lastEntry: null,
+        };
+      });
+
+      setTpeList(list);
+      setSelected(list[0] || null);
+      setLoading(false);
+    });
+  }, []);
 
   const filtered = tpeList.filter(t =>
     t.businessName.toLowerCase().includes(search.toLowerCase()) ||
     t.owner.toLowerCase().includes(search.toLowerCase())
   );
 
-  const totalCA = tpeList.reduce((a, t) => a + t.weeklyCA, 0);
+  const totalCA = tpeList.reduce((a, t) => a + t.periodCA, 0);
   const totalEcritures = tpeList.reduce((a, t) => a + t.totalJournals, 0);
   const totalPending = tpeList.reduce((a, t) => a + t.pendingJournals, 0);
 
   const handleSendReport = async () => {
     setIsSendingReport(true);
-    await new Promise(r => setTimeout(r, 1500));
+    // L'envoi WhatsApp réel nécessite la configuration de l'API WhatsApp Business (WHATSAPP_VERIFY_TOKEN).
+    await new Promise(r => setTimeout(r, 800));
     setIsSendingReport(false);
     setReportSent(true);
     setTimeout(() => setReportSent(false), 3000);
   };
 
   const handleGenerateCredit = () => {
-    alert(`Attestation de Revenus Informels générée pour ${selected?.businessName}\n\nScore: ${selected?.creditRating} (${selected?.creditScore}/100)\nCA Hebdo: ${selected?.weeklyCA.toLocaleString()} F\n\nFichier prêt à être signé par l'Expert-Comptable.`);
+    if (!selected) return;
+    alert(`Attestation de Revenus Informels — ${selected.businessName}\n\nScore: ${selected.creditRating} (${selected.creditScore}/100)\nCA de la période: ${selected.periodCA.toLocaleString()} F\n\nDonnées issues de la comptabilité TPE réelle. Fichier prêt à être signé par l'Expert-Comptable.`);
   };
+
+  if (loading) {
+    return <div className="p-8 text-slate-400">Chargement des TPE…</div>;
+  }
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
@@ -124,10 +163,10 @@ export default function TpeDashboard() {
       {/* KPI Globaux */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Users, label: "TPE Abonnés", val: tpeList.length, sub: "+1 ce mois", color: "text-violet-400 bg-violet-500/10 border-violet-500/20" },
-          { icon: TrendingUp, label: "CA Hebdo Cumulé", val: totalCA.toLocaleString() + " F", sub: "+18% vs semaine préc.", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+          { icon: Users, label: "TPE Abonnés", val: tpeList.length, sub: "Clients actifs", color: "text-violet-400 bg-violet-500/10 border-violet-500/20" },
+          { icon: TrendingUp, label: "CA Cumulé (dernière période)", val: totalCA.toLocaleString() + " F", sub: "Somme des périodes les plus récentes", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
           { icon: FileText, label: "Écritures Générées", val: totalEcritures, sub: `${totalPending} en attente`, color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
-          { icon: AlertTriangle, label: "En Attente Validation", val: totalPending, sub: "À traiter aujourd'hui", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+          { icon: AlertTriangle, label: "En Attente Validation", val: totalPending, sub: "Non encore exportées", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
         ].map((kpi, i) => (
           <div key={i} className={cn("rounded-[24px] border p-5", kpi.color)}>
             <kpi.icon className="w-5 h-5 mb-4" />
@@ -183,12 +222,14 @@ export default function TpeDashboard() {
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <ScoreBar score={tpe.creditScore} color={tpe.creditRating === "AAA" ? "#10b981" : tpe.creditRating === "A" ? "#3b82f6" : tpe.creditRating === "B" ? "#f59e0b" : "#ef4444"} />
-                    <span className={cn("ml-3 text-xs font-black shrink-0 flex items-center gap-1", tpe.trend === "UP" ? "text-emerald-400" : "text-rose-400")}>
-                      {tpe.trend === "UP" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                      {tpe.trendPct}%
-                    </span>
+                    {tpe.trend && (
+                      <span className={cn("ml-3 text-xs font-black shrink-0 flex items-center gap-1", tpe.trend === "UP" ? "text-emerald-400" : "text-rose-400")}>
+                        {tpe.trend === "UP" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                        {tpe.trendPct}%
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[9px] text-slate-600 mt-2">{tpe.lastActivity}</p>
+                  <p className="text-[9px] text-slate-600 mt-2">Client depuis {tpe.since}</p>
                 </div>
               );
             })}
@@ -218,12 +259,13 @@ export default function TpeDashboard() {
                     <button
                       onClick={handleSendReport}
                       disabled={isSendingReport}
+                      title="Nécessite la configuration de l'API WhatsApp Business (WHATSAPP_VERIFY_TOKEN)"
                       className="px-4 py-2.5 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-400 rounded-xl font-black text-xs transition-all flex items-center gap-2"
                     >
                       {reportSent
-                        ? <><CheckCircle2 className="w-4 h-4" /> Envoyé !</>
+                        ? <><CheckCircle2 className="w-4 h-4" /> Rapport préparé</>
                         : isSendingReport
-                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Préparation…</>
                         : <><MessageCircle className="w-4 h-4" /> Rapport WhatsApp</>
                       }
                     </button>
@@ -259,9 +301,9 @@ export default function TpeDashboard() {
 
                   <div className="space-y-3">
                     {[
-                      { label: "CA Hebdomadaire", val: selected.weeklyCA.toLocaleString() + " F", icon: TrendingUp, color: "text-emerald-400" },
-                      { label: "Dépenses Hebdo", val: selected.weeklyExpenses.toLocaleString() + " F", icon: Wallet, color: "text-rose-400" },
-                      { label: "Bénéfice Estimé", val: (selected.weeklyCA - selected.weeklyExpenses).toLocaleString() + " F", icon: Star, color: "text-amber-400" },
+                      { label: "CA (dernière période)", val: selected.periodCA.toLocaleString() + " F", icon: TrendingUp, color: "text-emerald-400" },
+                      { label: "Dépenses (dernière période)", val: selected.periodExpenses.toLocaleString() + " F", icon: Wallet, color: "text-rose-400" },
+                      { label: "Bénéfice Estimé", val: (selected.periodCA - selected.periodExpenses).toLocaleString() + " F", icon: Star, color: "text-amber-400" },
                       { label: "Volume Mobile Money", val: selected.mobileMoneyVol.toLocaleString() + " F", icon: Zap, color: "text-violet-400" },
                     ].map((item, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-white/5">
@@ -276,19 +318,16 @@ export default function TpeDashboard() {
                 </div>
               </div>
 
-              {/* Dernier message + activité */}
+              {/* Canal de messagerie */}
               <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6">
                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4" /> Dernier message reçu
+                  <MessageCircle className="w-4 h-4" /> Messagerie WhatsApp
                 </h4>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-600/20 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-black shrink-0">
-                    {selected.businessName.charAt(0)}
-                  </div>
-                  <div className="flex-1 bg-slate-800/40 rounded-2xl rounded-tl-none p-4 border border-white/5">
-                    <p className="text-white text-sm italic">"{selected.lastMessage}"</p>
-                    <p className="text-[10px] text-slate-500 mt-2 font-bold">via WhatsApp · {selected.lastActivity}</p>
-                  </div>
+                <div className="flex items-center gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <p className="text-xs text-amber-300">
+                    Intégration WhatsApp Business à configurer (variable <code className="text-amber-200">WHATSAPP_VERIFY_TOKEN</code>) pour recevoir les messages de ce client ici.
+                  </p>
                 </div>
               </div>
 

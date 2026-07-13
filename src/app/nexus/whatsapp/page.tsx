@@ -1,10 +1,11 @@
 ﻿"use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Image as ImageIcon, Bot, Clock, CheckCheck, Mic, Send } from 'lucide-react';
+import { MessageCircle, Bot, CheckCheck, Send } from 'lucide-react';
 
 export default function WhatsAppHubPage() {
     const [messages, setMessages] = useState<any[]>([]);
+    const [isLLMConfigured, setIsLLMConfigured] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -14,7 +15,8 @@ export default function WhatsAppHubPage() {
             const res = await fetch('/api/nexus/whatsapp');
             if (res.ok) {
                 const data = await res.json();
-                setMessages(data);
+                setMessages(data.communications ?? []);
+                setIsLLMConfigured(!!data.isLLMConfigured);
             }
         } catch (error) {
             console.error("Failed to fetch messages", error);
@@ -66,53 +68,29 @@ export default function WhatsAppHubPage() {
                         </div>
                         <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Hub WhatsApp & IA</h1>
                     </div>
-                    <p className="text-muted-foreground">Vos clients envoient leurs pièces sur WhatsApp, Nexus-Go s'occupe du reste.</p>
+                    <p className="text-muted-foreground">Testez ici les réponses de Nexus IA telles qu'elles seraient envoyées sur WhatsApp.</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-500 rounded-full font-bold text-sm border border-green-500/20">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Bot Actif
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm border ${isLLMConfigured ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                    <div className={`w-2 h-2 rounded-full ${isLLMConfigured ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`}></div>
+                    {isLLMConfigured ? 'IA Configurée' : 'IA Non Configurée'}
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* File d'attente IA */}
-                <div className="lg:col-span-1 glass-card rounded-3xl p-6 border border-border/50 h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
-                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2"><Bot className="w-5 h-5 text-green-500" /> Historique (Simulé)</h2>
-                    <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
-                        {[
-                            { client: "Entreprise Diallo", type: "Image (Facture)", icon: <ImageIcon className="w-4 h-4" />, time: "Il y a 2 min", status: "Extraction OCR..." },
-                            { client: "Mme. Kone (Boutique)", type: "Note Vocale", icon: <Mic className="w-4 h-4" />, time: "Il y a 5 min", status: "Traduction en écriture comptable..." },
-                            { client: "Transport Sylla", type: "PDF", icon: <ImageIcon className="w-4 h-4" />, time: "Il y a 12 min", status: "Comptabilisé", done: true },
-                        ].map((item, i) => (
-                            <div key={i} className="flex flex-col p-4 rounded-2xl bg-muted/30 border border-border/50 hover:bg-muted/50 transition-colors">
-                                <div className="flex items-center gap-4 mb-2">
-                                    <div className={`p-3 rounded-xl ${item.done ? 'bg-green-500/20 text-green-500' : 'bg-primary/20 text-primary'}`}>
-                                        {item.icon}
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-sm">{item.client}</p>
-                                        <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                            <Clock className="w-3 h-3" /> {item.time}
-                                        </p>
-                                    </div>
-                                </div>
-                                <span className={`text-[10px] font-bold px-2 py-1 rounded-full text-center ${item.done ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500 animate-pulse'}`}>
-                                    {item.status}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+            <div className="p-4 bg-muted/30 border border-border/50 rounded-2xl text-sm text-muted-foreground flex items-center gap-3">
+                <Bot className="w-5 h-5 text-green-500 shrink-0" />
+                Ceci est un simulateur interne de conversation IA — l'envoi/réception réel de messages WhatsApp nécessite l'intégration Meta Business Cloud API (voir Paramètres). L'extraction OCR de pièces jointes (image/audio) n'est pas encore implémentée.
+            </div>
 
+            <div className="grid grid-cols-1">
                 {/* Simulateur de conversation */}
-                <div className="lg:col-span-2 glass-card rounded-3xl border border-green-500/20 flex flex-col h-[350px] sm:h-[450px] lg:h-[600px] overflow-hidden bg-[url('https://i.imgur.com/KydrR2x.png')] bg-cover bg-center">
+                <div className="glass-card rounded-3xl border border-green-500/20 flex flex-col h-[350px] sm:h-[450px] lg:h-[600px] overflow-hidden">
                     <div className="p-4 bg-green-600/90 backdrop-blur-md text-white flex items-center gap-3 shadow-md z-10">
                         <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">C</div>
                         <div>
-                            <h3 className="font-bold text-sm leading-tight">Client (Simulation Interactive)</h3>
-                            <p className="text-[10px] text-green-100 flex items-center gap-1">En ligne</p>
+                            <h3 className="font-bold text-sm leading-tight">Simulation de conversation</h3>
                         </div>
                     </div>
-                    
+
                     <div className="flex-1 p-6 space-y-4 overflow-y-auto bg-white/40 dark:bg-black/40 backdrop-blur-sm">
                         <div className="text-center">
                             <span className="bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full shadow-sm">Aujourd'hui</span>

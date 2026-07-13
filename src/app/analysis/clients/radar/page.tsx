@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Activity,
     ShieldCheck,
@@ -23,31 +23,42 @@ import {
     CheckCircle2,
     Radar,
     Flame,
-    Clock
+    Clock,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ClientHealth {
     id: string;
     name: string;
-    score: number;
-    trend: "up" | "down" | "stable";
-    riskLevel: "low" | "medium" | "high";
+    score: number | null;
+    riskLevel: "low" | "medium" | "high" | "unknown";
     lastInteraction: string;
     nextAction: string;
-    interactionSentiment: number; // 0-100
-    billingHealth: number; // 0-100
-    productionSpeed: number; // 0-100
+    billingHealth: number | null;
+    overdueInvoices: number;
 }
 
-const MOCK_CLIENTS_HEALTH: ClientHealth[] = [
-    { id: "C1", name: "Société Ivoirienne de Banque", score: 92, trend: "up", riskLevel: "low", lastInteraction: "Hier", nextAction: "Réunion Trimestrielle", interactionSentiment: 95, billingHealth: 98, productionSpeed: 88 },
-    { id: "C2", name: "Dakar Digital SA", score: 65, trend: "down", riskLevel: "medium", lastInteraction: "3 jours", nextAction: "Relance documents TVA", interactionSentiment: 55, billingHealth: 70, productionSpeed: 45 },
-    { id: "C3", name: "Logistics Express", score: 42, trend: "down", riskLevel: "high", lastInteraction: "12 jours", nextAction: "Alerte Churn Associé", interactionSentiment: 30, billingHealth: 50, productionSpeed: 30 },
-    { id: "C4", name: "Pharmacie Touba", score: 88, trend: "stable", riskLevel: "low", lastInteraction: "2 jours", nextAction: "Signature PV AG", interactionSentiment: 90, billingHealth: 85, productionSpeed: 92 },
-];
+interface RadarData {
+    clients: ClientHealth[];
+    kpis: { avgScore: number | null; highRiskCount: number; qualifiedProspects: number; activeMissions: number };
+    highRiskClients: { client: string; reason: string; risk: "High" }[];
+}
 
 export default function ClientSuccessRadar() {
+    const [data, setData] = useState<RadarData | null>(null);
+    const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        fetch("/api/analysis/clients-radar").then(r => r.json()).then(setData);
+    }, []);
+
+    if (!data) {
+        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
+    }
+
+    const filteredClients = data.clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Client Success Command Center */}
@@ -81,10 +92,10 @@ export default function ClientSuccessRadar() {
 
             {/* Strategic KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <HealthStat icon={HeartPulse} label="Score Moyen Portfolio" value="78" unit="/100" trend="+4%" color="text-indigo-400" />
-                <HealthStat icon={ShieldAlert} label="Clients à Haut Risque" value="3" trend="-1" color="text-rose-400" />
-                <HealthStat icon={Users} label="Prospects Qualifiés" value="12" trend="+5" color="text-emerald-400" />
-                <HealthStat icon={Zap} label="Potentiel Upsell IA" value="142M" unit="F" trend="+8%" color="text-amber-400" />
+                <HealthStat icon={HeartPulse} label="Score Moyen Portfolio" value={data.kpis.avgScore ?? "—"} unit={data.kpis.avgScore !== null ? "/100" : ""} color="text-indigo-400" />
+                <HealthStat icon={ShieldAlert} label="Clients à Haut Risque" value={data.kpis.highRiskCount} color="text-rose-400" />
+                <HealthStat icon={Users} label="Prospects Qualifiés" value={data.kpis.qualifiedProspects} color="text-emerald-400" />
+                <HealthStat icon={Briefcase} label="Missions Actives" value={data.kpis.activeMissions} color="text-amber-400" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -95,25 +106,32 @@ export default function ClientSuccessRadar() {
                         <div className="flex gap-2">
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                                <input placeholder="Filtrer un client..." className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64" />
+                                <input
+                                    placeholder="Filtrer un client..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64"
+                                />
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-6">
-                        {MOCK_CLIENTS_HEALTH.map((client) => (
+                        {filteredClients.length === 0 && (
+                            <p className="text-center text-slate-500 text-sm py-10">Aucun client ne correspond.</p>
+                        )}
+                        {filteredClients.map((client) => (
                             <div key={client.id} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.05] transition-all group relative overflow-hidden">
                                 <div className={cn(
                                     "absolute top-0 left-0 w-1 h-full",
                                     client.riskLevel === "low" ? "bg-emerald-500" :
-                                        client.riskLevel === "medium" ? "bg-amber-500" : "bg-rose-500"
+                                        client.riskLevel === "medium" ? "bg-amber-500" : client.riskLevel === "high" ? "bg-rose-500" : "bg-slate-600"
                                 )} />
 
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
                                             <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors uppercase">{client.name}</h4>
-                                            {client.trend === "up" ? <TrendingUp className="w-4 h-4 text-emerald-400" /> : <TrendingDown className="w-4 h-4 text-rose-400" />}
                                         </div>
                                         <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> interaction: {client.lastInteraction}</span>
@@ -127,10 +145,11 @@ export default function ClientSuccessRadar() {
                                             <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Health Score</p>
                                             <div className={cn(
                                                 "text-2xl font-black tracking-tighter",
-                                                client.score >= 80 ? "text-emerald-400" :
-                                                    client.score >= 60 ? "text-amber-400" : "text-rose-400"
+                                                client.score === null ? "text-slate-500" :
+                                                    client.score >= 80 ? "text-emerald-400" :
+                                                        client.score >= 60 ? "text-amber-400" : "text-rose-400"
                                             )}>
-                                                {client.score}%
+                                                {client.score !== null ? `${client.score}%` : "—"}
                                             </div>
                                         </div>
 
@@ -145,11 +164,9 @@ export default function ClientSuccessRadar() {
                                     </div>
                                 </div>
 
-                                {/* Advanced Stats Accordion/Static for Demo */}
-                                <div className="mt-6 grid grid-cols-3 gap-4 pt-6 border-t border-white/5 opacity-60 group-hover:opacity-100 transition-opacity">
-                                    <MiniIndicator label="Sentiment Interactiv." value={client.interactionSentiment} />
+                                <div className="mt-6 grid grid-cols-2 gap-4 pt-6 border-t border-white/5 opacity-60 group-hover:opacity-100 transition-opacity">
                                     <MiniIndicator label="Santé Facturation" value={client.billingHealth} />
-                                    <MiniIndicator label="Vitesse Production" value={client.productionSpeed} />
+                                    <MiniIndicator label="Factures en retard" value={client.overdueInvoices} isCount />
                                 </div>
                             </div>
                         ))}
@@ -173,24 +190,24 @@ export default function ClientSuccessRadar() {
                         </h3>
 
                         <div className="space-y-4">
-                            <RiskItem client="Logistics Express" reason="Silence radio + Baisse d'activité billing." risk="High" />
-                            <RiskItem client="Dakar Digital SA" reason="Incertitude sur le renouvellement mission 2024." risk="Medium" />
+                            {data.highRiskClients.length === 0 ? (
+                                <p className="text-xs text-slate-500 text-center py-4">Aucun client à haut risque détecté.</p>
+                            ) : (
+                                data.highRiskClients.map((r, i) => (
+                                    <RiskItem key={i} client={r.client} reason={r.reason} risk={r.risk} />
+                                ))
+                            )}
                         </div>
-
-                        <button className="mt-10 w-full py-5 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl shadow-rose-900/40 transition-all active:scale-95">
-                            Lancer Plan de Fidélisation
-                        </button>
                     </div>
 
-                    {/* Interaction Sentiment Card */}
+                    {/* Analyse de sentiment — non disponible */}
                     <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 text-center">
-                        <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <MessageSquare className="w-10 h-10 text-emerald-400" />
+                        <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <MessageSquare className="w-10 h-10 text-slate-500" />
                         </div>
-                        <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-2">Sentiment Moyen</h4>
-                        <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-widest uppercase">Positif</div>
-                        <p className="text-[10px] text-slate-500 font-bold mt-4 leading-relaxed uppercase">
-                            Basé sur l'analyse NLP de Nexux <br /> sur vos 150 derniers échanges.
+                        <h4 className="text-white font-black uppercase text-xs tracking-[0.2em] mb-2">Analyse de Sentiment</h4>
+                        <p className="text-[10px] text-slate-500 font-bold mt-2 leading-relaxed uppercase">
+                            Analyse NLP des échanges non configurée
                         </p>
                     </div>
                 </div>
@@ -221,20 +238,30 @@ function HealthStat({ icon: Icon, label, value, unit, trend, color }: any) {
     );
 }
 
-function MiniIndicator({ label, value }: { label: string, value: number }) {
+function MiniIndicator({ label, value, isCount }: { label: string, value: number | null, isCount?: boolean }) {
+    if (isCount) {
+        return (
+            <div className="space-y-2">
+                <div className="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                    <span>{label}</span>
+                    <span className={cn(value && value > 0 ? "text-rose-400" : "text-white")}>{value ?? 0}</span>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="space-y-2">
             <div className="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-widest">
                 <span>{label}</span>
-                <span className="text-white">{value}%</span>
+                <span className="text-white">{value !== null ? `${value}%` : "—"}</span>
             </div>
             <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div
                     className={cn(
                         "h-full rounded-full",
-                        value >= 80 ? "bg-emerald-500" : value >= 50 ? "bg-amber-500" : "bg-rose-500"
+                        value === null ? "bg-slate-700" : value >= 80 ? "bg-emerald-500" : value >= 50 ? "bg-amber-500" : "bg-rose-500"
                     )}
-                    style={{ width: `${value}%` }}
+                    style={{ width: `${value ?? 0}%` }}
                 />
             </div>
         </div>

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Gavel,
     Building2,
@@ -9,41 +9,35 @@ import {
     FileText,
     Calendar,
     ArrowRight,
-    Star,
     ShieldCheck,
-    Search,
-    Filter,
     Plus,
-    Clock,
     CheckCircle2,
-    ExternalLink,
     AlertCircle,
-    LayoutDashboard,
-    Briefcase,
-    Zap,
-    Download
+    Download,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { mockClients } from "@/data/mock-clients";
+interface Entity {
+    id: string;
+    name: string;
+    legalForm: string;
+    governance: string;
+    lastAG: string | null;
+    nextAG: string | null;
+    kycStatus: string | null;
+}
 
 export default function NexusEntityHubPage() {
-    const [entities, setEntities] = useState<any[]>(() => {
-        // Transformation des clients "Personne Morale" en entités juridiques
-        return mockClients
-            .filter(c => c.type === "Personne Morale")
-            .map(c => ({
-                id: c.rccm || `ENT-${c.id}`,
-                name: c.name,
-                legalForm: c.regimeFiscal === "Réel Normal" ? "Société Anonyme" : "SARL",
-                status: "active",
-                governance: c.id === "1" ? "board" : "single_admin",
-                lastAG: "2025-06-15",
-                nextAG: "2026-06-15",
-                shareholders: c.id === "1" ? 45 : 4,
-                tasksCount: Math.floor(Math.random() * 3)
-            }));
-    });
+    const [entities, setEntities] = useState<Entity[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/corporate/entity-hub")
+            .then(r => r.json())
+            .then(d => setEntities(d.entities ?? []))
+            .finally(() => setLoading(false));
+    }, []);
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
@@ -82,41 +76,39 @@ export default function NexusEntityHubPage() {
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <div className="flex justify-between items-center mb-4">
                         <Building2 className="w-6 h-6 text-amber-400" />
-                        <span className="text-[10px] text-emerald-400 font-black uppercase">Forte Croissance</span>
                     </div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">28</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{entities.length}</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Entités sous Gestion</div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <div className="flex justify-between items-center mb-4">
                         <Scale className="w-6 h-6 text-amber-400" />
-                        <span className="text-[10px] text-amber-400 font-black uppercase">Période d'AG</span>
                     </div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">14</div>
-                    <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Instances Planifiées (Q2)</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{entities.filter(e => e.nextAG).length}</div>
+                    <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">AG à Planifier</div>
                 </div>
                 <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
                     <div className="flex justify-between items-center mb-4">
                         <ShieldCheck className="w-6 h-6 text-emerald-400" />
-                        <span className="text-[10px] text-emerald-400 font-black uppercase">100% Compliance</span>
                     </div>
-                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">98%</div>
-                    <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Indice de Santé Juridique</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{entities.filter(e => e.kycStatus === "valid").length}/{entities.length}</div>
+                    <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Conformité KYC Validée</div>
                 </div>
             </div>
 
+            {loading ? (
+                <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-amber-500" /></div>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Entities List */}
                 <div className="lg:col-span-8 flex flex-col gap-6">
                     <div className="flex justify-between items-center px-4">
                         <h3 className="text-sm font-black text-white uppercase tracking-widest">Portefeuille Filiales</h3>
-                        <div className="flex gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
-                            <span className="text-amber-400 underline underline-offset-4">Toutes</span>
-                            <span className="hover:text-white cursor-pointer transition-all">Sénégal</span>
-                            <span className="hover:text-white cursor-pointer transition-all">Régional (UEMOA)</span>
-                        </div>
                     </div>
 
+                    {entities.length === 0 ? (
+                        <p className="text-center text-slate-500 py-10">Aucune entité entreprise enregistrée.</p>
+                    ) : (
                     <div className="space-y-4">
                         {entities.map(entity => (
                             <div key={entity.id} className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 group hover:border-amber-500/20 transition-all">
@@ -131,35 +123,32 @@ export default function NexusEntityHubPage() {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        {entity.tasksCount > 0 && (
+                                        {entity.kycStatus === "valid" ? (
+                                            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
+                                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                                <span className="text-[9px] font-black text-emerald-500 uppercase">Conforme</span>
+                                            </div>
+                                        ) : (
                                             <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center gap-2">
                                                 <AlertCircle className="w-3 h-3 text-amber-500" />
-                                                <span className="text-[9px] font-black text-amber-500 uppercase">{entity.tasksCount} Actions</span>
+                                                <span className="text-[9px] font-black text-amber-500 uppercase">KYC à vérifier</span>
                                             </div>
                                         )}
-                                        <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
-                                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                                            <span className="text-[9px] font-black text-emerald-500 uppercase">Conforme</span>
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-4 gap-6 mb-6">
+                                <div className="grid grid-cols-3 gap-6 mb-6">
                                     <div className="space-y-1">
                                         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Dernière AG</p>
-                                        <p className="text-xs font-bold text-white">{entity.lastAG}</p>
+                                        <p className="text-xs font-bold text-white">{entity.lastAG || "—"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Prochaine AG</p>
-                                        <p className="text-xs font-bold text-amber-400">{entity.nextAG}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Actionnaires</p>
-                                        <p className="text-xs font-bold text-white">{entity.shareholders}</p>
+                                        <p className="text-xs font-bold text-amber-400">{entity.nextAG || "—"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Mode Gouv.</p>
-                                        <p className="text-xs font-bold text-white uppercase">{entity.governance === 'board' ? 'CA' : 'Ad. Unique'}</p>
+                                        <p className="text-xs font-bold text-white uppercase">{entity.governance || "—"}</p>
                                     </div>
                                 </div>
 
@@ -179,6 +168,7 @@ export default function NexusEntityHubPage() {
                             </div>
                         ))}
                     </div>
+                    )}
                 </div>
 
                 {/* Right Panel: Calendar & Alerts */}
@@ -188,41 +178,9 @@ export default function NexusEntityHubPage() {
                         <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-amber-400" /> Échéancier Juridique
                         </h4>
-                        <div className="space-y-4">
-                            {[
-                                { title: "Convocation AG - Omni", date: "15 Juin 2026", type: "AG", priority: "high" },
-                                { title: "Dépôt des comptes - Dakar Digital", date: "30 Juin 2026", type: "Fiscale", priority: "medium" },
-                                { title: "Renouvellement Mandat - UEMOA", date: "12 Avril 2026", type: "Board", priority: "low" },
-                            ].map((event, i) => (
-                                <div key={i} className="flex gap-4 p-3 hover:bg-white/5 rounded-2xl transition-all cursor-pointer border border-transparent hover:border-white/5">
-                                    <div className={cn(
-                                        "w-1 h-8 rounded-full",
-                                        event.priority === 'high' ? 'bg-rose-500' : event.priority === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
-                                    )} />
-                                    <div>
-                                        <p className="text-xs text-white font-bold leading-none mb-1">{event.title}</p>
-                                        <p className="text-[9px] text-slate-500">{event.date} • {event.type}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="w-full mt-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:text-white transition-all">
-                            Voir Tout le Planning
-                        </button>
-                    </div>
-
-                    {/* AI Document Analysis */}
-                    <div className="glass-card rounded-[32px] border border-amber-500/20 bg-amber-500/5 p-8">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Zap className="w-5 h-5 text-amber-400" />
-                            <h4 className="text-sm font-black text-white uppercase tracking-widest">Nexus Legisway IA</h4>
-                        </div>
-                        <p className="text-[10px] text-slate-400 leading-relaxed mb-6">
-                            L'IA a détecté une non-conformité potentielle dans les nouveaux statuts de **Dakar Digital SAS** concernant les clauses de préemption.
+                        <p className="text-xs text-slate-500 text-center py-6">
+                            Aucune échéance enregistrée. Le suivi automatique des dates d'AG statutaires n'est pas encore configuré.
                         </p>
-                        <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white text-[9px] font-black uppercase rounded-2xl shadow-lg shadow-amber-600/20 hover:bg-amber-500 transition-all">
-                            Analyser les Risques
-                        </button>
                     </div>
 
                     {/* Share/Export */}
@@ -231,6 +189,7 @@ export default function NexusEntityHubPage() {
                     </button>
                 </div>
             </div>
+            )}
         </div>
     );
 }

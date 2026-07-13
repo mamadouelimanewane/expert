@@ -1,93 +1,85 @@
-﻿"use client";
+"use client";
 
 import { useState, useCallback } from "react";
 import {
     Upload,
-    FileText,
     Sparkles,
-    Zap,
-    TrendingUp,
-    TrendingDown,
-    CheckCircle2,
-    AlertTriangle,
-    DollarSign,
-    PiggyBank,
-    Building2,
-    Receipt,
-    Calculator,
-    ArrowRight,
     RefreshCw,
-    Download,
-    Eye,
+    AlertTriangle,
+    PiggyBank,
     Lightbulb,
-    Target
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import { cn } from "@/lib/utils";
-
-interface Opportunity {
-    id: string;
-    type: "savings" | "risk" | "optimization";
-    title: string;
-    description: string;
-    impact: number;
-    confidence: number;
-    category: string;
-}
-
-const MOCK_OPPORTUNITIES: Opportunity[] = [
-    {
-        id: "OPP-001",
-        type: "savings",
-        title: "Crédit d'impôt formation non réclamé",
-        description: "Vos dépenses de formation de 4.5M FCFA ouvrent droit à un crédit d'impôt de 15% soit 675,000 FCFA.",
-        impact: 675000,
-        confidence: 95,
-        category: "Formation"
-    },
-    {
-        id: "OPP-002",
-        type: "optimization",
-        title: "Amortissement dérogatoire disponible",
-        description: "Les immobilisations acquises en 2025 peuvent bénéficier d'un amortissement accéléré (Art. 18 CGI).",
-        impact: 2400000,
-        confidence: 88,
-        category: "Immobilisations"
-    },
-    {
-        id: "OPP-003",
-        type: "risk",
-        title: "Provision pour créances douteuses insuffisante",
-        description: "3 clients présentent des retards > 180 jours. Provision déductible possible: 1.8M FCFA.",
-        impact: 1800000,
-        confidence: 75,
-        category: "Provisions"
-    },
-    {
-        id: "OPP-004",
-        type: "savings",
-        title: "Réduction de base IS - Zone franche",
-        description: "Votre activité export (>50% CA) peut bénéficier d'une exonération partielle d'IS.",
-        impact: 5200000,
-        confidence: 70,
-        category: "Export"
-    },
-    {
-        id: "OPP-005",
-        type: "optimization",
-        title: "Intégration fiscale possible",
-        description: "Détention >95% de la filiale SENEGAL TECH SA. Option intégration fiscale recommandée.",
-        impact: 3500000,
-        confidence: 82,
-        category: "Groupe"
-    },
-];
 
 export default function DropZoneFiscalePage() {
     const [isDragging, setIsDragging] = useState(false);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisComplete, setAnalysisComplete] = useState(false);
-    const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+    const [analysisText, setAnalysisText] = useState<string | null>(null);
+    const [notConfigured, setNotConfigured] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const extractTextFromFile = async (file: File): Promise<string | null> => {
+        const name = file.name.toLowerCase();
+        if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetTexts = workbook.SheetNames.map((sheetName) => {
+                const sheet = workbook.Sheets[sheetName];
+                return `--- Feuille: ${sheetName} ---\n${XLSX.utils.sheet_to_csv(sheet)}`;
+            });
+            return sheetTexts.join("\n\n");
+        }
+        if (name.endsWith(".csv") || name.endsWith(".txt") || name.endsWith(".xml")) {
+            return await file.text();
+        }
+        return null; // Format non supporté pour l'extraction (ex: PDF)
+    };
+
+    const runAnalysis = async (file: File) => {
+        setIsAnalyzing(true);
+        setAnalysisComplete(false);
+        setAnalysisText(null);
+        setNotConfigured(false);
+        setError(null);
+
+        try {
+            const content = await extractTextFromFile(file);
+            if (content === null) {
+                setError("L'extraction de contenu n'est supportée que pour les fichiers Excel (.xlsx, .xls), CSV, XML ou texte. Les fichiers PDF ne peuvent pas encore être analysés automatiquement.");
+                setIsAnalyzing(false);
+                return;
+            }
+            if (content.trim().length === 0) {
+                setError("Le fichier semble vide ou n'a pas pu être lu.");
+                setIsAnalyzing(false);
+                return;
+            }
+
+            const res = await fetch("/api/fiscalite/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, fileName: file.name }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Erreur lors de l'analyse.");
+            } else if (data.notConfigured) {
+                setNotConfigured(true);
+                setAnalysisText(data.response);
+            } else {
+                setAnalysisText(data.response);
+            }
+            setAnalysisComplete(true);
+        } catch {
+            setError("Erreur réseau lors de l'analyse du document.");
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -95,7 +87,7 @@ export default function DropZoneFiscalePage() {
         const file = e.dataTransfer.files[0];
         if (file) {
             setUploadedFile(file);
-            runAnalysis();
+            runAnalysis(file);
         }
     }, []);
 
@@ -103,23 +95,29 @@ export default function DropZoneFiscalePage() {
         const file = e.target.files?.[0];
         if (file) {
             setUploadedFile(file);
-            runAnalysis();
+            runAnalysis(file);
         }
     };
 
-    const runAnalysis = () => {
-        setIsAnalyzing(true);
-        setAnalysisComplete(false);
-        setTimeout(() => {
-            setIsAnalyzing(false);
-            setAnalysisComplete(true);
-            setOpportunities(MOCK_OPPORTUNITIES);
-        }, 3000);
+    const formatAnalysis = (text: string) => {
+        return text.split("\n").map((line, i) => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("### ")) return <h4 key={i} className="text-sm font-black text-white mt-4 mb-1">{trimmed.slice(4)}</h4>;
+            if (trimmed.startsWith("## ")) return <h3 key={i} className="text-base font-black text-white mt-5 mb-2">{trimmed.slice(3)}</h3>;
+            if (trimmed.startsWith("# ")) return <h2 key={i} className="text-lg font-black text-white mt-5 mb-2">{trimmed.slice(2)}</h2>;
+            if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) return <p key={i} className="text-sm text-slate-300 pl-3 mb-1">• {trimmed.slice(2)}</p>;
+            if (trimmed === "") return <div key={i} className="h-2" />;
+            return <p key={i} className="text-sm text-slate-300 mb-1 leading-relaxed">{trimmed}</p>;
+        });
     };
 
-    const totalSavings = opportunities.reduce((acc, o) => acc + o.impact, 0);
-    const savingsCount = opportunities.filter(o => o.type === "savings").length;
-    const risksCount = opportunities.filter(o => o.type === "risk").length;
+    const reset = () => {
+        setAnalysisComplete(false);
+        setUploadedFile(null);
+        setAnalysisText(null);
+        setNotConfigured(false);
+        setError(null);
+    };
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
@@ -132,17 +130,14 @@ export default function DropZoneFiscalePage() {
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
                         <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20">
-                            IA Fiscale • Détection Automatique
-                        </span>
-                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
-                            NEXUS Premium
+                            Analyse IA du document déposé
                         </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                         Drop Zone <span className="text-emerald-400">Fiscale</span>
                     </h2>
                     <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                        Déposez vos déclarations fiscales ou liasses et laissez l'IA détecter automatiquement les opportunités d'optimisation et les risques de redressement.
+                        Déposez un fichier Excel/CSV (déclaration, balance, liasse) : son contenu est envoyé à l'assistant IA pour identifier des pistes d'optimisation et de risque — jamais des résultats prédéfinis.
                     </p>
                 </div>
             </div>
@@ -166,10 +161,7 @@ export default function DropZoneFiscalePage() {
                             </div>
                             <div>
                                 <h3 className="text-2xl font-black text-white mb-2">Analyse en cours...</h3>
-                                <p className="text-slate-500">Nexus IA scanne votre document fiscal</p>
-                            </div>
-                            <div className="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 animate-pulse" style={{ width: "70%" }} />
+                                <p className="text-slate-500">Nexus IA lit le contenu de « {uploadedFile?.name} »</p>
                             </div>
                         </div>
                     ) : (
@@ -184,12 +176,19 @@ export default function DropZoneFiscalePage() {
                                 <h3 className="text-2xl font-black text-white mb-2">
                                     {isDragging ? "Déposez le fichier ici" : "Glissez-déposez votre liasse fiscale"}
                                 </h3>
-                                <p className="text-slate-500">Formats acceptés : PDF, Excel, XML (DSF)</p>
+                                <p className="text-slate-500">Formats analysables : Excel (.xlsx, .xls), CSV, XML, texte</p>
                             </div>
                             <label className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-pointer transition-all shadow-lg shadow-emerald-600/30">
-                                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.xlsx,.xls,.xml" />
+                                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.xlsx,.xls,.xml,.csv,.txt" />
                                 Ou sélectionner un fichier
                             </label>
+
+                            {error && (
+                                <div className="flex items-start gap-3 p-4 bg-rose-500/5 border border-rose-500/20 rounded-2xl text-left max-w-lg">
+                                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                                    <p className="text-xs text-rose-400">{error}</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -198,115 +197,45 @@ export default function DropZoneFiscalePage() {
             {/* Results */}
             {analysisComplete && (
                 <>
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="glass-card p-8 rounded-[40px] bg-emerald-500/5 border border-emerald-500/20">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Économies Potentielles</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">{(totalSavings / 1000000).toFixed(1)}M</span>
-                                <span className="text-xs text-emerald-500 font-bold">FCFA</span>
+                    {notConfigured && (
+                        <div className="flex items-start gap-3 p-6 bg-amber-500/5 border border-amber-500/20 rounded-[28px]">
+                            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-bold text-amber-400 mb-1">Intégration IA non configurée</p>
+                                <p className="text-xs text-slate-400 leading-relaxed">{analysisText}</p>
                             </div>
                         </div>
-                        <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Opportunités</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{opportunities.length}</span>
-                                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                            </div>
-                        </div>
-                        <div className="glass-card p-8 rounded-[40px] bg-amber-500/5 border border-amber-500/20">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Risques Détectés</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400">{risksCount}</span>
-                                <AlertTriangle className="w-5 h-5 text-amber-500" />
-                            </div>
-                        </div>
-                        <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Confiance Moyenne</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">
-                                    {Math.round(opportunities.reduce((a, o) => a + o.confidence, 0) / opportunities.length)}%
+                    )}
+
+                    {!notConfigured && analysisText && (
+                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
+                            <div className="flex justify-between items-center mb-8">
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                                    <Lightbulb className="w-6 h-6 text-amber-400" />
+                                    Analyse Nexus IA — {uploadedFile?.name}
+                                </h3>
+                                <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-full border border-indigo-500/20 flex items-center gap-1.5">
+                                    <Sparkles className="w-3 h-3" /> Généré par IA — à vérifier
                                 </span>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Opportunities List */}
-                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
-                        <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                                <Lightbulb className="w-6 h-6 text-amber-400" />
-                                Opportunités Détectées par Nexus IA
-                            </h3>
-                            <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 transition-all">
-                                <Download className="w-4 h-4" /> Exporter Rapport
-                            </button>
-                        </div>
+                            <div className="bg-black/20 rounded-2xl p-6 border border-white/5">
+                                {formatAnalysis(analysisText)}
+                            </div>
 
-                        <div className="space-y-4">
-                            {opportunities.map((opp, i) => (
-                                <div
-                                    key={opp.id}
-                                    className={cn(
-                                        "p-6 rounded-3xl border transition-all hover:scale-[1.01] cursor-pointer",
-                                        opp.type === "savings" ? "bg-emerald-500/5 border-emerald-500/20 hover:border-emerald-500/40" :
-                                            opp.type === "risk" ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40" :
-                                                "bg-indigo-500/5 border-indigo-500/20 hover:border-indigo-500/40"
-                                    )}
-                                >
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className={cn(
-                                                "p-2 rounded-xl",
-                                                opp.type === "savings" ? "bg-emerald-500/20" :
-                                                    opp.type === "risk" ? "bg-amber-500/20" : "bg-indigo-500/20"
-                                            )}>
-                                                {opp.type === "savings" ? <PiggyBank className="w-5 h-5 text-emerald-400" /> :
-                                                    opp.type === "risk" ? <AlertTriangle className="w-5 h-5 text-amber-400" /> :
-                                                        <Target className="w-5 h-5 text-indigo-400" />}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-lg font-black text-white">{opp.title}</h4>
-                                                <span className="text-[10px] font-bold text-slate-500 uppercase">{opp.category}</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className={cn(
-                                                "text-2xl font-black",
-                                                opp.type === "savings" ? "text-emerald-400" :
-                                                    opp.type === "risk" ? "text-amber-400" : "text-indigo-400"
-                                            )}>
-                                                {(opp.impact / 1000000).toFixed(1)}M
-                                            </div>
-                                            <div className="text-[10px] text-slate-500 font-bold">FCFA d'impact</div>
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-slate-400 leading-relaxed mb-4">{opp.description}</p>
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                                    <div
-                                                        className={cn("h-full rounded-full", opp.confidence > 80 ? "bg-emerald-500" : opp.confidence > 60 ? "bg-amber-500" : "bg-rose-500")}
-                                                        style={{ width: `${opp.confidence}%` }}
-                                                    />
-                                                </div>
-                                                <span className="text-[10px] font-bold text-slate-500">{opp.confidence}% confiance</span>
-                                            </div>
-                                        </div>
-                                        <button className="text-[10px] font-black text-white flex items-center gap-1 hover:text-indigo-400 transition-colors uppercase tracking-widest">
-                                            Voir Détails <ArrowRight className="w-3 h-3" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                            <div className="mt-6 flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                <p className="text-[11px] text-amber-400 leading-relaxed">
+                                    Cette analyse est générée par un modèle de langage général, sans base documentaire fiscale OHADA vérifiée en temps réel. Chaque piste doit être validée par l'expert-comptable avant toute décision.
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Reset Button */}
                     <div className="text-center">
                         <button
-                            onClick={() => { setAnalysisComplete(false); setUploadedFile(null); setOpportunities([]); }}
+                            onClick={reset}
                             className="px-8 py-4 bg-white/5 hover:bg-white/10 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/10"
                         >
                             Analyser un autre document

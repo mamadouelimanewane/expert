@@ -30,10 +30,13 @@ export default function PayrollDashboard() {
       });
   }, []);
 
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
   const handleProcessVoice = async () => {
     if (!selectedClient || !voiceTranscript) return;
     setIsProcessingVoice(true);
-    
+    setVoiceError(null);
+
     try {
       const res = await fetch("/api/payroll/process-voice", {
         method: "POST",
@@ -47,9 +50,11 @@ export default function PayrollDashboard() {
       if (data.success) {
         setVariables(data.variables);
         setCountryCode(data.country || "SN");
+      } else {
+        setVoiceError(data.error || "Erreur lors de l'analyse de la transcription");
       }
     } catch (e) {
-      console.error(e);
+      setVoiceError("Erreur de connexion au serveur");
     } finally {
       setIsProcessingVoice(false);
     }
@@ -59,12 +64,33 @@ export default function PayrollDashboard() {
   const totalTaxes = variables ? variables.reduce((acc, v) => acc + v.taxes, 0) : 0;
   const totalSocial = variables ? variables.reduce((acc, v) => acc + v.socialSecurity + v.employerContributions, 0) : 0;
 
+  const [payError, setPayError] = useState<string | null>(null);
+
   const handlePay = async () => {
+    if (!selectedClient || !variables) return;
     setIsGenerating(true);
-    // Simuler le traitement de la paie et le push vers Mobile Money + Portail
-    await new Promise(r => setTimeout(r, 2000));
-    setIsGenerating(false);
-    setIsPaid(true);
+    setPayError(null);
+    try {
+      const res = await fetch("/api/payroll/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedClient,
+          periodName: new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
+          variables,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(data.error || "Erreur lors de la validation de la paie");
+      } else {
+        setIsPaid(true);
+      }
+    } catch (e) {
+      setPayError("Erreur de connexion au serveur");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -149,6 +175,7 @@ export default function PayrollDashboard() {
               {isProcessingVoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
               Lancer le Moteur {countryCode && `(${countryCode})`}
             </button>
+            {voiceError && <p className="text-xs text-red-400 font-medium">{voiceError}</p>}
           </div>
         </div>
 
@@ -243,30 +270,32 @@ export default function PayrollDashboard() {
                   </div>
                 </div>
 
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-6">
+                <div className="pt-4 flex flex-col items-end gap-3">
+                  {payError && (
+                    <p className="text-xs text-red-400 font-medium">{payError}</p>
+                  )}
+                  <div className="w-full flex flex-col sm:flex-row items-center justify-end gap-6">
                   {!isPaid ? (
-                    <button 
+                    <button
                       onClick={handlePay}
                       disabled={isGenerating}
                       className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3"
                     >
                       {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Smartphone className="w-5 h-5" />}
-                      Valider la Paie & Virement Mobile Money
+                      Valider la Paie
                     </button>
                   ) : (
                     <div className="w-full px-6 py-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
                       <div className="flex items-center gap-3 text-emerald-400">
                         <CheckCircle2 className="w-6 h-6" />
                         <div>
-                          <p className="font-black text-sm">Salaires virés et bordereaux générés</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Les fiches de paie et déclarations IPRES/CSS/Impôts ont été poussées sur le portail.</p>
+                          <p className="font-black text-sm">Fiches de paie validées et enregistrées</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Le virement Mobile Money automatique n'est pas encore configuré (Wave/Orange/MTN) — à effectuer manuellement pour cette période.</p>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold border border-white/5 transition-colors">
-                        Voir les déclarations
-                      </button>
                     </div>
                   )}
+                  </div>
                 </div>
               </div>
             ) : (

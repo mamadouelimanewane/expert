@@ -77,7 +77,7 @@ export class NetworkService {
                 type: "invoice",
                 label: inv.invoiceNumber,
                 risk: inv.total > 5000000 ? "high" : "medium",
-                x: 600 + (Math.random() * 200),
+                x: 600 + ((i % 4) * 60),
                 y: 100 + (i * 60),
                 metadata: `${inv.total.toLocaleString()} FCFA`
             });
@@ -89,30 +89,6 @@ export class NetworkService {
                 value: "Facturation"
             });
         });
-
-        // Add hidden offshore node if specific risk is detected (for the demo)
-        const highRiskInvoices = invoices.filter(inv => inv.total > 5000000);
-        if (highRiskInvoices.length > 0) {
-            nodes.push({
-                id: "offshore-1",
-                type: "offshore",
-                label: "SHELL HOLDING LTD",
-                risk: "critical",
-                x: 800,
-                y: 400,
-                metadata: "Dubaï (Revelé par IA)",
-                hidden: true,
-                geo: { lat: 25.077, lng: 55.148, city: "Jebel Ali, UAE" }
-            });
-
-            edges.push({
-                source: `client-${highRiskInvoices[0].clientId}`,
-                target: "offshore-1",
-                type: "SECRET_OWNER",
-                value: "90% Parts",
-                hidden: true
-            });
-        }
 
         return { nodes, edges };
     }

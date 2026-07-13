@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 
@@ -10,53 +11,55 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "ID du document requis" }, { status: 400 });
         }
 
-        // 1. Récupérer le document (Vérification format ObjectID pour MongoDB)
-        let document = null;
-        if (documentId.length === 24) {
-            document = await prisma.document.findUnique({
-                where: { id: documentId }
-            });
+        const document = documentId.length === 24
+            ? await prisma.document.findUnique({ where: { id: documentId } })
+            : null;
+
+        if (!document) {
+            return NextResponse.json({ error: "Document non trouvé" }, { status: 404 });
         }
 
-        // if (!document) {
-        //     return NextResponse.json({ error: "Document non trouvé" }, { status: 404 });
-        // }
+        const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+            || request.headers.get("x-real-ip")
+            || "inconnue";
+        const signedAt = new Date();
+        const signerName = userName || "Expert Principal";
 
-        // Pour la démo, si non trouvé, on simule l'ID
-        const docName = document?.originalName || "Lettre de Mission.pdf";
+        // Empreinte d'intégrité calculée sur les données réelles du document (pas une valeur fixe).
+        // Ceci ne constitue PAS une signature électronique qualifiée au sens eIDAS/AUSCGIE : aucun
+        // prestataire de confiance (autorité d'horodatage, PKI qualifiée) n'est connecté à ce jour.
+        const hash = crypto
+            .createHash("sha256")
+            .update(`${document.id}|${document.fileUrl}|${signerName}|${signedAt.toISOString()}`)
+            .digest("hex");
 
-        // 2. Simuler la signature probante (Audit Trail)
         const signatureCertificate = {
-            signedAt: new Date(),
-            signerName: userName || "Expert Principal",
-            ipAddress: "192.168.1.45",
-            hash: "sha256-8a7e177b8445cf8ccebb0da85899a1...",
-            validity: "VALIDE (OHADA / SYSCOHADA L.12)"
+            signedAt,
+            signerName,
+            ipAddress,
+            hash: `sha256-${hash}`,
+            legalNotice: "Cachet d'intégrité interne (hash + horodatage), pas une signature électronique qualifiée eIDAS/AUSCGIE.",
         };
 
-        // 3. Mettre à jour le statut dans la DB
-        if (document) {
-            await prisma.document.update({
-                where: { id: documentId },
-                data: {
-                    status: "PROCESSED",
-                    ocrData: signatureCertificate as any
-                }
-            });
-        }
+        await prisma.document.update({
+            where: { id: documentId },
+            data: {
+                status: "PROCESSED",
+                ocrData: signatureCertificate as any,
+            },
+        });
 
-        // 4. Logger l'action probante dans le journal d'audit
         await AuditService.log({
             action: "SIGNATURE_ESTABLISHED",
             entity: "DOCUMENT",
             entityId: documentId,
-            details: `Signature électronique probante appliquée sur [${docName}] par ${signatureCertificate.signerName}. Certificat #SIG-${Date.now().toString().slice(-4)}`
+            details: `Empreinte de signature appliquée sur [${document.originalName}] par ${signerName}. Hash sha256-${hash.slice(0, 16)}...`,
         });
 
         return NextResponse.json({
             success: true,
             certificate: signatureCertificate,
-            message: "Document signé avec succès avec valeur probante."
+            message: "Document signé (empreinte d'intégrité enregistrée).",
         });
 
     } catch (error) {

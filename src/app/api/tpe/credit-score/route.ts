@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
     const journals = await prisma.tpeJournal.findMany({
-      where: { clientId, createdAt: { gte: threeMonthsAgo }, status: "APPROVED" }
+      where: { clientId, createdAt: { gte: threeMonthsAgo }, status: "APPROVED", source: { not: "WHATSAPP_TEST" } }
     });
 
     const totalEntrees = journals.reduce((a, j) => a + j.entree, 0);

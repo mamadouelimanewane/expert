@@ -1,21 +1,21 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Zap, BrainCircuit, BarChart3, FileSpreadsheet, ScanText, CheckCircle2, ChevronRight, Calculator, Globe } from 'lucide-react';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#020617] text-white selection:bg-indigo-500/30 overflow-hidden relative font-sans">
+    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30 overflow-hidden relative font-sans transition-colors duration-300">
       {/* Background Effects */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-600/10 blur-[120px] pointer-events-none" />
 
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                 <span className="font-bold text-white text-xl">C</span>
              </div>
-             <h1 className="text-xl font-black tracking-tight text-white">CABINET 360</h1>
+             <h1 className="text-xl font-black tracking-tight text-foreground">CABINET 360</h1>
           </div>
           <nav className="hidden md:flex items-center gap-8">
              <a href="#features" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Fonctionnalités</a>
@@ -23,8 +23,8 @@ export default function LandingPage() {
              <a href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Tarifs</a>
           </nav>
           <div className="flex items-center gap-4">
-             <Link href="/login" className="text-sm font-bold text-slate-300 hover:text-white transition-colors hidden sm:block">Se connecter</Link>
-             <Link href="/dashboard" className="px-6 py-2.5 rounded-full bg-white text-slate-900 font-bold text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+             <Link href="/login" className="text-sm font-bold text-slate-300 hover:text-foreground transition-colors hidden sm:block">Se connecter</Link>
+             <Link href="/dashboard" className="px-6 py-2.5 rounded-full bg-primary text-white font-bold text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                Essai Gratuit
              </Link>
           </div>
@@ -133,8 +133,8 @@ export default function LandingPage() {
 
          {/* CTA Section */}
          <div className="mt-32 text-center pb-20 border-t border-white/5 pt-20">
-             <h2 className="text-4xl md:text-5xl font-black text-white mb-8">Prêt à digitaliser votre cabinet ?</h2>
-             <Link href="/dashboard" className="inline-flex items-center justify-center px-10 py-5 rounded-full bg-white text-slate-900 font-black text-lg hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+             <h2 className="text-4xl md:text-5xl font-black text-foreground mb-8">Prêt à digitaliser votre cabinet ?</h2>
+             <Link href="/dashboard" className="inline-flex items-center justify-center px-10 py-5 rounded-full bg-primary text-white font-black text-lg hover:scale-105 transition-all shadow-[0_0_40px_rgba(99,102,241,0.2)]">
                  Accéder à l'application
              </Link>
              <p className="text-slate-500 mt-6 text-sm">Aucune carte bancaire requise. Accès immédiat.</p>

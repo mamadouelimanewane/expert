@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { AccountingEngine } from '@/lib/accounting-engine';
+import { processIncomingWhatsAppMessage } from '@/lib/whatsapp-processor';
 
 /**
- * Webhook WhatsApp (Mock).
- * En production, ce endpoint est configuré dans la Meta API / Twilio.
- * Il reçoit les messages des clients PMI (texte, image de facture, audio).
+ * Webhook WhatsApp — reçoit les messages réels via l'API Meta Cloud (configuré
+ * dans Meta Business Suite). Traite le texte/image et confirme par une réponse
+ * réelle au client si WHATSAPP_ACCESS_TOKEN/WHATSAPP_PHONE_NUMBER_ID sont
+ * configurés (sinon le traitement continue sans réponse, sans rien simuler).
  */
 export async function GET(req: Request) {
   // Vérification du webhook (handshake Meta)
@@ -39,72 +39,20 @@ export async function POST(req: Request) {
     const senderPhone = message.from; // numéro du client
     const messageType = message.type; // text, image, audio
 
-    // Trouver le client par son numéro de téléphone
-    const client = await prisma.client.findFirst({
-      where: { phone: senderPhone }
+    const result = await processIncomingWhatsAppMessage({
+      senderPhone,
+      messageType: messageType === "image" ? "image" : "text",
+      textBody: message.text?.body,
     });
 
-    if (!client) {
+    if (result.status === "unknown_client") {
       console.log(`[WhatsApp] Numéro inconnu: ${senderPhone}. Ignoré.`);
-      return NextResponse.json({ status: "unknown_client" });
+      return NextResponse.json(result);
     }
 
-    let libelle = "Opération via WhatsApp";
-    let montant = 0;
-    let isRecette = false;
+    console.log(`[WhatsApp] ✅ Écriture créée pour ${result.clientName} (${senderPhone}) - "${result.libelle}"`);
 
-    // --- Traitement selon le type de message ---
-    if (messageType === "text") {
-      const text = message.text?.body || "";
-
-      // Extraction simple du montant depuis le texte
-      const amountMatch = text.match(/(\d[\d\s,]*)/);
-      if (amountMatch) {
-        montant = parseFloat(amountMatch[1].replace(/\s/g, '').replace(',', '.'));
-      }
-
-      // Détection recette vs dépense
-      isRecette = /vente|encaissement|reçu|client|recette|payé par/i.test(text);
-      libelle = text.trim();
-    }
-
-    if (messageType === "image") {
-      // En production : télécharger l'image, envoyer à l'OCR Engine
-      // Pour le mock : on génère une opération générique
-      libelle = "Facture via WhatsApp (OCR à traiter)";
-      montant = 0; // Sera rempli par l'OCR
-    }
-
-    // --- Traitement comptable via le moteur IA ---
-    const accountingResult = await AccountingEngine.processEntry(
-      libelle,
-      isRecette ? montant : 0,
-      isRecette ? 0 : montant,
-      client.id
-    );
-
-    // --- Sauvegarde dans TpeJournal ---
-    await prisma.tpeJournal.create({
-      data: {
-        periode: new Date().toISOString().substring(0, 7),
-        businessName: client.companyName || `${client.firstName} ${client.lastName}`,
-        date: new Date().toISOString().substring(0, 10),
-        libelle,
-        entree: isRecette ? montant : 0,
-        sortie: isRecette ? 0 : montant,
-        debitCompte: accountingResult.lignes[0]?.compte || "",
-        debitIntitule: accountingResult.lignes[0]?.intitule || "",
-        creditCompte: accountingResult.lignes[accountingResult.lignes.length - 1]?.compte || "",
-        creditIntitule: accountingResult.lignes[accountingResult.lignes.length - 1]?.intitule || "",
-        montant,
-        clientId: client.id,
-        status: "PENDING",
-      }
-    });
-
-    console.log(`[WhatsApp] ✅ Écriture créée pour ${client.companyName} (${senderPhone}) - "${libelle}"`);
-
-    return NextResponse.json({ status: "processed", clientId: client.id, libelle, confidence: accountingResult.confidence });
+    return NextResponse.json(result);
 
   } catch (error) {
     console.error("[WhatsApp Webhook] Error:", error);

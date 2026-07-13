@@ -1,25 +1,20 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import {
     Database,
     UploadCloud,
-    DownloadCloud,
     FileSpreadsheet,
     FileCode,
     RefreshCw,
     Search,
-    Filter,
-    ArrowRight,
-    CheckCircle2,
-    AlertTriangle,
-    Clock,
     Layers,
     Activity,
     HardDrive,
     Trash2,
     Sparkles,
-    ShieldCheck
+    ShieldCheck,
+    AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,31 +28,43 @@ interface Dataset {
     rows: number;
 }
 
-const MOCK_DATASETS: Dataset[] = [
-    { id: "1", name: "FEC_2023_SIB_SENEGAL.xml", type: "FEC", size: "14.2 MB", date: "02/02/2024", status: "Importé", rows: 124500 },
-    { id: "2", name: "Balance_Générale_May24_Orange.xlsx", type: "Balance", size: "1.2 MB", date: "01/02/2024", status: "Prêt", rows: 450 },
-    { id: "3", name: "Extraction_Paie_H1_2023.csv", type: "Social", size: "4.5 MB", date: "28/01/2024", status: "Importé", rows: 1200 },
-];
+interface Kpis {
+    totalDatasets: number;
+    totalStorageBytes: number;
+    totalRows: number;
+    successRatePct: number | null;
+}
+
+function formatBytes(bytes: number): string {
+    if (bytes === 0) return "0 MB";
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1024) return `${mb.toFixed(1)} MB`;
+    return `${(mb / 1024).toFixed(2)} GB`;
+}
 
 export default function DataCenterPage() {
     const [isUploading, setIsUploading] = useState(false);
     const [datasets, setDatasets] = useState<Dataset[]>([]);
+    const [kpis, setKpis] = useState<Kpis | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchDatasets = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 const res = await fetch("/api/data/datasets");
                 const data = await res.json();
-                if (data.success && data.datasets) {
-                    setDatasets(data.datasets);
-                } else {
-                    // Fallback mockup si vide ou erreur
-                    setDatasets(MOCK_DATASETS);
+                if (!res.ok || data.error) {
+                    setError(data.error || "Erreur lors du chargement des datasets.");
+                    return;
                 }
+                setDatasets(data.datasets || []);
+                setKpis(data.kpis || null);
             } catch (e) {
                 console.error("Failed to fetch datasets", e);
-                setDatasets(MOCK_DATASETS);
+                setError("Erreur de connexion au serveur.");
             } finally {
                 setIsLoading(false);
             }
@@ -84,15 +91,12 @@ export default function DataCenterPage() {
                             <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
                                 Nexus Data Engine
                             </span>
-                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20">
-                                High Integrity Imports
-                            </span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Centre de <span className="text-indigo-400">Données & Ingestion</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                            Importez massivement vos écritures comptables, FEC et balances. Notre moteur d'ingestion valide automatiquement la structure OHADA.
+                            Importez vos écritures comptables, FEC et balances. Historique et statistiques basés sur les documents réellement enregistrés au cabinet.
                         </p>
                     </div>
 
@@ -111,10 +115,10 @@ export default function DataCenterPage() {
 
             {/* Storage & Health Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <DataKpiCard title="Stockage Utilisé" value="4.2" unit="GB" trend="de 10GB" icon={HardDrive} color="text-indigo-400" />
-                <DataKpiCard title="Lignes Traitées" value="2.8M" trend="+124k ce mois" icon={Activity} color="text-emerald-400" />
-                <DataKpiCard title="Intégrité Data" value="99.9" unit="%" trend="Sans erreur FEC" icon={ShieldCheck} color="text-cyan-400" />
-                <DataKpiCard title="Datasets Actifs" value="142" trend="Fichiers indexés" icon={Layers} color="text-amber-400" />
+                <DataKpiCard title="Stockage Utilisé" value={kpis ? formatBytes(kpis.totalStorageBytes) : "—"} trend="Documents indexés" icon={HardDrive} color="text-indigo-400" />
+                <DataKpiCard title="Lignes Traitées (OCR)" value={kpis ? kpis.totalRows.toLocaleString("fr-FR") : "—"} trend="Cumul détecté" icon={Activity} color="text-emerald-400" />
+                <DataKpiCard title="Taux de Traitement Réussi" value={kpis && kpis.successRatePct !== null ? `${kpis.successRatePct}%` : "—"} trend="Hors erreurs OCR" icon={ShieldCheck} color="text-cyan-400" />
+                <DataKpiCard title="Datasets Actifs" value={kpis ? kpis.totalDatasets : "—"} trend="Documents indexés" icon={Layers} color="text-amber-400" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -148,7 +152,14 @@ export default function DataCenterPage() {
                                     <tr>
                                         <td colSpan={5} className="px-8 py-20 text-center">
                                             <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin mx-auto mb-4" />
-                                            <p className="text-slate-400 font-bold">Synchronisation avec Nexus Data Engine...</p>
+                                            <p className="text-slate-400 font-bold">Chargement des documents...</p>
+                                        </td>
+                                    </tr>
+                                ) : error ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-8 py-20 text-center">
+                                            <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-4" />
+                                            <p className="text-slate-300 text-sm max-w-md mx-auto">{error}</p>
                                         </td>
                                     </tr>
                                 ) : datasets.length === 0 ? (
@@ -181,7 +192,9 @@ export default function DataCenterPage() {
                                                 <div className="flex items-center justify-end gap-4">
                                                     <span className={cn(
                                                         "text-[10px] font-black uppercase px-2 py-0.5 rounded border",
-                                                        data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                        data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                                            data.status === "Erreur" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                                                "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
                                                     )}>{data.status}</span>
                                                     <button className="p-2 text-slate-700 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
@@ -202,27 +215,23 @@ export default function DataCenterPage() {
                             Connecteurs Directs
                         </h3>
                         <div className="space-y-4">
-                            <ConnectorItem name="Pennylane API" status="Connecté" color="emerald" />
-                            <ConnectorItem name="DGID Téléservices" status="Actif" color="emerald" />
-                            <ConnectorItem name="BCEAO Market Data" status="Connecté" color="emerald" />
-                            <ConnectorItem name="Banque Atlantique" status="En attente" color="amber" />
+                            <ConnectorItem name="Pennylane API" />
+                            <ConnectorItem name="DGID Téléservices" />
+                            <ConnectorItem name="BCEAO Market Data" />
+                            <ConnectorItem name="Banque Atlantique" />
                         </div>
-                        <button className="w-full mt-10 py-5 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-3xl font-black uppercase tracking-widest text-[10px] transition-all">
-                            Ajouter une intégration
+                        <button disabled title="Aucun connecteur tiers n'est encore implémenté" className="w-full mt-10 py-5 bg-white/5 border border-white/10 text-white/50 rounded-3xl font-black uppercase tracking-widest text-[10px] cursor-not-allowed transition-all">
+                            Ajouter une intégration (bientôt disponible)
                         </button>
                     </div>
 
-                    <div className="p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                            <Sparkles className="w-32 h-32 text-indigo-400" />
-                        </div>
-                        <h4 className="text-indigo-400 font-black text-xs uppercase tracking-widest mb-4">Optimisation IA Nexus</h4>
-                        <p className="text-xs text-indigo-100/60 leading-relaxed font-medium mb-6">
-                            L'IA a identifié 15.000 écritures en doublon potentiel dans le dernier import FEC. Souhaitez-vous lancer un rapport de déduplication ?
+                    <div className="p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-amber-500/5 border border-amber-500/20 relative overflow-hidden">
+                        <h4 className="text-amber-400 font-black text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4" /> Détection de Doublons IA
+                        </h4>
+                        <p className="text-xs text-amber-400/70 leading-relaxed font-medium">
+                            Le moteur de détection de doublons par IA n'est pas encore configuré — aucune analyse automatique des écritures dupliquées n'est disponible pour l'instant.
                         </p>
-                        <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 active:scale-95 transition-all">
-                            Analyser les Doublons
-                        </button>
                     </div>
                 </div>
             </div>
@@ -247,13 +256,13 @@ function DataKpiCard({ title, value, unit, trend, icon: Icon, color }: any) {
     );
 }
 
-function ConnectorItem({ name, status, color }: any) {
+function ConnectorItem({ name }: { name: string }) {
     return (
-        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-indigo-500/30 transition-all">
+        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group opacity-70">
             <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{name}</span>
             <div className="flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", color === "emerald" ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 shadow-[0_0_8px_#f59e0b]")} />
-                <span className={cn("text-[9px] font-black uppercase", color === "emerald" ? "text-emerald-400" : "text-amber-400")}>{status}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                <span className="text-[9px] font-black uppercase text-slate-500">Non connecté</span>
             </div>
         </div>
     );

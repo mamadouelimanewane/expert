@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 interface TaxDeclaration {
     id: string;
     client: string;
-    type: "TVA" | "AIR" | "BIC" | "CSS" | "PATENTE" | "IMF";
+    type: "TVA" | "AIR" | "BIC" | "CSS" | "PATENTE" | "IMF" | string;
     month: string;
     country: string;
     amountToPay: string;
@@ -34,14 +34,6 @@ interface TaxDeclaration {
     deadline: string;
     risk: "faible" | "moyen" | "élevé";
 }
-
-const MOCK_DECLARATIONS: TaxDeclaration[] = [
-    { id: "1", client: "Société Ivoirienne de Banque", type: "TVA", month: "Mai 2024", country: "CI", amountToPay: "24 500 000", status: "a_preparer", deadline: "15 Juin", risk: "faible" },
-    { id: "2", client: "Traoré Import-Export", type: "TVA", month: "Mai 2024", country: "SN", amountToPay: "8 500 000", status: "validation", deadline: "15 Juin", risk: "moyen" },
-    { id: "3", client: "Tech Solutions Bénin", type: "AIR", month: "Mai 2024", country: "BJ", amountToPay: "1 250 000", status: "teletransmise", deadline: "10 Juin", risk: "faible" },
-    { id: "4", client: "Boulangerie du Plateau", type: "PATENTE", month: "Exercice 2024", country: "CM", amountToPay: "350 000", status: "payee", deadline: "31 Mars", risk: "faible" },
-    { id: "5", client: "Société Ivoirienne de Banque", type: "AIR", month: "Mai 2024", country: "CI", amountToPay: "4 500 000", status: "a_preparer", deadline: "15 Juin", risk: "faible" },
-];
 
 export default function DeclarationsPage() {
     const [activeStatus, setActiveStatus] = useState<string>("tous");
@@ -239,25 +231,22 @@ export default function DeclarationsPage() {
                             <div className="space-y-6 relative z-10 mb-8">
                                 <div className="p-5 bg-black/20 rounded-2xl border border-white/5 space-y-3 backdrop-blur-sm">
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-400 font-medium">Base Imposable</span>
-                                        <span className="text-white font-mono font-bold">136 111 200</span>
+                                        <span className="text-slate-400 font-medium">Client</span>
+                                        <span className="text-white font-bold">{selectedDecl.client}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-slate-400 font-medium">Taux</span>
-                                        <span className="text-slate-300 font-mono">18%</span>
+                                        <span className="text-slate-400 font-medium">Statut</span>
+                                        <span className="text-slate-300 font-mono uppercase">{selectedDecl.status.replace("_", " ")}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-400 font-medium">Échéance</span>
+                                        <span className="text-slate-300 font-mono">{selectedDecl.deadline}</span>
                                     </div>
                                     <div className="h-px bg-white/10 my-2" />
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-black text-white uppercase tracking-wider">Net à Payer</span>
                                         <span className="text-xl font-black text-orange-400 font-mono">{selectedDecl.amountToPay}</span>
                                     </div>
-                                </div>
-
-                                <div className="flex items-start gap-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" />
-                                    <p className="text-xs text-indigo-300 leading-relaxed">
-                                        <span className="font-bold">Analyse IA :</span> Cohérence confirmée avec le CA mensuel déclaré en comptabilité. Variation de +2% vs M-1.
-                                    </p>
                                 </div>
                             </div>
 
@@ -283,9 +272,9 @@ export default function DeclarationsPage() {
                     <div className="glass-card rounded-[32px] p-6 border border-white/5 bg-slate-900/40">
                         <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Portails DGI Directs</h4>
                         <div className="space-y-2">
-                            <PortalLink name="e-Impôts Côte d'Ivoire" status="online" />
-                            <PortalLink name="e-Tax Sénégal (SISEN)" status="online" />
-                            <PortalLink name="e-Services Bénin" status="maintenance" />
+                            <PortalLink name="e-Impôts Côte d'Ivoire" />
+                            <PortalLink name="e-Tax Sénégal (SISEN)" />
+                            <PortalLink name="e-Services Bénin" />
                         </div>
                     </div>
                 </div>
@@ -294,14 +283,11 @@ export default function DeclarationsPage() {
     );
 }
 
-function PortalLink({ name, status }: { name: string, status: "online" | "maintenance" }) {
+function PortalLink({ name }: { name: string }) {
     return (
         <a href="#" className="flex items-center justify-between p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 transition-all group">
             <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{name}</span>
-            <div className="flex items-center gap-2">
-                <span className={cn("w-1.5 h-1.5 rounded-full", status === "online" ? "bg-emerald-500" : "bg-amber-500 animate-pulse")} />
-                <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-white transition-colors" />
-            </div>
+            <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-white transition-colors" />
         </a>
     );
 }

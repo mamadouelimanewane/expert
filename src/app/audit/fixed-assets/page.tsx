@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Package,
     QrCode,
@@ -14,7 +14,8 @@ import {
     Calculator,
     Camera,
     Download,
-    FileSpreadsheet
+    FileSpreadsheet,
+    X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,22 +25,69 @@ interface FixedAsset {
     label: string;
     category: string;
     purchaseDate: string;
-    value: string;
-    location: string;
-    status: "Trouvé" | "Manquant" | "À vérifier" | "Cédé/Rebut";
-    lastAudit: string;
+    value: number;
+    location: string | null;
+    status: "FOUND" | "MISSING" | "TO_VERIFY" | "DISPOSED";
+    lastAuditDate: string | null;
+    client: { companyName: string | null; firstName: string | null; lastName: string | null };
 }
 
-const MOCK_ASSETS: FixedAsset[] = [
-    { id: "1", code: "IM-2024-001", label: "Serveur Dell PowerEdge", category: "Matériel Informatique", purchaseDate: "12/01/2023", value: "2 500 000", location: "Salle Serveur - Abidjan", status: "Trouvé", lastAudit: "20/05/2024" },
-    { id: "2", code: "IM-2024-002", label: "Véhicule Toyota Hilux", category: "Matériel de Transport", purchaseDate: "15/03/2022", value: "18 000 000", location: "Siège - Parking", status: "À vérifier", lastAudit: "15/05/2024" },
-    { id: "3", code: "IM-2024-003", label: "Climatiseur Split 2CV", category: "Inst. Générales", purchaseDate: "10/06/2021", value: "450 000", location: "Bureau Direction", status: "Manquant", lastAudit: "01/05/2024" },
-    { id: "4", code: "IM-2024-004", label: "Groupe Électrogène 50KVA", category: "Matériel Technique", purchaseDate: "20/11/2022", value: "12 000 000", location: "Zone Technique", status: "Trouvé", lastAudit: "20/05/2024" },
-];
+const STATUS_LABEL: Record<string, string> = {
+    FOUND: "Trouvé",
+    MISSING: "Manquant",
+    TO_VERIFY: "À vérifier",
+    DISPOSED: "Cédé/Rebut",
+};
 
 export default function FixedAssetsAuditPage() {
     const [activeTab, setActiveTab] = useState<"inventaire" | "rapprochement" | "planification">("inventaire");
     const [searchTerm, setSearchTerm] = useState("");
+    const [assets, setAssets] = useState<FixedAsset[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [clients, setClients] = useState<any[]>([]);
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [form, setForm] = useState({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "" });
+    const [saving, setSaving] = useState(false);
+
+    const loadAssets = () => {
+        fetch("/api/audit/fixed-assets")
+            .then(res => res.json())
+            .then(data => setAssets(data.assets || []))
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        loadAssets();
+        fetch("/api/clients").then(r => r.json()).then(d => setClients(d.clients || []));
+    }, []);
+
+    const handleCreate = async () => {
+        if (!form.code || !form.label || !form.purchaseDate || !form.value || !form.clientId) return;
+        setSaving(true);
+        try {
+            await fetch("/api/audit/fixed-assets", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form),
+            });
+            setShowNewModal(false);
+            setForm({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "" });
+            loadAssets();
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const filtered = assets.filter(a =>
+        a.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        a.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (a.location || "").toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const foundCount = assets.filter(a => a.status === "FOUND").length;
+    const coveragePct = assets.length > 0 ? Math.round((foundCount / assets.length) * 100) : 0;
+    const totalValue = assets.reduce((s, a) => s + a.value, 0);
+    const ecartsCount = assets.filter(a => a.status === "MISSING" || a.status === "TO_VERIFY").length;
 
     return (
         <div className="space-y-6">
@@ -86,7 +134,7 @@ export default function FixedAssetsAuditPage() {
                             <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center gap-2 text-sm transition-all">
                                 <QrCode className="w-4 h-4" /> Imprimer Étiquettes
                             </button>
-                            <button className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold flex items-center gap-2 text-sm transition-all shadow-lg shadow-amber-500/20">
+                            <button onClick={() => setShowNewModal(true)} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold flex items-center gap-2 text-sm transition-all shadow-lg shadow-amber-500/20">
                                 <Plus className="w-4 h-4" /> Nouvelle Immo
                             </button>
                         </div>
@@ -99,29 +147,29 @@ export default function FixedAssetsAuditPage() {
                                 <Camera className="w-8 h-8 text-amber-500" />
                             </div>
                             <h4 className="font-bold text-white">Scanner / Photo</h4>
-                            <p className="text-xs text-slate-500 mt-1">Utiliser l'App mobile pour identifier une immo</p>
+                            <p className="text-xs text-slate-500 mt-1">Fonctionnalité mobile à venir</p>
                         </div>
 
                         <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="text-xs font-bold text-slate-500 uppercase">Taux de couverture</div>
-                                <span className="text-emerald-400 font-bold text-xs">+85%</span>
+                                <span className="text-emerald-400 font-bold text-xs">{coveragePct}%</span>
                             </div>
-                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">124 / 145</div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">{foundCount} / {assets.length}</div>
                             <div className="mt-4 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full w-[85%] bg-emerald-500 rounded-full" />
+                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${coveragePct}%` }} />
                             </div>
                         </div>
 
                         <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Valeur d'Acquisition</div>
-                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">45.8M</div>
-                            <p className="text-[10px] text-slate-500 mt-2 uppercase">FCFA • Exercice 2024</p>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">{(totalValue / 1000000).toFixed(1)}M</div>
+                            <p className="text-[10px] text-slate-500 mt-2 uppercase">FCFA • Toutes immobilisations</p>
                         </div>
 
                         <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Écarts Détectés</div>
-                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-500">12</div>
+                            <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-500">{ecartsCount}</div>
                             <p className="text-[10px] text-rose-400 mt-2 flex items-center gap-1 font-bold">
                                 <AlertTriangle className="w-3 h-3" /> À régulariser
                             </p>
@@ -142,7 +190,7 @@ export default function FixedAssetsAuditPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800">
-                                {MOCK_ASSETS.map((asset) => (
+                                {filtered.map((asset) => (
                                     <tr key={asset.id} className="hover:bg-slate-800/20 group transition-colors">
                                         <td className="px-6 py-4">
                                             <p className="font-bold text-white">{asset.label}</p>
@@ -151,22 +199,22 @@ export default function FixedAssetsAuditPage() {
                                         <td className="px-6 py-4">
                                             <p className="text-slate-300 text-xs">{asset.category}</p>
                                             <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-1">
-                                                <MapPin className="w-3 h-3" /> {asset.location}
+                                                <MapPin className="w-3 h-3" /> {asset.location || "—"}
                                             </p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-white font-mono text-xs">{asset.value} FCFA</p>
-                                            <p className="text-[10px] text-slate-500">{asset.purchaseDate}</p>
+                                            <p className="text-white font-mono text-xs">{asset.value.toLocaleString()} FCFA</p>
+                                            <p className="text-[10px] text-slate-500">{new Date(asset.purchaseDate).toLocaleDateString("fr-FR")}</p>
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={cn(
                                                 "px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                                                asset.status === "Trouvé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                    asset.status === "À vérifier" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                        asset.status === "Manquant" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                                asset.status === "FOUND" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                                    asset.status === "TO_VERIFY" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                                        asset.status === "MISSING" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
                                                             "bg-slate-700 text-slate-400 border-slate-600"
                                             )}>
-                                                {asset.status}
+                                                {STATUS_LABEL[asset.status]}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -176,6 +224,9 @@ export default function FixedAssetsAuditPage() {
                                         </td>
                                     </tr>
                                 ))}
+                                {!loading && filtered.length === 0 && (
+                                    <tr><td colSpan={5} className="px-6 py-10 text-center text-slate-500">Aucune immobilisation enregistrée.</td></tr>
+                                )}
                             </tbody>
                         </table></div>
                     </div>
@@ -187,53 +238,47 @@ export default function FixedAssetsAuditPage() {
                     <div className="glass-card rounded-2xl p-6 border border-slate-700/50 space-y-6">
                         <h3 className="font-bold text-white flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-indigo-400" />
-                            Rapprochement Comptable automatique
+                            Rapprochement Comptable
                         </h3>
-                        <p className="text-sm text-slate-500">L'IA compare le registre physique avec la balance de la classe 2.</p>
-
-                        <div className="space-y-4">
-                            {[
-                                { label: "Matériel Informatique", comptable: "25M", physique: "22M", ecart: "-3M" },
-                                { label: "Matériel Transport", comptable: "45M", physique: "45M", ecart: "OK" },
-                                { label: "Mobiliers", comptable: "12M", physique: "11.5M", ecart: "-0.5M" },
-                            ].map((row, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-500 uppercase">{row.label}</p>
-                                        <p className="text-white font-bold mt-1">{row.physique === row.comptable ? "Conforme" : "Écart détecté"}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-xs text-slate-400">Écart : <span className={cn(row.ecart === "OK" ? "text-emerald-400" : "text-rose-400")}>{row.ecart}</span></p>
-                                        <button className="text-[10px] text-indigo-400 font-bold hover:underline">Générer OD de rebut</button>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                            <p className="text-sm text-amber-300">
+                                Le rapprochement automatique entre le registre physique et la balance comptable (classe 2) nécessite un import de balance lié à ce module — non encore connecté. Utilisez l'inventaire ci-contre et le module Balance/États Financiers séparément pour l'instant.
+                            </p>
                         </div>
                     </div>
 
                     <div className="glass-card rounded-2xl p-6 border border-slate-700/50 space-y-8 bg-gradient-to-br from-slate-900 to-amber-900/10">
                         <h3 className="font-bold text-white">Rapports d'inventaire</h3>
-                        <div className="space-y-3">
-                            <button className="w-full p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl border border-slate-700 flex items-center justify-between transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <FileSpreadsheet className="w-6 h-6 text-emerald-500" />
-                                    <div className="text-left">
-                                        <p className="text-sm font-bold text-white">Tableau Amortissement OHADA</p>
-                                        <p className="text-xs text-slate-500">Généré selon durées fiscales</p>
-                                    </div>
-                                </div>
-                                <Download className="w-5 h-5 text-slate-600 group-hover:text-white" />
-                            </button>
+                        <p className="text-xs text-slate-500">La génération de rapports PDF (tableau d'amortissement, écarts) n'est pas encore implémentée.</p>
+                    </div>
+                </div>
+            )}
 
-                            <button className="w-full p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl border border-slate-700 flex items-center justify-between transition-all group">
-                                <div className="flex items-center gap-4">
-                                    <AlertTriangle className="w-6 h-6 text-amber-500" />
-                                    <div className="text-left">
-                                        <p className="text-sm font-bold text-white">Rapport d'écarts d'inventaire</p>
-                                        <p className="text-xs text-slate-500">Prêt pour signature PV</p>
-                                    </div>
-                                </div>
-                                <Download className="w-5 h-5 text-slate-600 group-hover:text-white" />
+            {showNewModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-white/10 rounded-[32px] p-8 max-w-lg w-full shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-black text-white">Nouvelle Immobilisation</h3>
+                            <button onClick={() => setShowNewModal(false)} className="text-slate-400 hover:text-white p-2"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <select value={form.clientId} onChange={e => setForm({ ...form, clientId: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                                <option value="">Sélectionner un client…</option>
+                                {clients.map(c => <option key={c.id} value={c.id}>{c.companyName || `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim()}</option>)}
+                            </select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <input placeholder="Code (ex: IM-2026-001)" value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                                <input placeholder="Catégorie" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            </div>
+                            <input placeholder="Libellé" value={form.label} onChange={e => setForm({ ...form, label: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <input type="date" value={form.purchaseDate} onChange={e => setForm({ ...form, purchaseDate: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                                <input type="number" placeholder="Valeur (FCFA)" value={form.value} onChange={e => setForm({ ...form, value: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            </div>
+                            <input placeholder="Localisation" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <button onClick={handleCreate} disabled={saving} className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                                {saving ? "Enregistrement…" : "Créer l'immobilisation"}
                             </button>
                         </div>
                     </div>

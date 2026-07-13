@@ -1,26 +1,23 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LiasseHeader } from '@/components/etats-financiers/print/LiasseHeader';
 import { clsx } from 'clsx';
 
-// Réutilisation des données mockées pour l'exemple
-const BILAN_ACTIF = [
-    { code: "AD", label: "Immobilisations Incorporelles", netN: 12500000, netN1: 15000000, isTotal: false },
-    { code: "AE", label: "Immobilisations Corporelles", netN: 45000000, netN1: 38000000, isTotal: false },
-    { code: "AF", label: "Immobilisations Financières", netN: 2000000, netN1: 2000000, isTotal: false },
-    { code: "AX", label: "TOTAL ACTIF IMMOBILISÉ", netN: 59500000, netN1: 55000000, isTotal: true, level: 1 },
-
-    { code: "BA", label: "Stocks et en-cours", netN: 28000000, netN1: 25000000, isTotal: false },
-    { code: "BB", label: "Clients et comptes rattachés", netN: 35000000, netN1: 32000000, isTotal: false },
-    { code: "BG", label: "Autres créances", netN: 5000000, netN1: 4500000, isTotal: false },
-    { code: "BX", label: "TOTAL ACTIF CIRCULANT", netN: 68000000, netN1: 61500000, isTotal: true, level: 1 },
-
-    { code: "BQ", label: "Trésorerie-Actif", netN: 12000000, netN1: 8500000, isTotal: false },
-    { code: "BZ", label: "TOTAL GÉNÉRAL ACTIF", netN: 139500000, netN1: 125000000, isTotal: true, level: 2 },
-];
-
 export default function PrintBilanPage() {
+    const [bilanActif, setBilanActif] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/comptabilite/etats-financiers/bilan')
+            .then(res => res.json())
+            .then(data => setBilanActif(data.actif || []))
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return <div className="p-8 text-sm">Chargement…</div>;
+    }
 
     return (
         <div className="font-serif text-[10px]">
@@ -40,7 +37,7 @@ export default function PrintBilanPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {BILAN_ACTIF.map((row, idx) => (
+                    {bilanActif.map((row, idx) => (
                         <tr key={idx} className={row.isTotal ? "font-bold bg-slate-50" : ""}>
                             <td className="border border-black px-1 py-1 text-center font-mono">{row.code}</td>
                             <td className="border border-black px-2 py-1">{row.label.toUpperCase()}</td>

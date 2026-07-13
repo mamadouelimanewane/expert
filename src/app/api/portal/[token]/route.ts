@@ -9,7 +9,7 @@ export async function GET(
     try {
         const { token } = await context.params;
 
-        const client = await prisma.client.findUnique({
+        const client = await prisma.client.findFirst({
             where: { portalToken: token },
             include: {
                 tpeJournals: {

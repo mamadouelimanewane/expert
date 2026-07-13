@@ -44,6 +44,26 @@ model User {
   documents        Document[]
   notifications    Notification[]
   auditLogs        AuditLog[]
+  createdProspects Prospect[]
+  proposals        Proposal[]
+  trainingEnrollments TrainingEnrollment[]
+  certificates     Certificate[]
+  quizAttempts     QuizAttempt[]
+  expenses         Expense[]        @relation("ExpenseOwner")
+  expensesApproved Expense[]        @relation("ExpenseApprover")
+  missionOrders    MissionOrder[]
+  judicialCases    JudicialCase[]
+  engagementLetters EngagementLetter[]
+  correspondences  Correspondence[]
+  procedures       Procedure[]
+  resourceAllocations ResourceAllocation[]
+  apiKeys          ApiKey[]
+  webhooks         Webhook[]
+  workspacesCreated Workspace[]     @relation("WorkspaceCreator")
+  workspaceMemberships WorkspaceMember[] @relation("WorkspaceMemberships")
+  workspaceActivities WorkspaceActivity[] @relation("WorkspaceActivityAuthor")
+  forumPosts       ForumPost[]
+  forumComments    ForumComment[]
 
   @@map("users")
 }
@@ -105,7 +125,11 @@ model Client {
   isActive          Boolean      @default(true)
   
   // Portail PMI
-  portalToken       String?      @unique  // Token unique pour l'URL du portail client
+  // Pas de contrainte @unique en base : de nombreux clients existants ont portalToken=null,
+  // et MongoDB rejette un index unique classique sur des valeurs null dupliquées. L'unicité
+  // effective est garantie côté application par une génération cryptographiquement aléatoire
+  // (32 octets, voir src/app/api/clients/route.ts) — collision négligeable.
+  portalToken       String?      // Token unique pour l'URL du portail client
   portalEnabled     Boolean      @default(false)
   portalCreatedAt   DateTime?
   
@@ -126,7 +150,17 @@ model Client {
   tpeJournals       TpeJournal[]
   employees         Employee[]
   payrollPeriods    PayrollPeriod[]
-  
+  fixedAssets       FixedAsset[]
+  proposals         Proposal[]
+  consolidationEntities ConsolidationEntity[]
+  judicialCases     JudicialCase[]
+  engagementLetters EngagementLetter[]
+  personalAssets    PersonalAsset[]
+  correspondences   Correspondence[]
+  workspaces        Workspace[]
+  fraudAlerts       FraudAlert[]
+  fiscalRisks       FiscalRisk[]
+
   @@map("clients")
 }
 
@@ -182,10 +216,15 @@ model Mission {
   tasks           Task[]
   timeEntries     TimeEntry[]
   documents       Document[]
-  
+  auditSections   AuditSection[]
+  expenses        Expense[]
+  missionOrders   MissionOrder[]
+  engagementLetters EngagementLetter[]
+  resourceAllocations ResourceAllocation[]
+
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  
+
   @@map("missions")
 }
 
@@ -201,10 +240,12 @@ model Task {
   
   missionId       String        @db.ObjectId
   mission         Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  
+
+  resourceAllocations ResourceAllocation[]
+
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  
+
   @@map("tasks")
 }
 
@@ -678,7 +719,9 @@ model BankTransaction {
   // Relation avec une facture si rapprochée
   invoiceId       String?   @db.ObjectId
   invoice         Invoice?  @relation(fields: [invoiceId], references: [id])
-  
+
+  fraudAlerts     FraudAlert[]
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -776,4 +819,942 @@ model Payslip {
   updatedAt       DateTime @updatedAt
 
   @@map("payslips")
+}
+
+// ============================================
+// AUDIT — Immobilisations & Dossier de travail
+// ============================================
+
+enum FixedAssetStatus {
+  FOUND
+  MISSING
+  TO_VERIFY
+  DISPOSED
+}
+
+model FixedAsset {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  code          String
+  label         String
+  category      String
+  purchaseDate  DateTime
+  value         Float
+  location      String?
+  status        FixedAssetStatus @default(TO_VERIFY)
+  lastAuditDate DateTime?
+
+  clientId      String           @db.ObjectId
+  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@map("fixed_assets")
+}
+
+enum AuditConclusion {
+  SATISFAISANT
+  RESERVE
+  NON_CONFORME
+}
+
+model AuditSection {
+  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  order      Int               @default(0)
+  progress   Int               @default(0)
+  conclusion AuditConclusion?
+  note       String?
+
+  missionId  String            @db.ObjectId
+  mission    Mission           @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  items      AuditChecklistItem[]
+
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@map("audit_sections")
+}
+
+enum AuditItemStatus {
+  A_FAIRE
+  EN_COURS
+  TERMINE
+}
+
+model AuditChecklistItem {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  assertion   String?
+  status      AuditItemStatus @default(A_FAIRE)
+  ref         String?
+  comment     String?
+
+  sectionId   String          @db.ObjectId
+  section     AuditSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("audit_checklist_items")
+}
+
+// ============================================
+// CRM — Prospects & Propositions Commerciales
+// ============================================
+
+enum ProspectStage {
+  PROSPECT
+  QUALIFIE
+  PROPOSITION
+  NEGOCIATION
+  GAGNE
+  PERDU
+}
+
+model Prospect {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  entreprise     String
+  contact        String?
+  email          String?
+  telephone      String?
+  secteur        String?
+  source         String?
+  valeurEstimee  Float         @default(0)
+  etape          ProspectStage @default(PROSPECT)
+  prochainRdv    DateTime?
+  score           Int          @default(0)
+
+  createdById    String?       @db.ObjectId
+  createdBy      User?         @relation(fields: [createdById], references: [id])
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("prospects")
+}
+
+enum ProposalType {
+  ACCOUNTING
+  AUDIT
+  LEGAL
+  ADVISORY
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  SIGNED
+  EXPIRED
+}
+
+model Proposal {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  type      ProposalType   @default(ACCOUNTING)
+  amount    Float          @default(0)
+  status    ProposalStatus @default(DRAFT)
+  date      DateTime       @default(now())
+
+  clientId  String?        @db.ObjectId
+  client    Client?        @relation(fields: [clientId], references: [id])
+
+  expertId  String?        @db.ObjectId
+  expert    User?          @relation(fields: [expertId], references: [id])
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@map("proposals")
+}
+
+// ============================================
+// BIBLIOTHÈQUE JURIDIQUE — Clauses & Citations OHADA
+// ============================================
+
+model LegalClause {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  category        String
+  subcategory     String?
+  content         String
+  annotations     String[]
+  negotiationTips String[]
+  acteUniforme    String?
+  isFavorite      Boolean  @default(false)
+  usageCount      Int      @default(0)
+  lastUsed        DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("legal_clauses")
+}
+
+enum CitationType {
+  ACTE_UNIFORME
+  CCJA
+  TRAITE
+  REGLEMENT
+}
+
+enum CitationStatus {
+  VALID
+  MODIFIED
+  ABROGATED
+  PENDING
+}
+
+model LegalCitation {
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  reference  String
+  type       CitationType
+  title      String
+  status     CitationStatus @default(VALID)
+  lastUpdate DateTime       @default(now())
+  source     String?
+  notes      String?
+
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@map("legal_citations")
+}
+
+// ============================================
+// CORPORATE — Consolidation de Groupe
+// ============================================
+
+model ConsolidationGroup {
+  id        String                @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+
+  entities  ConsolidationEntity[]
+  eliminations ConsolidationElimination[]
+
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  @@map("consolidation_groups")
+}
+
+model ConsolidationEntity {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  rccm      String?
+  country   String?
+
+  groupId   String             @db.ObjectId
+  group     ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  clientId  String?            @db.ObjectId
+  client    Client?            @relation(fields: [clientId], references: [id])
+
+  buyerEliminations  ConsolidationElimination[] @relation("BuyerEntity")
+  sellerEliminations ConsolidationElimination[] @relation("SellerEntity")
+
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@map("consolidation_entities")
+}
+
+model ConsolidationElimination {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  type          String
+  debitAccount  String
+  creditAccount String
+  amount        Float
+
+  groupId       String             @db.ObjectId
+  group         ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  buyerEntityId  String?           @db.ObjectId
+  buyerEntity    ConsolidationEntity? @relation("BuyerEntity", fields: [buyerEntityId], references: [id])
+
+  sellerEntityId String?           @db.ObjectId
+  sellerEntity   ConsolidationEntity? @relation("SellerEntity", fields: [sellerEntityId], references: [id])
+
+  createdAt     DateTime           @default(now())
+
+  @@map("consolidation_eliminations")
+}
+
+// ============================================
+// ACADEMY / TRAINING — LMS
+// ============================================
+
+enum TrainingLevel {
+  DEBUTANT
+  INTERMEDIAIRE
+  AVANCE
+  EXPERT
+}
+
+model TrainingCourse {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  subtitle      String?
+  category      String
+  level         TrainingLevel @default(DEBUTANT)
+  durationLabel String?
+  price         Float         @default(0)
+  cpfHours      Int           @default(0)
+  isCertifying  Boolean       @default(false)
+  isPopular     Boolean       @default(false)
+  skills        String[]
+  color         String?
+
+  instructorName String?
+
+  modules       TrainingModule[]
+  enrollments   TrainingEnrollment[]
+  certificates  Certificate[]
+  quiz          Quiz?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("training_courses")
+}
+
+model TrainingModule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  order     Int      @default(0)
+  duration  String?
+
+  courseId  String   @db.ObjectId
+  course    TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  lessons   TrainingLesson[]
+
+  @@map("training_modules")
+}
+
+enum LessonType {
+  VIDEO
+  DOC
+  QUIZ
+}
+
+model TrainingLesson {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  duration  String?
+  type      LessonType @default(VIDEO)
+  order     Int        @default(0)
+
+  moduleId  String     @db.ObjectId
+  module    TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("training_lessons")
+}
+
+enum EnrollmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model TrainingEnrollment {
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  progress       Int              @default(0)
+  status         EnrollmentStatus @default(NOT_STARTED)
+  completedHours Float            @default(0)
+
+  userId         String           @db.ObjectId
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId       String           @db.ObjectId
+  course         TrainingCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  startedAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("training_enrollments")
+}
+
+model Certificate {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  issueDate        DateTime  @default(now())
+  expiryDate       DateTime?
+  cpfHours         Int       @default(0)
+  grade            String?
+  score            Int?
+  verificationCode String    @unique
+  skills           String[]
+
+  userId           String    @db.ObjectId
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  courseId         String    @db.ObjectId
+  course           TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime  @default(now())
+
+  @@map("certificates")
+}
+
+model Quiz {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  timeLimit     Int            @default(600)
+  passingScore  Int            @default(70)
+
+  courseId      String         @unique @db.ObjectId
+  course        TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  questions     QuizQuestion[]
+  attempts      QuizAttempt[]
+
+  createdAt     DateTime       @default(now())
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  question     String
+  options      String[]
+  correctIndex Int
+  explanation  String?
+  order        Int      @default(0)
+
+  quizId       String   @db.ObjectId
+  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  score       Int
+  passed      Boolean
+  answers     Json?
+
+  quizId      String   @db.ObjectId
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+
+  @@map("quiz_attempts")
+}
+
+model Masterclass {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  instructorName  String
+  date            DateTime
+  duration        String?
+  isLive          Boolean  @default(false)
+  attendeesCount  Int      @default(0)
+
+  createdAt       DateTime @default(now())
+
+  @@map("masterclasses")
+}
+
+// ============================================
+// NOTES DE FRAIS & ORDRES DE MISSION
+// ============================================
+
+enum ExpenseCategory {
+  TRANSPORT
+  HEBERGEMENT
+  RESTAURATION
+  FOURNITURES
+  AUTRE
+}
+
+enum ExpenseStatus {
+  EN_ATTENTE
+  APPROUVEE
+  REJETEE
+  REMBOURSEE
+}
+
+model Expense {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  label         String
+  category      ExpenseCategory @default(AUTRE)
+  amount        Float
+  status        ExpenseStatus   @default(EN_ATTENTE)
+  expenseDate   DateTime
+  receiptUrl    String?
+  notes         String?
+
+  missionId     String?         @db.ObjectId
+  mission       Mission?        @relation(fields: [missionId], references: [id])
+
+  userId        String          @db.ObjectId
+  user          User            @relation("ExpenseOwner", fields: [userId], references: [id])
+
+  approvedById  String?         @db.ObjectId
+  approvedBy    User?           @relation("ExpenseApprover", fields: [approvedById], references: [id])
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("expenses")
+}
+
+enum MissionOrderStatus {
+  BROUILLON
+  VALIDE
+  TERMINE
+}
+
+model MissionOrder {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  reference     String             @unique
+  purpose       String
+  destination   String?
+  startDate     DateTime
+  endDate       DateTime
+  status        MissionOrderStatus @default(BROUILLON)
+  estimatedCost Float?
+
+  missionId     String?            @db.ObjectId
+  mission       Mission?           @relation(fields: [missionId], references: [id])
+
+  userId        String             @db.ObjectId
+  user          User               @relation(fields: [userId], references: [id])
+
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@map("mission_orders")
+}
+
+// ============================================
+// EXPERTISE JUDICIAIRE
+// ============================================
+
+enum JudicialCaseStatus {
+  EN_COURS
+  EN_ATTENTE
+  CLOTURE
+}
+
+model JudicialCase {
+  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  caseNumber      String
+  court           String
+  judge           String?
+  parties         String
+  natureOfDispute String?
+  deadline        DateTime?
+  status          JudicialCaseStatus @default(EN_COURS)
+  notes           String?
+
+  clientId        String?            @db.ObjectId
+  client          Client?            @relation(fields: [clientId], references: [id])
+
+  expertId        String             @db.ObjectId
+  expert          User               @relation(fields: [expertId], references: [id])
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@map("judicial_cases")
+}
+
+// ============================================
+// LETTRES DE MISSION (ENGAGEMENT LETTERS)
+// ============================================
+
+enum EngagementLetterStatus {
+  BROUILLON
+  ENVOYEE
+  SIGNEE
+  EXPIREE
+}
+
+model EngagementLetter {
+  id            String                 @id @default(auto()) @map("_id") @db.ObjectId
+  reference     String
+  scope         String
+  fees          Float?
+  status        EngagementLetterStatus @default(BROUILLON)
+  signedAt      DateTime?
+  signatoryName String?
+
+  clientId      String                 @db.ObjectId
+  client        Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  missionId     String?                @db.ObjectId
+  mission       Mission?               @relation(fields: [missionId], references: [id])
+
+  createdById   String                 @db.ObjectId
+  createdBy     User                   @relation(fields: [createdById], references: [id])
+
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@map("engagement_letters")
+}
+
+// ============================================
+// PATRIMOINE PERSONNEL (STRATEGY / WEALTH)
+// ============================================
+
+enum PersonalAssetType {
+  IMMOBILIER
+  PARTS_SOCIALES
+  PLACEMENT_FINANCIER
+  VEHICULE
+  AUTRE
+}
+
+model PersonalAsset {
+  id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  label           String
+  type            PersonalAssetType @default(AUTRE)
+  estimatedValue  Float
+  acquisitionDate DateTime?
+  notes           String?
+
+  clientId        String            @db.ObjectId
+  client          Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("personal_assets")
+}
+
+// ============================================
+// REDACTION (COURRIERS, PV, MODELES)
+// ============================================
+
+enum CorrespondenceType {
+  COURRIER
+  PV
+  MISE_EN_DEMEURE
+  AUTRE
+}
+
+model WritingTemplate {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  category    String
+  content     String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("writing_templates")
+}
+
+model Correspondence {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  subject       String
+  type          CorrespondenceType @default(AUTRE)
+  content       String
+  recipientName String?
+
+  clientId      String?            @db.ObjectId
+  client        Client?            @relation(fields: [clientId], references: [id])
+
+  createdById   String             @db.ObjectId
+  createdBy     User               @relation(fields: [createdById], references: [id])
+
+  createdAt     DateTime           @default(now())
+
+  @@map("correspondences")
+}
+
+// ============================================
+// PROCEDURES INTERNES (MANUEL DE CONTROLE)
+// ============================================
+
+enum ProcedureStatus {
+  BROUILLON
+  PUBLIEE
+  ARCHIVEE
+}
+
+model Procedure {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  category    String
+  content     String
+  version     Int             @default(1)
+  status      ProcedureStatus @default(BROUILLON)
+
+  createdById String          @db.ObjectId
+  createdBy   User            @relation(fields: [createdById], references: [id])
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("procedures")
+}
+
+// ============================================
+// PLANIFICATION DES RESSOURCES
+// ============================================
+
+model ResourceAllocation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  weekStart     DateTime
+  dayOfWeek     Int // 0-6
+  durationHours Float
+  capacityHours Float    @default(8)
+
+  userId        String   @db.ObjectId
+  user          User     @relation(fields: [userId], references: [id])
+
+  taskId        String?  @db.ObjectId
+  task          Task?    @relation(fields: [taskId], references: [id])
+
+  missionId     String?  @db.ObjectId
+  mission       Mission? @relation(fields: [missionId], references: [id])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("resource_allocations")
+}
+
+// ============================================
+// API PLATEFORME (CLES, WEBHOOKS, LOGS)
+// ============================================
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+}
+
+model ApiKey {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  label       String
+  keyPrefix   String
+  hashedKey   String       @unique
+  scopes      String[]
+  status      ApiKeyStatus @default(ACTIVE)
+  lastUsedAt  DateTime?
+
+  createdById String       @db.ObjectId
+  createdBy   User         @relation(fields: [createdById], references: [id])
+
+  requestLogs ApiRequestLog[]
+
+  createdAt   DateTime     @default(now())
+  revokedAt   DateTime?
+
+  @@map("api_keys")
+}
+
+model Webhook {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  url         String
+  event       String
+  isActive    Boolean  @default(true)
+  secret      String
+
+  createdById String   @db.ObjectId
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@map("webhooks")
+}
+
+model ApiRequestLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint    String
+  method      String
+  statusCode  Int
+
+  apiKeyId    String?  @db.ObjectId
+  apiKey      ApiKey?  @relation(fields: [apiKeyId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@map("api_request_logs")
+}
+
+// ============================================
+// ESPACES DE COLLABORATION
+// ============================================
+
+enum WorkspaceType {
+  DUE_DILIGENCE
+  LITIGE
+  PROJET
+  AUTRE
+}
+
+enum WorkspaceStatus {
+  ACTIF
+  ARCHIVE
+}
+
+model Workspace {
+  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        WorkspaceType       @default(AUTRE)
+  status      WorkspaceStatus     @default(ACTIF)
+  description String?
+
+  clientId    String?             @db.ObjectId
+  client      Client?             @relation(fields: [clientId], references: [id])
+
+  members     WorkspaceMember[]
+  activities  WorkspaceActivity[]
+
+  createdById String              @db.ObjectId
+  createdBy   User                @relation("WorkspaceCreator", fields: [createdById], references: [id])
+
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+
+  workspaceId String    @db.ObjectId
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  userId      String    @db.ObjectId
+  user        User      @relation("WorkspaceMemberships", fields: [userId], references: [id])
+
+  role        String    @default("membre")
+  joinedAt    DateTime  @default(now())
+
+  @@map("workspace_members")
+}
+
+model WorkspaceActivity {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+
+  workspaceId String    @db.ObjectId
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  userId      String    @db.ObjectId
+  user        User      @relation("WorkspaceActivityAuthor", fields: [userId], references: [id])
+
+  action      String
+  createdAt   DateTime  @default(now())
+
+  @@map("workspace_activities")
+}
+
+// ============================================
+// DETECTION DE FRAUDE
+// ============================================
+
+enum FraudAlertSeverity {
+  FAIBLE
+  MOYENNE
+  ELEVEE
+  CRITIQUE
+}
+
+enum FraudAlertStatus {
+  NOUVELLE
+  EN_ANALYSE
+  CONFIRMEE
+  ECARTEE
+}
+
+model FraudAlert {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  severity      FraudAlertSeverity  @default(MOYENNE)
+  status        FraudAlertStatus    @default(NOUVELLE)
+  amount        Float?
+  ruleTriggered String
+
+  clientId      String?             @db.ObjectId
+  client        Client?             @relation(fields: [clientId], references: [id])
+
+  transactionId String?             @db.ObjectId
+  transaction   BankTransaction?    @relation(fields: [transactionId], references: [id])
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@map("fraud_alerts")
+}
+
+// ============================================
+// RISQUES FISCAUX
+// ============================================
+
+enum FiscalRiskLevel {
+  FAIBLE
+  MOYEN
+  ELEVE
+}
+
+enum FiscalRiskStatus {
+  IDENTIFIE
+  EN_TRAITEMENT
+  RESOLU
+}
+
+model FiscalRisk {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String
+  level           FiscalRiskLevel  @default(MOYEN)
+  status          FiscalRiskStatus @default(IDENTIFIE)
+  potentialImpact Float?
+
+  clientId        String           @db.ObjectId
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("fiscal_risks")
+}
+
+// ============================================
+// COMMUNAUTE (FORUM)
+// ============================================
+
+model ForumPost {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  content     String
+  topic       String
+  tags        String[]
+
+  authorId    String          @db.ObjectId
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  comments    ForumComment[]
+  likedByIds  String[]        @db.ObjectId
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("forum_posts")
+}
+
+model ForumComment {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+
+  postId      String    @db.ObjectId
+  post        ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  authorId    String    @db.ObjectId
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+
+  @@map("forum_comments")
 }

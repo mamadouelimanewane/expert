@@ -1,6 +1,45 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { calculatePayroll } from "@/lib/payroll/engines";
+import { isLLMConfigured } from "@/lib/llm";
+
+type ExtractedVars = { absencesDays: number; overtimeHours: number; bonuses: number };
+
+async function extractPayrollVariables(transcript: string, employeeNames: string[]): Promise<Record<string, ExtractedVars>> {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error("DEEPSEEK_API_KEY non configurée");
+  }
+
+  const res = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: `Tu extrais des variables de paie à partir d'une transcription vocale en français, pour un cabinet comptable en zone OHADA.
+Employés concernés (prénoms) : ${employeeNames.join(", ")}.
+Pour chaque employé mentionné, détermine : absencesDays (nombre de jours d'absence, entier), overtimeHours (heures supplémentaires, nombre), bonuses (prime en FCFA, nombre).
+Si un employé n'est pas mentionné ou qu'une info n'est pas donnée, mets 0 pour la valeur correspondante.
+Réponds UNIQUEMENT avec un objet JSON de la forme {"Prénom": {"absencesDays": 0, "overtimeHours": 0, "bonuses": 0}, ...}, sans texte autour.`,
+        },
+        { role: "user", content: transcript },
+      ],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Erreur DeepSeek (${res.status}): ${errText}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || "{}";
+  return JSON.parse(content);
+}
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +49,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    // 1. Récupérer le client et ses employés
     const client = await prisma.client.findUnique({
       where: { id: clientId },
       include: { employees: true }
@@ -26,32 +64,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Aucun employé trouvé pour ce client" }, { status: 404 });
     }
 
-    // 2. Simuler l'analyse par le LLM (Extraction de variables)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (!isLLMConfigured()) {
+      return NextResponse.json({
+        error: "La saisie vocale nécessite l'assistant IA (DEEPSEEK_API_KEY non configurée). Utilisez la saisie manuelle des variables de paie en attendant.",
+        notConfigured: true,
+      }, { status: 503 });
+    }
 
-    // MOCK du résultat LLM basé sur des mots clés simples (pour la démo)
-    const text = transcript.toLowerCase();
-    
+    let extracted: Record<string, ExtractedVars>;
+    try {
+      extracted = await extractPayrollVariables(transcript, employees.map(e => e.firstName));
+    } catch (llmError) {
+      console.error("[Payroll Voice] LLM extraction error:", llmError);
+      return NextResponse.json({ error: "Échec de l'analyse IA de la transcription. Réessayez ou saisissez manuellement." }, { status: 502 });
+    }
+
     const finalVariables = employees.map(emp => {
-      let absencesDays = 0;
-      let overtimeHours = 0;
-      let bonuses = 0;
+      const vars = extracted[emp.firstName] || { absencesDays: 0, overtimeHours: 0, bonuses: 0 };
 
-      const firstName = emp.firstName.toLowerCase();
-      
-      // Si le nom de l'employé est mentionné dans le texte
-      if (text.includes(firstName)) {
-        if (text.includes("absent") || text.includes("malade")) absencesDays = 2; // Mock
-        if (text.includes("heures sup")) overtimeHours = 5; // Mock
-        if (text.includes("prime")) bonuses = 50000; // Mock
-      }
-
-      // 3. Calcul de la paie via le Moteur Multi-Pays
       const payrollParams = {
-        baseSalary: emp.baseSalary || 0, // Fallback on baseSalary or salary depending on Prisma map
-        absencesDays,
-        overtimeHours,
-        bonuses,
+        baseSalary: emp.baseSalary || 0,
+        absencesDays: Number(vars.absencesDays) || 0,
+        overtimeHours: Number(vars.overtimeHours) || 0,
+        bonuses: Number(vars.bonuses) || 0,
         transportAllowance: emp.transportAllowance || 0,
         maritalStatus: emp.maritalStatus || "CELIBATAIRE",
         childrenCount: emp.childrenCount || 0,
@@ -64,15 +99,15 @@ export async function POST(req: Request) {
         employeeId: emp.id,
         employeeName: `${emp.firstName} ${emp.lastName}`,
         ...payrollParams,
-        ...result // Contient netSalary, taxes, socialSecurity, etc.
+        ...result
       };
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       country: client.country,
       variables: finalVariables,
-      message: "Analyse vocale et calculs pays terminés"
+      message: "Analyse vocale (IA) et calculs pays terminés — vérifiez les valeurs extraites avant validation."
     });
 
   } catch (error) {

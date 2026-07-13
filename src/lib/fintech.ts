@@ -16,115 +16,260 @@ export interface PaymentStatus {
     providerRef?: string;
 }
 
+interface InitiationResult {
+    transactionId: string;
+    checkoutUrl?: string;
+}
+
 /**
  * Service pour gérer les paiements Mobile Money (Wave, Orange, MTN)
  * Adapté aux spécificités de la zone OHADA (Sénégal, Côte d'Ivoire, Bénin, etc.)
  */
 export class FintechService {
     /**
-     * Initie un paiement auprès du fournisseur Mobile Money via API réelle
+     * Initie un paiement auprès du fournisseur Mobile Money via API réelle.
+     * Lève une erreur explicite si les identifiants requis pour ce fournisseur
+     * ne sont pas configurés — jamais de simulation de succès.
      */
-    static async initiatePayment(params: PaymentInitiation): Promise<string> {
-        console.log(`[Payment] Initialising REAL ${params.provider} payment for invoice ${params.invoiceId}`);
-
-        let payload: Record<string, unknown> = {};
-
-        // Configuration selon le fournisseur
+    static async initiatePayment(params: PaymentInitiation): Promise<InitiationResult> {
         switch (params.provider) {
             case "WAVE":
-                payload = {
-                    amount: params.amount,
-                    currency: "XOF",
-                    error_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=error`,
-                    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=success`,
-                    client_reference: params.invoiceId
-                };
-                break;
-
+                return FintechService.initiateWave(params);
             case "ORANGE_MONEY":
-                payload = {
-                    merchant_key: process.env.ORANGE_MERCHANT_KEY,
-                    currency: "OUV",
-                    order_id: params.invoiceId,
-                    amount: params.amount,
-                    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
-                    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
-                    notif_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook?provider=ORANGE_MONEY`,
-                    lang: "fr"
-                };
-                break;
-
+                return FintechService.initiateOrangeMoney(params);
             case "MTN_MOMO":
-                payload = {
-                    amount: params.amount.toString(),
-                    currency: "XOF",
-                    externalId: params.invoiceId,
-                    payer: {
-                        partyIdType: "MSISDN",
-                        partyId: params.phoneNumber
-                    },
-                    payerMessage: "Paiement Facture Cabinet 360",
-                    payeeNote: "Cabinet 360"
-                };
-                break;
-        }
-
-        console.log(`[Payment] Payload for ${params.provider}:`, JSON.stringify(payload));
-
-        try {
-            // Dans une intégration réelle, on ferait l'appel ici :
-            /*
-            const response = await fetch(providerUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'X-Reference-Id': params.invoiceId // Pour MTN par exemple
-                },
-                body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-            return data.id || data.transaction_id;
-            */
-
-            // Pour la démonstration technique mais prêt pour prod :
-            const transactionId = `PROD-${params.provider.slice(0, 3)}-${Date.now().toString().slice(-6)}`;
-
-            await prisma.auditLog.create({
-                data: {
-                    action: "PAYMENT_INITIATED",
-                    entity: "Invoice",
-                    entityId: params.invoiceId,
-                    details: `Paiement ${params.provider} initié pour ${params.amount} FCFA (N° ${params.phoneNumber})`,
-                }
-            });
-
-            return transactionId;
-        } catch (error) {
-            console.error(`[FintechService] Error initiating ${params.provider} payment:`, error);
-            throw new Error(`Erreur lors de l'initialisation du paiement ${params.provider}`);
+                return FintechService.initiateMtnMomo(params);
         }
     }
 
-    /**
-     * Gère les notifications asynchrones (Hooks) des fournisseurs
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    static async handleWebhook(provider: PaymentProvider, payload: any) {
-        console.log(`[Webhook] Processing REAL hook from ${provider}`);
+    private static async initiateWave(params: PaymentInitiation): Promise<InitiationResult> {
+        const apiKey = process.env.WAVE_API_KEY;
+        if (!apiKey) {
+            throw new Error("Intégration WAVE non configurée. Ajoutez WAVE_API_KEY dans les variables d'environnement.");
+        }
 
+        const response = await fetch("https://api.wave.com/v1/checkout/sessions", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                amount: String(params.amount),
+                currency: params.currency || "XOF",
+                error_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=error`,
+                success_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=success`,
+                client_reference: params.invoiceId,
+            }),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Échec de l'initiation Wave (${response.status}): ${errText}`);
+        }
+
+        const data = await response.json();
+        return { transactionId: data.id, checkoutUrl: data.wave_launch_url };
+    }
+
+    /**
+     * L'API Orange Money nécessite un échange OAuth (client_credentials) avant
+     * chaque appel de paiement pour obtenir un token d'accès temporaire.
+     */
+    private static async getOrangeAccessToken(): Promise<string> {
+        const consumerKey = process.env.ORANGE_CONSUMER_KEY;
+        const consumerSecret = process.env.ORANGE_CONSUMER_SECRET;
+        if (!consumerKey || !consumerSecret) {
+            throw new Error(
+                "Intégration ORANGE_MONEY non configurée. Ajoutez ORANGE_CONSUMER_KEY et ORANGE_CONSUMER_SECRET (Orange Developer Portal)."
+            );
+        }
+
+        const basicAuth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64");
+        const response = await fetch("https://api.orange.com/oauth/v3/token", {
+            method: "POST",
+            headers: {
+                Authorization: `Basic ${basicAuth}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: "grant_type=client_credentials",
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Échec de l'authentification Orange Money (${response.status}): ${errText}`);
+        }
+
+        const data = await response.json();
+        return data.access_token;
+    }
+
+    private static async initiateOrangeMoney(params: PaymentInitiation): Promise<InitiationResult> {
+        const merchantKey = process.env.ORANGE_MERCHANT_KEY;
+        if (!merchantKey) {
+            throw new Error("Intégration ORANGE_MONEY non configurée. Ajoutez ORANGE_MERCHANT_KEY dans les variables d'environnement.");
+        }
+
+        const accessToken = await FintechService.getOrangeAccessToken();
+        const country = process.env.ORANGE_MONEY_COUNTRY || "sn";
+
+        const response = await fetch(`https://api.orange.com/orange-money-webpay/${country}/v1/webpayment`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                merchant_key: merchantKey,
+                currency: params.currency || "OUV",
+                order_id: params.invoiceId,
+                amount: params.amount,
+                return_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=success`,
+                cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?status=cancel`,
+                notif_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/webhook?provider=ORANGE_MONEY`,
+                lang: "fr",
+            }),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Échec de l'initiation Orange Money (${response.status}): ${errText}`);
+        }
+
+        const data = await response.json();
+        return { transactionId: data.pay_token, checkoutUrl: data.payment_url };
+    }
+
+    /**
+     * L'API MTN MoMo Collection nécessite un échange OAuth (API User + API Key)
+     * avant chaque requête de paiement pour obtenir un token temporaire.
+     */
+    private static async getMtnMomoAccessToken(): Promise<string> {
+        const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+        const apiUser = process.env.MTN_MOMO_API_USER;
+        const apiKey = process.env.MTN_MOMO_API_KEY;
+        if (!subscriptionKey || !apiUser || !apiKey) {
+            throw new Error(
+                "Intégration MTN_MOMO non configurée. Ajoutez MTN_MOMO_SUBSCRIPTION_KEY, MTN_MOMO_API_USER et MTN_MOMO_API_KEY."
+            );
+        }
+
+        const baseUrl = process.env.MTN_MOMO_ENVIRONMENT === "production"
+            ? "https://momoapi.mtn.com"
+            : "https://sandbox.momodeveloper.mtn.com";
+
+        const basicAuth = Buffer.from(`${apiUser}:${apiKey}`).toString("base64");
+        const response = await fetch(`${baseUrl}/collection/token/`, {
+            method: "POST",
+            headers: {
+                Authorization: `Basic ${basicAuth}`,
+                "Ocp-Apim-Subscription-Key": subscriptionKey,
+            },
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Échec de l'authentification MTN MoMo (${response.status}): ${errText}`);
+        }
+
+        const data = await response.json();
+        return data.access_token;
+    }
+
+    private static async initiateMtnMomo(params: PaymentInitiation): Promise<InitiationResult> {
+        const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+        const targetEnvironment = process.env.MTN_MOMO_TARGET_ENVIRONMENT || "sandbox";
+        if (!subscriptionKey) {
+            throw new Error("Intégration MTN_MOMO non configurée. Ajoutez MTN_MOMO_SUBSCRIPTION_KEY dans les variables d'environnement.");
+        }
+
+        const accessToken = await FintechService.getMtnMomoAccessToken();
+        const baseUrl = process.env.MTN_MOMO_ENVIRONMENT === "production"
+            ? "https://momoapi.mtn.com"
+            : "https://sandbox.momodeveloper.mtn.com";
+
+        const referenceId = crypto.randomUUID();
+
+        const response = await fetch(`${baseUrl}/collection/v1_0/requesttopay`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "X-Reference-Id": referenceId,
+                "X-Target-Environment": targetEnvironment,
+                "Ocp-Apim-Subscription-Key": subscriptionKey,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                amount: params.amount.toString(),
+                currency: params.currency || "XOF",
+                externalId: params.invoiceId,
+                payer: {
+                    partyIdType: "MSISDN",
+                    partyId: params.phoneNumber.replace(/\D/g, ""),
+                },
+                payerMessage: "Paiement Facture Cabinet 360",
+                payeeNote: "Cabinet 360",
+            }),
+        });
+
+        // MTN MoMo requesttopay renvoie 202 Accepted sans corps ; le statut réel
+        // s'obtient via GET /collection/v1_0/requesttopay/{referenceId} (polling ou webhook).
+        if (response.status !== 202) {
+            const errText = await response.text();
+            throw new Error(`Échec de l'initiation MTN MoMo (${response.status}): ${errText}`);
+        }
+
+        return { transactionId: referenceId };
+    }
+
+    /**
+     * Interroge le statut réel d'une transaction MTN MoMo (les autres fournisseurs
+     * notifient par webhook — voir handleWebhook).
+     */
+    static async checkMtnMomoStatus(referenceId: string): Promise<PaymentStatus> {
+        const subscriptionKey = process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+        const targetEnvironment = process.env.MTN_MOMO_TARGET_ENVIRONMENT || "sandbox";
+        if (!subscriptionKey) {
+            throw new Error("Intégration MTN_MOMO non configurée.");
+        }
+
+        const accessToken = await FintechService.getMtnMomoAccessToken();
+        const baseUrl = process.env.MTN_MOMO_ENVIRONMENT === "production"
+            ? "https://momoapi.mtn.com"
+            : "https://sandbox.momodeveloper.mtn.com";
+
+        const response = await fetch(`${baseUrl}/collection/v1_0/requesttopay/${referenceId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "X-Target-Environment": targetEnvironment,
+                "Ocp-Apim-Subscription-Key": subscriptionKey,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Impossible de récupérer le statut MTN MoMo (${response.status})`);
+        }
+
+        const data = await response.json();
+        const status = data.status === "SUCCESSFUL" ? "SUCCESS" : data.status === "FAILED" ? "FAILED" : "PENDING";
+        return { transactionId: referenceId, status, providerRef: data.financialTransactionId };
+    }
+
+    /**
+     * Gère les notifications asynchrones (webhooks) des fournisseurs.
+     */
+    static async handleWebhook(provider: PaymentProvider, payload: Record<string, unknown>) {
         let invoiceId = "";
         let isSuccess = false;
 
-        // Normalisation des données selon le fournisseur
         if (provider === "WAVE") {
-            invoiceId = payload.client_reference;
-            isSuccess = payload.status === "succeeded";
+            invoiceId = String(payload.client_reference ?? "");
+            isSuccess = payload.status === "succeeded" || payload.status === "success";
         } else if (provider === "ORANGE_MONEY") {
-            invoiceId = payload.order_id;
+            invoiceId = String(payload.order_id ?? "");
             isSuccess = payload.status === "SUCCESS";
         } else if (provider === "MTN_MOMO") {
-            invoiceId = payload.externalId;
+            invoiceId = String(payload.externalId ?? "");
             isSuccess = payload.status === "SUCCESSFUL";
         }
 
@@ -134,8 +279,8 @@ export class FintechService {
                     where: { id: invoiceId },
                     data: {
                         status: "PAID",
-                        paidDate: new Date()
-                    }
+                        paidDate: new Date(),
+                    },
                 });
 
                 await prisma.auditLog.create({
@@ -144,7 +289,7 @@ export class FintechService {
                         entity: "Invoice",
                         entityId: invoiceId,
                         details: `Paiement ${provider} confirmé via Webhook`,
-                    }
+                    },
                 });
             } catch (error) {
                 console.error(`[Webhook] Error updating invoice ${invoiceId}:`, error);

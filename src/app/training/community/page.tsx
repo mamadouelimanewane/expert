@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     MessageSquare,
     Users,
@@ -8,18 +8,15 @@ import {
     Filter,
     TrendingUp,
     Hash,
-    MoreHorizontal,
     ThumbsUp,
     MessageCircle,
-    Share2,
     Plus,
     CheckCircle2,
     Award,
-    Bookmark,
-    ArrowUpCircle
+    X,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 const TOPICS = [
     { id: "all", label: "Toute la communauté", icon: Users },
@@ -30,54 +27,82 @@ const TOPICS = [
     { id: "career", label: "Carrière & Emploi", icon: Hash }
 ];
 
-const POSTS = [
-    {
-        id: 1,
-        author: { name: "Mamadou Sylla", avatar: "MS", role: "Expert-Comptable", isVerified: true },
-        topic: "fiscal",
-        title: "Interprétation de l'article 45 du nouveau barème IR 2026",
-        content: "Quelqu'un a-t-il déjà commencé à appliquer le nouveau barème sur les salaires de Janvier ? J'ai un doute sur le calcul du prorata pour les contrats à temps partiel...",
-        stats: { likes: 24, comments: 12, shares: 5 },
-        time: "Il y a 2h",
-        tags: ["IR", "Fiscalité 2026", "Salaires"]
-    },
-    {
-        id: 2,
-        author: { name: "Aïcha Diop", avatar: "AD", role: "Auditeur Senior", isVerified: false },
-        topic: "ohada",
-        title: "Nouveau guide SYSCOHADA : Les points clés à retenir",
-        content: "Je viens de terminer la lecture du dernier acte uniforme révisé. J'ai résumé les 5 changements majeurs qui vont impacter nos dossiers de clôture cette année.",
-        stats: { likes: 56, comments: 28, shares: 12 },
-        time: "Il y a 5h",
-        tags: ["SYSCOHADA", "Clôture", "Expertise"]
-    },
-    {
-        id: 3,
-        author: { name: "Jean-Pierre Mensah", avatar: "JM", role: "Consultant IT", isVerified: true },
-        topic: "digital",
-        title: "IA Générative et Audit : Retour d'expérience",
-        content: "Nous avons testé l'utilisation d'outils d'IA pour l'analyse de grands volumes de factures. Les résultats sont impressionnants en termes de gain de temps sur les tests de cohérence.",
-        stats: { likes: 89, comments: 45, shares: 32 },
-        time: "Hier",
-        tags: ["IA", "Audit Digital", "Innovation"]
-    }
-];
-
-const TRENDING_DISCUSSIONS = [
-    "Date limite dépôt DSF Sénégal",
-    "Réforme TVA Côte d'Ivoire",
-    "Certification IFRS Foundation",
-    "Outils de consolidation Cloud"
-];
+interface Post {
+    id: string;
+    title: string;
+    content: string;
+    topic: string;
+    tags: string[];
+    author: { name: string; role: string };
+    likes: number;
+    comments: number;
+    createdAt: string;
+}
 
 export default function TrainingCommunityPage() {
     const [selectedTopic, setSelectedTopic] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [form, setForm] = useState({ title: "", content: "", topic: "fiscal" });
+    const [submitting, setSubmitting] = useState(false);
+
+    const loadPosts = () => {
+        setLoading(true);
+        fetch(`/api/community/posts${selectedTopic !== "all" ? `?topic=${selectedTopic}` : ""}`)
+            .then(r => r.json())
+            .then(d => setPosts(d.posts ?? []))
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => { loadPosts(); }, [selectedTopic]);
+
+    const filteredPosts = posts.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const handleLike = async (postId: string) => {
+        const res = await fetch(`/api/community/posts/${postId}/like`, { method: "POST" });
+        if (res.ok) {
+            const data = await res.json();
+            setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: data.likes } : p));
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!form.title.trim() || !form.content.trim()) return;
+        setSubmitting(true);
+        try {
+            const res = await fetch("/api/community/posts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...form, tags: [] }),
+            });
+            if (res.ok) {
+                setShowModal(false);
+                setForm({ title: "", content: "", topic: "fiscal" });
+                loadPosts();
+            }
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const topicCounts = TOPICS.map(t => ({
+        ...t,
+        count: t.id === "all" ? posts.length : posts.filter(p => p.topic === t.id).length,
+    }));
+
+    const contributors = Object.values(
+        posts.reduce((acc: Record<string, { name: string; count: number }>, p) => {
+            acc[p.author.name] = acc[p.author.name] || { name: p.author.name, count: 0 };
+            acc[p.author.name].count++;
+            return acc;
+        }, {})
+    ).sort((a, b) => b.count - a.count).slice(0, 5);
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
 
-            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5">
                 <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-sky-500/20">
@@ -88,54 +113,47 @@ export default function TrainingCommunityPage() {
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">
                         Échangez avec vos pairs, partagez vos connaissances et progressez ensemble.
-                        <span className="text-sky-400 font-bold ml-1">Le savoir se multiplie quand on le partage.</span>
                     </p>
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-sky-600/25 flex items-center gap-2 transform hover:scale-105">
+                    <button onClick={() => setShowModal(true)} className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-sky-600/25 flex items-center gap-2 transform hover:scale-105">
                         <Plus className="w-5 h-5" /> Nouvelle Publication
                     </button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                {/* Sidebar Left: Topics */}
                 <div className="lg:col-span-3 space-y-6">
                     <div className="bg-slate-900/50 rounded-[32px] border border-white/5 p-6 h-fit sticky top-8">
                         <h3 className="font-bold text-white mb-6 flex items-center gap-2">
                             <TrendingUp className="w-5 h-5 text-sky-400" /> Thématiques
                         </h3>
                         <div className="space-y-1">
-                            {TOPICS.map((topic) => (
+                            {topicCounts.map((topic) => (
                                 <button
                                     key={topic.id}
                                     onClick={() => setSelectedTopic(topic.id)}
                                     className={cn(
-                                        "w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all",
-                                        selectedTopic === topic.id
-                                            ? "bg-sky-600 text-white shadow-lg"
-                                            : "text-slate-500 hover:text-white hover:bg-white/5"
+                                        "w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all",
+                                        selectedTopic === topic.id ? "bg-sky-600 text-white shadow-lg" : "text-slate-500 hover:text-white hover:bg-white/5"
                                     )}
                                 >
-                                    <topic.icon className="w-4 h-4" />
-                                    {topic.label}
+                                    <span className="flex items-center gap-3"><topic.icon className="w-4 h-4" /> {topic.label}</span>
+                                    <span className="text-xs opacity-70">{topic.count}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Feed Content */}
                 <div className="lg:col-span-6 space-y-6">
-                    {/* Search & Filters */}
                     <div className="flex gap-4">
                         <div className="flex-1 flex items-center gap-3 bg-slate-900/50 p-3 rounded-2xl border border-white/5">
                             <Search className="w-5 h-5 text-slate-500 ml-2" />
                             <input
                                 type="text"
-                                placeholder="Rechercher une discussion, une question..."
+                                placeholder="Rechercher une discussion..."
                                 className="bg-transparent border-none focus:ring-0 text-sm w-full text-white placeholder:text-slate-500"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -146,149 +164,119 @@ export default function TrainingCommunityPage() {
                         </button>
                     </div>
 
-                    {/* Posts List */}
-                    <div className="space-y-6">
-                        {POSTS.map((post) => (
-                            <div key={post.id} className="group bg-slate-900/40 border border-white/5 rounded-[32px] p-8 hover:border-sky-500/30 transition-all cursor-pointer relative overflow-hidden">
-                                {/* Post Type Indicator */}
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 blur-[50px] -z-10" />
-
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center font-black text-slate-400 border border-white/5 relative">
-                                            {post.author.avatar}
-                                            {post.author.isVerified && (
-                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-sky-500 rounded-full flex items-center justify-center border-2 border-slate-900">
-                                                    <CheckCircle2 className="w-3 h-3 text-white" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-white text-sm flex items-center gap-2">
-                                                {post.author.name}
-                                                <span className="px-2 py-0.5 bg-slate-800 text-[9px] font-black uppercase tracking-tighter text-slate-500 rounded-md">{post.author.role}</span>
-                                            </h4>
-                                            <p className="text-[10px] text-slate-500 font-medium">{post.time} • Dans <span className="text-sky-400"># {post.topic}</span></p>
+                    {loading ? (
+                        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-sky-500" /></div>
+                    ) : filteredPosts.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-900/30 border border-white/5 rounded-[32px]">
+                            <MessageSquare className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+                            <p className="text-slate-400 font-bold text-sm">Aucune discussion pour le moment</p>
+                            <p className="text-slate-500 text-xs mt-2">Soyez le premier à publier une question ou un partage d'expérience.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {filteredPosts.map((post) => (
+                                <div key={post.id} className="group bg-slate-900/40 border border-white/5 rounded-[32px] p-8 hover:border-sky-500/30 transition-all relative overflow-hidden">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center font-black text-slate-400 border border-white/5">
+                                                {post.author.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                                                    {post.author.name}
+                                                    <span className="px-2 py-0.5 bg-slate-800 text-[9px] font-black uppercase tracking-tighter text-slate-500 rounded-md">{post.author.role}</span>
+                                                </h4>
+                                                <p className="text-[10px] text-slate-500 font-medium">{new Date(post.createdAt).toLocaleDateString("fr-FR")} • Dans <span className="text-sky-400"># {post.topic}</span></p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <button className="p-2 hover:bg-white/5 rounded-xl transition-colors">
-                                        <MoreHorizontal className="w-5 h-5 text-slate-600" />
-                                    </button>
-                                </div>
 
-                                <h3 className="text-xl font-black text-white mb-4 group-hover:text-sky-400 transition-colors leading-tight">
-                                    {post.title}
-                                </h3>
+                                    <h3 className="text-xl font-black text-white mb-4 group-hover:text-sky-400 transition-colors leading-tight">{post.title}</h3>
+                                    <p className="text-slate-400 text-sm leading-relaxed mb-6 whitespace-pre-wrap">{post.content}</p>
 
-                                <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">
-                                    {post.content}
-                                </p>
-
-                                {/* Tags */}
-                                <div className="flex flex-wrap gap-2 mb-8">
-                                    {post.tags.map((tag, i) => (
-                                        <span key={i} className="px-3 py-1 bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/5">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* Actions Bar */}
-                                <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                                    <div className="flex items-center gap-6">
-                                        <button className="flex items-center gap-2 text-slate-500 hover:text-sky-400 transition-colors group/action">
-                                            <ThumbsUp className="w-4 h-4 group-hover/action:scale-125 transition-transform" />
-                                            <span className="text-xs font-bold">{post.stats.likes}</span>
-                                        </button>
-                                        <button className="flex items-center gap-2 text-slate-500 hover:text-sky-400 transition-colors group/action">
-                                            <MessageCircle className="w-4 h-4 group-hover/action:scale-125 transition-transform" />
-                                            <span className="text-xs font-bold">{post.stats.comments}</span>
-                                        </button>
-                                        <button className="flex items-center gap-2 text-slate-500 hover:text-sky-400 transition-colors group/action">
-                                            <Share2 className="w-4 h-4 group-hover/action:scale-125 transition-transform" />
-                                            <span className="text-xs font-bold">{post.stats.shares}</span>
-                                        </button>
+                                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                                        <div className="flex items-center gap-6">
+                                            <button onClick={() => handleLike(post.id)} className="flex items-center gap-2 text-slate-500 hover:text-sky-400 transition-colors">
+                                                <ThumbsUp className="w-4 h-4" />
+                                                <span className="text-xs font-bold">{post.likes}</span>
+                                            </button>
+                                            <span className="flex items-center gap-2 text-slate-500">
+                                                <MessageCircle className="w-4 h-4" />
+                                                <span className="text-xs font-bold">{post.comments}</span>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <button className="p-2 text-slate-600 hover:text-amber-400 transition-colors">
-                                        <Bookmark className="w-5 h-5" />
-                                    </button>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <button className="w-full py-4 bg-slate-900 shadow-xl rounded-[32px] text-slate-500 font-bold hover:text-white transition-all flex items-center justify-center gap-2 border border-white/5 uppercase tracking-[0.2em] text-[10px]">
-                        Afficher plus de discussions <ArrowUpCircle className="w-4 h-4" />
-                    </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* Sidebar Right: Stats & Suggestions */}
                 <div className="lg:col-span-3 space-y-8">
-                    {/* Your Influence Stats */}
-                    <div className="bg-gradient-to-br from-sky-600/10 to-transparent rounded-[32px] border border-sky-500/20 p-6">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2">
-                            <Award className="w-5 h-5 text-amber-400" /> Votre Influence
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="text-center p-3 bg-slate-900/50 rounded-2xl border border-white/5">
-                                <p className="text-xl font-black text-white">450</p>
-                                <p className="text-[9px] text-slate-500 uppercase font-black">Points</p>
-                            </div>
-                            <div className="text-center p-3 bg-slate-900/50 rounded-2xl border border-white/5">
-                                <p className="text-xl font-black text-white">12</p>
-                                <p className="text-[9px] text-slate-500 uppercase font-black">Posts</p>
-                            </div>
-                        </div>
-                        <div className="mt-6 flex items-center gap-3">
-                            <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-sky-500 w-[65%]" />
-                            </div>
-                            <span className="text-[10px] font-black text-sky-400">Niveau 4</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-2 text-center font-bold">Encore 50 points pour le badge "Expert Actif"</p>
-                    </div>
-
-                    {/* Trending Discussions */}
                     <div className="bg-slate-900/50 rounded-[32px] border border-white/5 p-6">
                         <h3 className="font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest text-[10px]">
-                            Discussions du moment
+                            <Award className="w-5 h-5 text-amber-400" /> Top Contributeurs
                         </h3>
-                        <div className="space-y-4">
-                            {TRENDING_DISCUSSIONS.map((trend, i) => (
-                                <div key={i} className="flex items-start gap-3 group cursor-pointer">
-                                    <div className="text-sky-500 font-black text-xs pt-1">#{i + 1}</div>
-                                    <p className="text-sm font-bold text-slate-400 group-hover:text-white transition-colors">{trend}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Top Contributors */}
-                    <div className="bg-slate-900/50 rounded-[32px] border border-white/5 p-6">
-                        <h3 className="font-bold text-white mb-6 flex items-center gap-2 uppercase tracking-widest text-[10px]">
-                            Top Contributeurs
-                        </h3>
-                        <div className="space-y-4">
-                            {[
-                                { name: "Abdoulaye Wade", points: "2.4k", avatar: "AW" },
-                                { name: "Sokhna Fall", points: "1.8k", avatar: "SF" },
-                                { name: "Modou Gueye", points: "1.5k", avatar: "MG" }
-                            ].map((user, i) => (
-                                <div key={i} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 border border-white/5">
-                                            {user.avatar}
+                        {contributors.length === 0 ? (
+                            <p className="text-xs text-slate-500">Aucune activité pour le moment.</p>
+                        ) : (
+                            <div className="space-y-4">
+                                {contributors.map((user, i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 border border-white/5">
+                                                {user.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                                            </div>
+                                            <p className="text-xs font-bold text-white">{user.name}</p>
                                         </div>
-                                        <p className="text-xs font-bold text-white">{user.name}</p>
+                                        <span className="text-[10px] font-black text-sky-400">{user.count} post{user.count !== 1 ? "s" : ""}</span>
                                     </div>
-                                    <span className="text-[10px] font-black text-sky-400">{user.points}</span>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {showModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
+                    <div className="bg-slate-900 border border-white/10 rounded-[32px] p-8 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-white">Nouvelle Publication</h3>
+                            <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/5 rounded-xl"><X className="w-5 h-5 text-slate-400" /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <select
+                                value={form.topic}
+                                onChange={(e) => setForm({ ...form, topic: e.target.value })}
+                                className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                            >
+                                {TOPICS.filter(t => t.id !== "all").map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                            </select>
+                            <input
+                                placeholder="Titre de la discussion"
+                                value={form.title}
+                                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500"
+                            />
+                            <textarea
+                                placeholder="Votre question ou partage..."
+                                value={form.content}
+                                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                                rows={5}
+                                className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 resize-none"
+                            />
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitting || !form.title.trim() || !form.content.trim()}
+                                className="w-full py-3 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+                            >
+                                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Publier"}
+                            </button>
                         </div>
                     </div>
                 </div>
-
-            </div>
+            )}
         </div>
     );
 }

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
         }
 
         // Initiation du paiement
-        const transactionId = await FintechService.initiatePayment({
+        const { transactionId, checkoutUrl } = await FintechService.initiatePayment({
             invoiceId,
             amount: parseFloat(amount.replace(/\s/g, "")),
             provider: provider as PaymentProvider,
@@ -22,11 +22,13 @@ export async function POST(request: Request) {
         return NextResponse.json({
             success: true,
             transactionId,
+            checkoutUrl,
             message: "Paiement initié avec succès"
         });
 
     } catch (error) {
         console.error("[Payments API] Error:", error);
-        return NextResponse.json({ error: "Erreur lors de l'initiation du paiement" }, { status: 500 });
+        const message = error instanceof Error ? error.message : "Erreur lors de l'initiation du paiement";
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

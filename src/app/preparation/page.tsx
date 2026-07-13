@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     FileCog,
     CheckSquare,
@@ -96,21 +96,35 @@ const MOCK_ASSETS: FixedAsset[] = [
     { id: "4", code: "INF-089", designation: "Serveur Dell PowerEdge", category: "Matériel Informatique", acquisitionDate: "05/09/2021", acquisitionValue: 3500000, amortization: 2333333, netValue: 1166667, location: "Salle Serveur", status: "active" },
 ];
 
-const MOCK_PRODUCTS: Product[] = [
-    { id: "1", code: "PROD-A1", name: "Produit Fini Alpha", category: "Série A", directMaterials: 1200, directLabor: 800, overheads: 400, totalCost: 2400, sellingPrice: 3500, margin: 31.4 },
-    { id: "2", code: "PROD-B2", name: "Produit Fini Beta", category: "Série B", directMaterials: 2500, directLabor: 1500, overheads: 800, totalCost: 4800, sellingPrice: 6800, margin: 29.4 },
-    { id: "3", code: "PROD-C3", name: "Produit Fini Gamma", category: "Série C", directMaterials: 800, directLabor: 500, overheads: 300, totalCost: 1600, sellingPrice: 2200, margin: 27.3 },
-];
-
-const MOCK_CENTERS: AnalyticalCenter[] = [
-    { id: "1", code: "PROD-01", name: "Atelier de Fabrication", type: "production", revenue: 0, costs: 125000000, result: -125000000 },
-    { id: "2", code: "DIST-01", name: "Service Commercial", type: "distribution", revenue: 450000000, costs: 85000000, result: 365000000 },
-    { id: "3", code: "ADM-01", name: "Administration Générale", type: "admin", revenue: 0, costs: 45000000, result: -45000000 },
-];
+// Le calcul des coûts de revient par produit et l'analyse par centre analytique
+// nécessitent une saisie manuelle des données de production — aucun module
+// de comptabilité analytique n'est encore branché sur une source réelle.
+const MOCK_PRODUCTS: Product[] = [];
+const MOCK_CENTERS: AnalyticalCenter[] = [];
 
 export default function MissionPrepPage() {
-    const [selectedClient, setSelectedClient] = useState("Société Ivoirienne de Banque");
+    const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+    const [selectedClient, setSelectedClient] = useState("");
     const [missionType, setMissionType] = useState<MissionType>("standard");
+    const [fixedAssets, setFixedAssets] = useState<FixedAsset[]>([]);
+    const [assetsLoading, setAssetsLoading] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/clients").then(r => r.json()).then(d => {
+            const list = (d.clients ?? []).map((c: any) => ({ id: c.id, name: c.companyName || `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() }));
+            setClients(list);
+            if (list.length > 0) setSelectedClient(list[0].name);
+        });
+        fetch("/api/audit/fixed-assets").then(r => r.json()).then(d => {
+            setFixedAssets((d.assets ?? []).map((a: any) => ({
+                id: a.id, code: a.code, designation: a.label, category: a.category,
+                acquisitionDate: new Date(a.purchaseDate).toLocaleDateString("fr-FR"),
+                acquisitionValue: a.value, amortization: 0,
+                netValue: a.value, location: a.location || a.client?.companyName || "—",
+                status: a.status === "FOUND" ? "active" : a.status === "DISPOSED" ? "disposed" : a.status === "MISSING" ? "missing" : "active",
+            })));
+        }).finally(() => setAssetsLoading(false));
+    }, []);
     const [selectedDoc, setSelectedDoc] = useState<PrepDocument | null>(MISSION_TEMPLATES[1]);
     const [docContent, setDocContent] = useState(`LETTRE DE MISSION
 
@@ -146,51 +160,21 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
     });
 
     const generateMissionReport = () => {
-        setIsGeneratingMissionReport(true);
-        setTimeout(() => {
-            let content = { title: "", summary: "", technical: "", findings: "", recommendations: "", conclusion: "" };
-
-            if (missionType === "inventory") {
-                content = {
-                    title: "RAPPORT D'INVENTAIRE PHYSIQUE DES IMMOBILISATIONS",
-                    summary: `La mission d'inventaire physique des immobilisations de ${selectedClient} pour l'exercice 2024 s'est déroulée du 15 au 25 mai 2024. L'objectif était de recenser l'intégralité des actifs, de vérifier leur existence physique et leur état, et de procéder au rapprochement avec le fichier comptable.`,
-                    technical: "La méthodologie a reposé sur un étiquetage par QR Code et une saisie mobile synchronisée. Le périmètre couvrait 247 actifs répartis sur 4 sites géographiques. La valeur brute globale inventoriée s'élève à 316.5M FCFA.",
-                    findings: "• Taux de rapprochement initial : 85%\n• Écarts d'inventaire détectés : 12 immobilisations non localisées (8.5M FCFA)\n• Actifs non valorisés en comptabilité : 5 machines identifiées en atelier\n• État de conservation : 15% du matériel informatique est obsolète ou hors d'usage.",
-                    recommendations: "1. Procéder à la mise au rebut des actifs obsolètes.\n2. Régulariser les écritures comptables pour les 5 machines non inscrites.\n3. Renforcer la procédure de sortie d'actifs par un bon de mouvement systématique.\n4. Planifier un inventaire tournant trimestriel pour les actifs à haute valeur.",
-                    conclusion: "L'inventaire confirme la robustesse globale du patrimoine de l'entreprise, sous réserve des régularisations identifiées. Le rapprochement final après écritures de régularisation atteindra 100%."
-                };
-            } else if (missionType === "costing") {
-                content = {
-                    title: "ANALYSE DES COÛTS DE REVIENT ET MARGES DE FABRICATION",
-                    summary: `L'étude porte sur la structure des coûts de revient de la gamme de production 2024. L'analyse a été menée selon la méthode des coûts complets pour identifier les leviers de rentabilité par famille de produits.`,
-                    technical: "Les charges ont été ventilées en : Matières Premières (48%), MOD (32%) et Overheads (20%). Le coût moyen de fabrication s'établit à 2,933 FCFA par unité contre un prix de vente moyen de 4,166 FCFA.",
-                    findings: "• Marge brute moyenne : 29.4% (Cible : 30%)\n• Sous-efficience détectée sur la Série B (Marge 29.4%)\n• Dérive des coûts énergétiques impactant les charges indirectes (+15% vs budget)\n• Temps de réglage des machines supérieur de 20% aux standards.",
-                    recommendations: "1. Réviser les fiches techniques de la Série B.\n2. Négocier des contrats cadres pour les matières premières stratégiques.\n3. Investir dans un système de monitoring énergétique par machine.\n4. Formations spécifiques du personnel de production sur l'optimisation des temps de réglage.",
-                    conclusion: "La structure de coût est saine mais perfectible. Une réduction de 5% du coût des matières premières permettrait de dépasser l'objectif de marge cible de 30%."
-                };
-            } else if (missionType === "analytical") {
-                content = {
-                    title: "RAPPORT DE COMPTABILITÉ ANALYTIQUE ET PERFORMANCE",
-                    summary: `Synthèse de la performance par centre de responsabilité pour le semestre écoulé. L'objectif est d'évaluer la rentabilité relative des centres de production et de distribution.`,
-                    technical: "L'analyse repose sur le découpage de l'entreprise en 12 centres analytiques. Les clés de répartition ont été mises à jour pour refléter l'utilisation réelle des ressources partagées.",
-                    findings: "• Résultat Global : 195M FCFA (+18% sur un an)\n• Rentabilité exceptionnelle du centre 'Service Commercial' (Taux de marge 81.1%)\n• Le centre 'Atelier Fabrication' absorbe 125M FCFA de charges\n• Les frais administratifs sont maîtrisés à 10% du CA total.",
-                    recommendations: "1. Revoir la facturation interne des prestations de l'atelier.\n2. Développer les incitations commerciales basées sur la marge analytique et non le CA brut.\n3. Automatiser le reporting mensuel par centre pour un pilotage proactif.\n4. Analyser plus finement les coûts fixes du centre administratif.",
-                    conclusion: "L'entreprise présente une excellente maîtrise de sa structure analytique. Le dynamisme commercial compense largement les coûts de production, assurant une rentabilité globale robuste."
-                };
-            }
-
-            setMissionReport(content);
-            setIsGeneratingMissionReport(false);
-            setShowMissionReport(true);
-        }, 2500);
+        // Génération de rapport IA non configurée : aucune analyse fabriquée
+        // n'est présentée comme réelle. Voir src/lib/llm.ts pour le câblage futur.
+        setMissionReport({
+            title: "Génération de rapport IA non configurée",
+            summary: "La rédaction automatique de rapport de mission n'est pas encore disponible. Rédigez votre rapport manuellement ci-dessous ou activez l'intégration IA dans les paramètres du cabinet.",
+            technical: "",
+            findings: "",
+            recommendations: "",
+            conclusion: ""
+        });
+        setShowMissionReport(true);
     };
 
     const regenerateMissionSection = (section: keyof typeof missionReport) => {
-        // Logic to simulate regeneration
-        setMissionReport(prev => ({
-            ...prev,
-            [section]: prev[section] + "\n\n[Contenu actualisé par l'algorithme IA v4.5]"
-        }));
+        // Régénération IA non configurée — édition manuelle uniquement.
     };
 
     const renderStandardMission = () => (
@@ -205,9 +189,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                         onChange={(e) => setSelectedClient(e.target.value)}
                         className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 font-medium"
                     >
-                        <option>Société Ivoirienne de Banque</option>
-                        <option>Traoré Import-Export</option>
-                        <option>Boulangerie du Plateau</option>
+                        {clients.map(c => <option key={c.id}>{c.name}</option>)}
                     </select>
                     <div className="mt-4 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 p-2 rounded border border-emerald-500/20">
                         <CheckSquare className="w-4 h-4" />
@@ -405,7 +387,10 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                             </tr>
                         </thead>
                         <tbody>
-                            {MOCK_ASSETS.map((asset) => (
+                            {!assetsLoading && fixedAssets.length === 0 && (
+                                <tr><td colSpan={9} className="p-8 text-center text-sm text-slate-500">Aucune immobilisation enregistrée.</td></tr>
+                            )}
+                            {fixedAssets.map((asset) => (
                                 <tr key={asset.id} className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                                     <td className="p-4 text-sm font-mono text-cyan-400">{asset.code}</td>
                                     <td className="p-4 text-sm text-white font-medium">{asset.designation}</td>
@@ -524,6 +509,9 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                             </tr>
                         </thead>
                         <tbody>
+                            {MOCK_PRODUCTS.length === 0 && (
+                                <tr><td colSpan={9} className="p-8 text-center text-sm text-slate-500">Aucun produit — la saisie de la structure de coûts n'est pas encore disponible.</td></tr>
+                            )}
                             {MOCK_PRODUCTS.map((product) => (
                                 <tr key={product.id} className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                                     <td className="p-4 text-sm font-mono text-amber-400">{product.code}</td>
@@ -639,6 +627,9 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                             </tr>
                         </thead>
                         <tbody>
+                            {MOCK_CENTERS.length === 0 && (
+                                <tr><td colSpan={8} className="p-8 text-center text-sm text-slate-500">Aucun centre analytique — ce module nécessite une saisie manuelle non encore disponible.</td></tr>
+                            )}
                             {MOCK_CENTERS.map((center) => (
                                 <tr key={center.id} className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                                     <td className="p-4 text-sm font-mono text-indigo-400">{center.code}</td>

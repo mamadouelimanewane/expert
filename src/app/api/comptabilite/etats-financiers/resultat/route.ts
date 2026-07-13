@@ -3,45 +3,49 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Comparatif N-1 non disponible : le journal TPE ne conserve pas d'historique annuel distinct.
+
 export async function GET(request: Request) {
     try {
         const entries = await prisma.tpeJournal.findMany({
-            where: { status: "EXPORTED" }
+            where: { status: "EXPORTED", source: { not: "WHATSAPP_TEST" } }
         });
 
-        // Base Mock Data for Resultat
-        let ventes = { code: "TA", label: "Ventes de marchandises", netN: 150000000, netN1: 140000000 };
-        let services = { code: "TC", label: "Travaux, services vendus", netN: 25000000, netN1: 20000000 };
-        
-        let achats = { code: "RA", label: "Achats de marchandises", netN: -80000000, netN1: -75000000 };
-        let transports = { code: "RC", label: "Transports", netN: -5000000, netN1: -4500000 };
-        let servicesExt = { code: "RD", label: "Services extérieurs", netN: -12000000, netN1: -10000000 };
-        let impots = { code: "RE", label: "Impôts et taxes", netN: -1500000, netN1: -1200000 };
-        let personnel = { code: "RF", label: "Charges de personnel", netN: -35000000, netN1: -30000000 };
-        let IS = { code: "RI", label: "Impôts sur le Résultat", netN: -11000000, netN1: -10000000 };
+        const ventes = { code: "TA", label: "Ventes de marchandises", netN: 0, netN1: 0 };
+        const services = { code: "TC", label: "Travaux, services vendus", netN: 0, netN1: 0 };
 
-        // Aggregate actual DB entries into the mock
+        const achats = { code: "RA", label: "Achats de marchandises", netN: 0, netN1: 0 };
+        const transports = { code: "RC", label: "Transports", netN: 0, netN1: 0 };
+        const servicesExt = { code: "RD", label: "Services extérieurs", netN: 0, netN1: 0 };
+        const impots = { code: "RTX", label: "Impôts et taxes", netN: 0, netN1: 0 };
+        const personnel = { code: "RF2", label: "Charges de personnel", netN: 0, netN1: 0 };
+        // Impôt sur le résultat : non calculé automatiquement (pas de moteur fiscal branché sur le journal TPE).
+        const IS = { code: "RI", label: "Impôts sur le Résultat", netN: 0, netN1: 0 };
+
         entries.forEach(entry => {
             const amount = (entry.entree || 0) + (entry.sortie || 0);
-            
+            const debit = entry.debitCompte || "";
+            const credit = entry.creditCompte || "";
+
             // Charges 6xx
-            if (entry.debitCompte?.startsWith('60')) achats.netN -= amount;
-            if (entry.debitCompte?.startsWith('61') || entry.debitCompte?.startsWith('62')) servicesExt.netN -= amount;
-            if (entry.debitCompte?.startsWith('64')) impots.netN -= amount;
-            if (entry.debitCompte?.startsWith('66')) personnel.netN -= amount;
-            
+            if (debit.startsWith('60')) achats.netN -= amount;
+            if (debit.startsWith('61')) transports.netN -= amount;
+            if (debit.startsWith('62')) servicesExt.netN -= amount;
+            if (debit.startsWith('64')) impots.netN -= amount;
+            if (debit.startsWith('66')) personnel.netN -= amount;
+
             // Produits 7xx
-            if (entry.creditCompte?.startsWith('701')) ventes.netN += amount;
-            if (entry.creditCompte?.startsWith('706')) services.netN += amount;
+            if (credit.startsWith('701')) ventes.netN += amount;
+            if (credit.startsWith('706')) services.netN += amount;
         });
 
         const totalProduits = ventes.netN + services.netN;
-        const totalCharges = achats.netN + transports.netN + servicesExt.netN + impots.netN + personnel.netN;
-        
         const valeurAjoutee = totalProduits + achats.netN + transports.netN + servicesExt.netN;
-        const ebe = valeurAjoutee + impots.netN + personnel.netN; // Simplified
+        const ebe = valeurAjoutee + impots.netN + personnel.netN;
         const resultatExploitation = ebe;
-        const resultatNet = resultatExploitation + IS.netN;
+        const resultatFinancier = 0; // Aucune classe 67/77 (financier) mappée pour l'instant
+        const resultatHAO = 0; // Aucune classe 8x (HAO) mappée pour l'instant
+        const resultatNet = resultatExploitation + resultatFinancier + resultatHAO + IS.netN;
 
         const resultat = [
             { code: "TE", label: "PRODUITS D'EXPLOITATION", isHeader: true },
@@ -50,18 +54,17 @@ export async function GET(request: Request) {
             services,
             { code: "RE", label: "CHARGES D'EXPLOITATION", isHeader: true },
             achats,
-            { code: "RB", label: "Variation de stocks", netN: 2000000, netN1: 1500000 },
             transports,
             servicesExt,
             impots,
             personnel,
-            { code: "XA", label: "VALEUR AJOUTEE (V.A.)", netN: valeurAjoutee, netN1: 40800000, isTotal: true },
-            { code: "XF", label: "EXCEDENT BRUT D'EXPLOITATION (EBE)", netN: ebe, netN1: 40800000, isTotal: true },
-            { code: "RP", label: "RESULTAT D'EXPLOITATION", netN: resultatExploitation, netN1: 35000000, isTotal: true },
-            { code: "RF", label: "RESULTAT FINANCIER", netN: -2500000, netN1: -3000000, isTotal: true },
-            { code: "RH", label: "RESULTAT HORS ACTIVITE ORDINAIRE", netN: 0, netN1: 500000, isTotal: true },
+            { code: "XA", label: "VALEUR AJOUTEE (V.A.)", netN: valeurAjoutee, netN1: 0, isTotal: true },
+            { code: "XF", label: "EXCEDENT BRUT D'EXPLOITATION (EBE)", netN: ebe, netN1: 0, isTotal: true },
+            { code: "RP", label: "RESULTAT D'EXPLOITATION", netN: resultatExploitation, netN1: 0, isTotal: true },
+            { code: "RFI", label: "RESULTAT FINANCIER", netN: resultatFinancier, netN1: 0, isTotal: true },
+            { code: "RH", label: "RESULTAT HORS ACTIVITE ORDINAIRE", netN: resultatHAO, netN1: 0, isTotal: true },
             IS,
-            { code: "RN", label: "RESULTAT NET", netN: resultatNet - 2500000, netN1: 22500000, isTotal: true, level: 2 },
+            { code: "RN", label: "RESULTAT NET", netN: resultatNet, netN1: 0, isTotal: true, level: 2 },
         ];
 
         return NextResponse.json({ resultat });

@@ -1,0 +1,208 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { PenTool, FileText, CheckCircle2, ShieldCheck, Download, Check, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { SignaturePad } from "@/components/signature/SignaturePad";
+
+interface MissionDoc {
+  id: string;
+  client: string;
+  type: string;
+  status: string;
+}
+
+export default function SignaturePage() {
+  const [docs, setDocs] = useState<MissionDoc[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDoc, setSelectedDoc] = useState<MissionDoc | null>(null);
+  const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [isSigning, setIsSigning] = useState(false);
+  const [certificate, setCertificate] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/missions")
+      .then(res => res.json())
+      .then(data => {
+        const missions: MissionDoc[] = (data.missions || []).map((m: any) => ({
+          id: m.id,
+          client: m.client?.companyName || `${m.client?.firstName ?? ""} ${m.client?.lastName ?? ""}`.trim() || "—",
+          type: `Lettre de Mission — ${m.title}`,
+          status: m.status === "DRAFT" ? "En attente" : m.status === "COMPLETED" ? "Archivé" : "Signé",
+        }));
+        setDocs(missions);
+        setSelectedDoc(missions[0] || null);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleValidateSignature = async () => {
+    if (!signatureData || !selectedDoc) return;
+    setIsSigning(true);
+
+    try {
+      const res = await fetch("/api/signature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId: selectedDoc.id, signatureData })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCertificate(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8 text-slate-400">Chargement des missions…</div>;
+  }
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+            <PenTool className="w-6 h-6 text-indigo-500" /> E-Signature Intégrée
+          </h2>
+          <p className="text-slate-400 text-sm font-medium mt-1">Signez numériquement vos lettres de mission (empreinte d'intégrité, pas une signature qualifiée)</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left List */}
+        <div className="lg:col-span-5 space-y-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-4">Documents</h3>
+            <div className="space-y-3">
+              {docs.map((doc) => (
+                <div
+                  key={doc.id}
+                  onClick={() => {
+                    setSelectedDoc(doc);
+                    setCertificate(null);
+                    setSignatureData(null);
+                  }}
+                  className={cn(
+                    "p-4 rounded-2xl border transition-all cursor-pointer group",
+                    selectedDoc?.id === doc.id
+                      ? "bg-indigo-500/10 border-indigo-500/30"
+                      : "bg-slate-800/30 border-white/5 hover:bg-slate-800/50"
+                  )}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <p className={cn("text-sm font-bold", selectedDoc?.id === doc.id ? "text-indigo-400" : "text-white")}>{doc.client}</p>
+                    <span className={cn(
+                      "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest",
+                      doc.status === 'En attente' ? "bg-amber-500/10 text-amber-400" :
+                      doc.status === 'Signé' ? "bg-emerald-500/10 text-emerald-400" :
+                      "bg-slate-500/10 text-slate-400"
+                    )}>
+                      {doc.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">{doc.type}</p>
+                  <p className="text-[10px] font-bold text-slate-500 mt-2">{doc.id}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Right Signature Area */}
+        <div className="lg:col-span-7">
+          {!selectedDoc ? (
+            <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 min-h-[600px] flex items-center justify-center text-slate-500 text-sm">
+              Aucune mission disponible. Créez une mission depuis <a href="/missions/new" className="text-indigo-400 underline ml-1">Nouvelle mission</a>.
+            </div>
+          ) : (
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} key={selectedDoc.id} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl min-h-[600px] flex flex-col">
+            
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
+              <div>
+                <h3 className="text-xl font-black text-white">{selectedDoc.type}</h3>
+                <p className="text-sm font-medium text-slate-400 mt-1">{selectedDoc.client} • {selectedDoc.id}</p>
+              </div>
+              <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
+                <FileText className="w-6 h-6" />
+              </div>
+            </div>
+
+            {selectedDoc.status !== 'En attente' ? (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mb-6">
+                  <CheckCircle2 className="w-10 h-10" />
+                </div>
+                <h4 className="text-xl font-black text-white mb-2">Document Signé</h4>
+                <p className="text-slate-400 text-sm mb-8 text-center max-w-md">Ce document a déjà été signé. Une empreinte SHA-256 et un horodatage garantissent son intégrité.</p>
+                <button className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors border border-white/5 flex items-center gap-2">
+                  <Download className="w-4 h-4" /> Télécharger le PDF
+                </button>
+              </div>
+            ) : certificate ? (
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex-1">
+                <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl mb-8">
+                  <div className="flex items-center gap-4 mb-4">
+                    <ShieldCheck className="w-8 h-8 text-emerald-400" />
+                    <div>
+                      <h4 className="text-lg font-black text-emerald-400">Signature Validée</h4>
+                      <p className="text-xs font-bold text-emerald-400/70 uppercase tracking-widest">Empreinte d'intégrité (pas une signature qualifiée)</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3 bg-slate-950/50 p-4 rounded-2xl">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Empreinte SHA-256</p>
+                      <p className="text-xs font-mono text-slate-300 break-all">{certificate.certificateHash}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Horodatage</p>
+                      <p className="text-xs font-medium text-slate-300">{new Date(certificate.timestamp).toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors flex items-center gap-2">
+                    <Download className="w-4 h-4" /> Télécharger Copie
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="flex-1 flex flex-col">
+                <div className="bg-slate-100 p-8 rounded-2xl mb-8 flex-1 text-slate-800 overflow-y-auto max-h-[300px]">
+                  <h4 className="font-bold text-lg mb-4 text-center">LETTRE DE MISSION</h4>
+                  <p className="text-sm mb-4">Entre les soussignés :</p>
+                  <p className="text-sm mb-4"><strong>Cabinet GANTIC360 EXPERT</strong>, représenté par son associé gérant, d'une part,</p>
+                  <p className="text-sm mb-4">Et <strong>{selectedDoc.client}</strong>, d'autre part.</p>
+                  <p className="text-sm mb-4">Il a été convenu ce qui suit : ...</p>
+                  {/* Plus de texte de démo pour simuler un document... */}
+                </div>
+                
+                <div className="mb-6">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Zone de Signature</label>
+                  <SignaturePad onSign={(data) => setSignatureData(data)} />
+                </div>
+                
+                <div className="flex justify-end">
+                  <button
+                    onClick={handleValidateSignature}
+                    disabled={!signatureData || isSigning}
+                    className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 shadow-xl shadow-indigo-600/30"
+                  >
+                    {isSigning ? "Validation en cours..." : "Valider la Signature"}
+                    {!isSigning && <Check className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

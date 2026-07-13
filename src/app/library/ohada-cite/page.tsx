@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     BookOpen,
     Search,
@@ -31,73 +31,56 @@ interface Citation {
     notes?: string;
 }
 
-const MOCK_CITATIONS: Citation[] = [
-    {
-        id: "CIT-001",
-        reference: "AUSCGIE Art. 347",
-        type: "acte_uniforme",
-        title: "Convocation de l'assemblée générale ordinaire",
-        status: "valid",
-        lastUpdate: "2024-09-12",
-        source: "Acte Uniforme relatif au Droit des Sociétés Commerciales et du GIE"
-    },
-    {
-        id: "CIT-002",
-        reference: "AUDCG Art. 101",
-        type: "acte_uniforme",
-        title: "Formation du contrat commercial",
-        status: "modified",
-        lastUpdate: "2024-01-15",
-        source: "Acte Uniforme relatif au Droit Commercial Général",
-        notes: "Modifié par Acte Additionnel 2023/002"
-    },
-    {
-        id: "CIT-003",
-        reference: "Arrêt CCJA n°087/2023",
-        type: "ccja",
-        title: "Procédure d'injonction de payer - Compétence territoriale",
-        status: "valid",
-        lastUpdate: "2023-06-20",
-        source: "Cour Commune de Justice et d'Arbitrage"
-    },
-    {
-        id: "CIT-004",
-        reference: "AUPSRVE Art. 28",
-        type: "acte_uniforme",
-        title: "Saisie-attribution des créances",
-        status: "abrogated",
-        lastUpdate: "2022-03-01",
-        source: "Acte Uniforme portant organisation des Procédures Simplifiées de Recouvrement...",
-        notes: "Abrogé et remplacé par Art. 28 bis"
-    },
-    {
-        id: "CIT-005",
-        reference: "Traité OHADA Art. 10",
-        type: "traite",
-        title: "Primauté du droit OHADA sur le droit national",
-        status: "valid",
-        lastUpdate: "1993-10-17",
-        source: "Traité relatif à l'Harmonisation du Droit des Affaires en Afrique"
-    },
-];
+const TYPE_MAP: Record<string, Citation["type"]> = { ACTE_UNIFORME: "acte_uniforme", CCJA: "ccja", TRAITE: "traite", REGLEMENT: "reglement" };
+const STATUS_MAP: Record<string, Citation["status"]> = { VALID: "valid", MODIFIED: "modified", ABROGATED: "abrogated", PENDING: "pending" };
 
 export default function OhadaCitePage() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [citations, setCitations] = useState<Citation[]>(MOCK_CITATIONS);
+    const [citations, setCitations] = useState<Citation[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedCitation, setSelectedCitation] = useState<Citation | null>(null);
     const [isValidating, setIsValidating] = useState(false);
     const [documentText, setDocumentText] = useState("");
+    const [validationResult, setValidationResult] = useState<{ extractedCount: number; matches: any[] } | null>(null);
+
+    useEffect(() => {
+        fetch("/api/library/citations")
+            .then(res => res.json())
+            .then(data => {
+                const mapped: Citation[] = (data.citations || []).map((c: any) => ({
+                    id: c.id,
+                    reference: c.reference,
+                    type: TYPE_MAP[c.type] || "acte_uniforme",
+                    title: c.title,
+                    status: STATUS_MAP[c.status] || "valid",
+                    lastUpdate: c.lastUpdate,
+                    source: c.source,
+                    notes: c.notes,
+                }));
+                setCitations(mapped);
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
     const validCount = citations.filter(c => c.status === "valid").length;
     const modifiedCount = citations.filter(c => c.status === "modified").length;
     const abrogatedCount = citations.filter(c => c.status === "abrogated").length;
 
-    const handleValidateDocument = () => {
+    const handleValidateDocument = async () => {
+        if (!documentText.trim()) return;
         setIsValidating(true);
-        setTimeout(() => {
+        setValidationResult(null);
+        try {
+            const res = await fetch("/api/library/citations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: documentText }),
+            });
+            const data = await res.json();
+            setValidationResult(data);
+        } finally {
             setIsValidating(false);
-            setCitations(MOCK_CITATIONS);
-        }, 2000);
+        }
     };
 
     const getStatusColor = (status: Citation["status"]) => {
@@ -171,13 +154,37 @@ export default function OhadaCitePage() {
                     <p className="text-[10px] text-slate-500">Formats supportés: Texte brut, références directes (ex: AUSCGIE Art. 347)</p>
                     <button
                         onClick={handleValidateDocument}
-                        disabled={isValidating}
+                        disabled={isValidating || !documentText.trim()}
                         className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50"
                     >
                         {isValidating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                         {isValidating ? "Validation..." : "Valider les Citations"}
                     </button>
                 </div>
+
+                {validationResult && (
+                    <div className="mt-6 p-6 bg-slate-800/50 rounded-2xl border border-white/5">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+                            {validationResult.extractedCount} référence(s) détectée(s) dans le texte
+                        </p>
+                        {validationResult.matches.length === 0 ? (
+                            <p className="text-sm text-slate-500">Aucune référence de type "SIGLE Art. NNN" ou "Arrêt CCJA n°NNN/AAAA" détectée.</p>
+                        ) : (
+                            <div className="space-y-2">
+                                {validationResult.matches.map((m: any, i: number) => (
+                                    <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                                        <span className="text-sm font-bold text-white">{m.reference}</span>
+                                        {m.matched ? (
+                                            <span className="text-xs text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Trouvée dans la base — statut : {m.citation.status}</span>
+                                        ) : (
+                                            <span className="text-xs text-amber-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Non trouvée dans la base de référence</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Results Summary */}

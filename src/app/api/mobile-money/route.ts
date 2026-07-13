@@ -56,55 +56,18 @@ export async function POST(request: Request) {
         const body = await request.json();
 
         if (body.action === "sync") {
-            // Simulation de sync depuis opérateur mobile
-            const demoTransactions = [
-                {
-                    operator: "Wave",
-                    reference: `WAVE-${Date.now()}-001`,
-                    senderName: "Mamadou Diallo",
-                    senderPhone: "+221 77 123 4567",
-                    amount: 150000,
-                    type: "IN",
-                    status: "PENDING",
-                    transactionDate: new Date(),
-                    clientId: body.clientId || null
-                },
-                {
-                    operator: "Orange Money",
-                    reference: `OM-${Date.now()}-002`,
-                    senderName: "Fatou Sall",
-                    senderPhone: "+221 70 987 6543",
-                    amount: 75000,
-                    type: "OUT",
-                    status: "PENDING",
-                    transactionDate: new Date(Date.now() - 3600000),
-                    clientId: body.clientId || null
-                },
-                {
-                    operator: "MTN MoMo",
-                    reference: `MTN-${Date.now()}-003`,
-                    senderName: "Issa Kouyaté",
-                    senderPhone: "+225 07 456 7890",
-                    amount: 320000,
-                    type: "IN",
-                    status: "PENDING",
-                    transactionDate: new Date(Date.now() - 7200000),
-                    clientId: body.clientId || null
-                }
-            ];
-
-            // Upsert par référence pour éviter les doublons
-            let created = 0;
-            for (const tx of demoTransactions) {
-                await prisma.mobileMoneyTransaction.upsert({
-                    where: { reference: tx.reference },
-                    update: {},
-                    create: tx as any
-                });
-                created++;
+            // La synchronisation automatique nécessite les API Wave/Orange Money/MTN MoMo
+            // (clés WAVE_API_KEY, ORANGE_MONEY_API_KEY, ORANGE_MERCHANT_KEY, MTN_MOMO_API_KEY),
+            // non configurées. Aucune transaction fictive n'est générée.
+            const configured = !!(process.env.WAVE_API_KEY || process.env.ORANGE_MONEY_API_KEY || process.env.MTN_MOMO_API_KEY);
+            if (!configured) {
+                return NextResponse.json({
+                    success: false,
+                    error: "Intégration Mobile Money non configurée. Ajoutez les clés API des opérateurs dans les variables d'environnement pour activer la synchronisation.",
+                }, { status: 503 });
             }
-
-            return NextResponse.json({ success: true, synced: created });
+            // TODO: appeler les API réelles Wave/Orange Money/MTN MoMo une fois les clés fournies.
+            return NextResponse.json({ success: true, synced: 0 });
         }
 
         if (body.action === "reconcile") {

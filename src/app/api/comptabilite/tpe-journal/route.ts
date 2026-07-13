@@ -20,6 +20,7 @@ async function getDefaultClient() {
 export async function GET() {
     try {
         const journals = await prisma.tpeJournal.findMany({
+            where: { source: { not: 'WHATSAPP_TEST' } },
             orderBy: { createdAt: 'desc' },
             take: 100
         });

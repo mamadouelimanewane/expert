@@ -1,20 +1,50 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
-import { Upload, Plus, FileSpreadsheet, Save, ScanLine, TrendingUp, Smartphone } from "lucide-react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { Upload, Plus, FileSpreadsheet, Save, ScanLine, Smartphone, Loader2, XCircle, Info } from "lucide-react";
 import { FinancialHealthGauge } from "@/components/portal/FinancialHealthGauge";
 import { MobileMoneySync } from "@/components/portal/MobileMoneySync";
 
-// Score de démo — en production, récupéré depuis l'API /api/clients/[id]/health-score
-const DEMO_SCORE = { score: 72, rating: "AA" };
+interface ClientData {
+  id: string;
+  companyName?: string;
+  firstName?: string;
+  lastName?: string;
+  healthScore?: number | null;
+  rating?: string | null;
+}
 
-export default function SaisieSimplifiee() {
+function SaisieSimplifieeInner() {
+  const searchParams = useSearchParams();
+  const token = searchParams?.get("token") || "";
+
+  const [client, setClient] = useState<ClientData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<"form" | "upload" | "ocr">("form");
-  const [isUploading, setIsUploading] = useState(false);
   const [entries, setEntries] = useState([
     { date: "", libelle: "", entree: "", sortie: "" }
   ]);
   const [showMobileSync, setShowMobileSync] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    fetch(`/api/portal/${token}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) setError(data.error);
+        else setClient(data.client);
+      })
+      .catch(() => setError("Impossible de charger votre espace."))
+      .finally(() => setLoading(false));
+  }, [token]);
 
   const handleAddRow = () => {
     setEntries([...entries, { date: "", libelle: "", entree: "", sortie: "" }]);
@@ -27,17 +57,68 @@ export default function SaisieSimplifiee() {
   };
 
   const handleSubmitForm = async () => {
-    alert("Données envoyées au cabinet avec succès ! Votre score sera mis à jour sous 24h.");
+    const validEntries = entries.filter((e) => e.libelle && (e.entree || e.sortie));
+    if (validEntries.length === 0) {
+      setSubmitMessage("Renseignez au moins une ligne (libellé + montant) avant d'envoyer.");
+      return;
+    }
+    setSubmitting(true);
+    setSubmitMessage(null);
+    try {
+      const res = await fetch("/api/portal/upload-journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-portal-token": token },
+        body: JSON.stringify({ entries: validEntries }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitMessage(data.error || "Erreur lors de l'envoi.");
+      } else {
+        setSubmitMessage(`${data.count} écriture(s) envoyée(s) au cabinet avec succès.`);
+        setEntries([{ date: "", libelle: "", entree: "", sortie: "" }]);
+      }
+    } catch {
+      setSubmitMessage("Erreur réseau lors de l'envoi.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
-      alert("Fichier traité ! Les écritures sont en cours d'analyse par notre IA.");
-    }, 1500);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0c10]">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
+        <div className="max-w-md w-full bg-slate-900/60 border border-white/5 rounded-[28px] p-10 text-center space-y-4">
+          <Upload className="w-14 h-14 text-slate-600 mx-auto" />
+          <h2 className="text-xl font-black text-white">Accès requis</h2>
+          <p className="text-slate-400 text-sm">
+            Cet espace de saisie s'ouvre uniquement via le lien personnel fourni par votre cabinet comptable.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !client) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
+        <div className="max-w-md w-full bg-slate-900/60 border border-rose-500/20 rounded-[28px] p-10 text-center space-y-4">
+          <XCircle className="w-14 h-14 text-rose-500 mx-auto" />
+          <h2 className="text-xl font-black text-white">Espace inaccessible</h2>
+          <p className="text-slate-400 text-sm">{error || "Lien invalide."}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const clientName = client.companyName || `${client.firstName || ""} ${client.lastName || ""}`.trim() || "Client";
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -50,15 +131,9 @@ export default function SaisieSimplifiee() {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">Votre Cahier<br />de Caisse Digital</h2>
           </div>
           <p className="text-slate-400 text-sm max-w-md">
-            Transmettez vos dépenses et recettes simplement. Pas de numéros de compte, pas de jargon comptable. Notre IA s'occupe du reste.
+            Transmettez vos dépenses et recettes simplement. Pas de numéros de compte, pas de jargon comptable.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
-            <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 text-xs font-bold">
-              <ScanLine className="w-3.5 h-3.5" /> OCR automatique
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-300 text-xs font-bold">
-              <TrendingUp className="w-3.5 h-3.5" /> Score mis à jour en temps réel
-            </div>
             <button
               onClick={() => setShowMobileSync(!showMobileSync)}
               className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 rounded-xl text-purple-300 text-xs font-bold transition-colors"
@@ -68,12 +143,12 @@ export default function SaisieSimplifiee() {
           </div>
         </div>
 
-        {/* Score de Santé Financière */}
+        {/* Score de Santé Financière — réel */}
         <div>
           <FinancialHealthGauge
-            score={DEMO_SCORE.score}
-            rating={DEMO_SCORE.rating}
-            clientName="PMI Dakar SARL"
+            score={client.healthScore ?? 0}
+            rating={client.rating || "—"}
+            clientName={clientName}
           />
         </div>
       </div>
@@ -81,7 +156,7 @@ export default function SaisieSimplifiee() {
       {/* Mobile Money Sync (Option) */}
       {showMobileSync && (
         <div className="animate-in slide-in-from-top-2 duration-300">
-          <MobileMoneySync clientId="demo_client" />
+          <MobileMoneySync clientId={client.id} />
         </div>
       )}
 
@@ -143,12 +218,21 @@ export default function SaisieSimplifiee() {
             </table>
           </div>
 
+          {submitMessage && (
+            <p className="mt-4 text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-4 py-3">{submitMessage}</p>
+          )}
+
           <div className="flex justify-between items-center mt-6">
             <button onClick={handleAddRow} className="px-4 py-2 text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-2 text-sm transition-colors">
               <Plus className="w-4 h-4" /> Ajouter une ligne
             </button>
-            <button onClick={handleSubmitForm} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 active:scale-95">
-              <Save className="w-4 h-4" /> Envoyer au Cabinet
+            <button
+              onClick={handleSubmitForm}
+              disabled={submitting}
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 active:scale-95"
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Envoyer au Cabinet
             </button>
           </div>
         </div>
@@ -159,34 +243,45 @@ export default function SaisieSimplifiee() {
           <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <Upload className="w-10 h-10 text-indigo-400" />
           </div>
-          <h3 className="text-xl font-black text-white mb-2">Importez votre fichier Excel ou CSV</h3>
-          <p className="text-slate-400 mb-2 max-w-md mx-auto text-sm">Colonnes requises : <code className="text-indigo-400">Date, Libellé, Entrée, Sortie</code></p>
-          <p className="text-slate-500 mb-8 text-xs max-w-sm mx-auto">Votre fichier de trésorerie habituel suffit. Notre IA transforme tout en écritures OHADA.</p>
-          <div className="relative inline-block">
-            <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            <button className={`px-10 py-4 ${isUploading ? 'bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl`}>
-              {isUploading ? "Analyse IA en cours..." : "Sélectionner un fichier"}
-            </button>
+          <h3 className="text-xl font-black text-white mb-2">Import de fichier Excel ou CSV</h3>
+          <p className="text-slate-400 mb-6 max-w-md mx-auto text-sm">
+            L'import automatique de fichiers n'est pas encore disponible sur ce portail.
+          </p>
+          <div className="max-w-md mx-auto flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-left">
+            <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-200 leading-relaxed">
+              En attendant, utilisez l'onglet <strong>Saisie Rapide</strong> pour transmettre vos écritures ligne par ligne,
+              ou envoyez votre fichier directement à votre cabinet comptable.
+            </p>
           </div>
         </div>
       )}
 
       {activeTab === "ocr" && (
-        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-dashed border-indigo-500/30 bg-slate-900/40 text-center hover:border-indigo-500/60 transition-colors">
+        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-dashed border-indigo-500/30 bg-slate-900/40 text-center">
           <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-indigo-500/10">
             <ScanLine className="w-10 h-10 text-indigo-400" />
           </div>
-          <h3 className="text-xl font-black text-white mb-2">Photographiez vos reçus et factures</h3>
-          <p className="text-slate-400 mb-2 max-w-md mx-auto text-sm">L'IA de Cabinet 360 extrait automatiquement : fournisseur, date, montant HT/TVA/TTC.</p>
-          <p className="text-slate-500 mb-8 text-xs">Formats acceptés : JPG, PNG, PDF</p>
-          <div className="relative inline-block">
-            <input type="file" accept="image/*,application/pdf" onChange={handleFileUpload} disabled={isUploading} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            <button className={`px-10 py-4 ${isUploading ? 'bg-slate-700' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-indigo-600/20`}>
-              {isUploading ? "Extraction OCR en cours..." : "Prendre une photo / Parcourir"}
-            </button>
+          <h3 className="text-xl font-black text-white mb-2">Scan de reçus et factures (OCR)</h3>
+          <p className="text-slate-400 mb-6 max-w-md mx-auto text-sm">
+            L'extraction automatique par OCR n'est pas encore disponible sur ce portail.
+          </p>
+          <div className="max-w-md mx-auto flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-left">
+            <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-200 leading-relaxed">
+              En attendant, saisissez le montant et le libellé manuellement dans l'onglet <strong>Saisie Rapide</strong>.
+            </p>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+export default function SaisieSimplifiee() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0c10]"><Loader2 className="w-10 h-10 text-indigo-500 animate-spin" /></div>}>
+      <SaisieSimplifieeInner />
+    </Suspense>
   );
 }

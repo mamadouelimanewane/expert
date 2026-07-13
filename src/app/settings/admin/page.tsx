@@ -1,26 +1,19 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Users,
     ShieldCheck,
     Lock,
     UserPlus,
-    MoreVertical,
     Key,
-    Eye,
     Settings,
     ShieldAlert,
     Plus,
     RefreshCw,
     Save,
-    Cloud,
-    Database,
-    Calendar,
-    Globe,
-    Download,
-    FileText,
-    CheckCircle2
+    AlertTriangle,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,32 +34,23 @@ interface RoleDefinition {
     color: string;
 }
 
-const MOCK_USERS: UserAccount[] = [
-    {
-        id: "1",
-        name: "Dr. Moussa Traoré",
-        email: "m.traore@cabinet360.com",
-        role: "Expert-Comptable",
-        status: "actif",
-        lastLogin: "Il y a 10 min",
-    },
-    {
-        id: "2",
-        name: "Awa Diop",
-        email: "a.diop@cabinet360.com",
-        role: "Collaborateur Senior",
-        status: "actif",
-        lastLogin: "Hier",
-    },
-    {
-        id: "3",
-        name: "Paul N'Guessan",
-        email: "p.nguessan@cabinet360.com",
-        role: "Administrateur IT",
-        status: "actif",
-        lastLogin: "Hier",
-    }
-];
+function relativeDateFr(date: string | null): string {
+    if (!date) return "Jamais connecté";
+    const diffMs = Date.now() - new Date(date).getTime();
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (days <= 0) return "Aujourd'hui";
+    if (days === 1) return "Hier";
+    if (days < 30) return `Il y a ${days} jours`;
+    return new Date(date).toLocaleDateString("fr-FR");
+}
+
+const ROLE_LABELS: Record<string, string> = {
+    ADMIN: "Administrateur",
+    EXPERT: "Expert-Comptable",
+    COLLABORATOR: "Collaborateur",
+    CLIENT: "Client",
+    ASSISTANT: "Assistant",
+};
 
 const ROLES: RoleDefinition[] = [
     { id: "1", name: "Expert-Comptable", description: "Accès total, signature légale et validation finale.", permissionsCount: 42, color: "text-indigo-400" },
@@ -78,6 +62,30 @@ const ROLES: RoleDefinition[] = [
 export default function UsersSettingsPage() {
     const [activeTab, setActiveTab] = useState<"utilisateurs" | "roles" | "securite" | "sauvegarde">("utilisateurs");
     const [isSaving, setIsSaving] = useState(false);
+    const [users, setUsers] = useState<UserAccount[]>([]);
+    const [usersLoading, setUsersLoading] = useState(true);
+    const [usersError, setUsersError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetch("/api/admin/users")
+            .then(async (r) => {
+                const data = await r.json();
+                if (!r.ok) {
+                    setUsersError(data.error || "Erreur lors du chargement des utilisateurs");
+                    return;
+                }
+                setUsers((data.users || []).map((u: any) => ({
+                    id: u.id,
+                    name: `${u.firstName} ${u.lastName}`.trim(),
+                    email: u.email,
+                    role: ROLE_LABELS[u.role] || u.role,
+                    status: u.isActive ? "actif" : "suspendu",
+                    lastLogin: relativeDateFr(u.lastLoginAt),
+                })));
+            })
+            .catch(() => setUsersError("Erreur réseau lors du chargement des utilisateurs"))
+            .finally(() => setUsersLoading(false));
+    }, []);
 
     const handleSaveSettings = () => {
         setIsSaving(true);
@@ -146,7 +154,13 @@ export default function UsersSettingsPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/30">
-                                {MOCK_USERS.map((user) => (
+                                {usersLoading ? (
+                                    <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin inline mr-2" /> Chargement des comptes...</td></tr>
+                                ) : usersError ? (
+                                    <tr><td colSpan={5} className="px-6 py-10 text-center text-rose-400 text-xs">{usersError}</td></tr>
+                                ) : users.length === 0 ? (
+                                    <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground text-xs">Aucun compte collaborateur trouvé.</td></tr>
+                                ) : users.map((user) => (
                                     <tr key={user.id} className="hover:bg-muted/30 group transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -169,8 +183,10 @@ export default function UsersSettingsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                <span className="text-emerald-500 font-medium">Actif</span>
+                                                <div className={cn("w-2 h-2 rounded-full", user.status === "actif" ? "bg-emerald-500" : "bg-slate-500")} />
+                                                <span className={cn("font-medium", user.status === "actif" ? "text-emerald-500" : "text-muted-foreground")}>
+                                                    {user.status === "actif" ? "Actif" : "Suspendu"}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -298,91 +314,35 @@ function SecurityToggle({ label, status, enabled }: { label: string, status: str
 function SauvegardeSection({ handleSaveSettings }: any) {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                    <div className="glass-card rounded-2xl p-6 border border-border/50">
-                        <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
-                            <Cloud className="w-5 h-5 text-indigo-400" />
-                            Configuration Cloud & Réplication
-                        </h3>
-                        <div className="space-y-4">
-                            <div className="p-4 bg-muted/50 rounded-2xl border border-border flex justify-between items-center">
-                                <div className="flex items-center gap-4">
-                                    <div className="shink-0 w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
-                                        <Database className="w-6 h-6 text-orange-500" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-foreground">Amazon S3 Architecture</p>
-                                        <p className="text-xs text-muted-foreground">Stockage immuable (WORM) activé</p>
-                                    </div>
-                                </div>
-                                <span className="text-[10px] px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full font-black border border-emerald-500/20">CONNECTED</span>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <StatMiniCard label="Fréquence" value="Chaque heure" icon={RefreshCw} />
-                                <StatMiniCard label="Rétention" value="10 Ans (OHADA)" icon={Calendar} />
-                                <StatMiniCard label="Dernier point" value="Il y a 14 min" icon={Globe} />
-                                <StatMiniCard label="Taille totale" value="1.42 TB" icon={Settings} />
-                            </div>
-                        </div>
+            <div className="glass-card rounded-2xl p-6 border border-amber-500/20 bg-amber-500/5">
+                <div className="flex items-start gap-4">
+                    <div className="shrink-0 w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                        <AlertTriangle className="w-6 h-6 text-amber-500" />
                     </div>
-
-                    <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-4">
-                        <h4 className="font-bold text-foreground text-sm">Actions de Maintenance</h4>
-                        <div className="flex flex-wrap gap-3">
-                            <button className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg text-xs font-bold border border-border flex items-center gap-2">
-                                <Download className="w-4 h-4" /> Export SQL Dump
-                            </button>
-                            <button className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg text-xs font-bold border border-border flex items-center gap-2">
-                                <FileText className="w-4 h-4" /> Rapport de Conformité
-                            </button>
-                            <button
-                                onClick={handleSaveSettings}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-2"
-                            >
-                                <RefreshCw className="w-4 h-4" /> Déclencher Sauvegarde Immédiate
-                            </button>
+                    <div>
+                        <div className="flex items-center gap-3 mb-1">
+                            <h3 className="text-lg font-bold text-foreground">Sauvegarde cloud non configurée</h3>
+                            <span className="text-[10px] px-2 py-1 bg-slate-500/10 text-slate-400 rounded-full font-black border border-slate-500/20">NON CONNECTÉ</span>
                         </div>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    <div className="glass-card rounded-2xl p-6 border border-border/50 bg-emerald-500/5 shadow-xl">
-                        <div className="flex items-center gap-2 mb-4">
-                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                            <h4 className="font-bold text-foreground text-sm">Santé des Données</h4>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed italic mb-6">
-                            "Toutes les bases de données sont synchronisées. Aucun écart détecté sur les 500 derniers blocs."
+                        <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                            Aucun fournisseur de stockage cloud immuable (Amazon S3 WORM ou équivalent) n'est connecté à Cabinet 360. La fréquence de sauvegarde, la rétention, la taille des archives et l'horodatage du dernier point de sauvegarde ne peuvent pas être affichés tant que cette intégration n'est pas mise en place — configurez les identifiants du fournisseur choisi pour l'activer.
                         </p>
-                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                            <div className="h-full w-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                        </div>
-                        <p className="text-[10px] text-emerald-500 font-bold mt-2 uppercase tracking-tighter">Intégrité : 100%</p>
-                    </div>
-
-                    <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-4">
-                        <h4 className="font-bold text-foreground text-sm">Alertes de Sauvegarde</h4>
-                        <div className="p-3 bg-rose-500/10 rounded-xl border border-rose-500/20">
-                            <p className="text-[10px] text-rose-500 font-bold uppercase mb-1 text-xs">Attention</p>
-                            <p className="text-xs text-rose-500">L'archivage physique Y-10 arrive à saturation.</p>
-                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    );
-}
 
-function StatMiniCard({ label, value, icon: Icon }: any) {
-    return (
-        <div className="p-3 bg-muted/40 rounded-xl border border-border/50 flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-                <Icon className="w-3 h-3 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{label}</span>
+            <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-4">
+                <h4 className="font-bold text-foreground text-sm">Actions Locales</h4>
+                <p className="text-xs text-muted-foreground">Ces actions s'appuient sur la base de données actuelle ; elles ne dépendent pas d'un fournisseur cloud tiers.</p>
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={handleSaveSettings}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-2"
+                    >
+                        <RefreshCw className="w-4 h-4" /> Enregistrer la configuration
+                    </button>
+                </div>
             </div>
-            <span className="text-xs text-foreground font-bold">{value}</span>
         </div>
     );
 }

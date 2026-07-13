@@ -1,15 +1,18 @@
 ﻿"use client";
 
 import React, { useState } from 'react';
-import { Globe, ArrowRightLeft, DollarSign, RefreshCw, BarChart3 } from 'lucide-react';
+import { Globe, ArrowRightLeft, RefreshCw, BarChart3, AlertTriangle } from 'lucide-react';
 
-// Taux de change simulés par rapport au FCFA (XOF/XAF)
+// EUR/FCFA est un taux FIXE légal (parité UEMOA/CEMAC, traité de coopération monétaire) — c'est une
+// valeur réelle, pas une approximation. USD et GNF sont des taux de marché flottants : aucune API de
+// change en temps réel n'est connectée, ces valeurs sont donc indicatives et non actualisées.
 const RATES: Record<string, number> = {
     'FCFA': 1,
-    'EUR': 655.957,
-    'USD': 605.50,
-    'GNF': 0.070, // 1 GNF = ~0.07 FCFA
+    'EUR': 655.957, // Parité fixe légale — réelle
+    'USD': 605.50,  // Indicatif, non temps réel
+    'GNF': 0.070,   // Indicatif, non temps réel
 };
+const LIVE_RATE_CURRENCIES = new Set(['FCFA', 'EUR']);
 
 export default function DevisesPage() {
     const [amount, setAmount] = useState<string>("10000");
@@ -49,10 +52,19 @@ export default function DevisesPage() {
                     <p className="text-muted-foreground">Gestion du risque de change et conversion en temps réel.</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-sm font-bold text-muted-foreground">Parité Officielle UEMOA/CEMAC</p>
+                    <p className="text-sm font-bold text-muted-foreground">Parité Officielle UEMOA/CEMAC (fixe)</p>
                     <p className="text-xs">1 EUR = 655.957 FCFA</p>
                 </div>
             </header>
+
+            {(!LIVE_RATE_CURRENCIES.has(fromCurrency) || !LIVE_RATE_CURRENCIES.has(toCurrency)) && (
+                <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                        Le taux {fromCurrency}/{toCurrency} n'est pas un taux de marché en temps réel (aucune API de change connectée) — valeur indicative à vérifier avant toute écriture comptable.
+                    </p>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Convertisseur rapide */}
@@ -103,8 +115,8 @@ export default function DevisesPage() {
                             </div>
                         </div>
                         
-                        <button className="w-full mt-2 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all flex justify-center items-center gap-2">
-                            <RefreshCw className="w-4 h-4" /> Enregistrer l'écriture (Taux: {(RATES[fromCurrency] / RATES[toCurrency]).toFixed(4)})
+                        <button disabled title="La génération d'écriture comptable de change n'est pas encore implémentée" className="w-full mt-2 py-3 bg-purple-600/40 text-white/60 font-bold rounded-xl cursor-not-allowed transition-all flex justify-center items-center gap-2">
+                            <RefreshCw className="w-4 h-4" /> Générer l'écriture (bientôt disponible)
                         </button>
                     </div>
                 </div>
@@ -113,47 +125,17 @@ export default function DevisesPage() {
                 <div className="lg:col-span-2 glass-card rounded-3xl p-6 border border-purple-500/20">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-purple-500" /> Exposition au Risque de Change</h3>
-                        <select className="bg-muted/50 border border-border/50 rounded-lg px-2 py-1 text-xs">
-                            <option>Ce mois</option>
-                            <option>Ce trimestre</option>
-                        </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="p-4 border border-border/50 rounded-2xl">
-                            <p className="text-xs font-bold text-muted-foreground mb-1">Pertes de change (Compte 656)</p>
-                            <p className="text-xl font-black text-rose-500">- 450,200 FCFA</p>
-                        </div>
-                        <div className="p-4 border border-border/50 rounded-2xl">
-                            <p className="text-xs font-bold text-muted-foreground mb-1">Gains de change (Compte 756)</p>
-                            <p className="text-xl font-black text-emerald-500">+ 1,200,500 FCFA</p>
+                    <div className="flex items-start gap-3 p-6 bg-muted/30 border border-dashed border-border/50 rounded-2xl">
+                        <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                            <p className="text-sm font-bold mb-1">Suivi des transactions en devises non disponible</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                Le calcul des pertes/gains de change et de l'exposition par devise nécessite d'enregistrer la devise d'origine sur les factures et transactions bancaires, ce qui n'est pas encore implémenté dans l'application (toutes les données actuelles sont en FCFA).
+                            </p>
                         </div>
                     </div>
-
-                    <div className="overflow-x-auto"><table className="w-full text-sm text-left">
-                        <thead className="text-xs text-muted-foreground uppercase border-b border-border/50">
-                            <tr>
-                                <th className="py-2">Devise</th>
-                                <th>Vol. Achats</th>
-                                <th>Vol. Ventes</th>
-                                <th>Écart (Net)</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/20">
-                            <tr className="hover:bg-muted/30">
-                                <td className="py-3 font-bold flex items-center gap-2"><DollarSign className="w-3 h-3 text-purple-500" /> USD</td>
-                                <td>$45,000</td>
-                                <td>$12,000</td>
-                                <td className="text-rose-500 font-bold">-$33,000</td>
-                            </tr>
-                            <tr className="hover:bg-muted/30">
-                                <td className="py-3 font-bold flex items-center gap-2">GNF</td>
-                                <td>0</td>
-                                <td>450,000,000</td>
-                                <td className="text-emerald-500 font-bold">+450M</td>
-                            </tr>
-                        </tbody>
-                    </table></div>
                 </div>
             </div>
         </div>

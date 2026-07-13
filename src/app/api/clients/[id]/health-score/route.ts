@@ -97,5 +97,22 @@ export async function GET(req: NextRequest, context: RouteContext) {
     where: { id },
     select: { healthScore: true, rating: true },
   });
-  return NextResponse.json(client ?? { healthScore: 0, rating: 'C' });
+
+  const history = await prisma.creditScore.findMany({
+    where: { clientId: id },
+    orderBy: { evaluatedAt: 'asc' },
+    take: 6,
+    select: { score: true, evaluatedAt: true, factors: true },
+  });
+
+  const latest = history[history.length - 1];
+
+  return NextResponse.json({
+    ...(client ?? { healthScore: 0, rating: 'C' }),
+    factors: latest?.factors ?? null,
+    history: history.map(h => ({
+      month: h.evaluatedAt.toLocaleDateString('fr-FR', { month: 'short' }),
+      score: h.score,
+    })),
+  });
 }

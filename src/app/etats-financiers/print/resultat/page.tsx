@@ -1,43 +1,24 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LiasseHeader } from '@/components/etats-financiers/print/LiasseHeader';
 import { clsx } from 'clsx';
 
-const COMPTE_RESULTAT = [
-    { code: "TA", label: "Ventes de marchandises", netN: 150000000, netN1: 140000000 },
-    { code: "TB", label: "Ventes de produits fabriqués", netN: 0, netN1: 0 },
-    { code: "TC", label: "Travaux, services vendus", netN: 25000000, netN1: 20000000 },
-    { code: "TD", label: "Produits accessoires", netN: 500000, netN1: 400000 },
-    { code: "XA", label: "CHIFFRE D'AFFAIRES (A+B+C+D)", netN: 175500000, netN1: 160400000, isTotal: true },
-
-    { code: "RA", label: "Achats de marchandises", netN: -80000000, netN1: -75000000 },
-    { code: "RB", label: "Variation de stocks", netN: 2000000, netN1: 1500000 },
-    { code: "XB", label: "MARGE COMMERCIALE", netN: 97500000, netN1: 86900000, isTotal: true },
-
-    { code: "RC", label: "Transports", netN: -5000000, netN1: -4500000 },
-    { code: "RD", label: "Services extérieurs", netN: -12000000, netN1: -10000000 },
-    { code: "RE", label: "Impôts et taxes", netN: -1500000, netN1: -1200000 },
-    { code: "RF", label: "Autres charges", netN: -800000, netN1: -700000 },
-    { code: "XC", label: "VALEUR AJOUTÉE (XB+XB2-RC-RD-RE-RF)", netN: 78200000, netN1: 70500000, isTotal: true },
-
-    { code: "RG", label: "Charges de personnel", netN: -35000000, netN1: -30000000 },
-    { code: "XD", label: "EXCÉDENT BRUT D'EXPLOITATION", netN: 43200000, netN1: 40500000, isTotal: true },
-
-    { code: "TI", label: "Reprises d'amortissements et provisions", netN: 2000000, netN1: 1800000 },
-    { code: "RJ", label: "Dotations aux amortissements et provisions", netN: -7200000, netN1: -7300000 },
-    { code: "XE", label: "RÉSULTAT D'EXPLOITATION", netN: 38000000, netN1: 35000000, isTotal: true },
-
-    { code: "XF", label: "RÉSULTAT FINANCIER", netN: -2500000, netN1: -3000000, isTotal: true },
-    { code: "XG", label: "RÉSULTAT DES ACTIVITÉS ORDINAIRES", netN: 35500000, netN1: 32000000, isTotal: true },
-
-    { code: "XH", label: "RÉSULTAT HORS ACTIVITÉS ORDINAIRES", netN: 0, netN1: 500000, isTotal: true },
-    { code: "RK", label: "Participation des travailleurs", netN: 0, netN1: 0 },
-    { code: "RL", label: "Impôts sur le résultat", netN: -11000000, netN1: -10000000 },
-    { code: "XI", label: "RÉSULTAT NET", netN: 24500000, netN1: 22500000, isTotal: true, level: 2 },
-];
-
 export default function PrintResultatPage() {
+    const [compteResultat, setCompteResultat] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/comptabilite/etats-financiers/resultat')
+            .then(res => res.json())
+            .then(data => setCompteResultat(data.resultat || []))
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return <div className="p-8 text-sm">Chargement…</div>;
+    }
+
     return (
         <div className="font-serif text-[9px]">
             <LiasseHeader title="COMPTE DE RÉSULTAT" />
@@ -52,7 +33,7 @@ export default function PrintResultatPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {COMPTE_RESULTAT.map((row, idx) => (
+                    {compteResultat.map((row, idx) => (
                         <tr key={idx} className={clsx(
                             row.isTotal ? "font-bold bg-slate-50" : "",
                             row.level === 2 ? "bg-slate-200 text-[11px]" : ""

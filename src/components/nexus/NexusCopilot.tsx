@@ -19,33 +19,29 @@ export function NexusCopilot() {
     const [input, setInput] = useState("");
     const [isTyping, setIsTyping] = useState(false);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
         const newMsg: Message = { id: Date.now().toString(), role: "user", text: input };
         setMessages(prev => [...prev, newMsg]);
+        const question = input;
         setInput("");
         setIsTyping(true);
 
-        setTimeout(() => {
-            let replyText = "Je peux vous aider à effectuer cette tâche depuis le module correspondant.";
-            let actionText = undefined;
-
-            const lowerInput = input.toLowerCase();
-            if (lowerInput.includes("facture") || lowerInput.includes("sonelec")) {
-                replyText = "J'ai détecté un dépassement de budget de 113% sur le dossier SONELEC. Voulez-vous que je génère un projet de facture hors-forfait ?";
-                actionText = "Générer la facture (25 000 FCFA)";
-            } else if (lowerInput.includes("audit") || lowerInput.includes("anomalie")) {
-                replyText = "Le dernier scan FEC de la Pharmacie Dior a détecté 3 anomalies sur la TVA (Loi de Benford).";
-                actionText = "Ouvrir le rapport d'audit";
-            } else if (lowerInput.includes("relance") || lowerInput.includes("document")) {
-                replyText = "Il manque 12 relevés bancaires ce mois-ci. J'ai préparé les emails de relance automatique.";
-                actionText = "Envoyer les 12 relances WhatsApp";
-            }
-
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: "nexus", text: replyText, action: actionText }]);
+        try {
+            const res = await fetch("/api/nexus/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: question }),
+            });
+            const data = await res.json();
+            const replyText = data.response || data.error || "Erreur lors de la réponse de l'assistant.";
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: "nexus", text: replyText }]);
+        } catch (error) {
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: "nexus", text: "Erreur de connexion à l'assistant IA." }]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     return (

@@ -37,87 +37,21 @@ const QUICK_PROMPTS = [
     { icon: Activity, label: "Supervision missions", prompt: "Donne-moi un résumé de l'avancement des missions actives" },
 ];
 
-const DEMO_RESPONSES: Record<string, string> = {
-    "ebitda": `📊 **Analyse EBITDA - Portefeuille Clients**
-
-Voici l'état de vos 3 principaux clients :
-
-| Client | CA | EBITDA | Marge |
-|--------|-----|--------|-------|
-| Groupe Traoré | 485M FCFA | 97M | **20.1%** ↗ |
-| SIB Négoce | 230M FCFA | 41M | **17.8%** → |
-| Agro-Kouyaté | 167M FCFA | 18M | **10.8%** ↘ |
-
-⚠️ **Alerte** : La marge EBITDA d'Agro-Kouyaté est sous le seuil critique (12%). Recommandation : revue du poste charges externes.`,
-
-    "is": `📋 **Calcul de l'IS selon SYSCOHADA**
-
-L'Impôt sur les Sociétés (IS) en zone OHADA se calcule comme suit :
-
-**Taux standards :**
-- Cameroun : 33% du bénéfice imposable
-- Côte d'Ivoire : 25%
-- Sénégal : 30%
-
-**Base imposable :**
-\`Résultat Comptable ± Réintégrations - Déductions = Bénéfice Fiscal\`
-
-Comptes SYSCOHADA associés :
-- 695 — Impôts sur le bénéfice
-- 444 — État, IS dû
-
-Souhaitez-vous que je génère la liasse fiscale ?`,
-
-    "tva": `🔄 **Calcul TVA à Reverser — Juin 2026**
-
-**TVA Collectée** (Ventes) : **18 450 000 FCFA**
-**TVA Déductible** (Achats) : **6 230 000 FCFA**
----
-**TVA Nette à Reverser** : **12 220 000 FCFA**
-
-📅 Date limite : 15 juillet 2026
-📍 Compte 4431 — TVA collectée
-
-Je peux préparer le formulaire de déclaration TVA automatiquement.`,
-
-    "lcb": `🛡️ **Obligations LCB-FT — Cabinet d'Expertise**
-
-Selon les directives UEMOA/CEMAC et la loi nationale :
-
-**1. Vigilance client (KYC)**
-   - Identification et vérification identité (art. 5)
-   - Actualisation annuelle des dossiers
-
-**2. Déclaration de soupçon**
-   - Déclaration à la CENTIF/ANIF sous 24h
-   - Conservation pendant 5 ans
-
-**3. Formation obligatoire**
-   - Formation annuelle du personnel (voir module TRACFIN)
-
-Votre cabinet est-il à jour ? Je peux générer un rapport de conformité.`,
-
-    "default": `🧠 **Nexus-Go — Analyse en cours...**
-
-J'ai analysé votre demande. Voici les points clés selon le référentiel SYSCOHADA et les normes OHADA :
-
-Cette fonctionnalité est en développement actif. Je peux déjà vous aider sur :
-- ✅ Analyse financière et ratios
-- ✅ Plan comptable SYSCOHADA
-- ✅ Obligations fiscales par pays OHADA
-- ✅ LCB-FT et conformité
-- ✅ Supervision missions et clients
-
-Voulez-vous préciser votre demande ?`
-};
-
-function getAIResponse(prompt: string): string {
-    const lower = prompt.toLowerCase();
-    if (lower.includes("ebitda") || lower.includes("analyse")) return DEMO_RESPONSES.ebitda;
-    if (lower.includes("is") || lower.includes("impôt") || lower.includes("impot")) return DEMO_RESPONSES.is;
-    if (lower.includes("tva")) return DEMO_RESPONSES.tva;
-    if (lower.includes("lcb") || lower.includes("conformité") || lower.includes("kyc")) return DEMO_RESPONSES.lcb;
-    return DEMO_RESPONSES.default;
+async function getAIResponse(prompt: string): Promise<string> {
+    try {
+        const res = await fetch("/api/nexus/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: prompt }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            return `⚠️ ${data.error || "Erreur lors de l'appel à l'assistant IA."}`;
+        }
+        return data.response || "Aucune réponse reçue.";
+    } catch {
+        return "⚠️ Erreur réseau lors de l'appel à l'assistant IA.";
+    }
 }
 
 export default function NexusGoPage() {
@@ -156,10 +90,7 @@ export default function NexusGoPage() {
         setInput("");
         setIsTyping(true);
 
-        // Simuler un délai de réflexion IA
-        await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
-
-        const response = getAIResponse(content);
+        const response = await getAIResponse(content);
         const aiMsg: Message = {
             id: `ai-${Date.now()}`,
             role: "assistant",
@@ -171,15 +102,36 @@ export default function NexusGoPage() {
         setMessages(prev => [...prev, aiMsg]);
     };
 
+    // Utilise la Web Speech API du navigateur (reconnaissance vocale réelle, quand disponible).
+    // Aucune transcription n'est simulée : si l'API n'est pas supportée, on le dit clairement.
     const toggleVoice = () => {
-        setIsListening(!isListening);
-        if (!isListening) {
-            // Simulation de reconnaissance vocale
-            setTimeout(() => {
-                setIsListening(false);
-                sendMessage("Analyse l'EBITDA de mes principaux clients");
-            }, 3000);
+        const SpeechRecognitionCtor: any = (typeof window !== "undefined") && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+        if (!SpeechRecognitionCtor) {
+            setMessages(prev => [...prev, {
+                id: `sys-${Date.now()}`,
+                role: "assistant",
+                content: "🎙️ La reconnaissance vocale n'est pas disponible sur ce navigateur. Utilisez la saisie texte.",
+                timestamp: new Date()
+            }]);
+            return;
         }
+        if (isListening) {
+            setIsListening(false);
+            return;
+        }
+        setIsListening(true);
+        const recognition = new SpeechRecognitionCtor();
+        recognition.lang = "fr-FR";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = (event: any) => {
+            const transcript = event.results?.[0]?.[0]?.transcript;
+            setIsListening(false);
+            if (transcript) sendMessage(transcript);
+        };
+        recognition.onerror = () => setIsListening(false);
+        recognition.onend = () => setIsListening(false);
+        recognition.start();
     };
 
     const formatMessage = (text: string) => {

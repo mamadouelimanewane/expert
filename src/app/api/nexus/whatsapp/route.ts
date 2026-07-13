@@ -1,20 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-
-async function getDefaultClient() {
-    let client = await prisma.client.findFirst();
-    if (!client) {
-        client = await prisma.client.create({
-            data: {
-                type: 'ENTREPRISE',
-                companyName: 'Cabinet 360 Client Default',
-                email: 'contact@defaultclient.com',
-                phone: '+225 00000000',
-            }
-        });
-    }
-    return client;
-}
+import { isLLMConfigured, askNexus } from '@/lib/llm';
 
 export async function GET() {
     try {
@@ -22,7 +8,7 @@ export async function GET() {
             where: { type: 'whatsapp' },
             orderBy: { date: 'asc' }
         });
-        return NextResponse.json(communications);
+        return NextResponse.json({ communications, isLLMConfigured: isLLMConfigured() });
     } catch (error) {
         console.error("Erreur GET WhatsApp:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -32,36 +18,46 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const data = await request.json();
-        const client = await getDefaultClient();
-        
-        // Save user message
+
+        // Enregistrement du message utilisateur (sans client fictif : clientId
+        // reste null tant qu'aucun client réel n'est associé à la conversation).
         const userMsg = await prisma.communication.create({
             data: {
                 type: 'whatsapp',
                 sender: data.sender || 'Client',
                 content: data.content,
-                clientId: client.id,
                 date: new Date(),
                 read: true,
                 tags: ['client_msg']
             }
         });
 
-        // Simulate IA response
-        const iaResponseContent = `✅ C'est noté ! J'ai bien analysé votre message : "${data.content}". L'écriture comptable correspondante sera générée sous peu.`;
-        
+        let iaResponseContent: string;
+        if (isLLMConfigured()) {
+            try {
+                iaResponseContent = await askNexus(
+                    data.content,
+                    "Tu es Nexus, l'assistant IA du cabinet d'expertise comptable Cabinet 360, répondant sur WhatsApp à un client. Sois concis et professionnel."
+                );
+            } catch (llmError) {
+                console.error("[Nexus WhatsApp] Erreur DeepSeek:", llmError);
+                iaResponseContent = "Désolé, une erreur est survenue lors de la génération de la réponse IA. Réessayez dans un instant.";
+            }
+        } else {
+            iaResponseContent = "Nexus IA n'est pas encore connecté à un moteur d'intelligence artificielle (clé DEEPSEEK_API_KEY absente ou compte sans crédit). Configurez l'intégration pour activer les réponses automatiques.";
+        }
+
         const iaMsg = await prisma.communication.create({
             data: {
                 type: 'whatsapp',
                 sender: 'Nexus IA',
                 content: iaResponseContent,
-                clientId: client.id,
-                date: new Date(new Date().getTime() + 1500), // 1.5s later
+                date: new Date(),
                 read: true,
                 tags: ['ia_msg']
             }
         });
-        
+
         return NextResponse.json({ userMsg, iaMsg }, { status: 201 });
     } catch (error) {
         console.error("Erreur POST WhatsApp:", error);

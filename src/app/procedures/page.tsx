@@ -1,68 +1,132 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     BookOpen,
     Plus,
     Search,
-    Wand2,
-    ChevronRight,
-    ArrowRight,
-    CheckCircle2,
     FileEdit,
-    Download,
-    Share2,
+    Save,
+    Loader2,
     Users,
-    Settings,
-    GitGraph
+    X,
+    CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Procedure {
     id: string;
     title: string;
-    cycle: "Achats" | "Ventes" | "Trésorerie" | "RH" | "Stocks";
-    status: "Brouillon" | "Validé" | "En révision";
-    lastUpdate: string;
+    category: string;
+    content: string;
+    version: number;
+    status: "BROUILLON" | "PUBLIEE" | "ARCHIVEE";
+    updatedAt: string;
+    createdBy: { firstName: string; lastName: string } | null;
 }
 
-const MOCK_PROCEDURES: Procedure[] = [
-    { id: "1", title: "Circuit de validation des factures fournisseurs", cycle: "Achats", status: "Validé", lastUpdate: "15/01/2024" },
-    { id: "2", title: "Procédure d'encaissement des chèques", cycle: "Trésorerie", status: "En révision", lastUpdate: "22/01/2024" },
-    { id: "3", title: "Onboarding nouveaux collaborateurs", cycle: "RH", status: "Brouillon", lastUpdate: "26/01/2024" },
-    { id: "4", title: "Inventaire tournant des stocks", cycle: "Stocks", status: "Validé", lastUpdate: "10/12/2023" },
-];
+const STATUS_LABEL: Record<string, string> = {
+    BROUILLON: "Brouillon",
+    PUBLIEE: "Publiée",
+    ARCHIVEE: "Archivée",
+};
 
 export default function ProceduresPage() {
-    const [selectedProc, setSelectedProc] = useState<Procedure | null>(MOCK_PROCEDURES[0]);
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [procContent, setProcContent] = useState("");
+    const [procedures, setProcedures] = useState<Procedure[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedProc, setSelectedProc] = useState<Procedure | null>(null);
+    const [editContent, setEditContent] = useState("");
+    const [editTitle, setEditTitle] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [savedMessage, setSavedMessage] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
 
-    const generateProcedure = () => {
-        setIsGenerating(true);
-        setTimeout(() => {
-            setProcContent(`MANUEL DE PROCÉDURES : ${selectedProc?.title.toUpperCase()}
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [newForm, setNewForm] = useState({ title: "", category: "", content: "" });
+    const [creating, setCreating] = useState(false);
 
-1. OBJET ET CHAMP D'APPLICATION
-Cette procédure définit les étapes de validation des factures fournisseurs au sein de l'entité pour garantir l'exhaustivité et la réalité des charges.
-
-2. ACTEURS CONCERNÉS
-- Service Achat (Initiateur)
-- Service Comptable (Vérification)
-- Direction Financière (Approbation)
-
-3. DESCRIPTION DU PROCESSUS
-Étape 1 : Réception de la facture (Support physique ou numérique).
-Étape 2 : Rapprochement avec le bon de commande et le bon de livraison.
-Étape 3 : Apposition du "Bon à payer" par le responsable de service.
-Étape 4 : Comptabilisation et programmation du règlement.
-
-4. CONTRÔLES CLÉS
-- Vérification de la conformité fiscale (NINEA, TVA).
-- Séparation des tâches entre l'acheteur et le payeur.`);
-            setIsGenerating(false);
-        }, 2500);
+    const load = () => {
+        setLoading(true);
+        fetch("/api/procedures")
+            .then((r) => r.json())
+            .then((d) => {
+                const list: Procedure[] = d.procedures || [];
+                setProcedures(list);
+                setSelectedProc((prev) => {
+                    if (prev) {
+                        const fresh = list.find((p) => p.id === prev.id);
+                        if (fresh) return fresh;
+                    }
+                    return list[0] || null;
+                });
+            })
+            .finally(() => setLoading(false));
     };
+
+    useEffect(() => { load(); }, []);
+
+    useEffect(() => {
+        if (selectedProc) {
+            setEditContent(selectedProc.content);
+            setEditTitle(selectedProc.title);
+            setSavedMessage(null);
+        }
+    }, [selectedProc]);
+
+    const handleSave = async () => {
+        if (!selectedProc) return;
+        setSaving(true);
+        setSavedMessage(null);
+        try {
+            const res = await fetch("/api/procedures", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: selectedProc.id, title: editTitle, content: editContent }),
+            });
+            if (res.ok) {
+                setSavedMessage("Modifications enregistrées.");
+                load();
+            } else {
+                setSavedMessage("Erreur lors de l'enregistrement.");
+            }
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleTogglePublish = async () => {
+        if (!selectedProc) return;
+        const nextStatus = selectedProc.status === "PUBLIEE" ? "BROUILLON" : "PUBLIEE";
+        await fetch("/api/procedures", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: selectedProc.id, status: nextStatus }),
+        });
+        load();
+    };
+
+    const handleCreate = async () => {
+        if (!newForm.title.trim() || !newForm.content.trim()) return;
+        setCreating(true);
+        try {
+            const res = await fetch("/api/procedures", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newForm),
+            });
+            const data = await res.json();
+            setShowNewModal(false);
+            setNewForm({ title: "", category: "", content: "" });
+            await load();
+            if (data.procedure) setSelectedProc(data.procedure);
+        } finally {
+            setCreating(false);
+        }
+    };
+
+    const filteredProcedures = procedures.filter((p) =>
+        p.title.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
@@ -70,127 +134,149 @@ Cette procédure définit les étapes de validation des factures fournisseurs au
                 <div>
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                         <BookOpen className="w-8 h-8 text-emerald-400" />
-                        Conception de Manuels de Procédures
+                        Manuels de Procédures
                     </h2>
-                    <p className="text-slate-400 mt-1">Outil d'élaboration assistée par IA pour structurer le contrôle interne de vos clients.</p>
+                    <p className="text-slate-400 mt-1">Bibliothèque des procédures internes du cabinet pour structurer le contrôle interne.</p>
                 </div>
 
-                <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 font-bold text-xs flex items-center gap-2 transition-all">
-                        <GitGraph className="w-4 h-4" /> Visualiser Workflow
-                    </button>
-                    <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
-                        <Plus className="w-4 h-4" /> Nouvelle Procédure
-                    </button>
-                </div>
+                <button onClick={() => setShowNewModal(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">
+                    <Plus className="w-4 h-4" /> Nouvelle Procédure
+                </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {loading ? (
+                <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                {/* Sidebar: Procedure List */}
-                <div className="lg:col-span-1 space-y-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                        <input type="text" placeholder="Rechercher une procédure..." className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" />
-                    </div>
-
-                    <div className="space-y-2">
-                        {MOCK_PROCEDURES.map(proc => (
-                            <div
-                                key={proc.id}
-                                onClick={() => setSelectedProc(proc)}
-                                className={cn(
-                                    "p-3 rounded-xl border cursor-pointer transition-all group",
-                                    selectedProc?.id === proc.id ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-900/30 border-slate-800 hover:border-slate-700"
-                                )}
-                            >
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{proc.cycle}</span>
-                                    <span className={cn(
-                                        "text-[8px] px-1.5 py-0.5 rounded-full font-bold border",
-                                        proc.status === "Validé" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-800 text-slate-500 border-slate-700"
-                                    )}>{proc.status}</span>
-                                </div>
-                                <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{proc.title}</h4>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Editor Area */}
-                <div className="lg:col-span-3 space-y-6">
-                    {selectedProc ? (
-                        <>
-                            <div className="glass-card rounded-2xl border border-slate-700/50 flex flex-col min-h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden">
-                                <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <FileEdit className="w-5 h-5 text-emerald-400" />
-                                        <h3 className="font-bold text-white">{selectedProc.title}</h3>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={generateProcedure}
-                                            disabled={isGenerating}
-                                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-lg flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-                                        >
-                                            <Wand2 className="w-3 h-3" /> {isGenerating ? "Rédaction..." : "Aide IA"}
-                                        </button>
-                                        <button className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg">
-                                            <Download className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg">
-                                            <Share2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 p-8 bg-slate-950/20 relative">
-                                    {isGenerating && (
-                                        <div className="absolute inset-0 z-10 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                                                <span className="text-emerald-400 font-bold animate-pulse">L'IA structure la procédure selon les normes de contrôle interne...</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <textarea
-                                        className="w-full h-full bg-transparent border-none focus:ring-0 text-slate-300 font-serif leading-relaxed text-sm resize-none"
-                                        placeholder="Commencez à rédiger ou utilisez l'aide IA..."
-                                        value={procContent}
-                                        onChange={(e) => setProcContent(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* RACI Matrix Pre-view */}
-                            <div className="glass-card rounded-2xl p-6 border border-slate-700/50">
-                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                    <Users className="w-4 h-4" /> Matrice des Responsabilités (RACI)
-                                </h4>
-                                <div className="grid grid-cols-4 gap-4">
-                                    {["Acheteur", "Comptable", "DAF", "Directeur"].map((role) => (
-                                        <div key={role} className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-center">
-                                            <p className="text-xs font-bold text-white mb-2">{role}</p>
-                                            <div className="flex justify-center gap-1">
-                                                {["R", "A", "C", "I"].map(l => (
-                                                    <span key={l} className="w-5 h-5 rounded bg-slate-800 text-[10px] flex items-center justify-center text-slate-500 hover:bg-emerald-500 hover:text-white cursor-pointer transition-colors">
-                                                        {l}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-600 border-2 border-dashed border-slate-800 rounded-3xl p-4 sm:p-8 lg:p-12">
-                            <BookOpen className="w-16 h-16 mb-4 opacity-10" />
-                            <p>Sélectionnez une procédure pour l'éditer.</p>
+                    {/* Sidebar: Procedure List */}
+                    <div className="lg:col-span-1 space-y-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+                            <input type="text" placeholder="Rechercher une procédure..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" />
                         </div>
-                    )}
+
+                        <div className="space-y-2">
+                            {filteredProcedures.map(proc => (
+                                <div
+                                    key={proc.id}
+                                    onClick={() => setSelectedProc(proc)}
+                                    className={cn(
+                                        "p-3 rounded-xl border cursor-pointer transition-all group",
+                                        selectedProc?.id === proc.id ? "bg-emerald-500/10 border-emerald-500/50" : "bg-slate-900/30 border-slate-800 hover:border-slate-700"
+                                    )}
+                                >
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{proc.category}</span>
+                                        <span className={cn(
+                                            "text-[8px] px-1.5 py-0.5 rounded-full font-bold border",
+                                            proc.status === "PUBLIEE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-800 text-slate-500 border-slate-700"
+                                        )}>{STATUS_LABEL[proc.status]}</span>
+                                    </div>
+                                    <h4 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{proc.title}</h4>
+                                    <p className="text-[10px] text-slate-600 mt-1">v{proc.version} · {new Date(proc.updatedAt).toLocaleDateString("fr-FR")}</p>
+                                </div>
+                            ))}
+                            {filteredProcedures.length === 0 && (
+                                <p className="text-xs text-slate-500 text-center py-4">Aucune procédure trouvée.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Editor Area */}
+                    <div className="lg:col-span-3 space-y-6">
+                        {selectedProc ? (
+                            <>
+                                <div className="glass-card rounded-2xl border border-slate-700/50 flex flex-col min-h-[300px] sm:h-[500px] lg:h-[600px] overflow-hidden">
+                                    <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex flex-wrap justify-between items-center gap-3">
+                                        <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+                                            <FileEdit className="w-5 h-5 text-emerald-400 shrink-0" />
+                                            <input
+                                                value={editTitle}
+                                                onChange={(e) => setEditTitle(e.target.value)}
+                                                className="font-bold text-white bg-transparent border-none focus:outline-none focus:ring-0 flex-1 min-w-0"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={handleTogglePublish}
+                                                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold rounded-lg flex items-center gap-2 transition-all"
+                                            >
+                                                <CheckCircle2 className="w-3 h-3" /> {selectedProc.status === "PUBLIEE" ? "Repasser en brouillon" : "Publier"}
+                                            </button>
+                                            <button
+                                                onClick={handleSave}
+                                                disabled={saving}
+                                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold rounded-lg flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                                            >
+                                                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />} Enregistrer
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 p-8 bg-slate-950/20 relative">
+                                        <textarea
+                                            className="w-full h-full bg-transparent border-none focus:ring-0 text-slate-300 font-serif leading-relaxed text-sm resize-none"
+                                            placeholder="Rédigez la procédure..."
+                                            value={editContent}
+                                            onChange={(e) => setEditContent(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="p-3 bg-slate-900/50 border-t border-slate-700/50 flex justify-between text-[10px] text-slate-500 uppercase font-bold tracking-widest">
+                                        <span>Version {selectedProc.version} · {selectedProc.createdBy ? `${selectedProc.createdBy.firstName} ${selectedProc.createdBy.lastName}` : "Cabinet"}</span>
+                                        {savedMessage && <span className="text-emerald-400 normal-case">{savedMessage}</span>}
+                                    </div>
+                                </div>
+
+                                {/* RACI Matrix Pre-view */}
+                                <div className="glass-card rounded-2xl p-6 border border-slate-700/50">
+                                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                                        <Users className="w-4 h-4" /> Matrice des Responsabilités (RACI) — repère visuel
+                                    </h4>
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {["Collaborateur", "Chef de mission", "Expert-comptable", "Client"].map((role) => (
+                                            <div key={role} className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-center">
+                                                <p className="text-xs font-bold text-white mb-2">{role}</p>
+                                                <div className="flex justify-center gap-1">
+                                                    {["R", "A", "C", "I"].map(l => (
+                                                        <span key={l} className="w-5 h-5 rounded bg-slate-800 text-[10px] flex items-center justify-center text-slate-500">
+                                                            {l}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-slate-600 border-2 border-dashed border-slate-800 rounded-3xl p-4 sm:p-8 lg:p-12">
+                                <BookOpen className="w-16 h-16 mb-4 opacity-10" />
+                                <p>Aucune procédure. Créez-en une pour commencer.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
+
+            {showNewModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-white/10 rounded-[32px] p-8 max-w-lg w-full shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-black text-white">Nouvelle Procédure</h3>
+                            <button onClick={() => setShowNewModal(false)} className="text-slate-400 hover:text-white p-2"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <input placeholder="Titre de la procédure" value={newForm.title} onChange={(e) => setNewForm({ ...newForm, title: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <input placeholder="Catégorie / Cycle (ex: Achats, Trésorerie, RH)" value={newForm.category} onChange={(e) => setNewForm({ ...newForm, category: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <textarea placeholder="Contenu de la procédure" value={newForm.content} onChange={(e) => setNewForm({ ...newForm, content: e.target.value })} rows={8} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <button onClick={handleCreate} disabled={creating} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                                {creating ? "Création…" : "Créer la procédure"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

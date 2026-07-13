@@ -5,6 +5,7 @@ export async function GET() {
     try {
         // Get all TPE journals grouped by businessName + periode
         const allJournals = await prisma.tpeJournal.findMany({
+            where: { source: { not: 'WHATSAPP_TEST' } },
             orderBy: { createdAt: 'desc' }
         });
 

@@ -6,7 +6,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get("clientId");
 
-    const where = clientId ? { clientId } : {};
+    const where = clientId
+      ? { clientId, source: { not: "WHATSAPP_TEST" } }
+      : { source: { not: "WHATSAPP_TEST" } };
     const journals = await prisma.tpeJournal.findMany({
       where,
       orderBy: { createdAt: "desc" },

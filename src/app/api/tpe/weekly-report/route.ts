@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const journals = await prisma.tpeJournal.findMany({
-      where: { clientId, createdAt: { gte: oneWeekAgo }, status: "APPROVED" }
+      where: { clientId, createdAt: { gte: oneWeekAgo }, status: "APPROVED", source: { not: "WHATSAPP_TEST" } }
     });
 
     const totalEntrees = journals.reduce((a, j) => a + j.entree, 0);

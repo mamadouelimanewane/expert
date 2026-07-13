@@ -47,54 +47,12 @@ const QUICK_ACTIONS: QuickAction[] = [
     { id: "6", label: "Conseil stratégique", icon: Lightbulb, prompt: "Conseillez-moi sur l'optimisation fiscale pour une PME exportatrice", category: "Conseil" },
 ];
 
-const SAMPLE_CONVERSATION: Message[] = [
-    {
-        id: "1",
-        role: "user",
-        content: "Quelle est la procédure pour convoquer une AGO selon l'AUSCGIE ?",
-        timestamp: new Date(Date.now() - 300000)
-    },
-    {
-        id: "2",
-        role: "assistant",
-        content: `## Procédure de convocation de l'AGO (AUSCGIE)
-
-Selon les **articles 518 à 525** de l'Acte Uniforme relatif au Droit des Sociétés Commerciales et du GIE, la procédure est la suivante :
-
-### 1. Délai de convocation
-- **Minimum 15 jours** avant la date de l'assemblée (première convocation)
-- **6 jours minimum** pour une deuxième convocation
-
-### 2. Formes de convocation
-- **Lettre recommandée** avec accusé de réception, OU
-- **Avis dans un journal d'annonces légales** (si > 100 associés)
-
-### 3. Contenu obligatoire
-- Date, heure et lieu de l'assemblée
-- Ordre du jour détaillé
-- Texte des résolutions proposées
-- Documents mis à disposition
-
-### 4. Quorum requis
-- **1ère convocation** : Associés représentant au moins 1/4 du capital
-- **2ème convocation** : Aucun quorum requis
-
-### ⚡ Conseil pratique
-Prévoyez toujours une date de 2ème convocation dans votre convocation initiale pour anticiper un éventuel défaut de quorum.
-
----
-📚 **Sources** : AUSCGIE Art. 518-525, Jurisprudence CCJA n°045/2022`,
-        timestamp: new Date(Date.now() - 240000),
-        sources: ["AUSCGIE Art. 518-525", "CCJA n°045/2022"]
-    }
-];
-
 export default function CoCounselPage() {
-    const [messages, setMessages] = useState<Message[]>(SAMPLE_CONVERSATION);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!inputValue.trim()) return;
 
         const userMessage: Message = {
@@ -104,37 +62,36 @@ export default function CoCounselPage() {
             timestamp: new Date()
         };
 
-        setMessages([...messages, userMessage]);
+        setMessages(prev => [...prev, userMessage]);
+        const question = inputValue;
         setInputValue("");
         setIsLoading(true);
 
-        // Simulate AI response
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/assistant/cocounsel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: question }),
+            });
+            const data = await res.json();
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: `## Analyse en cours...
-
-Je traite votre demande : "${inputValue}"
-
-Voici une réponse structurée basée sur les Actes Uniformes OHADA et la doctrine fiscale UEMOA.
-
-### Points clés identifiés
-1. Analyse contextuelle de votre question
-2. Références juridiques applicables
-3. Recommandations pratiques
-
-### ⚡ Action suggérée
-Consulter les documents sources pour une analyse approfondie.
-
----
-📚 **Sources** : Base OHADA, Doctrine DGID`,
+                content: data.response || data.error || "Erreur lors de la réponse de l'assistant.",
                 timestamp: new Date(),
-                sources: ["Base OHADA", "Doctrine DGID"]
+                sources: data.notConfigured ? undefined : ["Réponse générée par IA — à vérifier auprès des textes sources"],
             };
             setMessages(prev => [...prev, assistantMessage]);
+        } catch (error) {
+            setMessages(prev => [...prev, {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: "Erreur de connexion à l'assistant IA.",
+                timestamp: new Date(),
+            }]);
+        } finally {
             setIsLoading(false);
-        }, 2000);
+        }
     };
 
     const handleQuickAction = (action: QuickAction) => {

@@ -48,38 +48,9 @@ interface Edge {
     hidden?: boolean;
 }
 
-const INITIAL_NODES: Node[] = [
-    { id: "1", type: "company", label: "SOGECOM SA", risk: "low", x: 400, y: 300, metadata: "Client Audité", geo: { lat: 5.341, lng: -4.018, city: "Abidjan, CI" } },
-    { id: "2", type: "person", label: "M. Kouassi Jean", risk: "high", x: 250, y: 150, metadata: "Directeur Financier", geo: { lat: 5.345, lng: -4.010, city: "Cocody, CI" } },
-    { id: "3", type: "company", label: "IVOIRE PRESTA", risk: "high", x: 550, y: 150, metadata: "Fournisseur (Batiment)", geo: { lat: 5.332, lng: -4.020, city: "Marcory, CI" } },
-    { id: "4", type: "person", label: "Kouassi Michel", risk: "medium", x: 700, y: 150, metadata: "Gérant Supplier", geo: { lat: 5.345, lng: -4.010, city: "Cocody, CI" } }, // Same location as brother!
-    { id: "5", type: "invoice", label: "FAC-2023-999", risk: "high", x: 550, y: 50, metadata: "12.5M FCFA (Non lettrée)", geo: { lat: 5.332, lng: -4.020, city: "Marcory, CI" } },
-    { id: "6", type: "account", label: "BK-CI-22291", risk: "low", x: 400, y: 500, metadata: "Compte Bancaire", geo: { lat: 5.350, lng: -4.000, city: "Plateau, CI" } },
-    { id: "7", type: "person", label: "Mme. Diallo A.", risk: "low", x: 150, y: 300, metadata: "Actionnaire" },
-    // Hidden Nodes (Revealed by Sherlock)
-    { id: "8", type: "offshore", label: "SHELL HOLDING LTD", risk: "critical", x: 750, y: 300, metadata: "Juridiction: Dubaï", hidden: true, geo: { lat: 25.077, lng: 55.148, city: "Jebel Ali, UAE" } }, // Dubai!
-    { id: "9", type: "account", label: "CPT-DUBAI-99", risk: "critical", x: 750, y: 400, metadata: "Compte Non Déclaré", hidden: true, geo: { lat: 25.204, lng: 55.270, city: "Dubai Fin. Ctr" } },
-    { id: "10", type: "person", label: "M. Kouassi Jean (Alias)", risk: "critical", x: 800, y: 200, metadata: "Identité Numérique", hidden: true, geo: { lat: 25.105, lng: 55.170, city: "Dubai Marina" } },
-];
-
-const INITIAL_EDGES: Edge[] = [
-    { source: "2", target: "1", type: "EMPLOYED_BY", value: "Salarié" },
-    { source: "3", target: "1", type: "SUPPLIES", value: "Prestataire" },
-    { source: "4", target: "3", type: "OWNS", value: "Gérant 100%" },
-    { source: "2", target: "4", type: "RELATED", value: "Frère" }, // Conflict
-    { source: "3", target: "5", type: "ISSUED", value: "Facture" },
-    { source: "1", target: "6", type: "HAS_ACCOUNT", value: "Propriétaire" },
-    { source: "5", target: "6", type: "PAID_FROM", value: "Virement" },
-    // Hidden Edges
-    { source: "3", target: "8", type: "OWNED_BY", value: "100% Shares", hidden: true },
-    { source: "8", target: "9", type: "HAS_ACCOUNT", value: "Bénéficiaire", hidden: true },
-    { source: "4", target: "10", type: "SAME_PERSON", value: "Alias Web", hidden: true },
-    { source: "10", target: "8", type: "DIRECTOR", value: "Admin", hidden: true },
-];
-
 export default function NeuralForensicsPage() {
-    const [nodes, setNodes] = useState(INITIAL_NODES);
-    const [edges, setEdges] = useState(INITIAL_EDGES);
+    const [nodes, setNodes] = useState<Node[]>([]);
+    const [edges, setEdges] = useState<Edge[]>([]);
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [zoom, setZoom] = useState(1);
     const [isScanning, setIsScanning] = useState(false);
@@ -143,42 +114,18 @@ export default function NeuralForensicsPage() {
         }
     };
 
+    // Aucune intégration OSINT réelle (registres publics, réseaux sociaux, listes de sanctions,
+    // bases type ICIJ/OpenCorporates) n'est connectée à ce jour. Ce module affichait auparavant des
+    // résultats entièrement fabriqués (ex: une société "SHELL HOLDING" fictive) présentés comme des
+    // preuves d'enquête réelles — ce qui pouvait induire de fausses accusations de fraude. Il indique
+    // maintenant honnêtement que l'intégration reste à configurer, sans générer de faux résultats.
     const launchSherlockInvestigation = () => {
         if (!selectedNode) return;
-        setIsInvestigating(true);
-        setOsintLogs(["Initialisation du Crawler OSINT...", `Cible: ${selectedNode.label}`]);
-
-        const steps = [
-            "Scan des registres publics (RCCM, Greffe)...",
-            "Recherche d'affiliations corporatives...",
-            "Analyse des Réseaux Sociaux (Graph API)...",
-            "Vérification des listes de sanctions (UN, OFAC)...",
-            "⚠️ ALERTE: Connexion Offshore détectée (Dubaï)...",
-            "⚠️ ALERTE: Lien caché identifié avec 'SHELL HOLDING'..."
-        ];
-
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i >= steps.length) {
-                clearInterval(interval);
-                setIsInvestigating(false);
-                revealHiddenNetwork();
-                setWebResults([
-                    { source: "LinkedIn", title: "Profil Associé trouvé", desc: "Mentionne 'Consultant indépendant à Valberg' depuis 2022." },
-                    { source: "ICIJ (Panama Papers)", title: "Aucune correspondance", desc: "Base clean." },
-                    { source: "OpenCorporates", title: "Société Liée Trouvée", desc: "SHELL HOLDING LTD enregistrée à Jebel Ali Free Zone." }
-                ]);
-                return;
-            }
-            setOsintLogs(prev => [...prev, steps[i]]);
-            i++;
-        }, 1200);
-    };
-
-    const revealHiddenNetwork = () => {
-        setNodes(prev => prev.map(n => ({ ...n, hidden: false })));
-        setEdges(prev => prev.map(e => ({ ...e, hidden: false })));
-        setZoom(0.8); // Zoom out to see new nodes
+        setOsintLogs([
+            `Aucune source OSINT connectée pour enquêter sur « ${selectedNode.label} ».`,
+            "Registres publics (RCCM/Greffe), réseaux sociaux, listes de sanctions (UN/OFAC) et bases type ICIJ/OpenCorporates : intégrations à configurer.",
+        ]);
+        setWebResults([]);
     };
 
     return (
@@ -216,8 +163,8 @@ export default function NeuralForensicsPage() {
                     </div>
 
                     <div className="glass-card px-4 py-2 rounded-lg border border-white/5 flex items-center gap-3 bg-slate-900/50 backdrop-blur">
-                        <Globe className="w-4 h-4 text-emerald-500 animate-pulse" />
-                        <span className="text-xs text-emerald-500 font-bold uppercase tracking-wider">Connecté au Web Mondial</span>
+                        <Globe className="w-4 h-4 text-indigo-400" />
+                        <span className="text-xs text-indigo-300 font-bold uppercase tracking-wider">Données Cabinet (Prisma)</span>
                     </div>
                     <button
                         onClick={runNeuralScan}
@@ -422,35 +369,33 @@ export default function NeuralForensicsPage() {
                                     <Globe className="w-4 h-4 text-indigo-400" />
                                     Investigateur Web (OSINT)
                                 </h3>
-                                {isInvestigating && <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />}
                             </div>
 
-                            {!isInvestigating && webResults.length === 0 && (
+                            {osintLogs.length === 0 && (
                                 <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-center space-y-4">
                                     <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-2">
                                         <FileSearch className="w-8 h-8" />
                                     </div>
                                     <p className="text-sm text-slate-400">
-                                        Lancer une recherche profonde sur le web pour identifier des connexions cachées (Réseaux Sociaux, Registres, Offshore Leaks).
+                                        Recherche profonde sur le web pour identifier des connexions (réseaux sociaux, registres, listes de sanctions). Nécessite une intégration OSINT tierce non encore configurée.
                                     </p>
                                     <button
                                         onClick={launchSherlockInvestigation}
                                         className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-600/20"
                                     >
-                                        Lancer l'enquête Web
+                                        Vérifier les intégrations disponibles
                                     </button>
                                 </div>
                             )}
 
-                            {isInvestigating && (
-                                <div className="bg-black/40 rounded-xl p-4 border border-indigo-500/30 font-mono text-xs space-y-2 h-[200px] overflow-y-auto">
+                            {osintLogs.length > 0 && (
+                                <div className="bg-black/40 rounded-xl p-4 border border-indigo-500/30 font-mono text-xs space-y-2">
                                     {osintLogs.map((log, i) => (
-                                        <div key={i} className="flex gap-2 text-indigo-300 animate-in slide-in-from-left-2 fade-in duration-300">
+                                        <div key={i} className="flex gap-2 text-amber-300 animate-in slide-in-from-left-2 fade-in duration-300">
                                             <span className="opacity-50">{">"}</span>
                                             <span>{log}</span>
                                         </div>
                                     ))}
-                                    <div className="w-2 h-4 bg-indigo-500 animate-pulse inline-block" />
                                 </div>
                             )}
 
@@ -477,72 +422,32 @@ export default function NeuralForensicsPage() {
                 )}
             </div>
 
-            {/* DOCUMENT X-RAY MODAL */}
-            {showDocModal && (
+            {/* DOCUMENT X-RAY MODAL — honnête : aucun outil d'analyse forensique d'image
+                (ELA, extraction EXIF) n'est connecté. Affichait auparavant une fausse facture et
+                de fausses conclusions d'expertise (logiciel, dates de modification) présentées comme
+                des preuves de fraude — supprimé pour éviter toute accusation infondée. */}
+            {showDocModal && selectedNode && (
                 <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-8 animate-in fade-in duration-300">
-                    <div className="w-full max-w-5xl h-[80vh] bg-[#0F172A] rounded-3xl border border-white/10 flex overflow-hidden shadow-2xl">
-                        {/* Image Viewer */}
-                        <div className="flex-1 bg-black relative p-8 flex items-center justify-center border-r border-white/10">
-                            <div className="relative w-full max-w-lg aspect-[1/1.4] bg-white rounded shadow-2xl overflow-hidden group">
-                                {/* Fake Doc Content */}
-                                <div className="p-8 space-y-4 text-slate-800 text-xs font-mono">
-                                    <div className="flex justify-between items-center border-b pb-4">
-                                        <h1 className="text-xl font-bold">FACTURE</h1>
-                                        <span>N° 2023-999</span>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <p>DATE: 12/05/2023</p>
-                                        <p>CLIENT: SOGECOM SA</p>
-                                    </div>
-                                    <div className="pt-8">
-                                        <div className="overflow-x-auto">
-                                        <table className="w-full text-left">
-                                            <thead><tr className="border-b"><th className="pb-2">Description</th><th className="pb-2 text-right">Montant</th></tr></thead>
-                                            <tbody>
-                                                <tr><td className="py-2">Prestation de Conseil</td><td className="text-right">4.500.000</td></tr>
-                                                <tr><td className="py-2">Location Matériel</td><td className="text-right">8.000.000</td></tr>
-                                            </tbody>
-                                        </table></div>
-                                    </div>
-                                    <div className="pt-8 text-right font-bold text-lg">TOTAL: 12.500.000 FCFA</div>
-                                </div>
-
-                                {/* Heatmap Overlay */}
-                                <div className="absolute top-[45%] right-8 w-24 h-8 bg-red-500/30 border border-red-500 animate-pulse mix-blend-multiply" />
-                                <div className="absolute bottom-8 right-8 w-32 h-12 bg-red-500/30 border border-red-500 animate-pulse mix-blend-multiply" />
-
-                                <div className="absolute inset-0 bg-scan-lines opacity-10 pointer-events-none" />
-                            </div>
+                    <div className="w-full max-w-2xl bg-[#0F172A] rounded-3xl border border-white/10 p-8 shadow-2xl">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Fingerprint className="w-6 h-6 text-rose-500" /> Laboratoire Forensique
+                            </h2>
+                            <button onClick={() => setShowDocModal(false)} className="text-slate-400 hover:text-white">Fermer</button>
                         </div>
 
-                        {/* Side Analysis */}
-                        <div className="w-96 bg-slate-900 p-8 flex flex-col">
-                            <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                    <Fingerprint className="w-6 h-6 text-rose-500" /> FORENSIC LAB
-                                </h2>
-                                <button onClick={() => setShowDocModal(false)} className="text-slate-400 hover:text-white">Fermer</button>
+                        <div className="space-y-6">
+                            <div className="p-4 bg-slate-800/50 border border-white/5 rounded-xl">
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Document sélectionné</p>
+                                <p className="text-sm font-bold text-white">{selectedNode.label}</p>
+                                <p className="text-xs text-slate-400 mt-1">{selectedNode.metadata}</p>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl">
-                                    <p className="text-xs font-bold text-rose-400 uppercase tracking-widest mb-2">ANALYSE ELA (Error Level Analysis)</p>
-                                    <p className="text-sm text-slate-300">
-                                        Des artefacts de compression incohérents détectés sur le montant total et la date. Indique une modification après scan.
-                                    </p>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <h3 className="text-xs font-bold text-slate-500 uppercase">Métadonnées Fichier (ExifTool)</h3>
-                                    <MetaRow label="Logiciel" value="Adobe Photoshop 24.1" alert />
-                                    <MetaRow label="Date Création" value="15/05/2023 14:02" />
-                                    <MetaRow label="Date Modif." value="15/05/2023 14:05" />
-                                    <MetaRow label="Auteur" value="D. Admin" />
-                                </div>
-
-                                <button className="w-full py-4 mt-auto bg-rose-600 hover:bg-rose-500 text-white font-bold uppercase rounded-xl shadow-lg shadow-rose-600/20">
-                                    Marquer comme Preuve
-                                </button>
+                            <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-xl">
+                                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                                <p className="text-sm text-amber-300">
+                                    L'analyse forensique d'image (Error Level Analysis, extraction de métadonnées EXIF) nécessite un outil dédié qui n'est pas encore intégré. Aucune conclusion d'authenticité ne peut être générée automatiquement — une expertise manuelle est nécessaire pour statuer sur ce document.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -566,29 +471,7 @@ export default function NeuralForensicsPage() {
                 @keyframes dash {
                     to { stroke-dashoffset: -100; }
                 }
-                .bg-scan-lines {
-                    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 51%);
-                    background-size: 100% 4px;
-                }
             `}</style>
-        </div>
-    );
-}
-
-function DetailItem({ label, value, fullWidth }: any) {
-    return (
-        <div className={cn("bg-white/5 p-3 rounded-lg border border-white/5", fullWidth ? "col-span-2" : "")}>
-            <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">{label}</p>
-            <p className="text-sm font-bold text-white capitalize">{value}</p>
-        </div>
-    );
-}
-
-function MetaRow({ label, value, alert }: any) {
-    return (
-        <div className="flex justify-between items-center py-2 border-b border-white/5">
-            <span className="text-slate-500 text-xs">{label}</span>
-            <span className={cn("text-xs font-mono font-bold", alert ? "text-rose-400" : "text-white")}>{value}</span>
         </div>
     );
 }

@@ -70,37 +70,46 @@ export class AuditService {
      * Basé sur la conformité fiscale et les indicateurs opérationnels
      */
     static async calculateRiskScore(clientId: string) {
-        const [declarations, missions] = await Promise.all([
+        const [declarations, missions, journals] = await Promise.all([
             prisma.taxDeclaration.findMany({ where: { clientId } }),
-            prisma.mission.findMany({ where: { clientId } })
+            prisma.mission.findMany({ where: { clientId } }),
+            prisma.tpeJournal.findMany({ where: { clientId } })
         ]);
 
         const now = new Date();
-        
+
         // 1. Risque de Conformité (Déclarations en retard)
-        const lateDeclarations = declarations.filter(d => 
+        const lateDeclarations = declarations.filter(d =>
             d.status === 'PENDING' && new Date(d.dueDate) < now
         ).length;
         const complianceScore = Math.min(10, (lateDeclarations * 3) + 2); // Base 2/10 + 3 par retard
 
         // 2. Risque Opérationnel (Dérives sur les missions)
-        // (Simulation basée sur le statut des missions pour cet exemple)
         const inProgressMissions = missions.filter(m => m.status === 'IN_PROGRESS').length;
         const operationalScore = Math.min(10, (inProgressMissions * 2) + 3);
 
-        // 3. Risque Fraude / Audit (Score simulé pour le démo, peut être lié aux AuditLogs)
-        const fraudScore = 3.5; // Basé sur les retraits cash (Logique métier à affiner)
+        // 3. Risque Fraude / Audit — écritures passées un dimanche ou montants suspicieusement ronds
+        const suspiciousEntries = journals.filter(j => {
+            const day = new Date(j.date).getDay();
+            const isSunday = day === 0;
+            const amount = j.entree || j.sortie || 0;
+            const isRoundAmount = amount > 0 && amount % 100000 === 0;
+            return isSunday || isRoundAmount;
+        }).length;
+        const fraudScore = Math.min(10, 2 + suspiciousEntries * 1.5);
 
-        // 4. Risque Comptable (Basé sur la révision)
-        const accountingScore = 7.8; 
+        // 4. Risque Comptable — proportion d'écritures encore en attente de validation/export
+        const pendingJournals = journals.filter(j => j.status === 'PENDING').length;
+        const pendingRatio = journals.length > 0 ? pendingJournals / journals.length : 0;
+        const accountingScore = Math.min(10, 2 + pendingRatio * 8);
 
         return {
             globalScore: ((complianceScore + operationalScore + fraudScore + accountingScore) / 4).toFixed(1),
             breakdown: [
                 { category: "Opérationnel", score: operationalScore * 10, label: "Cycle Ventes-Clients", observations: `${inProgressMissions} missions critiques en cours.` },
                 { category: "Conformité", score: complianceScore * 10, label: "TVA & Retenues", observations: `${lateDeclarations} déclarations fiscales en souffrance.` },
-                { category: "Fraude", score: fraudScore * 10, label: "Caisse & Espèces", observations: "Flux de caisse monitoré par IA." },
-                { category: "Comptable", score: accountingScore * 10, label: "Évaluation Stocks", observations: "Audit des immobilisations validé." },
+                { category: "Fraude", score: fraudScore * 10, label: "Caisse & Espèces", observations: `${suspiciousEntries} écriture(s) suspecte(s) (dimanche ou montant rond) sur ${journals.length}.` },
+                { category: "Comptable", score: accountingScore * 10, label: "Écritures en Attente", observations: `${pendingJournals} écriture(s) sur ${journals.length} encore en attente de validation.` },
             ]
         };
     }
