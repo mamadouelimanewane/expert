@@ -460,3 +460,39 @@ body {
 .light .sidebar-active-indicator {
   background-color: #ffffff !important;
 }
+
+/* =============================================
+   APIX PORTAL HUB CARD STYLE MATCHING
+   ============================================= */
+.apix-hub-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 0 var(--hover-color-30), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--hover-color-40);
+  text-decoration: none;
+}
+
+.apix-hub-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 0 var(--hover-color), 0 15px 20px -5px rgba(0, 0, 0, 0.15) !important;
+  border-color: var(--hover-color) !important;
+}
+
+/* Dark theme fallbacks to maintain system dark mode compatibility */
+.dark .apix-hub-card {
+  background: #1e293b;
+  box-shadow: 0 4px 0 var(--hover-color-30), 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.dark .apix-hub-card:hover {
+  background: #1e293b;
+  border-color: var(--hover-color) !important;
+  box-shadow: 0 8px 0 var(--hover-color), 0 15px 20px -5px rgba(0, 0, 0, 0.4) !important;
+}
