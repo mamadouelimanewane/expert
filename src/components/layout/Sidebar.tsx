@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -204,7 +204,7 @@ export function Sidebar() {
             )}
 
             <aside className={cn(
-                "fixed left-0 top-0 h-screen w-64 glass border-r border-border/50 flex flex-col z-[58] transition-all duration-300 lg:translate-x-0",
+                "fixed left-0 top-0 h-screen w-64 sidebar-container flex flex-col z-[58] transition-all duration-300 lg:translate-x-0",
                 isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
             )}>
                 {/* Logo Section (Desktop only or keep for mobile drawer) */}
@@ -230,8 +230,8 @@ export function Sidebar() {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
-                                <div key={`header-${idx}`} className="px-3 py-1.5 mt-6 mb-2 mx-2 bg-foreground text-background rounded-md text-center shadow-md">
-                                    <h3 className="text-[10px] font-black pointer-events-none uppercase tracking-[0.2em]">
+                                <div key={`header-${idx}`} className="sidebar-header mt-6 mb-2 px-4 py-1">
+                                    <h3 className="text-[9px] font-black pointer-events-none uppercase tracking-[0.2em]">
                                         {item.header}
                                     </h3>
                                 </div>
@@ -246,10 +246,8 @@ export function Sidebar() {
                                 key={`${item.href}-${idx}`}
                                 href={item.href!}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
-                                    isActive
-                                        ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                    "sidebar-link",
+                                    isActive && "active"
                                 )}
                             >
                                 {isActive && (

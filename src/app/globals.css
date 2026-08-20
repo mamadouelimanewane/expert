@@ -100,28 +100,27 @@
 }
 
 .light {
-  /* Fond ultra-propre, très légèrement teinté de bleu/froid pour éviter l'effet 'sale' du gris */
-  --background: #f4f7fb;
+  --background: #f8fafc;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --primary: #4f46e5;
+  --primary: #006B3F; /* APIX Brand Green */
   --primary-foreground: #ffffff;
-  --secondary: #f0f4ff;
+  --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
-  --muted: #e8eeff;
+  --muted: #f1f5f9;
   --muted-foreground: #475569;
-  --accent: #0284c7;
+  --accent: #F29400; /* APIX Brand Gold/Orange */
   --accent-foreground: #ffffff;
-  --border: #c7d2fe;
+  --border: rgba(0, 0, 0, 0.08);
   --input: #ffffff;
-  --ring: #4f46e5;
-  --sidebar-bg: #ffffff;
-  --sidebar-border: #e0e7ff;
-  --sidebar-text: #0f172a;
-  --sidebar-active-bg: rgba(79, 70, 229, 0.08);
+  --ring: #006B3F;
+  --sidebar-bg: #006B3F; /* APIX Brand Green */
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-text: #ffffff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.12);
   --card-bg: #ffffff;
-  --footer-bg: #f0f4ff;
+  --footer-bg: #f8fafc;
 }
 
 /* =============================================
@@ -394,4 +393,70 @@ body {
 
 .animate-voice-wave {
   animation: voice-wave 1s ease-in-out infinite;
+}
+
+/* =============================================
+   CUSTOM SIDEBAR STYLING - DARK vs APIX LIGHT
+   ============================================= */
+.sidebar-container {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+}
+.sidebar-header {
+  opacity: 0.8;
+}
+.sidebar-header h3 {
+  color: var(--muted-foreground);
+}
+.sidebar-link {
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--foreground);
+}
+.sidebar-link.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* Light Theme Overrides matching APIX Green Sidebar */
+.light .sidebar-container {
+  background: #006B3F !important; /* APIX Brand Green */
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.light .sidebar-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.light .sidebar-header h3 {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+}
+.light .sidebar-link {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+.light .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  transform: translateX(4px);
+}
+.light .sidebar-link.active {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.light .sidebar-active-indicator {
+  background-color: #ffffff !important;
 }
