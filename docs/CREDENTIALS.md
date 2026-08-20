@@ -1,7 +1,7 @@
 # 🔐 IDENTIFIANTS DE CONNEXION - CABINET 360
 
 ## 📱 APPLICATION PRINCIPALE (Expert)
-**URL**: https://expert-pi.vercel.app/
+**URL**: https://expert-7qozlk20w-mamadou-dias-projects-979b1f4f.vercel.app/
 
 ### Utilisateurs Disponibles
 
@@ -31,7 +31,7 @@
 ---
 
 ## 🌐 PORTAIL CLIENT (Espace Client Sécurisé)
-**URL**: https://expert-pi.vercel.app/portal
+**URL**: https://expert-7qozlk20w-mamadou-dias-projects-979b1f4f.vercel.app/portal
 
 ### Clients de Démonstration
 
@@ -116,12 +116,12 @@ Si vous avez besoin d'un compte simple pour les tests :
 ## 🚀 ACCÈS RAPIDE
 
 ### Pour se connecter à l'application :
-1. Aller sur https://expert-pi.vercel.app/
+1. Aller sur https://expert-7qozlk20w-mamadou-dias-projects-979b1f4f.vercel.app/
 2. Utiliser un des comptes ci-dessus
 3. Accéder au tableau de bord
 
 ### Pour tester le portail client :
-1. Aller sur https://expert-pi.vercel.app/portal
+1. Aller sur https://expert-7qozlk20w-mamadou-dias-projects-979b1f4f.vercel.app/portal
 2. Interface client avec données de démonstration
 3. Pas de login requis (simulation)
 
