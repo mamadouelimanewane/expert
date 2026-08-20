@@ -70,7 +70,30 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-:root,
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #006B3F; /* APIX Brand Green */
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: #F29400; /* APIX Brand Gold/Orange */
+  --accent-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: #ffffff;
+  --ring: #006B3F;
+  --sidebar-bg: #006B3F; /* APIX Brand Green */
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-text: #ffffff;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.12);
+  --card-bg: #ffffff;
+  --footer-bg: #f8fafc;
+}
+
 .dark {
   --background: #0f172a;
   /* Slate 900 */
@@ -100,27 +123,7 @@
 }
 
 .light {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #006B3F; /* APIX Brand Green */
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-  --accent: #F29400; /* APIX Brand Gold/Orange */
-  --accent-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --input: #ffffff;
-  --ring: #006B3F;
-  --sidebar-bg: #006B3F; /* APIX Brand Green */
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-text: #ffffff;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.12);
-  --card-bg: #ffffff;
-  --footer-bg: #f8fafc;
+  /* Inherits from :root */
 }
 
 /* =============================================
@@ -398,18 +401,24 @@ body {
 /* =============================================
    CUSTOM SIDEBAR STYLING - DARK vs APIX LIGHT
    ============================================= */
+/* Sidebar is green and white by default (APIX layout) */
 .sidebar-container {
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
+  background: #006B3F !important; /* APIX Brand Green */
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 .sidebar-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   opacity: 0.8;
 }
 .sidebar-header h3 {
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
 }
 .sidebar-link {
-  color: var(--muted-foreground);
+  color: rgba(255, 255, 255, 0.75) !important;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -420,45 +429,50 @@ body {
   font-size: 0.75rem;
 }
 .sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--foreground);
-}
-.sidebar-link.active {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
-  border: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-/* Light Theme Overrides matching APIX Green Sidebar */
-.light .sidebar-container {
-  background: #006B3F !important; /* APIX Brand Green */
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-.light .sidebar-header {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-.light .sidebar-header h3 {
-  color: rgba(255, 255, 255, 0.6) !important;
-  font-size: 0.55rem;
-  letter-spacing: 0.2em;
-}
-.light .sidebar-link {
-  color: rgba(255, 255, 255, 0.75) !important;
-}
-.light .sidebar-link:hover {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
   transform: translateX(4px);
 }
-.light .sidebar-link.active {
+.sidebar-link.active {
   background: rgba(255, 255, 255, 0.15) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
-.light .sidebar-active-indicator {
+.sidebar-active-indicator {
   background-color: #ffffff !important;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Dark Theme Overrides for Sidebar */
+.dark .sidebar-container {
+  background: var(--sidebar-bg) !important; /* rgba(15, 23, 42, 0.8) */
+  border-right: 1px solid var(--sidebar-border) !important;
+}
+.dark .sidebar-header h3 {
+  color: var(--muted-foreground) !important;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+.dark .sidebar-link {
+  color: var(--muted-foreground) !important;
+}
+.dark .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--foreground) !important;
+  transform: none;
+}
+.dark .sidebar-link.active {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #6366f1 !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+}
+.dark .sidebar-active-indicator {
+  background-color: #6366f1 !important;
 }
 
 /* =============================================
