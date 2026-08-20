@@ -169,7 +169,7 @@ export default withAuth(
     if ((pathname === "/login" || pathname === "/") && token) {
       const role = token.role as string;
       const dest = role === "EXPERT" || role === "ADMIN"
-        ? "/bi"
+        ? "/dashboard"
         : "/comptabilite/production";
       const resp = NextResponse.redirect(new URL(dest, req.url));
       return addSecurityHeaders(resp);

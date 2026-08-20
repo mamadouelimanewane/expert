@@ -1,228 +1,263 @@
-﻿"use client";
+export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
-import {
-    BarChart3, PieChart, LineChart, TrendingUp, TrendingDown,
-    Activity, Target, Zap, Download, Filter, Calendar,
-    ArrowUpRight, ArrowDownRight, Search, BrainCircuit,
-    Layers, MousePointerClick, Eye, Users, Briefcase
+import React from "react";
+import Link from "next/link";
+import { 
+  Plus, Scan, Lock, ArrowRight,
+  LayoutDashboard, Users, Briefcase, Clock, Receipt, FileText,
+  RefreshCw, FileSpreadsheet, CalendarDays, Calculator, FolderPlus, ArrowRightLeft,
+  ShieldAlert, ShieldCheck, UserCheck, Gavel,
+  Rocket, Radar, Scale, Activity, Globe,
+  Smartphone, CreditCard, Landmark, Coins,
+  BrainCircuit, Sparkles
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import prisma from "@/lib/prisma";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { TaxDeclaration, Client } from "@prisma/client";
+import { AuditService } from "@/lib/audit";
 
-export default function BusinessIntelligencePage() {
-    const [activeView, setActiveView] = useState<"finance" | "client" | "ops">("finance");
+type TaxDeclarationWithClient = TaxDeclaration & { client: Client | null };
+type AuditLogWithUser = any;
 
-    return (
-        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-            {/* Header BI - High Tech Look */}
-            <div className="relative p-4 sm:p-8 lg:p-12 rounded-[60px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-600/10 to-transparent pointer-events-none" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
+const HUB_CATEGORIES = [
+  {
+    title: "Pilotage & Cabinet",
+    color: "#006B3F", // Vert principal APIX
+    items: [
+      { href: "/clients", icon: Users, label: "Portefeuille Clients", desc: "CRM 360° avec identifiants locaux NIF / NINEA", color: "#10b981", badge: "Live" },
+      { href: "/missions", icon: Briefcase, label: "Missions & Tâches", desc: "Gestion opérationnelle, statuts et workflows", color: "#4ade80" },
+      { href: "/timesheets", icon: Clock, label: "Suivi des Temps", desc: "Rentabilité collaborative par dossier client", color: "#2dd4bf" },
+      { href: "/billing", icon: Receipt, label: "Facturation & Honoraires", desc: "Suivi des encaissements et taxes localisées", color: "#fcd34d" },
+    ]
+  },
+  {
+    title: "Expertise & Production",
+    color: "#F29400", // Orange principal APIX
+    items: [
+      { href: "/comptabilite/production", icon: RefreshCw, label: "Production & Révision", desc: "Supervision des balances et états comptables", color: "#38bdf8" },
+      { href: "/comptabilite/liasse-fiscale", icon: FileSpreadsheet, label: "Liasse Fiscale Auto", desc: "Génération automatique des liasses SYSCOHADA", color: "#f43f5e" },
+      { href: "/fiscalite", icon: CalendarDays, label: "Fiscalité & Simulateur", desc: "Calcul des taxes et calendrier des échéances", color: "#818cf8" },
+      { href: "/payroll", icon: Calculator, label: "Paie & Social (SN)", desc: "Gestion des bulletins adaptés zone UEMOA", color: "#a78bfa" },
+      { href: "/documents", icon: FolderPlus, label: "GED Intelligente OCR", desc: "Scanner intelligent avec reconnaissance locale", color: "#fb923c", badge: "IA" },
+    ]
+  },
+  {
+    title: "Audit & Gouvernance",
+    color: "#8b5cf6", // Violet principal APIX
+    items: [
+      { href: "/audit", icon: ShieldAlert, label: "Audit FEC (Forensic)", desc: "Détection des anomalies et fraudes caisse", color: "#8b5cf6", badge: "IA" },
+      { href: "/audit/ai-assisted", icon: ShieldCheck, label: "Audit Légal (CAC)", desc: "Planification et notes de synthèse des commissaires", color: "#ec4899" },
+      { href: "/compliance/kyc-screening", icon: UserCheck, label: "Conformité KYC / LCB-FT", desc: "Règles anti-blanchiment BCEAO intégrées", color: "#22c55e" },
+      { href: "/governance", icon: Gavel, label: "Gouvernance & AG", desc: "Secrétariat juridique, tenues de PV et assemblées", color: "#fb7185" },
+    ]
+  },
+  {
+    title: "Stratégie & Fintech",
+    color: "#475569", // Slate principal APIX
+    items: [
+      { href: "/investment", icon: Activity, label: "Valorisation & M&A", desc: "Simulateur de fusion-acquisition et due diligence", color: "#94a3b8" },
+      { href: "/strategy/business-plan", icon: Rocket, label: "Business Plan", desc: "Génération de BP et radars fiscaux prédictifs", color: "#facc15" },
+      { href: "/fintech/payments", icon: CreditCard, label: "Paiements Mobile Money", desc: "Génération de QR codes Wave, Orange, MTN", color: "#60a5fa" },
+      { href: "/fintech/scoring", icon: Coins, label: "Score Solvabilité IA", desc: "Modélisation du risque crédit client", color: "#f87171" },
+    ]
+  }
+];
 
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10">
-                    <div>
-                        <div className="flex items-center gap-5 mb-6">
-                            <div className="p-4 bg-indigo-600 rounded-[28px] shadow-[0_0_40px_rgba(79,70,229,0.4)]">
-                                <BarChart3 className="w-10 h-10 text-white" />
-                            </div>
-                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter">Business Intelligence</h2>
-                        </div>
-                        <p className="text-slate-400 text-xl max-w-2xl font-medium leading-relaxed">
-                            Visualisation avancée et analytique prédictive pour le pilotage stratégique de votre cabinet.
-                        </p>
-                    </div>
+export default async function BusinessIntelligencePage() {
+  // Récupération des données réelles
+  const [recentDeclarations, recentLogs] = await Promise.all([
+    prisma.taxDeclaration.findMany({
+      take: 4,
+      orderBy: { dueDate: 'asc' },
+      include: { client: true }
+    }),
+    AuditService.getRecentLogs(4)
+  ]);
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/50">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score Santé Cabinet</p>
-                            <div className="flex items-center gap-3">
-                                <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">94/100</span>
-                                <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
-                            </div>
-                        </div>
-                        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/50">
-                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Prévision MRR T4</p>
-                            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">+18%</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-[1400px] mx-auto">
+      
+      {/* Header Banner - Matching APIX Linear Gradient & Circles */}
+      <div 
+        style={{ 
+          marginBottom: '3rem', 
+          background: 'linear-gradient(135deg, #006B3F 0%, #004b2c 100%)',
+          padding: '3.5rem 3rem',
+          borderRadius: '20px',
+          color: 'white',
+          boxShadow: '0 10px 25px rgba(0, 107, 63, 0.2)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
+        <div style={{ position: 'absolute', bottom: '-40px', right: '50px', width: '100px', height: '100px', background: 'rgba(242, 148, 0, 0.1)', borderRadius: '50%' }}></div>
 
-            {/* BI Toolbar */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex gap-4 p-1.5 bg-slate-900 border border-white/10 rounded-[30px] shadow-2xl overflow-x-auto w-full md:w-auto">
-                    {[
-                        { id: "finance", label: "Finance & Revenus", icon: TrendingUp },
-                        { id: "client", label: "Portefeuille Clients", icon: Users },
-                        { id: "ops", label: "Opérations & RH", icon: Zap }
-                    ].map((view) => (
-                        <button
-                            key={view.id}
-                            onClick={() => setActiveView(view.id as any)}
-                            className={cn(
-                                "px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-3 whitespace-nowrap",
-                                activeView === view.id ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30" : "text-slate-500 hover:text-white hover:bg-slate-800"
-                            )}
-                        >
-                            <view.icon className="w-4 h-4" /> {view.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="flex gap-3">
-                    <div className="bg-slate-900 border border-white/5 rounded-2xl p-2 flex items-center gap-4">
-                        <Calendar className="w-4 h-4 text-slate-500 ml-2" />
-                        <span className="text-xs font-bold text-slate-300 pr-4">Année Fiscale 2024</span>
-                    </div>
-                    <button className="p-4 bg-slate-900 border border-white/5 rounded-2xl text-slate-400 hover:text-white transition-all">
-                        <Filter className="w-5 h-5" />
-                    </button>
-                    <button className="p-4 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95">
-                        <Download className="w-5 h-5" />
-                    </button>
-                </div>
-            </div>
-
-            {/* Main Interactive BI Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Side Metrics */}
-                <div className="lg:col-span-1 space-y-6">
-                    <BiMetricCard label="Chiffre d'Affaires (YTD)" value="1.2B FCFA" trend="+12.4%" trendDir="up" color="text-white" />
-                    <BiMetricCard label="Marge Opérationnelle" value="38.2%" trend="+4.1%" trendDir="up" color="text-emerald-400" />
-                    <BiMetricCard label="Taux d'Attrition (Churn)" value="1.5%" trend="-0.5%" trendDir="down" color="text-indigo-400" />
-                    <BiMetricCard label="Délai de Recouvrement" value="24 jours" trend="+5j" trendDir="down" color="text-rose-400" />
-
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] bg-gradient-to-br from-indigo-600 to-purple-700 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:rotate-12 transition-transform">
-                            <BrainCircuit className="w-24 h-24 text-white" />
-                        </div>
-                        <h4 className="text-white font-black text-xl mb-4 tracking-tighter">Nexus Insights</h4>
-                        <p className="text-indigo-100 text-xs font-medium leading-relaxed mb-6">
-                            L'IA a identifié que le pôle "Social/Paie" présente une marge sous-optimale (18%). Une automatisation via le module BPO est recommandée.
-                        </p>
-                        <button className="w-full py-4 bg-white text-indigo-900 font-black uppercase text-[10px] tracking-widest rounded-xl shadow-xl hover:shadow-2xl transition-all">
-                            Voir l'analyse détaillée
-                        </button>
-                    </div>
-                </div>
-
-                {/* Main Visualizations */}
-                <div className="lg:col-span-3 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Revenue Curve */}
-                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
-                            <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-white font-black uppercase text-xs tracking-widest">Croissance du CA (Mensuel)</h3>
-                                <div className="flex gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                                    <div className="w-2 h-2 rounded-full bg-slate-700" />
-                                </div>
-                            </div>
-                            <div className="flex-1 flex items-end gap-3 px-4">
-                                {[45, 52, 48, 60, 65, 80, 75, 95, 85, 110, 105, 125].map((h, i) => (
-                                    <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
-                                        <div
-                                            className="w-full bg-indigo-500/20 group-hover:bg-indigo-500/40 transition-all rounded-t-lg relative"
-                                            style={{ height: `${(h/125)*100}%` }}
-                                        >
-                                            <div className="absolute -top-1 w-full h-1 bg-indigo-400 rounded-full shadow-[0_0_15px_rgba(129,140,248,0.8)]" />
-                                        </div>
-                                        <span className="text-[8px] text-slate-600 font-bold uppercase">{["J","F","M","A","M","J","J","A","S","O","N","D"][i]}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Category Mix */}
-                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5 h-[420px] flex flex-col">
-                            <h3 className="text-white font-black uppercase text-xs tracking-widest mb-8">Rentabilité par Pôle</h3>
-                            <div className="flex-1 flex items-center justify-center relative">
-                                <div className="w-56 h-56 rounded-full border-[16px] border-slate-800 flex items-center justify-center relative">
-                                    <div className="text-center">
-                                        <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">38%</p>
-                                        <p className="text-[8px] text-slate-500 font-black uppercase">Marge Nette Moyenne</p>
-                                    </div>
-                                    {/* Abstract Segments */}
-                                    <div className="absolute -top-4 -right-4 w-6 h-6 rounded-full bg-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.6)]" />
-                                    <div className="absolute bottom-2 left-0 w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)]" />
-                                    <div className="absolute top-1/2 -left-6 w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.6)]" />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 mt-8">
-                                <Label value="45% (Marge)" color="bg-indigo-500" text="Expertise" />
-                                <Label value="62% (Marge)" color="bg-emerald-500" text="Audit Légal" />
-                                <Label value="18% (Marge)" color="bg-amber-500" text="Social / Paie" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Operational Benchmarking */}
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-slate-900/40 border border-white/5">
-                        <div className="flex justify-between items-center mb-10">
-                            <h3 className="text-white font-black uppercase text-xs tracking-widest">Productivité & Temps non facturé</h3>
-                            <button className="text-[10px] text-indigo-400 font-black uppercase flex items-center gap-2 hover:text-white transition-colors">
-                                Détails par collaborateur <ArrowUpRight className="w-3 h-3" />
-                            </button>
-                        </div>
-                        <div className="space-y-8">
-                            <BenchRow label="Taux de Facturabilité (Associés)" user={65} market={55} color="bg-cyan-400" />
-                            <BenchRow label="Taux de Facturabilité (Collaborateurs)" user={82} market={85} color="bg-indigo-400" />
-                            <BenchRow label="Automatisation (Scan/Banque)" user={92} market={40} color="bg-emerald-400" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <h1 style={{ fontSize: '2.8rem', fontWeight: '800', margin: 0, position: 'relative', zIndex: 10, lineHeight: 1.1 }} className="tracking-tight">
+          Hub de Business Intelligence
+        </h1>
+        <p style={{ fontSize: '1.3rem', color: '#e2e8f0', marginTop: '0.5rem', position: 'relative', zIndex: 10 }}>
+          Sélectionnez un domaine analytique ou accédez aux modules d'analyse prédictive et de reporting financier du cabinet.
+        </p>
+        
+        <div className="flex items-center gap-3 pt-6 relative z-10 flex-wrap">
+          <a href="/dashboard/confidentiel" className="px-5 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-full font-bold text-xs transition-all border border-amber-500/30 flex items-center justify-center gap-2 shadow-lg">
+            <Lock className="w-4 h-4" /> Stats Confidentielles
+          </a>
+          <a href="/scan" className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold text-xs transition-all border border-white/20 flex items-center justify-center gap-2 shadow-lg">
+            <Scan className="w-4 h-4" /> Scanner Pièce OCR
+          </a>
         </div>
-    );
-}
+      </div>
 
-function BiMetricCard({ label, value, trend, trendDir, color }: any) {
-    return (
-        <div className="glass-card p-8 rounded-[32px] bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 transition-all group shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{label}</p>
-                <div className={cn(
-                    "flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full border",
-                    trendDir === "up" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                )}>
-                    {trendDir === "up" ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
-                    {trend}
+      {/* HUB DES MODULES - EXACT COPIED STYLE FROM APIX */}
+      <div className="space-y-12">
+        {HUB_CATEGORIES.map((category, catIdx) => (
+          <div key={catIdx} className="space-y-6">
+            
+            {/* Category header with bottom line border */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '10px' }} className="dark:border-white/10">
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: category.color, margin: 0 }}>
+                {category.title}
+              </h2>
+            </div>
+            
+            {/* Grid container */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: '1.5rem'
+            }}>
+              {category.items.map((mod, index) => {
+                const IconComponent = mod.icon;
+                return (
+                  <Link 
+                    key={index} 
+                    href={mod.href}
+                    className="apix-hub-card"
+                    style={{
+                      ['--hover-color' as any]: mod.color,
+                      ['--hover-color-30' as any]: `${mod.color}30`,
+                      ['--hover-color-40' as any]: `${mod.color}40`
+                    }}
+                  >
+                    {mod.badge && (
+                      <div style={{ position: 'absolute', top: '15px', right: '15px', background: '#006B3F', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', boxShadow: '0 2px 4px rgba(0, 107, 63, 0.3)' }}>
+                        {mod.badge}
+                      </div>
+                    )}
+
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '12px',
+                      background: `${mod.color}15`,
+                      color: mod.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <IconComponent size={32} />
+                    </div>
+                    
+                    <h3 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.5rem' }} className="text-slate-900 dark:text-white">
+                      {mod.label}
+                    </h3>
+                    
+                    <p style={{ fontSize: '1.05rem', lineHeight: '1.5', flex: 1 }} className="text-slate-500 dark:text-slate-400">
+                      {mod.desc}
+                    </p>
+
+                    <div style={{
+                      marginTop: '1.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: mod.color,
+                      fontWeight: '700',
+                      fontSize: '1.05rem',
+                      gap: '0.5rem'
+                    }}>
+                      Accéder <ArrowRight size={18} />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Live Data Insights & Feeds */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
+
+        {/* Left Column: Deadlines Fiscales */}
+        <div className="glass-card rounded-2xl p-8 border border-white/5 bg-slate-900/40 shadow-2xl">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Échéances Fiscales Récentes</h3>
+            <Link href="/declarations" className="text-[10px] font-black uppercase tracking-widest text-[#006B3F] hover:text-[#004b2c] transition-colors dark:text-indigo-400">Voir le calendrier complet</Link>
+          </div>
+
+          <div className="space-y-4">
+            {recentDeclarations.length > 0 ? recentDeclarations.map((task: TaxDeclarationWithClient, i: number) => (
+              <div key={i} className="flex items-center justify-between p-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 rounded-2xl transition-all border border-black/5 dark:border-white/5 hover:border-[#006B3F]/30 cursor-pointer group">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center font-black text-xs text-slate-500 dark:text-slate-400 group-hover:bg-[#006B3F]/10 group-hover:text-[#006B3F] transition-all shadow-inner uppercase">
+                    {task.client?.country || "CI"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-slate-800 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-indigo-400 transition-colors truncate">
+                      {task.client?.companyName || "Client inconnu"}
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{task.type} - {task.period}</p>
+                  </div>
                 </div>
-            </div>
-            <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black tracking-tighter", color)}>{value}</h3>
-        </div>
-    );
-}
-
-function Label({ value, color, text }: any) {
-    return (
-        <div className="text-center">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-                <div className={cn("w-2 h-2 rounded-full", color)} />
-                <span className="text-[10px] font-black text-white">{value}</span>
-            </div>
-            <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{text}</p>
-        </div>
-    );
-}
-
-function BenchRow({ label, user, market, color }: any) {
-    return (
-        <div className="space-y-3">
-            <div className="flex justify-between items-center">
-                <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest">{label}</span>
-                <div className="flex gap-4">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase">Cabinet: {user}%</span>
-                    <span className="text-[9px] font-bold text-slate-600 uppercase">Marché: {market}%</span>
+                <div className="flex items-center gap-8 shrink-0">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-sm font-black text-slate-800 dark:text-white">{format(new Date(task.dueDate), 'dd MMM', { locale: fr })}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date limite</p>
+                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-lg ${task.status === 'VALIDATED' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400" :
+                    task.status === 'PENDING' ? "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400" :
+                      "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-white/10"
+                    }`}>
+                    {task.status}
+                  </span>
                 </div>
-            </div>
-            <div className="h-3 w-full bg-slate-800/50 rounded-full relative overflow-hidden p-0.5">
-                <div
-                    className={cn("h-full rounded-full transition-all duration-1000 shadow-[0_0_15px]", color.replace("text-", "bg-"))}
-                    style={{ width: `${user}%`, opacity: 0.9 }}
-                />
-                <div className="absolute top-0 bottom-0 w-0.5 bg-white/20" style={{ left: `${market}%` }} />
-            </div>
+              </div>
+            )) : (
+              <div className="py-10 text-center">
+                <p className="text-slate-500 font-medium">Aucune échéance fiscale à venir.</p>
+              </div>
+            )}
+          </div>
         </div>
-    );
+
+        {/* Right Column: Activity Feed */}
+        <div className="glass-card rounded-2xl p-8 border border-white/5 bg-slate-900/40 shadow-2xl">
+          <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight mb-8">Flux d'Activité Système</h3>
+          <div className="pl-6 border-l-2 border-slate-300 dark:border-slate-800 space-y-8">
+            {recentLogs.length > 0 ? recentLogs.map((act: AuditLogWithUser, i: number) => (
+              <div key={i} className="relative group">
+                <div className="absolute -left-[33px] top-1 w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 bg-[#006B3F] shadow-[0_0_15px_rgba(0,107,63,0.5)] group-hover:scale-125 transition-all" />
+                <p className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#006B3F] dark:group-hover:text-white transition-colors">{act.action}</p>
+                <p className="text-xs text-slate-500 mt-1 font-medium">{act.details || "Action effectuée dans le système"}</p>
+                <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 mt-3 uppercase tracking-widest flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-700 rounded-full" />
+                  {format(new Date(act.createdAt), 'HH:mm', { locale: fr })} • {act.user?.firstName || "Système"}
+                </p>
+              </div>
+            )) : (
+              <div className="relative group">
+                <div className="absolute -left-[33px] top-1 w-4 h-4 rounded-full border-4 border-white dark:border-slate-900 bg-slate-700" />
+                <p className="text-sm font-bold text-slate-500">En attente d'activités...</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 }
