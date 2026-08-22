@@ -14,6 +14,7 @@
     "prisma:seed": "npx tsx prisma/seed.ts",
     "prisma:studio": "npx prisma studio",
     "rotate:passwords": "npx tsx scripts/rotate-passwords.ts",
+    "routes:generate": "node scripts/generate-routes.mjs",
     "seed:admin": "npx tsx scripts/seed-admin.ts",
     "seed:admin:prod": "npx tsx scripts/seed-admin-production.ts",
     "seed:demo": "npx tsx scripts/seed-demo-uemoa.ts",

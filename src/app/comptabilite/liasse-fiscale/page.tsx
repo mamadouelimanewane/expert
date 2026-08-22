@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 interface LiasseSection {
     id: string;
     title: string;
@@ -49,6 +50,8 @@ export default function LiasseFiscalePage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
+            <DonneesDemo />
+
             {/* Header Premium - DSF OHADA */}
             <div className="bg-slate-900/40 p-4 sm:p-8 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">

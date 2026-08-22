@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const MATERIALITY_BASES = [
     { label: "Produits d'Exploitation", value: "2 450 600 000", rate: "1.5%", result: "36 759 000" },
     { label: "Résultat Courant", value: "185 400 000", rate: "10%", result: "18 540 000" },
@@ -36,6 +37,8 @@ export default function CACSuitePage() {
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Header: Professional Audit Workbench */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 relative overflow-hidden bg-slate-900/40 rounded-[32px] px-10 border-t border-t-indigo-500/20 shadow-2xl">

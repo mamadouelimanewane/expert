@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 interface BoniMali {
     id: string;
     client: string;
@@ -41,6 +42,8 @@ export default function BoniMaliPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
             {/* Header Tempolia Inspired */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">

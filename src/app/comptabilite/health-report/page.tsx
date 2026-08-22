@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { ScoreEvolutionChart } from "@/components/portal/ScoreEvolutionChart";
+import DonneesDemo from "@/components/layout/DonneesDemo";
 import {
   FileText, Download, Printer, Eye, ChevronDown,
   TrendingUp, Award, Shield, BarChart2, CheckCircle,
@@ -133,6 +134,8 @@ export default function HealthReportPage() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Anchor, TrendingUp, Calculator, CheckCircle2, AlertTriangle, Globe, Building2, Zap, ArrowRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const ZONES = [
   { id: "dakar", name: "Zone Franche de Dakar", country: "Sénégal", flag: "🇸🇳", tva: 0, is: 15, douane: 0, duree: 25 },
   { id: "abidjan", name: "Zone Industrielle d'Abidjan", country: "Côte d'Ivoire", flag: "🇨🇮", tva: 0, is: 0, douane: 0, duree: 20 },
@@ -33,6 +34,8 @@ export default function ZoneFranchePage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
       {/* Header */}
       <div className="p-4 sm:p-8 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-gradient-to-br from-slate-900/80 to-indigo-950/30 border border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">

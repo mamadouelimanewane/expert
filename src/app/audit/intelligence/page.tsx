@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 interface Transaction {
     id: string;
     date: string;
@@ -78,6 +79,8 @@ export default function AuditIntelligencePage() {
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
+            <DonneesDemo />
+
             {/* Header: Audit Intelligence Command Center */}
             <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">

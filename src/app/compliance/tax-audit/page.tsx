@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const ACTIVE_CONTROLS = [
     {
         id: "CTR-2026-001",
@@ -123,6 +124,8 @@ Fait à Dakar, le ${date}`;
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-4 sm:p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 relative overflow-hidden bg-gradient-to-r from-rose-500/5 via-transparent to-transparent rounded-3xl sm:rounded-[32px] px-6 sm:px-10 border-l-4 border-l-rose-500/50">

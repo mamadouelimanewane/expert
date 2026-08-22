@@ -5,6 +5,7 @@ import { FileText, Building2, User, Calendar, ChevronLeft, Send, Sparkles, Check
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const MISSION_TYPES = [
   { value: "AUDIT", label: "Audit Légal", icon: Scale },
   { value: "EXPERTISE", label: "Expertise Comptable", icon: FileText },
@@ -34,6 +35,8 @@ export default function NewLettreMissionPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
+            <DonneesDemo />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/lettres-mission" className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-colors border border-white/5">

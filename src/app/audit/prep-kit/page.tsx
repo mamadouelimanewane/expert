@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 // Types
 type AuditPhase = "planning" | "risk" | "execution" | "reporting";
 
@@ -80,6 +81,8 @@ export default function CompleteAuditKitPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
+            <DonneesDemo />
+
             {/* Mission Header */}
             <div className="relative p-4 sm:p-6 lg:p-10 rounded-[40px] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-900/20 to-transparent pointer-events-none" />

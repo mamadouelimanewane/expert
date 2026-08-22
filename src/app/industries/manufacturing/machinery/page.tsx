@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const MACHINERY_PARK = [
     {
         id: "M001",
@@ -76,6 +77,8 @@ export default function MachineryInventoryPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-6 border-b border-white/5">

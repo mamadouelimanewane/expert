@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const MRR_DATA = [
   { month: "Jan", value: 1850000, height: 30 },
   { month: "Fév", value: 2400000, height: 40 },
@@ -58,6 +59,8 @@ export default function SaasAdminPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in zoom-in-95 duration-700 pb-16">
+            <DonneesDemo />
+
 
       {/* Header */}
       <div className="relative overflow-hidden rounded-[32px] p-8 bg-gradient-to-br from-rose-950/60 to-slate-900/80 border border-rose-500/20">

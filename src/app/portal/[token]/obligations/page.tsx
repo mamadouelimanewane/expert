@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Calendar, AlertCircle, CheckCircle2, ChevronRight, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const OBLIGATIONS = [
   { id: 1, type: "TVA - Mois 06/2026", date: "15 Juillet 2026", amount: "12 500 000 FCFA", status: "URGENT", days: 2 },
   { id: 2, type: "BRS - Mois 06/2026", date: "15 Juillet 2026", amount: "4 200 000 FCFA", status: "PROCHE", days: 2 },
@@ -15,6 +16,8 @@ const OBLIGATIONS = [
 export default function ClientPortalObligationsPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-700 p-6 max-w-5xl mx-auto">
+            <DonneesDemo />
+
       <div className="flex justify-between items-center bg-white p-8 rounded-[32px] shadow-sm border border-slate-200">
         <div>
           <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">

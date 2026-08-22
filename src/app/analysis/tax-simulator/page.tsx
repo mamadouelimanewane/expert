@@ -6,6 +6,7 @@ import { Calculator, PieChart, AlertTriangle, ArrowRight, Building, CheckCircle2
 import { cn } from "@/lib/utils";
 import { simulateCorporateTax, TaxSimulation } from "@/lib/tax-simulator";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const COUNTRIES = [
   { id: "sn", name: "Sénégal", flag: "🇸🇳", taxRate: "30%" },
   { id: "ci", name: "Côte d'Ivoire", flag: "🇨🇮", taxRate: "25%" },
@@ -29,6 +30,8 @@ export default function TaxSimulatorPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">

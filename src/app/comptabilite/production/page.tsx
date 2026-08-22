@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const ALL_FLOWS = [
     { id: "1", client: "Société Ivoirienne de Banque", amount: "4 250 000", date: "27/01/2024", type: "Vente", status: "Matching IA (98%)", tags: ["Audit", "SIB"] },
     { id: "2", client: "Orange Sénégal", amount: "1 200 000", date: "26/01/2024", type: "Vente", status: "A réviser", tags: ["Télécoms"] },
@@ -34,6 +35,8 @@ export default function CollaborativeProductionPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
             {/* Pennylane Style Hero */}
             <div className="bg-slate-950 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />

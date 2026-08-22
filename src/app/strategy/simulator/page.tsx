@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 // Mock Scenario Data
 const SCENARIOS = [
     { id: "inflation", label: "Choc Inflationniste", icon: TrendingUp, color: "text-rose-400", bg: "bg-rose-500/10" },
@@ -39,6 +40,8 @@ export default function StrategySimulatorPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Header Futuristic */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-6 border-b border-white/5 relative overflow-hidden">

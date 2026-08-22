@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const ESG_METRICS = [
     {
         id: "env",
@@ -71,6 +72,8 @@ export default function SustainabilityHubPage() {
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Organic/Premium Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-10 border-b border-white/5 relative overflow-hidden ring-1 ring-emerald-500/10 rounded-[40px] px-10 bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent">

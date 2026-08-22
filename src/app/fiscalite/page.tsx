@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 // ============================================
 // DONNÉES : Obligations fiscales OHADA / SN
 // ============================================
@@ -95,6 +96,8 @@ export default function FiscaliteOhada() {
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">

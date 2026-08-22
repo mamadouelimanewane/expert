@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const EXPERTS = [
     {
         name: "Moussa Sarr",
@@ -72,6 +73,8 @@ export default function AnnuairePage() {
 
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-700">
+            <DonneesDemo />
+
             {/* Hero Section */}
             <div className="relative h-[280px] sm:h-[350px] lg:h-[400px] rounded-[40px] overflow-hidden bg-slate-900 border border-white/5 shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20" />

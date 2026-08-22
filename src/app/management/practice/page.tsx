@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const PRACTICE_METRICS = [
     { label: "Chiffre d'Affaires Mensuel", value: "45M FCFA", trend: "+12%", trendUp: true, color: "text-indigo-400" },
     { label: "Marge Moyenne / Dossier", value: "32%", trend: "-1.5%", trendUp: false, color: "text-amber-400" },
@@ -37,6 +38,8 @@ const MISSIONS_STATUS = [
 export default function PracticeManagementPage() {
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Header Queoval Style */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-8 border-b border-white/5">

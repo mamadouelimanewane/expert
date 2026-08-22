@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link2, UploadCloud, FileSpreadsheet, CheckCircle2, ArrowRight, Settings, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const CONNECTORS = [
   { id: "wave", name: "Wave Accounting", color: "emerald", desc: "Logiciel cloud TPE", badge: "Populaire" },
   { id: "sage", name: "Sage 100", color: "blue", desc: "Fichier d'écritures .PNM / .TXT", badge: "Standard" },
@@ -29,6 +30,8 @@ export default function ConnectorsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">

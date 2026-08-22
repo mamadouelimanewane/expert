@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 interface Resource {
     id: string;
     title: string;
@@ -65,6 +66,8 @@ export default function LibraryPage() {
 
     return (
         <div className="space-y-6">
+            <DonneesDemo />
+
             {/* Header with Search */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-slate-900/40 p-8 rounded-3xl border border-white/5">
                 <div className="flex-1">

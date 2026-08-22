@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 // Mock Data for Industrial Clients
 const INDUSTRIAL_PORTFOLIO = [
     {
@@ -70,6 +71,8 @@ const INDUSTRIAL_PORTFOLIO = [
 export default function ManufacturingPortfolioPage() {
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
+            <DonneesDemo />
+
 
             {/* Industrial Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 relative overflow-hidden">

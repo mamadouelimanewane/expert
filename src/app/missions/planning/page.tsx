@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const COLLABORATORS = [
     { id: "1", name: "Moussa Sarr", role: "Expert Principal", avatar: "MS", color: "bg-indigo-500" },
     { id: "2", name: "Aissatou Diop", role: "Chef de Mission", avatar: "AD", color: "bg-purple-500" },
@@ -39,6 +40,8 @@ export default function ResourcePlanningPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>

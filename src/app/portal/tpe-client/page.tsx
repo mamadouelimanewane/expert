@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface Expense {
@@ -342,6 +343,8 @@ export default function TPEClientPortalPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 pb-10">
+            <DonneesDemo />
+
       {/* ── Top Bar ─────────────────────────────────────────────────────── */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-10 pb-20 px-4 sm:px-6">
         <div className="max-w-lg mx-auto">

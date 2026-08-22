@@ -6,6 +6,7 @@ import { FileText, Download, CheckCircle2, Loader2, ChevronDown } from "lucide-r
 import { cn } from "@/lib/utils";
 import { REPORT_TEMPLATES } from "@/components/reporting/ReportTemplates";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const RECENT_REPORTS = [
   { id: 1, name: "Rapport d'Audit - Senelec 2025.pdf", date: "05 Juil 2026", size: "2.4 MB" },
   { id: 2, name: "Liasse Fiscale - Orange SN.pdf", date: "02 Juil 2026", size: "1.1 MB" },
@@ -32,6 +33,8 @@ export default function PdfGeneratorPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+            <DonneesDemo />
+
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-white tracking-tight">Générateur PDF Automatisé</h2>

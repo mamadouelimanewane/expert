@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import DonneesDemo from "@/components/layout/DonneesDemo";
 const ACT_TYPES = [
     { id: "ag_annuelle", label: "PV d'Assemblée Générale Annuelle", icon: FileText, desc: "Approbation des comptes, affectation du résultat, quitus aux dirigeants." },
     { id: "changement_gerant", label: "Changement de Gérant / Dirigeant", icon: Scale, desc: "Démission, révocation ou nomination d'un nouveau mandataire social." },
@@ -58,6 +59,8 @@ L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion e
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
+            <DonneesDemo />
+
             {/* Header: Legal Command Center */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
