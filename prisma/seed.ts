@@ -330,8 +330,7 @@ async function main() {
     });
 
     console.log('🎉 Database seeded successfully!');
-    console.log('
-🔐 Identifiants générés (affichés une seule fois — notez-les maintenant) :');
+    console.log('\n🔐 Identifiants générés (affichés une seule fois — notez-les maintenant) :');
     for (const { email, password } of issued) {
         console.log(`   ${email} / ${password}`);
     }

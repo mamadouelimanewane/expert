@@ -5,9 +5,11 @@ import { Download, Printer, TrendingUp, TrendingDown } from 'lucide-react';
 import { clsx } from 'clsx';
 
 import { useState, useEffect } from 'react';
+import ControlesBanner from '@/components/etats-financiers/ControlesBanner';
 
 export default function ResultatPage() {
     const [resultatData, setResultatData] = useState<any[]>([]);
+    const [controles, setControles] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -17,6 +19,7 @@ export default function ResultatPage() {
                 const data = await res.json();
                 if (data.resultat) {
                     setResultatData(data.resultat);
+                    setControles(data.controles ?? null);
                 }
             } catch (error) {
                 console.error("Failed to fetch Resultat:", error);
@@ -54,6 +57,8 @@ export default function ResultatPage() {
                 </div>
             </div>
 
+            <ControlesBanner controles={controles} />
+
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -79,14 +84,16 @@ export default function ResultatPage() {
 
                             const variation = (row.netN || 0) - (row.netN1 || 0);
                             const isPositive = variation >= 0;
+                            // XI = résultat net de l'exercice, seul total de niveau supérieur.
+                            const resultatNet = row.code === 'XI';
 
                             return (
                                 <tr
-                                    key={idx}
+                                    key={row.code ?? idx}
                                     className={clsx(
                                         "transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50",
-                                        row.isTotal ? "bg-indigo-50/30 font-bold dark:bg-indigo-900/10" : "text-slate-600 dark:text-slate-300",
-                                        row.level === 2 ? "border-t-2 border-slate-200 bg-indigo-50 text-base dark:border-slate-700 dark:bg-indigo-900/20" : ""
+                                        row.isSIG ? "bg-indigo-50/30 font-bold dark:bg-indigo-900/10" : "text-slate-600 dark:text-slate-300",
+                                        resultatNet ? "border-t-2 border-slate-200 bg-indigo-50 text-base dark:border-slate-700 dark:bg-indigo-900/20" : ""
                                     )}
                                 >
                                     <td className="px-6 py-3 font-mono text-xs opacity-70">{row.code}</td>
@@ -94,7 +101,7 @@ export default function ResultatPage() {
                                         {row.label}
                                     </td>
                                     <td className="px-6 py-3 text-right font-mono text-slate-900 dark:text-white">
-                                        {row.level === 2 ?
+                                        {resultatNet ?
                                             <span className="text-indigo-600 dark:text-indigo-400">{(row.netN || 0).toLocaleString('fr-FR')}</span> :
                                             (row.netN || 0).toLocaleString('fr-FR')
                                         }

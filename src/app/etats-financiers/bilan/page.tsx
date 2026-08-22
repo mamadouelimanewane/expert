@@ -6,10 +6,12 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 import { useState, useEffect } from 'react';
+import ControlesBanner from '@/components/etats-financiers/ControlesBanner';
 
 export default function BilanPage() {
     const [actifData, setActifData] = useState<any[]>([]);
     const [passifData, setPassifData] = useState<any[]>([]);
+    const [controles, setControles] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -20,6 +22,7 @@ export default function BilanPage() {
                 if (data.actif && data.passif) {
                     setActifData(data.actif);
                     setPassifData(data.passif);
+                    setControles(data.controles ?? null);
                 }
             } catch (error) {
                 console.error("Failed to fetch Bilan:", error);
@@ -57,15 +60,20 @@ export default function BilanPage() {
                 </div>
             </div>
 
+            <ControlesBanner controles={controles} />
+
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <BilanTable title="ACTIF" data={actifData} headerColor="bg-emerald-600" />
+                <BilanTable title="ACTIF" data={actifData} headerColor="bg-emerald-600" showAmort />
                 <BilanTable title="PASSIF" data={passifData} headerColor="bg-amber-600" />
             </div>
         </div>
     );
 }
 
-function BilanTable({ title, data, headerColor }: { title: string, data: any[], headerColor: string }) {
+/** Codes des totaux généraux, mis en évidence en bas de chaque colonne. */
+const TOTAUX_GENERAUX = new Set(['BZ', 'DZ']);
+
+function BilanTable({ title, data, headerColor, showAmort }: { title: string, data: any[], headerColor: string, showAmort?: boolean }) {
     return (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
             <div className={`px-6 py-3 ${headerColor} text-white`}>
@@ -78,30 +86,52 @@ function BilanTable({ title, data, headerColor }: { title: string, data: any[], 
                         <tr>
                             <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Réf</th>
                             <th className="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Libellé</th>
+                            {showAmort && (
+                                <>
+                                    <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Brut</th>
+                                    <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Amort./Dépréc.</th>
+                                </>
+                            )}
                             <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Net N</th>
                             <th className="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Net N-1</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {data.map((row, idx) => (
-                            <tr
-                                key={idx}
-                                className={clsx(
-                                    "transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50",
-                                    row.isTotal && row.level === 2 ? "bg-slate-100 font-bold text-slate-900 dark:bg-slate-900 dark:text-white" : "",
-                                    row.isTotal && row.level === 1 ? "bg-slate-50/50 font-semibold text-slate-800 dark:bg-slate-900/30 dark:text-slate-200" : "text-slate-600 dark:text-slate-300"
-                                )}
-                            >
-                                <td className="px-4 py-3 font-mono text-xs opacity-70">{row.code}</td>
-                                <td className="px-4 py-3">{row.label}</td>
-                                <td className="px-4 py-3 text-right font-mono">
-                                    {(row.netN || 0).toLocaleString('fr-FR')}
-                                </td>
-                                <td className="px-4 py-3 text-right font-mono opacity-80">
-                                    {(row.netN1 || 0).toLocaleString('fr-FR')}
-                                </td>
-                            </tr>
-                        ))}
+                        {data.map((row, idx) => {
+                            const totalGeneral = TOTAUX_GENERAUX.has(row.code);
+                            return (
+                                <tr
+                                    key={row.code ?? idx}
+                                    className={clsx(
+                                        "transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50",
+                                        totalGeneral
+                                            ? "border-t-2 border-slate-200 bg-slate-100 font-bold text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                            : row.isTotal
+                                                ? "bg-slate-50/50 font-semibold text-slate-800 dark:bg-slate-900/30 dark:text-slate-200"
+                                                : "text-slate-600 dark:text-slate-300"
+                                    )}
+                                >
+                                    <td className="px-4 py-3 font-mono text-xs opacity-70">{row.code}</td>
+                                    <td className="px-4 py-3">{row.label}</td>
+                                    {showAmort && (
+                                        <>
+                                            <td className="px-4 py-3 text-right font-mono opacity-70">
+                                                {(row.brutN || 0).toLocaleString('fr-FR')}
+                                            </td>
+                                            <td className="px-4 py-3 text-right font-mono opacity-70">
+                                                {row.amortN ? `(${row.amortN.toLocaleString('fr-FR')})` : '—'}
+                                            </td>
+                                        </>
+                                    )}
+                                    <td className="px-4 py-3 text-right font-mono">
+                                        {(row.netN || 0).toLocaleString('fr-FR')}
+                                    </td>
+                                    <td className="px-4 py-3 text-right font-mono opacity-80">
+                                        {(row.netN1 || 0).toLocaleString('fr-FR')}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
