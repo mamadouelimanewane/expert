@@ -26,7 +26,10 @@ export async function GET(
                     take: 5,
                 },
                 documents: {
-                    orderBy: { createdAt: 'desc' }
+                    orderBy: { createdAt: 'desc' },
+                    // Borne explicite : sans `take`, un client charge l'integralite
+                    // de sa GED a chaque ouverture du portail.
+                    take: 50,
                 },
                 _count: {
                     select: {

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
+import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 export async function POST() {
+    const { denied } = await requireAdmin();
+    if (denied) return denied;
+
     // Garde-fou supplémentaire : même protégée par rôle ADMIN au niveau du
     // middleware, cette route écrase/peuple massivement la base et ne doit
     // jamais pouvoir être invoquée en production.

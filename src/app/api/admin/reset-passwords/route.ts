@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { getToken } from "next-auth/jwt";
 
-const prisma = new PrismaClient();
 
+import prisma from "@/lib/prisma";
 // Réinitialise le mot de passe d'un ou plusieurs comptes staff avec un
 // mot de passe aléatoire fort, généré à la volée et renvoyé une seule fois
 // dans la réponse (jamais stocké en clair, jamais prévisible).

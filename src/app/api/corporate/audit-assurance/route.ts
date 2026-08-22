@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 const STATUS_MAP: Record<string, string> = {
   DRAFT: "planning",
   IN_PROGRESS: "fieldwork",
@@ -10,6 +11,9 @@ const STATUS_MAP: Record<string, string> = {
 };
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const missions = await prisma.mission.findMany({
       where: { type: "AUDIT" },

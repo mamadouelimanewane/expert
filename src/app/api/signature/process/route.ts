@@ -3,7 +3,11 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const { documentId, userName } = await request.json();
 

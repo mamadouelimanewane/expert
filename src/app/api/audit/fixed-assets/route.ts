@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
@@ -21,6 +25,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await request.json();
     const { code, label, category, purchaseDate, value, location, clientId } = body;
@@ -57,6 +64,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await request.json();
     const { id, status, lastAuditDate } = body;

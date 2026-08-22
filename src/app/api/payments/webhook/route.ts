@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { FintechService, PaymentProvider } from "@/lib/fintech";
+import { verifierSignatureWebhook } from "@/lib/webhook-signature";
 
 /**
  * Endpoint pour recevoir les notifications (hooks) des opérateurs
@@ -16,19 +17,38 @@ export async function POST(request: Request) {
     try {
         const url = new URL(request.url);
         const provider = url.searchParams.get("provider") as PaymentProvider;
-        const payload = await request.json();
 
         if (!provider) {
             return NextResponse.json({ error: "Provider non spécifié" }, { status: 400 });
         }
 
-        // Tant que l'intégration n'est pas configurée, aucun paiement ne doit pouvoir être
-        // marqué comme réussi via ce webhook (évite qu'un tiers non authentifié ne simule
-        // un paiement réussi). Une fois la clé API renseignée, ajouter en plus la vérification
-        // de signature propre au fournisseur avant d'appeler handleWebhook.
+        // Tant que l'intégration n'est pas configurée, aucun paiement ne doit pouvoir
+        // être marqué comme réussi via ce webhook.
         const requiredVars = REQUIRED_ENV_VARS[provider];
         if (!requiredVars || requiredVars.some((v) => !process.env[v])) {
             return NextResponse.json({ error: `Intégration ${provider} non configurée` }, { status: 503 });
+        }
+
+        // Le corps est lu en texte brut : la signature porte sur les octets reçus,
+        // qu'une re-sérialisation JSON modifierait.
+        const rawBody = await request.text();
+
+        // Authentification AVANT tout traitement. Sans elle, la seule condition
+        // pour faire enregistrer un paiement réussi serait de connaître l'URL.
+        const verification = verifierSignatureWebhook(provider, rawBody, request.headers);
+        if (!verification.ok) {
+            console.warn(`[Webhook API] Signature refusée (${provider}) : ${verification.reason}`);
+            return NextResponse.json(
+                { error: "Webhook non authentifié", reason: verification.reason },
+                { status: verification.status }
+            );
+        }
+
+        let payload: Record<string, unknown>;
+        try {
+            payload = JSON.parse(rawBody) as Record<string, unknown>;
+        } catch {
+            return NextResponse.json({ error: "Corps JSON invalide" }, { status: 400 });
         }
 
         // Traitement du webhook

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         // Données d'exemple pour guider le client
         const templateData = [

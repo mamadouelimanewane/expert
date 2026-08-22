@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { generateForecast, detectCriticalPoints } from "@/lib/forecast-engine";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const baseCash = 18400000; // 18.4M FCFA
 
   const optimiste = generateForecast(baseCash, 'optimiste');

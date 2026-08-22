@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { calculatePayroll } from "@/lib/payroll/engines";
 import { isLLMConfigured } from "@/lib/llm";
 
+import { requireStaff } from "@/lib/api-auth";
 type ExtractedVars = { absencesDays: number; overtimeHours: number; bonuses: number };
 
 async function extractPayrollVariables(transcript: string, employeeNames: string[]): Promise<Record<string, ExtractedVars>> {
@@ -42,6 +43,9 @@ Réponds UNIQUEMENT avec un objet JSON de la forme {"Prénom": {"absencesDays": 
 }
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { clientId, transcript } = await req.json();
 

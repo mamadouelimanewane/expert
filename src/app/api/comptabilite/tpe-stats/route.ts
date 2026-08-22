@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         // Get all TPE journals grouped by businessName + periode
         const allJournals = await prisma.tpeJournal.findMany({

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const transactions = await prisma.mobileMoneyTransaction.findMany({
             orderBy: { transactionDate: 'desc' }
@@ -17,6 +21,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const data = await request.json();
 
@@ -71,6 +78,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     // Le rapprochement automatique nécessite une intégration réelle avec l'API de
     // l'opérateur (Wave/Orange/MTN) pour confirmer chaque transaction individuellement.
     // Aucune logique de correspondance fiable n'est câblée : on ne marque donc plus

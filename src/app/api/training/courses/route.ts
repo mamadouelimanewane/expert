@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { ensureTrainingSeed } from "@/lib/training-seed";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     await ensureTrainingSeed();
 

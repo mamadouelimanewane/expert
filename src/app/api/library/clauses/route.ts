@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Bibliothèque de clauses types de démarrage (contenu de référence réel, conforme aux
 // Actes Uniformes OHADA — pas des données client fabriquées). Insérée une seule fois
 // si la collection est vide, pour que l'outil soit utilisable dès l'installation.
@@ -101,6 +102,9 @@ Au-delà de [DÉLAI_RÉSOLUTION] jours de retard, le Client pourra résoudre le 
 ];
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     let clauses = await prisma.legalClause.findMany({ orderBy: { title: "asc" } });
 
@@ -117,6 +121,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { title, category, subcategory, content, acteUniforme } = body;
@@ -145,6 +152,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { id, toggleFavorite, incrementUsage } = body;

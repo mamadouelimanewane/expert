@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { askNexus, isLLMConfigured } from "@/lib/llm";
 
+import { requireStaff } from "@/lib/api-auth";
 // Analyse fiscale d'un document fourni par l'utilisateur (contenu texte déjà extrait
 // côté client d'un fichier Excel/CSV). Aucune opportunité n'est jamais inventée côté
 // serveur : si l'IA n'est pas configurée, on le dit clairement plutôt que de renvoyer
@@ -12,6 +13,9 @@ Précise explicitement que chaque point doit être vérifié par l'expert-compta
 Réponds en français.`;
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   const { content, fileName } = body;
 

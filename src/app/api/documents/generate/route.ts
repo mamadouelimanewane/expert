@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { clientId, docType } = await req.json();
 

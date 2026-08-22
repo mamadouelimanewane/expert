@@ -2,9 +2,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 const clamp = (v: number) => Math.max(0, Math.min(100, Math.round(v)));
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const clients = await prisma.client.findMany({
             where: { healthScore: { not: null } },

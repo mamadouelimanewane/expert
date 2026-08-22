@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Retourne le premier groupe de consolidation (crée un groupe par défaut si aucun n'existe).
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     let group = await prisma.consolidationGroup.findFirst({
       include: {
@@ -27,6 +31,9 @@ export async function GET() {
 
 // Ajoute une entité au groupe
 export async function POST(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { groupId, name, rccm, country, clientId } = body;

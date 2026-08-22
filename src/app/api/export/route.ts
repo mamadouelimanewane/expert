@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { ExportService } from "@/lib/export-service";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const { searchParams } = new URL(request.url);
         const format = searchParams.get("format") || "excel"; // excel, fec

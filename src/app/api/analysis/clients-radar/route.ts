@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 function relativeDateFr(date: Date | null): string {
   if (!date) return "Aucune interaction";
   const diffMs = Date.now() - date.getTime();
@@ -13,6 +14,9 @@ function relativeDateFr(date: Date | null): string {
 }
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const clients = await prisma.client.findMany({
       where: { isActive: true },

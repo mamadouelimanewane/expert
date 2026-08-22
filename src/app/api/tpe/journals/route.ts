@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get("clientId");
@@ -21,6 +25,9 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { id, status } = await req.json();
     const updated = await prisma.tpeJournal.update({

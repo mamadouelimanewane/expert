@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function POST(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { groupId, type, buyerEntityId, sellerEntityId, debitAccount, creditAccount, amount } = body;
@@ -30,6 +34,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

@@ -3,7 +3,11 @@ import prisma from '@/lib/prisma';
 import { AuditService } from '@/lib/audit';
 import { randomBytes } from 'crypto';
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search');
@@ -51,6 +55,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const body = await request.json();
 

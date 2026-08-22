@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { FintechService, PaymentProvider } from "@/lib/fintech";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const body = await request.json();
         const { invoiceId, amount, provider, phoneNumber } = body;

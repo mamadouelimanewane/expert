@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Le dépôt électronique réel nécessite une intégration avec le portail de la DGI (ou équivalent
 // selon le pays OHADA), qui n'existe pas encore. Ce endpoint ne doit JAMAIS générer de fausse
 // quittance : une déclaration fiscale non déposée présentée comme déposée exposerait le client
 // à des pénalités réelles pour dépôt tardif/non-dépôt.
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   const { declarationId } = body;
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Colonnes du pipeline, dans l'ordre du cycle de vie d'une mission (MissionStatus)
 const COLUMNS: Array<{ status: string; title: string }> = [
   { status: "DRAFT", title: "Saisie / Brouillon" },
@@ -10,6 +11,9 @@ const COLUMNS: Array<{ status: string; title: string }> = [
 ];
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const missions = await prisma.mission.findMany({
       include: {

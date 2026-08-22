@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
+import prisma from "@/lib/prisma";
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
 
@@ -51,6 +53,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const body = await request.json();
         
@@ -86,6 +91,9 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const body = await request.json();
         const { id, status, paidDate } = body;

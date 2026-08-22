@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+import { requireStaff } from "@/lib/api-auth";
 async function getDefaultClient() {
     let client = await prisma.client.findFirst();
     if (!client) {
@@ -18,6 +19,9 @@ async function getDefaultClient() {
 
 // GET: Récupérer tous les journaux TPE sauvegardés
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const journals = await prisma.tpeJournal.findMany({
             where: { source: { not: 'WHATSAPP_TEST' } },
@@ -33,6 +37,9 @@ export async function GET() {
 
 // POST: Sauvegarder un batch d'écritures générées par le moteur OHADA
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const { journal, businessName, periode } = await request.json();
         const client = await getDefaultClient();
@@ -73,6 +80,9 @@ export async function POST(request: Request) {
 
 // PATCH: Marquer un batch comme "Exporté vers la Production"
 export async function PATCH(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const { periode } = await request.json();
         const result = await prisma.tpeJournal.updateMany({

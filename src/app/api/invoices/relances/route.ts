@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 
+import { requireStaff } from "@/lib/api-auth";
 function stageFor(daysOverdue: number) {
   if (daysOverdue >= 90) return 4;
   if (daysOverdue >= 60) return 3;
@@ -10,6 +11,9 @@ function stageFor(daysOverdue: number) {
 }
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const now = new Date();
     const overdue = await prisma.invoice.findMany({
@@ -60,6 +64,9 @@ export async function GET() {
 // L'envoi effectif (email/WhatsApp/courrier) nécessite une intégration tierce
 // non configurée : ce endpoint trace l'action, il ne l'exécute pas.
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const invoice = await prisma.invoice.findUnique({

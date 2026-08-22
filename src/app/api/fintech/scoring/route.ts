@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+import { requireStaff } from "@/lib/api-auth";
 async function getDefaultClient() {
     let client = await prisma.client.findFirst();
     if (!client) {
@@ -17,6 +18,9 @@ async function getDefaultClient() {
 }
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const client = await getDefaultClient();
         const score = await prisma.creditScore.findFirst({
@@ -32,6 +36,9 @@ export async function GET() {
 }
 
 export async function POST() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const client = await getDefaultClient();
 

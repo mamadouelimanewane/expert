@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { askNexus, isLLMConfigured } from "@/lib/llm";
 
+import { requireStaff } from "@/lib/api-auth";
 const SYSTEM_PROMPT = `Tu es Nexus, l'assistant IA de diagnostic financier de Cabinet 360 pour experts-comptables en zone OHADA.
 On te fournit le résultat structuré (JSON) d'un diagnostic financier déjà calculé (score global, sections avec scores/constats/recommandations, évolution pluriannuelle).
 Ta tâche : rédiger un rapport narratif professionnel en français, structuré, basé STRICTEMENT sur les chiffres et constats fournis. N'invente aucun chiffre absent des données fournies.
@@ -8,6 +9,9 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans balise markdown ni texte aut
 executiveSummary, structureAnalysis, performanceAnalysis, complianceAnalysis, treasuryAnalysis, projections, conclusion.`;
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { clientName, diagnostic } = body;

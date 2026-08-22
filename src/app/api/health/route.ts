@@ -1,35 +1,48 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/api-auth";
 
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+export const dynamic = "force-dynamic";
 
-export const dynamic = 'force-dynamic';
+// Health check public (sonde Vercel, supervision externe).
+//
+// La réponse anonyme se limite volontairement à l'état de service : le nombre
+// de comptes, l'état de la base et la présence des variables d'environnement
+// renseignent un attaquant sur la cible sans rien apporter à une sonde. Ces
+// détails ne sont servis qu'à un ADMIN authentifié.
 
 export async function GET() {
+    const { session } = await requireAdmin();
+    const detaille = Boolean(session);
+
     try {
-        // Test DB connection
+        // Une requête minimale suffit à valider que la base répond.
         const userCount = await prisma.user.count();
 
         return NextResponse.json({
-            status: 'ok',
-            version: '2.0.1', // J'incrémente pour vérifier que c'est bien cette version
-            db_status: 'connected',
-            user_count: userCount,
-            env_check: {
-                has_db_url: !!process.env.DATABASE_URL,
-                has_jwt_secret: !!process.env.JWT_SECRET
-            },
-            timestamp: new Date().toISOString()
+            status: "ok",
+            timestamp: new Date().toISOString(),
+            ...(detaille
+                ? {
+                      version: "2.0.1",
+                      db_status: "connected",
+                      user_count: userCount,
+                      env_check: {
+                          has_db_url: !!process.env.DATABASE_URL,
+                          has_nextauth_secret: !!process.env.NEXTAUTH_SECRET,
+                      },
+                  }
+                : {}),
         });
     } catch (error) {
-        console.error('Health check error:', error);
-        return NextResponse.json({
-            status: 'error',
-            version: '2.0.1',
-            db_status: 'disconnected',
-            env_check: {
-                has_db_url: !!process.env.DATABASE_URL,
-                has_jwt_secret: !!process.env.JWT_SECRET
-            }
-        }, { status: 500 });
+        console.error("Health check error:", error);
+        return NextResponse.json(
+            {
+                status: "error",
+                timestamp: new Date().toISOString(),
+                ...(detaille ? { version: "2.0.1", db_status: "disconnected" } : {}),
+            },
+            { status: 503 }
+        );
     }
 }

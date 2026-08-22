@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 const ACTIVE_STATUSES: Array<"DRAFT" | "IN_PROGRESS" | "PENDING_REVIEW"> = [
   "DRAFT",
   "IN_PROGRESS",
@@ -8,6 +9,9 @@ const ACTIVE_STATUSES: Array<"DRAFT" | "IN_PROGRESS" | "PENDING_REVIEW"> = [
 ];
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     // 1. Missions budgétées (avec estimatedHours) — analyse de rentabilité
     const budgetedMissions = await prisma.mission.findMany({

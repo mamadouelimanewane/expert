@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { askNexus, isLLMConfigured } from "@/lib/llm";
 
+import { requireStaff } from "@/lib/api-auth";
 const SYSTEM_PROMPT = `Tu es Nexus, l'assistant IA intégré au logiciel Cabinet 360 pour experts-comptables en zone OHADA.
 Réponds en français, de façon concise et professionnelle, en te basant sur les données réelles du cabinet fournies ci-dessous.
 Si une information n'est pas dans les données fournies, dis-le clairement plutôt que d'inventer un chiffre.`;
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   const { message } = body;
 

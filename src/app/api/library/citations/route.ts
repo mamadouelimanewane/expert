@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Base de référence de démarrage (textes/jurisprudence OHADA réels, contenu de référence
 // public — pas des données inventées). Insérée une seule fois si la collection est vide.
 const SEED_CITATIONS = [
@@ -49,6 +50,9 @@ const SEED_CITATIONS = [
 ];
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     let citations = await prisma.legalCitation.findMany({ orderBy: { reference: "asc" } });
 
@@ -67,6 +71,9 @@ export async function GET() {
 // Extrait les références plausibles (motif "SIGLE Art. NNN" / "Arrêt CCJA n°NNN/AAAA") du texte
 // collé, et les confronte réellement à la base de citations connues (pas de simulation IA).
 export async function POST(req: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { text } = await req.json();
     if (!text || typeof text !== "string") {

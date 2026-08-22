@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { AuditService } from "@/lib/audit";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   const { documentId, signatureData } = body;
 

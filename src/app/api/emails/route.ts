@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { isEmailSyncConfigured } from "@/lib/email-sync";
 
+import { requireStaff } from "@/lib/api-auth";
 // Lit les emails réellement synchronisés (Communication.type === "email") via IMAP
 // (voir /api/emails/sync). Ce endpoint expose uniquement les messages déjà stockés
 // en base, il n'en génère et n'en résume jamais de faux.
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const emails = await prisma.communication.findMany({
       where: { type: "email" },

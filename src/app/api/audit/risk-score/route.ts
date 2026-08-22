@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { AuditService } from "@/lib/audit";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     let clientId = searchParams.get("clientId");
 

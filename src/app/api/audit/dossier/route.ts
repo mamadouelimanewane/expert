@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 const DEFAULT_SECTIONS = [
   "Trésorerie",
   "Immobilisations",
@@ -14,6 +15,9 @@ const DEFAULT_SECTIONS = [
 ];
 
 export async function GET(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { searchParams } = new URL(request.url);
     const missionId = searchParams.get("missionId");
@@ -95,6 +99,9 @@ export async function GET(request: NextRequest) {
 
 // Enregistre la conclusion d'une section
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { sectionId, conclusion, note } = body;
@@ -120,6 +127,9 @@ export async function POST(req: Request) {
 
 // Met à jour un item de checklist (statut, référence, commentaire)
 export async function PATCH(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const body = await req.json();
     const { itemId, status, ref, comment } = body;

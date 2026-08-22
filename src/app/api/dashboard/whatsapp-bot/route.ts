@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Lit les communications WhatsApp réellement enregistrées (Communication.type === "whatsapp").
 // Aucune intégration WhatsApp Business API n'est câblée : ce endpoint expose uniquement les
 // messages déjà stockés en base (le cas échéant), il n'en génère jamais de faux.
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const messages = await prisma.communication.findMany({
       where: { type: "whatsapp" },

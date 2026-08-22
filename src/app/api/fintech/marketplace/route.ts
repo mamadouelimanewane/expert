@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
+import { requireStaff } from "@/lib/api-auth";
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const partners = [
     { id: "p1", name: "Banque Atlantique", type: "Banque Commerciale", initials: "BA", color: "blue", products: ["Crédit Trésorerie", "Financement BFR"], minScore: 65 },
     { id: "p2", name: "Ecobank", type: "Banque Panafricaine", initials: "ECO", color: "emerald", products: ["Prêt Investissement", "Leasing"], minScore: 70 },
@@ -13,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   return NextResponse.json({
     success: true,

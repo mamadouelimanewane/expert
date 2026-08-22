@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+import { requireStaff } from "@/lib/api-auth";
 type RouteContext = { params: Promise<{ id: string }> };
 
 /**
@@ -8,6 +9,9 @@ type RouteContext = { params: Promise<{ id: string }> };
  * Le score est basé sur plusieurs facteurs pondérés (0-100).
  */
 export async function POST(req: NextRequest, context: RouteContext) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { id: clientId } = await context.params;
 
@@ -92,6 +96,9 @@ export async function POST(req: NextRequest, context: RouteContext) {
 }
 
 export async function GET(req: NextRequest, context: RouteContext) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const { id } = await context.params;
   const client = await prisma.client.findUnique({
     where: { id },

@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Renvoie un client réel avec ses dernières données financières et son dernier score
 // de crédit (calculés par /api/fintech/scoring), pour alimenter le dossier crédit.
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const client = await prisma.client.findFirst({
       orderBy: { createdAt: "desc" },

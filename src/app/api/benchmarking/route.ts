@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Calcule les ratios financiers RÉELS d'un client à partir de FinancialData.
 // Aucune donnée sectorielle de comparaison (moyennes de marché) n'est disponible :
 // ce endpoint ne renvoie donc jamais de "sectorAvg" — le front doit afficher un état
 // honnête "non configuré" pour cette partie.
 export async function GET(request: NextRequest) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");

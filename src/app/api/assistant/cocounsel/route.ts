@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { askNexus, isLLMConfigured } from "@/lib/llm";
 
+import { requireStaff } from "@/lib/api-auth";
 // Nexus Counsel s'appuie sur les connaissances générales du modèle DeepSeek, PAS sur une
 // base documentaire OHADA/jurisprudence CCJA vérifiée et à jour en temps réel. Toute
 // référence d'article ou de jurisprudence doit donc être systématiquement recoupée par
@@ -10,6 +11,9 @@ Réponds en français, de façon structurée (titres, listes).
 IMPORTANT : tu n'as pas accès à une base documentaire OHADA vérifiée en temps réel. Si tu cites un article ou une jurisprudence, précise explicitement que la référence doit être vérifiée par l'utilisateur avant usage professionnel — ne présente jamais une citation comme certaine.`;
 
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   const body = await req.json();
   const { message } = body;
 

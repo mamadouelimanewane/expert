@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 const TYPE_LABELS: Record<string, string> = {
   AUDIT: "Audit & Commissariat",
   CONSEIL: "Conseil Financier",
@@ -12,6 +13,9 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export async function GET() {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);

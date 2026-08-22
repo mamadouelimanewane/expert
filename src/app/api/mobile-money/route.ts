@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
-
+import prisma from "@/lib/prisma";
+import { requireStaff } from "@/lib/api-auth";
 // GET: Liste des transactions Mobile Money
 export async function GET(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     const { searchParams } = new URL(request.url);
     const operator = searchParams.get("operator");
     const status = searchParams.get("status");
@@ -52,6 +54,9 @@ export async function GET(request: Request) {
 
 // POST: Sync / Ajout de transactions
 export async function POST(request: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
     try {
         const body = await request.json();
 

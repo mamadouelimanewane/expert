@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+import { requireStaff } from "@/lib/api-auth";
 // Valide une période de paie et enregistre les fiches de paie calculées.
 // Ne déclenche AUCUN virement réel : l'intégration Mobile Money (Wave/Orange/MTN)
 // n'est pas configurée. Le statut reste VALIDATED (pas PAID) tant qu'un vrai
 // paiement n'a pas été confirmé.
 export async function POST(req: Request) {
+    const { denied } = await requireStaff();
+    if (denied) return denied;
+
   try {
     const { clientId, periodName, variables } = await req.json();
 
