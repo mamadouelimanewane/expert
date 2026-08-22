@@ -28,7 +28,12 @@ export default function RootLayout({
               __html: `
                 if ('serviceWorker' in navigator) {
                   window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js');
+                    // L'echec d'enregistrement etait silencieux : la promesse
+                    // rejetee remontait en "Uncaught (in promise)" dans la
+                    // console, sans indiquer la cause.
+                    navigator.serviceWorker.register('/sw.js').catch(function (e) {
+                      console.warn('Service worker non enregistre :', e && e.message);
+                    });
                   });
                 }
               `

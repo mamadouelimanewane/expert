@@ -215,6 +215,10 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/auth/session|api/auth/csrf).*)",
+    // Les ressources statiques servies depuis /public doivent être exclues :
+    // sans cette exclusion, `authorized()` renvoyait false pour /sw.js et le
+    // navigateur recevait une redirection 307 vers /login au lieu du script.
+    // L'enregistrement du service worker échouait donc à chaque chargement.
+    "/((?!_next/static|_next/image|favicon.ico|sw\\.js|manifest\\.json|robots\\.txt|api/auth/session|api/auth/csrf).*)",
   ],
 };

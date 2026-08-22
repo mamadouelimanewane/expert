@@ -23,6 +23,11 @@ const securityHeaders = [
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
       "connect-src 'self'",
+      // Déclarés explicitement : sans `worker-src`, tous les navigateurs
+      // n'appliquent pas le repli sur `default-src` de la même façon et
+      // peuvent refuser l'enregistrement du service worker.
+      "worker-src 'self'",
+      "manifest-src 'self'",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
