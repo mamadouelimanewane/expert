@@ -61,23 +61,35 @@ export async function processIncomingWhatsAppMessage(params: {
     client.id
   );
 
-  await prisma.tpeJournal.create({
-    data: {
-      periode: new Date().toISOString().substring(0, 7),
+  // Une écriture avec TVA comporte trois lignes. `TpeJournal` n'en stocke que
+  // deux par enregistrement : on la décompose en couples débit/crédit
+  // équilibrés, sans quoi la ligne de TVA serait perdue et la charge
+  // enregistrée pour son montant TTC.
+  const couples = AccountingEngine.toPairedEntries(accountingResult.lignes);
+  const periode = new Date().toISOString().substring(0, 7);
+  const dateJour = new Date().toISOString().substring(0, 10);
+
+  await prisma.tpeJournal.createMany({
+    data: couples.map((couple, index) => ({
+      periode,
       businessName: client.companyName || `${client.firstName} ${client.lastName}`,
-      date: new Date().toISOString().substring(0, 10),
-      libelle,
-      entree: isRecette ? montant : 0,
-      sortie: isRecette ? 0 : montant,
+      date: dateJour,
+      // Le libellé porte le rang de la ligne quand l'écriture en compte
+      // plusieurs, pour que le rapprochement reste lisible en révision.
+      libelle: couples.length > 1 ? `${libelle} (${index + 1}/${couples.length})` : libelle,
+      // Les colonnes entree/sortie ne portent le flux de trésorerie que sur la
+      // première ligne, afin de ne pas compter l'encaissement plusieurs fois.
+      entree: index === 0 && isRecette ? montant : 0,
+      sortie: index === 0 && !isRecette ? montant : 0,
       source: simulate ? "WHATSAPP_TEST" : "WHATSAPP",
-      debitCompte: accountingResult.lignes[0]?.compte || "",
-      debitIntitule: accountingResult.lignes[0]?.intitule || "",
-      creditCompte: accountingResult.lignes[accountingResult.lignes.length - 1]?.compte || "",
-      creditIntitule: accountingResult.lignes[accountingResult.lignes.length - 1]?.intitule || "",
-      montant,
+      debitCompte: couple.debitCompte,
+      debitIntitule: couple.debitIntitule,
+      creditCompte: couple.creditCompte,
+      creditIntitule: couple.creditIntitule,
+      montant: couple.montant,
       clientId: client.id,
       status: "PENDING",
-    },
+    })),
   });
 
   // Une simulation ne doit jamais déclencher un vrai envoi WhatsApp au client.
@@ -85,9 +97,14 @@ export async function processIncomingWhatsAppMessage(params: {
   if (shouldReply) {
     try {
       const montantLabel = montant > 0 ? `${montant.toLocaleString("fr-FR")} FCFA` : "montant à préciser";
+      // Ne pas afficher « confiance 0 % » : quand l'imputation n'a pas pu être
+      // déterminée, on annonce une revue par le cabinet plutôt qu'un score.
+      const suffixe = accountingResult.requiresReview
+        ? "Imputation à confirmer par votre comptable."
+        : `Confiance : ${Math.round((accountingResult.confidence ?? 0) * 100)}%.`;
       await sendWhatsAppMessage(
         senderPhone,
-        `✅ Écriture enregistrée : "${libelle}" (${montantLabel}). Confiance IA : ${Math.round((accountingResult.confidence ?? 0) * 100)}%.`
+        `✅ Écriture enregistrée : "${libelle}" (${montantLabel}). ${suffixe}`
       );
     } catch (sendError) {
       console.error("[WhatsApp] Échec de l'envoi de la confirmation:", sendError);
@@ -101,6 +118,9 @@ export async function processIncomingWhatsAppMessage(params: {
     libelle,
     montant,
     confidence: accountingResult.confidence,
+    requiresReview: accountingResult.requiresReview,
+    reviewReason: accountingResult.reviewReason,
+    lignesJournal: couples.length,
     replySent: shouldReply,
     simulated: simulate,
   };

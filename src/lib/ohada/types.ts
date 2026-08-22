@@ -127,4 +127,10 @@ export type FinancialStatement = {
     controleBalance: ControleBalance;
     /** Contrôle actif = passif sur le bilan produit. */
     controleEquilibre: ControleEquilibre;
+    /**
+     * Anomalies expliquant un éventuel déséquilibre, en clair. Un écart sans
+     * explication est inexploitable en revue : chaque cause détectée est
+     * nommée ici.
+     */
+    anomalies: string[];
 };

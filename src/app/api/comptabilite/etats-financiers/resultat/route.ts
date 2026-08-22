@@ -58,6 +58,7 @@ export async function GET(request: Request) {
             controles: {
                 balance: etats.controleBalance,
                 comptesNonAffectes: etats.comptesNonAffectes,
+                anomalies: etats.anomalies,
             },
             source: {
                 ecrituresN: ecrituresN.length,

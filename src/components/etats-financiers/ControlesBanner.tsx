@@ -6,6 +6,8 @@ type Controle = {
     balance?: { totalDebit: number; totalCredit: number; ecart: number; equilibree: boolean };
     equilibre?: { totalActif: number; totalPassif: number; ecart: number; equilibre: boolean };
     comptesNonAffectes?: { numero: string; intitule: string; solde: number }[];
+    /** Causes identifiées d'un déséquilibre, formulées en clair. */
+    anomalies?: string[];
 };
 
 const fcfa = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
@@ -21,11 +23,12 @@ const fcfa = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`;
 export default function ControlesBanner({ controles }: { controles?: Controle }) {
     if (!controles) return null;
 
-    const { balance, equilibre, comptesNonAffectes = [] } = controles;
+    const { balance, equilibre, comptesNonAffectes = [], anomalies: causes = [] } = controles;
     const anomalies =
         (balance && !balance.equilibree) ||
         (equilibre && !equilibre.equilibre) ||
-        comptesNonAffectes.length > 0;
+        comptesNonAffectes.length > 0 ||
+        causes.length > 0;
 
     return (
         <div
@@ -75,6 +78,17 @@ export default function ControlesBanner({ controles }: { controles?: Controle })
                             </li>
                         )}
                     </ul>
+
+                    {causes.length > 0 && (
+                        <ul className="space-y-1 rounded-lg bg-white/60 p-3 text-slate-800 dark:bg-slate-900/40 dark:text-slate-100">
+                            {causes.map((cause, i) => (
+                                <li key={i} className="flex gap-2">
+                                    <span aria-hidden="true">•</span>
+                                    <span>{cause}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
 
                     {comptesNonAffectes.length > 0 && (
                         <details className="rounded-lg bg-white/60 p-3 dark:bg-slate-900/40">

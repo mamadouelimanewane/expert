@@ -187,7 +187,7 @@ export default function HandbookPage() {
 
                                         <div className="bg-slate-950 p-6 rounded-3xl border border-white/5 my-8">
                                             <code className="text-indigo-400 text-xs">
-                                                // Logique de vérification<br />
+                                                {"// Logique de vérification"}<br />
                                                 if (match_score {" > "} 0.95 && !sanction_list_hit) &#123;<br />
                                                 &nbsp;&nbsp;generate_integrity_cert();<br />
                                                 &nbsp;&nbsp;anchor_to_blockchain();<br />

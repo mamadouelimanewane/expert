@@ -10,8 +10,24 @@ export interface AccountingEntryLine {
 export interface AccountingBatch {
   lignes: AccountingEntryLine[];
   confidence: number;
-  source: 'RULE' | 'ML_LEARNING' | 'LLM';
+  source: 'RULE' | 'ML_LEARNING' | 'LLM' | 'A_QUALIFIER';
+  /**
+   * `true` lorsque aucune règle ni aucun modèle n'a su déterminer le compte :
+   * l'écriture est imputée à un compte d'attente et doit être qualifiée par un
+   * collaborateur avant export.
+   */
+  requiresReview: boolean;
+  /** Motif de la mise en attente, le cas échéant. */
+  reviewReason?: string;
 }
+
+/**
+ * Compte d'attente SYSCOHADA (471 — Charges/produits à régulariser).
+ * Utilisé lorsque l'imputation ne peut pas être déterminée : mieux vaut une
+ * écriture visiblement en attente qu'une écriture imputée au hasard sur un
+ * compte de charges plausible.
+ */
+export const COMPTE_ATTENTE = '471';
 
 const keywordRules = [
   { keywords: ["achat", "fourniture", "marchandise"], compte: "601", intitule: "Achats de marchandises", type: "depense" },
@@ -27,7 +43,36 @@ export class AccountingEngine {
    * Extrait les mots clés principaux d'un libellé pour la recherche de règles
    */
   private static extractKeywords(libelle: string): string {
-    return libelle.toLowerCase().replace(/[^a-z0-9]/g, ' ').split(' ')[0] || libelle.toLowerCase();
+    return AccountingEngine.motCle(libelle);
+  }
+
+  /**
+   * Mot-clé retenu pour l'auto-apprentissage.
+   *
+   * L'implémentation précédente prenait le PREMIER mot du libellé : « Paiement
+   * loyer janvier » produisait la clé « paiement », si bien qu'une règle apprise
+   * sur « loyer » n'était jamais retrouvée. On ignore désormais les mots vides
+   * et on retient le premier terme porteur de sens.
+   */
+  static motCle(libelle: string): string {
+    const MOTS_VIDES = new Set([
+      'paiement', 'reglement', 'règlement', 'virement', 'facture', 'achat',
+      'vente', 'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'pour',
+      'sur', 'chez', 'avec', 'par', 'et', 'a', 'au', 'aux', 'en',
+    ]);
+
+    const mots = (libelle ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .split(' ')
+      .filter(Boolean);
+
+    if (mots.length === 0) return '';
+
+    return mots.find((m) => m.length > 2 && !MOTS_VIDES.has(m)) ?? mots[0];
   }
 
   /**
@@ -45,8 +90,10 @@ export class AccountingEngine {
     // Extraction du compte principal
     let compteBase = "";
     let intituleBase = "";
-    let source: 'RULE' | 'ML_LEARNING' | 'LLM' = 'RULE';
+    let source: AccountingBatch['source'] = 'RULE';
     let confidence = 0.5;
+    let requiresReview = false;
+    let reviewReason: string | undefined;
 
     // 1. Chercher d'abord dans l'auto-apprentissage (Machine Learning)
     const mainKeyword = this.extractKeywords(text);
@@ -83,13 +130,25 @@ export class AccountingEngine {
       }
     }
 
-    // 3. Fallback sur le LLM Open Source si aucune règle n'a fonctionné
+    // 3. Aucune règle n'a fonctionné.
+    //
+    // L'implémentation précédente appelait une fonction `callOpenSourceLLM` qui
+    // n'interrogeait aucun modèle : elle attendait 600 ms puis renvoyait un
+    // compte codé en dur (632 ou 706) avec une confiance de 0,9 — la plus haute
+    // du système. Le collaborateur voyait donc « analysé par IA, confiance
+    // 90 % » sur une imputation tirée au sort.
+    //
+    // L'écriture part maintenant en compte d'attente, avec une confiance nulle
+    // et un signalement explicite.
     if (!compteBase) {
-      const llmResult = await this.callOpenSourceLLM(libelle, isRecette);
-      compteBase = llmResult.compte;
-      intituleBase = llmResult.intitule;
-      source = 'LLM';
-      confidence = 0.9;
+      compteBase = COMPTE_ATTENTE;
+      intituleBase = 'Compte d\'attente — imputation à qualifier';
+      source = 'A_QUALIFIER';
+      confidence = 0;
+      requiresReview = true;
+      reviewReason =
+        `Aucune règle ni règle apprise ne correspond au libellé « ${libelle} ». ` +
+        `L'écriture est imputée au compte ${COMPTE_ATTENTE} et doit être qualifiée avant export.`;
     }
 
     // --- Génération des lignes multiples (Smart VAT) ---
@@ -123,25 +182,79 @@ export class AccountingEngine {
       }
     }
 
-    return { lignes, confidence, source };
+    // Garde-fou de partie double : aucune écriture déséquilibrée ne doit sortir
+    // du moteur, quelles que soient les règles appliquées ou les arrondis TVA.
+    const totalDebit = lignes.reduce((s, l) => s + l.debit, 0);
+    const totalCredit = lignes.reduce((s, l) => s + l.credit, 0);
+    const ecart = Math.round((totalDebit - totalCredit) * 100) / 100;
+
+    if (Math.abs(ecart) > 0.01) {
+      throw new Error(
+        `Écriture déséquilibrée pour « ${libelle} » : débit ${totalDebit}, crédit ${totalCredit} (écart ${ecart}).`
+      );
+    }
+
+    return { lignes, confidence, source, requiresReview, reviewReason };
   }
 
   /**
-   * Simulation d'un appel à un LLM local (ex: Ollama, Mistral) pour l'analyse NLP
+   * Décompose une écriture multi-lignes en couples débit/crédit équilibrés.
+   *
+   * `TpeJournal` ne stocke qu'un compte débité et un compte crédité par ligne.
+   * L'appelant se contentait de prendre la PREMIÈRE et la DERNIÈRE ligne du
+   * lot : sur une écriture avec TVA (charge HT / TVA déductible / trésorerie
+   * TTC), la ligne de TVA disparaissait et la charge était enregistrée pour son
+   * montant TTC. Le journal devenait déséquilibré et les états financiers faux.
+   *
+   * L'algorithme apparie les montants débiteurs et créditeurs jusqu'à épuisement :
+   * la somme des couples produits est toujours égale au total de l'écriture.
    */
-  private static async callOpenSourceLLM(libelle: string, isRecette: boolean): Promise<{ compte: string, intitule: string }> {
-    console.log(`[LLM] Requête NLP envoyée pour le libellé : "${libelle}"`);
-    
-    // Le prompt envoyé au modèle ressemblerait à :
-    // "Tu es un expert-comptable OHADA. Identifie le compte de classe 6 ou 7 pour l'opération suivante : {libelle}. Réponds uniquement en format JSON { compte: '...', intitule: '...' }"
-    
-    await new Promise(resolve => setTimeout(resolve, 600)); // Latence LLM simulée
+  static toPairedEntries(lignes: AccountingEntryLine[]): {
+    debitCompte: string;
+    debitIntitule: string;
+    creditCompte: string;
+    creditIntitule: string;
+    montant: number;
+  }[] {
+    const debits = lignes
+      .filter((l) => l.debit > 0)
+      .map((l) => ({ ...l, reste: l.debit }));
+    const credits = lignes
+      .filter((l) => l.credit > 0)
+      .map((l) => ({ ...l, reste: l.credit }));
 
-    if (isRecette) {
-      return { compte: "706", intitule: "Services vendus (LLM AI)" };
-    } else {
-      return { compte: "632", intitule: "Services extérieurs (LLM AI)" };
+    const couples: {
+      debitCompte: string;
+      debitIntitule: string;
+      creditCompte: string;
+      creditIntitule: string;
+      montant: number;
+    }[] = [];
+
+    let i = 0;
+    let j = 0;
+
+    while (i < debits.length && j < credits.length) {
+      const montant = Math.round(Math.min(debits[i].reste, credits[j].reste) * 100) / 100;
+
+      if (montant > 0) {
+        couples.push({
+          debitCompte: debits[i].compte,
+          debitIntitule: debits[i].intitule,
+          creditCompte: credits[j].compte,
+          creditIntitule: credits[j].intitule,
+          montant,
+        });
+      }
+
+      debits[i].reste -= montant;
+      credits[j].reste -= montant;
+
+      if (debits[i].reste <= 0.005) i++;
+      if (credits[j].reste <= 0.005) j++;
     }
+
+    return couples;
   }
 
   /**

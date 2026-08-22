@@ -35,9 +35,14 @@ export function generateForecast(baseCash: number, scenario: 'optimiste' | 'real
 }
 
 export function detectCriticalPoints(forecast: ForecastPoint[]): { minCash: number; criticalDate: string | null } {
+  // Une projection vide faisait planter la lecture de `forecast[0].cash`.
+  if (!forecast || forecast.length === 0) {
+    return { minCash: 0, criticalDate: null };
+  }
+
   let minCash = forecast[0].cash;
-  let criticalDate = null;
-  
+  let criticalDate: string | null = null;
+
   for (const point of forecast) {
     if (point.cash < minCash) {
       minCash = point.cash;

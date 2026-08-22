@@ -5,6 +5,8 @@ import { getToken } from "next-auth/jwt";
 
 
 import prisma from "@/lib/prisma";
+import { parseBody, resetPasswordsSchema } from "@/lib/validation";
+
 // Réinitialise le mot de passe d'un ou plusieurs comptes staff avec un
 // mot de passe aléatoire fort, généré à la volée et renvoyé une seule fois
 // dans la réponse (jamais stocké en clair, jamais prévisible).
@@ -17,18 +19,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = await req.json().catch(() => ({}));
-  const emails: string[] = Array.isArray(body.emails) ? body.emails : [];
-
-  if (emails.length === 0) {
-    return NextResponse.json({ error: "Le champ 'emails' (liste) est requis" }, { status: 400 });
-  }
+  const { data, invalid } = await parseBody(req, resetPasswordsSchema);
+  if (invalid) return invalid;
 
   const results = [];
 
-  for (const email of emails) {
-    const newPassword = randomBytes(12).toString("base64url");
-    const hashed = await bcrypt.hash(newPassword, 10);
+  for (const email of data.emails) {
+    const newPassword = randomBytes(18).toString("base64url");
+    // Coût 12, aligné sur les scripts de seed et de rotation.
+    const hashed = await bcrypt.hash(newPassword, 12);
     const updated = await prisma.user.updateMany({
       where: { email },
       data: { password: hashed },

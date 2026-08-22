@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { calculatePayroll } from "@/lib/payroll/engines";
+import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES } from "@/lib/payroll/engines";
 import { isLLMConfigured } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
@@ -66,6 +66,18 @@ export async function POST(req: Request) {
 
     if (employees.length === 0) {
       return NextResponse.json({ error: "Aucun employé trouvé pour ce client" }, { status: 404 });
+    }
+
+    // Refuser avant tout calcul si le barème du pays n'est pas implémenté :
+    // mieux vaut pas de bulletin qu'un bulletin calculé avec le droit d'un
+    // autre pays.
+    if (!estPaysSupporte(client.country)) {
+      return NextResponse.json({
+        error: `Le calcul de paie n'est pas disponible pour « ${client.country} ». ` +
+          `Pays implémentés : ${PAYS_SUPPORTES.join(", ")}.`,
+        paysNonSupporte: true,
+        pays: client.country,
+      }, { status: 422 });
     }
 
     if (!isLLMConfigured()) {

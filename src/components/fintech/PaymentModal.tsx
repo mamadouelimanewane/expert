@@ -20,6 +20,10 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
     const [selectedMethod, setSelectedMethod] = useState<"WAVE" | "ORANGE_MONEY" | "MTN_MOMO" | null>(null);
     const [phoneNumber, setPhoneNumber] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    // Reference reelle de la transaction, renvoyee par /api/payments.
+    // Elle etait auparavant fabriquee avec Math.random() au moment du rendu :
+    // elle changeait a chaque re-rendu et ne correspondait a aucune operation.
+    const [transactionId, setTransactionId] = useState<string | null>(null);
 
     if (!isOpen) return null;
 
@@ -44,6 +48,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
             const data = await response.json();
 
             if (data.success) {
+                setTransactionId(data.transactionId ?? null);
                 // Simulation d'une attente de validation mobile (push USSD)
                 setTimeout(() => {
                     setStep("success");
@@ -208,7 +213,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Référence</span>
-                                <span className="text-xs font-mono font-bold text-indigo-400">TX-{Math.random().toString(36).substring(2, 9).toUpperCase()}</span>
+                                <span className="text-xs font-mono font-bold text-indigo-400">{transactionId ?? "Reference en attente"}</span>
                             </div>
                         </div>
                         <button

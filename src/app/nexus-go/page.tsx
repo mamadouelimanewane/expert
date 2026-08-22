@@ -339,7 +339,9 @@ export default function NexusGoPage() {
                                             key={i}
                                             className="w-1 bg-red-500 rounded-full animate-pulse"
                                             style={{
-                                                height: `${12 + Math.random() * 20}px`,
+                                                // Hauteur deterministe : Math.random() au rendu
+                                                // produisait un ecart entre serveur et client.
+                                                height: `${12 + ((i * 7) % 20)}px`,
                                                 animationDelay: `${i * 80}ms`
                                             }}
                                         />

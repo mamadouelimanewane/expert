@@ -4,6 +4,9 @@ import { AuditService } from '@/lib/audit';
 import { randomBytes } from 'crypto';
 
 import { requireStaff } from "@/lib/api-auth";
+import { parsePagination, reponsePaginee } from '@/lib/pagination';
+import { clientCreateSchema, parseBody } from '@/lib/validation';
+
 export async function GET(request: NextRequest) {
     const { denied } = await requireStaff();
     if (denied) return denied;
@@ -14,6 +17,7 @@ export async function GET(request: NextRequest) {
         const country = searchParams.get('country');
         const fiscalRegime = searchParams.get('fiscalRegime');
         const isActive = searchParams.get('isActive');
+        const pagination = parsePagination(searchParams);
 
         const where: any = {};
 
@@ -30,21 +34,32 @@ export async function GET(request: NextRequest) {
         if (fiscalRegime) where.fiscalRegime = fiscalRegime;
         if (isActive !== null) where.isActive = isActive === 'true';
 
-        const clients = await prisma.client.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                _count: {
-                    select: {
-                        missions: true,
-                        invoices: true,
-                        declarations: true,
+        const [clients, total] = await Promise.all([
+            prisma.client.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                skip: pagination.skip,
+                take: pagination.take,
+                // `portalToken` vaut authentification au portail client : il n'a
+                // rien à faire dans une liste consultée en interface.
+                omit: { portalToken: true },
+                include: {
+                    _count: {
+                        select: {
+                            missions: true,
+                            invoices: true,
+                            declarations: true,
+                        },
                     },
                 },
-            },
-        });
+            }),
+            prisma.client.count({ where }),
+        ]);
 
-        return NextResponse.json({ clients });
+        return NextResponse.json({
+            clients,
+            pagination: reponsePaginee(clients, total, pagination),
+        });
     } catch (error) {
         console.error('❌ Error fetching clients:', error);
         return NextResponse.json(
@@ -58,9 +73,10 @@ export async function POST(request: NextRequest) {
     const { denied } = await requireStaff();
     if (denied) return denied;
 
-    try {
-        const body = await request.json();
+    const { data: body, invalid } = await parseBody(request, clientCreateSchema);
+    if (invalid) return invalid;
 
+    try {
         // Générer un token unique pour le portail PMI
         const portalToken = randomBytes(32).toString('hex');
 
@@ -91,21 +107,27 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        // Log action
+        // Le journal d'audit est consultable par tout le staff : il ne doit
+        // contenir ni le token du portail, ni l'objet client complet.
+        const { portalToken: _token, ...clientSansToken } = client;
+
         await AuditService.log({
             action: 'CREATE',
             entity: 'CLIENT',
-            details: `Nouveau client créé : ${client.companyName || (client.firstName + ' ' + client.lastName)} — Portail activé (${portalToken})`,
+            details: `Nouveau client créé : ${client.companyName || [client.firstName, client.lastName].filter(Boolean).join(' ')} — portail activé`,
             entityId: client.id,
-            newValue: client
+            newValue: clientSansToken
         });
 
         // Construire l'URL du portail
         const baseUrl = request.headers.get('origin') || request.headers.get('host') || 'http://localhost:3000';
         const portalUrl = `${baseUrl}/portal/${portalToken}`;
 
-        return NextResponse.json({ 
-            client, 
+        // Le token n'est renvoyé qu'ici, à la création, pour que le cabinet
+        // puisse transmettre le lien au client. Il n'apparaît dans aucune
+        // lecture ultérieure.
+        return NextResponse.json({
+            client: clientSansToken,
             portalUrl,
             portalToken,
         }, { status: 201 });

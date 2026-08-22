@@ -266,16 +266,33 @@ export function genererEtatsFinanciers(
     const actif = materialiser(ACTIF_LINES, accBilanN, accBilanN1);
     const passif = materialiser(PASSIF_LINES, accBilanN, accBilanN1);
 
+    const anomalies: string[] = [];
+
     // Report du résultat au passif (ligne CJ).
     // Sur une balance avant affectation, le compte 13 est vide et le résultat
     // provient de la cascade des classes 6/7/8. Sur une balance après clôture,
     // le compte 13 est déjà servi et fait foi.
     const cj = passif.find((l) => l.code === "CJ");
     if (cj) {
-        if (Math.abs(cj.netN) <= TOLERANCE) {
+        const compte13Servi = Math.abs(cj.netN) > TOLERANCE;
+        const classesGestionOuvertes = Math.abs(resultatNet) > TOLERANCE;
+
+        if (!compte13Servi) {
             cj.brutN = resultatNet;
             cj.netN = resultatNet;
+        } else if (classesGestionOuvertes) {
+            // Les deux sources coexistent : la balance mélange une écriture de
+            // détermination du résultat et des comptes de gestion encore
+            // ouverts. Le compte 13 fait foi, mais l'écart doit être nommé —
+            // sinon l'utilisateur constate un bilan déséquilibré sans cause.
+            anomalies.push(
+                `Le compte de résultat (13) est servi pour ${cj.netN.toLocaleString("fr-FR")} FCFA ` +
+                    `alors que les classes 6 et 7 dégagent ${resultatNet.toLocaleString("fr-FR")} FCFA. ` +
+                    `La balance mélange un exercice clôturé et des comptes de gestion ouverts : ` +
+                    `soldez les classes 6 et 7, ou retirez l'écriture de détermination du résultat.`
+            );
         }
+
         if (Math.abs(cj.netN1) <= TOLERANCE) {
             cj.netN1 = resultatNetN1;
         }
@@ -299,7 +316,23 @@ export function genererEtatsFinanciers(
         if (!nonAffectes.has(c.numero)) nonAffectes.set(c.numero, c);
     }
 
+    if (nonAffectes.size > 0) {
+        const total = [...nonAffectes.values()].reduce((s, c) => s + c.solde, 0);
+        anomalies.push(
+            `${nonAffectes.size} compte(s) hors référentiel SYSCOHADA, pour un solde cumulé de ` +
+                `${round2(total).toLocaleString("fr-FR")} FCFA : ils n'alimentent aucune ligne des états.`
+        );
+    }
+
+    if (!controleEquilibre.equilibre && anomalies.length === 0) {
+        anomalies.push(
+            `Le bilan présente un écart de ${ecart.toLocaleString("fr-FR")} FCFA entre l'actif et ` +
+                `le passif, sans cause identifiée automatiquement. Vérifiez l'équilibre de la balance source.`
+        );
+    }
+
     return {
+        anomalies,
         actif,
         passif,
         resultat,

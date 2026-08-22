@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     // 2. Mapping du type de document et infos
     let typeDb = "RAPPORT";
     let fileName = `document_${Date.now()}.pdf`;
-    let fileUrl = "/mock-document.pdf"; // En production : S3, Blob Storage, etc.
+    const fileUrl = "/mock-document.pdf"; // En production : S3, Blob Storage, etc.
 
     if (docType === "etats-financiers") {
       fileName = `Etats_Financiers_SYSCOHADA_${new Date().getFullYear()}.pdf`;
