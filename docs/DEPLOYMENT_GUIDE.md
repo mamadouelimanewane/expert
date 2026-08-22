@@ -121,9 +121,9 @@ npx prisma db seed
 ```
 
 **Note**: Le seed créera 3 utilisateurs de test :
-- Admin: `admin@cabinet360.com` / `admin2026`
-- Expert: `expert@cabinet360.com` / `expert2026`
-- Collaborateur: `collaborator@cabinet360.com` / `collab2026`
+- Admin: `admin@cabinet360.com` / `«voir gestionnaire de mots de passe»`
+- Expert: `expert@cabinet360.com` / `«voir gestionnaire de mots de passe»`
+- Collaborateur: `collaborator@cabinet360.com` / `«voir gestionnaire de mots de passe»`
 
 ---
 

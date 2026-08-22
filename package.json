@@ -1,7 +1,7 @@
 {
   "name": "cabinet-expert-ohada",
   "version": "2.0.0",
-  "description": "Plateforme SaaS pour cabinets expertise comptable zone OHADA",
+  "description": "Logiciel de gestion integre pour un cabinet d'expertise comptable en zone OHADA (deploiement mono-cabinet)",
   "author": "Mamadou Eliman Ewane",
   "license": "UNLICENSED",
   "private": true,
@@ -17,7 +17,8 @@
     "seed:admin:prod": "npx tsx scripts/seed-admin-production.ts",
     "seed:demo": "npx tsx scripts/seed-demo-uemoa.ts",
     "seed:invoices": "npx tsx scripts/seed-demo.ts",
-    "prisma:studio": "npx prisma studio"
+    "prisma:studio": "npx prisma studio",
+    "rotate:passwords": "npx tsx scripts/rotate-passwords.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",

@@ -135,9 +135,9 @@ Cabinet 360 — Next.js 16 / React 19 / TypeScript 5
 ### Credentials Démo
 | Rôle | Email | Mot de passe |
 |---|---|---|
-| Admin | admin@cabinet360.com | admin2026 |
-| Expert | expert@cabinet360.com | expert2026 |
-| Collaborateur | collaborator@cabinet360.com | collab2026 |
+| Admin | admin@cabinet360.com | «voir gestionnaire de mots de passe» |
+| Expert | expert@cabinet360.com | «voir gestionnaire de mots de passe» |
+| Collaborateur | collaborator@cabinet360.com | «voir gestionnaire de mots de passe» |
 
 ### Accès rapide
 - URL démo : `?demo=true` pour bypass login

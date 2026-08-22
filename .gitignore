@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Documents contenant des identifiants — ne jamais versionner
+docs/CREDENTIALS.md
+docs/**/CREDENTIALS*.md

@@ -1,9 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
 const prisma = new PrismaClient();
 
+// Aucun mot de passe n'est codé en dur dans ce fichier versionné : chaque compte
+// de démonstration reçoit un secret aléatoire, affiché une seule fois en fin de
+// seed. Renseignez SEED_<ROLE>_PASSWORD pour imposer une valeur connue.
+const issued: { email: string; password: string }[] = [];
+
+async function hashFor(email: string, envVar: string): Promise<string> {
+    const password = process.env[envVar]?.trim() || randomBytes(15).toString('base64url');
+    issued.push({ email, password });
+    return bcrypt.hash(password, 12);
+}
+
 async function main() {
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+            "Ce seed supprime des données (deleteMany) et ne doit jamais être exécuté en production."
+        );
+    }
+
     console.log('🌱 Starting database seed...');
 
     // Cleanup existing data for demo repeatability
@@ -12,7 +30,7 @@ async function main() {
     await prisma.taxDeclaration.deleteMany();
 
     // Create Admin User
-    const adminPassword = await bcrypt.hash('admin2026', 10);
+    const adminPassword = await hashFor('admin@cabinet360.com', 'SEED_ADMIN_PASSWORD');
     const admin = await prisma.user.upsert({
         where: { email: 'admin@cabinet360.com' },
         update: {},
@@ -29,7 +47,7 @@ async function main() {
     console.log('✅ Admin user created:', admin.email);
 
     // Create Expert User
-    const expertPassword = await bcrypt.hash('expert2026', 10);
+    const expertPassword = await hashFor('expert@cabinet360.com', 'SEED_EXPERT_PASSWORD');
     const expert = await prisma.user.upsert({
         where: { email: 'expert@cabinet360.com' },
         update: {},
@@ -46,7 +64,7 @@ async function main() {
     console.log('✅ Expert user created:', expert.email);
 
     // Create Collaborator
-    const collabPassword = await bcrypt.hash('collab2026', 10);
+    const collabPassword = await hashFor('collaborator@cabinet360.com', 'SEED_COLLABORATOR_PASSWORD');
     const collaborator = await prisma.user.upsert({
         where: { email: 'collaborator@cabinet360.com' },
         update: {},
@@ -312,10 +330,12 @@ async function main() {
     });
 
     console.log('🎉 Database seeded successfully!');
-    console.log('\n📝 Login Credentials:');
-    console.log('Admin: admin@cabinet360.com / admin2026');
-    console.log('Expert: expert@cabinet360.com / expert2026');
-    console.log('Collaborator: collaborator@cabinet360.com / collab2026');
+    console.log('
+🔐 Identifiants générés (affichés une seule fois — notez-les maintenant) :');
+    for (const { email, password } of issued) {
+        console.log(`   ${email} / ${password}`);
+    }
+    console.log('');
 }
 
 main()

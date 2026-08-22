@@ -30,13 +30,13 @@
 | Test | Résultat | Détails |
 |---|---|---|
 | Page login `/login` | ✅ PASS | Rendu correct, formulaire actif |
-| Login demo (admin@cabinet360.com / admin2026) | ✅ PASS | `{"success":true}`, cookie JWT httpOnly posé |
+| Login demo (admin@cabinet360.com / «voir gestionnaire de mots de passe») | ✅ PASS | `{"success":true}`, cookie JWT httpOnly posé |
 | Redirection post-login | ✅ PASS | Redirige vers `/dashboard` |
 | Guard middleware | ✅ PASS | Routes protégées redirigent vers `/login` |
 | Session persistante | ✅ PASS | Cookie `cabinet360_session` survit au rechargement |
 | Logout | ⚠️ NON TESTÉ | Bouton présent dans sidebar |
 
-**Mode démonstration actif** — Fallback hardcodé dans `/api/auth/login` si MongoDB inaccessible. Credentials: `admin@cabinet360.com` / `admin2026`.
+**Mode démonstration actif** — Fallback hardcodé dans `/api/auth/login` si MongoDB inaccessible. Credentials: `admin@cabinet360.com` / `«voir gestionnaire de mots de passe»`.
 
 ---
 
