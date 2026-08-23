@@ -145,17 +145,6 @@ export default function TrainingManualsPage() {
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-4 shrink-0">
-                        <div className="flex items-center gap-4 p-6 bg-white/5 rounded-[32px] border border-white/5 backdrop-blur-xl">
-                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center">
-                                <Users className="w-6 h-6 text-indigo-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-black text-white leading-none">1,240+</p>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter mt-1">Experts Formés</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 

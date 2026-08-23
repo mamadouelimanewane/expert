@@ -53,7 +53,7 @@ const documents = [
             },
             {
                 title: "Histoires de Succès 2026",
-                description: "Études de cas réelles et témoignages d'impact des clients Cabinet 360.",
+                description: "Scénarios d'usage illustratifs de la plateforme (exemples types, pas des témoignages clients vérifiés).",
                 href: "/documentation/success-stories",
                 icon: TrendingUp,
                 type: "Marketing / Case Study"

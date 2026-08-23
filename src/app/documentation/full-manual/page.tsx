@@ -114,13 +114,13 @@ export default function HandbookPage() {
                         ))}
                     </div>
 
-                    <div className="p-8 rounded-[32px] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20">
+                    <Link href="/documentation/release-notes" className="block p-8 rounded-[32px] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 hover:border-indigo-500/40 transition-colors">
                         <History className="w-8 h-8 text-indigo-400 mb-4" />
-                        <h4 className="text-xs font-black text-white uppercase mb-2">Historique v2.0</h4>
+                        <h4 className="text-xs font-black text-white uppercase mb-2">Historique des versions</h4>
                         <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                            Dernière mise à jour : 04 Février 2026. Ajout des modules Forensics IA et Blockchain Integrity Vault.
+                            Consulter le journal des mises à jour.
                         </p>
-                    </div>
+                    </Link>
                 </div>
 
                 {/* Content Viewer */}

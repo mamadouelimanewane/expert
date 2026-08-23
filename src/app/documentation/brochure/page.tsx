@@ -147,12 +147,12 @@ export default function BrochurePage() {
 
                     <div className="mt-auto p-4 sm:p-6 lg:p-10 bg-white shadow-xl rounded-3xl border border-slate-200">
                         <div className="flex gap-8 items-center">
-                            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-600">
-                                <CheckCircle2 className="w-10 h-10" />
+                            <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-600">
+                                <ShieldCheck className="w-10 h-10" />
                             </div>
                             <div className="space-y-1">
-                                <h4 className="text-xl font-bold">Certification Professionnelle</h4>
-                                <p className="text-slate-500 text-sm">Validé par un panel d'experts-comptables inscrits aux Tableaux de l'ONECCA (Sénégal) et de l'OEC (Côte d'Ivoire).</p>
+                                <h4 className="text-xl font-bold">Conçu pour les normes OHADA</h4>
+                                <p className="text-slate-500 text-sm">Plan de comptes SYSCOHADA Révisé et calendrier fiscal UEMOA/CEMAC intégrés nativement à la plateforme.</p>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,15 @@
 ﻿"use client";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Ce journal des mises à jour affichait des chiffres de précision et de
+// performance non vérifiables ("OCR 98% de précision", "+40% de rendu") et
+// un encart de statistiques globales entièrement fabriqué ("98,9% de
+// satisfaction", "450+ commits ce trimestre", "12 nouvelles features IA"),
+// sans aucune mesure réelle derrière. Les chiffres non vérifiables ont été
+// retirés ; le contenu qui reste décrit des fonctionnalités réellement
+// présentes dans l'application, sans statistique inventée.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React from 'react';
 import {
     Zap,
@@ -23,11 +33,10 @@ const RELEASES = [
         title: "L'Ère de l'Intelligence Artificielle",
         description: "Cette version marque un tournant historique avec l'intégration native de Nexa-AI et la refonte complète du moteur de calcul OHADA.",
         features: [
-            { icon: Cpu, name: "Expert AI v2.4", detail: "Assistant fiscal capable de répondre aux questions complexes sur le SYSCOHADA." },
-            { icon: Sparkles, name: "OCR Avancé", detail: "Extraction automatique des données de factures avec un taux de précision de 98%." },
-            { icon: ShieldCheck, name: "Conformité AUDCIF v2024", detail: "Mise à jour intégrale des modèles d'états financiers pour la zone UEMOA/CEMAC." }
+            { icon: Cpu, name: "Assistant IA", detail: "Assistant capable de répondre aux questions sur le SYSCOHADA (nécessite une clé DeepSeek configurée)." },
+            { icon: Sparkles, name: "OCR des factures", detail: "Extraction automatique des données de factures scannées." },
+            { icon: ShieldCheck, name: "Conformité AUDCIF", detail: "Modèles d'états financiers pour la zone UEMOA/CEMAC." }
         ],
-        notes: "Amélioration des performances de rendu de 40% et nouveau design 'Elite Glass'."
     },
     {
         version: "1.9.5",
@@ -36,19 +45,19 @@ const RELEASES = [
         title: "Optimisation & CRM",
         description: "Amélioration de la gestion des gros volumes de données CRM et optimisation du temps de chargement des fiches clients.",
         features: [
-            { icon: Rocket, name: "Export Excel Ultra-Rapide", detail: "Génération de balances comptables complexes en moins de 3 secondes." },
-            { icon: Calendar, name: "Agenda Fiscal Dynamique", detail: "Nouveau système d'alertes push pour les échéances TVA." }
+            { icon: Rocket, name: "Export Excel", detail: "Génération de balances comptables au format Excel." },
+            { icon: Calendar, name: "Échéancier Fiscal", detail: "Suivi des échéances de déclaration par pays." }
         ]
     },
     {
         version: "1.9.0",
         date: "01 Janvier 2026",
         badge: "SECURITY",
-        title: "Sécurité & Multi-Cabinets",
-        description: "Renforcement de l'architecture de données et introduction de nouvelles couches de chiffrement.",
+        title: "Sécurité & Accès",
+        description: "Renforcement du contrôle d'accès et journalisation des actions sensibles.",
         features: [
-            { icon: ShieldCheck, name: "Double Authentification (2FA)", detail: "Protection renforcée des comptes administrateurs." },
-            { icon: Bug, name: "Correctifs Mineurs", detail: "Résolution des problèmes d'affichage sur les tablettes Android." }
+            { icon: ShieldCheck, name: "Contrôle d'accès par rôle", detail: "Permissions différenciées selon le profil (staff, admin)." },
+            { icon: Bug, name: "Correctifs de stabilité", detail: "Corrections diverses sur l'affichage responsive." }
         ]
     }
 ];
@@ -117,12 +126,6 @@ export default function ReleaseNotesPage() {
                                         })}
                                     </div>
 
-                                    {release.notes && (
-                                        <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl text-xs text-indigo-300 italic">
-                                            💡 {release.notes}
-                                        </div>
-                                    )}
-
                                     <div className="pt-2 flex items-center gap-2 text-indigo-500 text-[10px] font-black uppercase tracking-widest hover:translate-x-1 transition-transform cursor-pointer">
                                         Lire le changelog complet <ChevronRight className="w-4 h-4" />
                                     </div>
@@ -130,26 +133,6 @@ export default function ReleaseNotesPage() {
                             </div>
                         </div>
                     ))}
-                </div>
-
-                {/* Footer Section */}
-                <div className="pt-20 text-center space-y-8">
-                    <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    <p className="text-slate-500 font-bold uppercase tracking-[0.4em] text-[10px]">Cabinet 360 Evolution Pipeline</p>
-                    <div className="flex justify-center gap-4 sm:gap-8 lg:gap-12">
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl font-black text-white tracking-tighter">98.9%</span>
-                            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest text-center">Taux de Satisfaction</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl font-black text-white tracking-tighter">450+</span>
-                            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest text-center">Commits ce trimestre</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl font-black text-white tracking-tighter">12</span>
-                            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest text-center">Nouvelles Features IA</span>
-                        </div>
-                    </div>
                 </div>
 
             </div>

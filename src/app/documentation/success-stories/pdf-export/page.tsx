@@ -1,6 +1,15 @@
 ﻿"use client";
 
-import { Award, CheckCircle2, TrendingUp, ShieldCheck, Zap, Globe, Briefcase, Mail } from "lucide-react";
+import { Award, ShieldCheck, Zap } from "lucide-react";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Ce document imprimable citait un client fictif ("Industries du Sahel")
+// avec une citation directe entre guillemets présentée comme une déclaration
+// réelle, prête à être imprimée comme une véritable étude de cas signée.
+// Le cabinet n'a pas encore de client réel dont l'expérience puisse être
+// citée : le document est donc explicitement étiqueté comme un scénario
+// illustratif, sans nom d'entreprise ni citation attribuée.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function SuccessStoriesPDF() {
     return (
@@ -55,63 +64,43 @@ export default function SuccessStoriesPDF() {
                     </div>
                 </section>
 
-                {/* PAGE 2: CASE STUDY 1 */}
+                {/* PAGE 2: SCÉNARIO ILLUSTRATIF */}
                 <section className="min-h-[297mm] p-24 break-after-page">
                     <div className="flex items-center gap-4 mb-16">
-                        <span className="text-indigo-600 font-sans font-black uppercase text-xs tracking-[0.3em]">Cas d'École 01</span>
+                        <span className="text-indigo-600 font-sans font-black uppercase text-xs tracking-[0.3em]">Scénario Illustratif</span>
                         <div className="flex-1 h-[1px] bg-slate-100" />
                     </div>
 
                     <div className="grid grid-cols-12 gap-4 sm:gap-8 lg:gap-12">
                         <div className="col-span-12">
-                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 leading-none mb-6">Industries du Sahel</h2>
-                            <p className="text-xl font-bold text-slate-400 uppercase tracking-widest font-sans mb-12">Secteur : Industrie & Logistique (Dakar)</p>
+                            <h2 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 leading-none mb-6">Industrie & Logistique</h2>
+                            <p className="text-xl font-bold text-slate-400 uppercase tracking-widest font-sans mb-12">Exemple type — pas un client réel</p>
                         </div>
 
                         <div className="col-span-7 space-y-12">
                             <div className="space-y-4">
                                 <h3 className="text-sm font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
-                                    <Zap className="w-4 h-4" /> Le Défi Stratégique
+                                    <Zap className="w-4 h-4" /> Problématique type
                                 </h3>
-                                <p className="text-lg leading-relaxed text-slate-700 italic border-l-4 border-slate-900 pl-6 py-2">
-                                    "Nous perdions un temps considérable dans le rapprochement de plus de 20 comptes bancaires sur plusieurs pays UEMOA. La clôture prenait 15 jours."
+                                <p className="text-base leading-relaxed text-slate-600">
+                                    Rapprochement manuel de nombreux comptes bancaires sur plusieurs pays UEMOA, allongeant fortement le délai de clôture mensuelle.
                                 </p>
                             </div>
 
                             <div className="space-y-4">
                                 <h3 className="text-sm font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
-                                    <ShieldCheck className="w-4 h-4" /> La Solution Cabinet 360
+                                    <ShieldCheck className="w-4 h-4" /> Réponse de la plateforme
                                 </h3>
                                 <p className="text-base leading-relaxed text-slate-600">
-                                    Implémentation du module <strong>Core Accounting</strong> avec automatisation OCR des factures. Liaison directe avec les banques via le connecteur Nexus API pour un lettrage en temps réel.
+                                    Le module <strong>Core Accounting</strong> vise à automatiser le rapprochement bancaire et à réduire la saisie manuelle lors de la clôture.
                                 </p>
-                            </div>
-                        </div>
-
-                        <div className="col-span-5">
-                            <div className="bg-slate-900 text-white p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] space-y-8">
-                                <div className="text-center">
-                                    <p className="text-7xl font-sans font-black text-indigo-400 leading-none">70%</p>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-4 opacity-50">Gain de Productivité</p>
-                                </div>
-                                <div className="border-t border-white/10 pt-8 space-y-4">
-                                    <div className="flex items-center gap-4 text-xs font-bold">
-                                        <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Clôture à J+2
-                                    </div>
-                                    <div className="flex items-center gap-4 text-xs font-bold">
-                                        <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Zéro Saisie Manuelle
-                                    </div>
-                                    <div className="flex items-center gap-4 text-xs font-bold">
-                                        <CheckCircle2 className="w-4 h-4 text-indigo-400" /> Reporting Holistique
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-24 pt-12 border-t border-slate-100 font-sans text-[10px] text-slate-300 flex justify-between italic uppercase tracking-widest leading-none">
-                        <span>Success Story - Cabinet 360 Elite</span>
-                        <span>Propriété de Cabinet Expert & Consulting OHADA</span>
+                        <span>Scénario illustratif — Cabinet 360</span>
+                        <span>Ne représente aucun client réel</span>
                     </div>
                 </section>
             </div>
