@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
     Scale,
@@ -28,43 +28,123 @@ import {
     TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockClients } from "@/data/mock-clients";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
 interface LegalStatute {
     id: string;
-    source: "OHADA" | "CGI" | "UEMOA" | "Social";
-    title: string;
+    source: "OHADA" | "CGI" | "UEMOA" | "SOCIAL";
+    titre: string;
     article: string;
-    complianceStatus: "Conforme" | "Alerte" | "Risque";
-    desc: string;
+    description: string;
+    pieceProbante: string;
+    etat: "CONFORME" | "ALERTE" | "RISQUE" | "NON_EVALUE";
+    etatLibelle: string;
+    evalue: boolean;
 }
 
-const COMPLIANCE_ITEMS: LegalStatute[] = [
-    { id: "1", source: "OHADA", title: "Dépôt des comptes annuels", article: "Art. 269 AUDSCGIE", complianceStatus: "Alerte", desc: "Le dépôt des comptes doit se faire dans le mois suivant l'AG." },
-    { id: "2", source: "CGI", title: "Retenue à la source (BNC)", article: "Art. 92 CGI CI", complianceStatus: "Conforme", desc: "Reversement effectué avant le 15 du mois suivant." },
-    { id: "3", source: "OHADA", title: "Tenue des livres obligatoires", article: "Art. 13 AUDCIF", complianceStatus: "Risque", desc: "Livre d'inventaire non coté et non paraphé détecté." },
-    { id: "4", source: "UEMOA", title: "Réglementation des changes", article: "Directrice 02/2004", complianceStatus: "Conforme", desc: "Déclaration des transferts hors zone UEMOA validée." },
-];
+type ClientCheckup = {
+    id: string;
+    nom: string;
+    pays: string;
+};
+
+
 
 export default function NexusComplianceHubPage() {
     const [activeTab, setActiveTab] = useState<"checkup" | "referentiel">("checkup");
-    const [selectedClient, setSelectedClient] = useState(mockClients[0]);
+    const [clients, setClients] = useState<ClientCheckup[]>([]);
+    const [clientId, setClientId] = useState("");
+    const [obligations, setObligations] = useState<LegalStatute[]>([]);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
     const [askingIA, setAskingIA] = useState(false);
     const [aiResponse, setAiResponse] = useState("");
+    const [aiNonConfigure, setAiNonConfigure] = useState(false);
 
-    const handleAskAI = (e: React.FormEvent) => {
+    const selectedClient = clients.find(c => c.id === clientId) ?? null;
+
+    // Portefeuille reel du cabinet.
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/clients?limit=200&isActive=true");
+                if (!res.ok) throw new Error(`Reponse ${res.status}`);
+                const data = await res.json();
+                const liste: ClientCheckup[] = (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                    id: String(c.id),
+                    nom:
+                        (c.companyName as string) ||
+                        [c.firstName, c.lastName].filter(Boolean).join(" ") ||
+                        "Client sans nom",
+                    pays: String(c.country ?? ""),
+                }));
+                setClients(liste);
+                setClientId(prev => (liste.some(c => c.id === prev) ? prev : (liste[0]?.id ?? "")));
+            } catch (e) {
+                console.error("Chargement du portefeuille :", e);
+                setErreur("Impossible de charger le portefeuille clients.");
+            }
+        })();
+    }, []);
+
+    // Revue de conformite du client selectionne.
+    const chargerCheckup = useCallback(async (id: string) => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const url = id ? `/api/compliance/checkup?clientId=${encodeURIComponent(id)}` : "/api/compliance/checkup";
+            const res = await fetch(url);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+            setObligations(data.obligations ?? []);
+        } catch (e) {
+            console.error("Chargement de la revue de conformite :", e);
+            setErreur(e instanceof Error ? e.message : "Impossible de charger la revue de conformite.");
+            setObligations([]);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { chargerCheckup(clientId); }, [chargerCheckup, clientId]);
+
+    // Appel reel a l'assistant Nexus. Sans DEEPSEEK_API_KEY, la route repond
+    // qu'elle n'est pas configuree : on l'affiche tel quel plutot que de
+    // fabriquer une reponse juridique.
+    const [question, setQuestion] = useState("");
+
+    const handleAskAI = async (e: React.FormEvent) => {
         e.preventDefault();
+        const texte = question.trim();
+        if (!texte) return;
+
         setAskingIA(true);
-        setTimeout(() => {
+        setAiResponse("");
+        setAiNonConfigure(false);
+        try {
+            const contexte = selectedClient ? ` (client concerne : ${selectedClient.nom})` : "";
+            const res = await fetch("/api/nexus/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: texte + contexte }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+            setAiResponse(data.response ?? "");
+            setAiNonConfigure(Boolean(data.notConfigured));
+        } catch (err) {
+            console.error("Assistant Nexus :", err);
+            setAiResponse(
+                err instanceof Error ? err.message : "Echec de l'appel a l'assistant."
+            );
+            setAiNonConfigure(false);
+        } finally {
             setAskingIA(false);
-            setAiResponse("Conformément aux directives de la CEMAC et de l'UEMOA, ainsi qu'aux Actes Uniformes OHADA, l'intégrité des données comptables repose sur le principe de non-altérabilité. L'Assistant IA suggère une revue immédiate du registre des assemblées pour le client " + selectedClient.name + " afin de valider la conformité aux nouvelles normes de gouvernance 2026.");
-        }, 2000);
+        }
     };
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
-            <DonneesDemo />
 
             {/* Elite Header */}
             <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
@@ -92,12 +172,12 @@ export default function NexusComplianceHubPage() {
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <select
-                            value={selectedClient.id}
-                            onChange={(e) => setSelectedClient(mockClients.find(c => c.id === e.target.value) || mockClients[0])}
+                            value={clientId}
+                            onChange={(e) => setClientId(e.target.value)}
                             className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-indigo-500 outline-none transition-all hover:bg-white/10 shadow-xl"
                         >
-                            {mockClients.map(client => (
-                                <option key={client.id} value={client.id} className="bg-slate-900">{client.name}</option>
+                            {clients.map(client => (
+                                <option key={client.id} value={client.id} className="bg-slate-900">{client.nom}</option>
                             ))}
                         </select>
                         <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-indigo-600/30">
@@ -173,39 +253,71 @@ export default function NexusComplianceHubPage() {
                             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                                 <div>
                                     <h3 className="text-xl font-black text-white uppercase tracking-tight leading-none mb-1">Checklist de Conformité</h3>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Base de données Nexus • {selectedClient.country} v2026</p>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Referentiel OHADA / UEMOA{selectedClient ? ` \u2022 ${selectedClient.pays}` : ""}</p>
                                 </div>
-                                <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all">Scanner Tout</button>
+                                
                             </div>
 
+                            {!chargement && !erreur && obligations.some(o => !o.evalue) && (
+                                <div className="mx-8 mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200">
+                                    <span className="font-bold">
+                                        {obligations.filter(o => !o.evalue).length} obligation(s) non evaluee(s).
+                                    </span>{" "}
+                                    L&apos;application ne se prononce que sur les points adosses a une donnee
+                                    suivie sur la fiche client. Une obligation non evaluee n&apos;est ni
+                                    conforme ni non conforme : elle reste a verifier.
+                                </div>
+                            )}
+
                             <div className="divide-y divide-white/5">
-                                {COMPLIANCE_ITEMS.map((item) => (
+                                {chargement ? (
+                                    <p className="p-8 text-sm text-slate-500">Chargement de la revue...</p>
+                                ) : erreur ? (
+                                    <p className="p-8 text-sm text-rose-400">{erreur}</p>
+                                ) : obligations.length === 0 ? (
+                                    <p className="p-8 text-sm text-slate-500">Aucune obligation applicable.</p>
+                                ) : obligations.map((item) => (
                                     <div key={item.id} className="p-8 flex gap-8 hover:bg-white/[0.02] transition-colors group items-center">
                                         <div className={cn(
                                             "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border transition-all",
-                                            item.complianceStatus === "Conforme" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                item.complianceStatus === "Alerte" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                    "bg-rose-500/10 text-rose-400 border-rose-500/20 group-hover:scale-110"
+                                            item.etat === "CONFORME" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                                item.etat === "ALERTE" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                                    item.etat === "RISQUE" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                                        "bg-slate-800 text-slate-500 border-white/5"
                                         )}>
-                                            {item.complianceStatus === "Conforme" ? <CheckCircle2 className="w-7 h-7" /> : <ShieldAlert className="w-7 h-7" />}
+                                            {item.etat === "CONFORME" ? <CheckCircle2 className="w-7 h-7" /> :
+                                                item.etat === "NON_EVALUE" ? <Book className="w-7 h-7" /> :
+                                                    <ShieldAlert className="w-7 h-7" />}
                                         </div>
+
                                         <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-2">
+                                            <div className="flex justify-between items-start gap-4 mb-2">
                                                 <div>
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.source} • {item.article}</span>
-                                                    <h4 className="font-bold text-lg text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight leading-none mt-1">{item.title}</h4>
+                                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                        {item.source} &bull; {item.article}
+                                                    </span>
+                                                    <h4 className="font-bold text-lg text-white uppercase tracking-tight leading-none mt-1">
+                                                        {item.titre}
+                                                    </h4>
                                                 </div>
                                                 <span className={cn(
-                                                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase border",
-                                                    item.complianceStatus === "Conforme" ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5 px-4" :
-                                                        item.complianceStatus === "Alerte" ? "text-amber-400 border-amber-500/20 bg-amber-500/5" : "text-rose-400 border-rose-500/20 bg-rose-500/5 shadow-[0_0_15px_rgba(244,63,94,0.1)]"
-                                                )}>{item.complianceStatus}</span>
+                                                    "shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase border",
+                                                    item.etat === "CONFORME" ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/5" :
+                                                        item.etat === "ALERTE" ? "text-amber-400 border-amber-500/20 bg-amber-500/5" :
+                                                            item.etat === "RISQUE" ? "text-rose-400 border-rose-500/20 bg-rose-500/5" :
+                                                                "text-slate-500 border-white/10 bg-white/5"
+                                                )}>
+                                                    {item.etatLibelle}
+                                                </span>
                                             </div>
-                                            <p className="text-xs text-slate-500 leading-relaxed font-medium italic">"{item.desc}"</p>
+
+                                            <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-3xl">
+                                                {item.description}
+                                            </p>
+                                            <p className="mt-2 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                                                Piece probante : {item.pieceProbante}
+                                            </p>
                                         </div>
-                                        <button className="p-3 bg-white/5 border border-white/10 rounded-xl text-slate-500 group-hover:text-white transition-all transform group-hover:translate-x-1">
-                                            <ArrowRight className="w-5 h-5" />
-                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -233,7 +345,9 @@ export default function NexusComplianceHubPage() {
                         <form onSubmit={handleAskAI} className="space-y-6">
                             <div className="relative group">
                                 <textarea
-                                    placeholder="Interrogez le corpus juridique (ex: Clause de sortie en SAS OHADA...)"
+                                    value={question}
+                                    onChange={(e) => setQuestion(e.target.value)}
+                                    placeholder="Interrogez l'assistant sur les donnees du cabinet"
                                     className="w-full h-40 bg-black/40 border border-white/5 rounded-3xl p-6 text-sm text-slate-300 placeholder:text-slate-600 focus:border-indigo-500 outline-none resize-none transition-all group-hover:border-white/10"
                                 />
                                 <button
@@ -247,8 +361,16 @@ export default function NexusComplianceHubPage() {
                         </form>
 
                         {aiResponse && (
-                            <div className="mt-8 p-6 bg-indigo-500/10 border border-indigo-500/20 rounded-3xl animate-in fade-in slide-in-from-top-4">
-                                <p className="text-xs text-indigo-200 leading-relaxed font-medium">
+                            <div className={cn(
+                                "mt-8 p-6 rounded-3xl border animate-in fade-in slide-in-from-top-4",
+                                aiNonConfigure
+                                    ? "bg-amber-500/10 border-amber-500/20"
+                                    : "bg-indigo-500/10 border-indigo-500/20"
+                            )}>
+                                <p className={cn(
+                                    "text-xs leading-relaxed font-medium",
+                                    aiNonConfigure ? "text-amber-200" : "text-indigo-200"
+                                )}>
                                     {aiResponse}
                                 </p>
                                 <div className="mt-6 flex gap-3">

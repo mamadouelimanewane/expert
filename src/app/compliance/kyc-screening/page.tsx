@@ -108,13 +108,14 @@ export default function KycScreeningPage() {
 
                 <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 lg:col-span-2 flex items-center justify-between">
                     <div>
-                        <h4 className="text-lg font-bold text-white mb-1">Mise à jour Réglementaire</h4>
-                        <p className="text-xs text-slate-400 max-w-md">
-                            Dernière synchro avec les listes UN, EU, et OFAC effectuée il y a 2 heures.
-                            Base de données à jour.
+                        <h4 className="text-lg font-bold text-white mb-1">Listes de sanctions</h4>
+                        <p className="text-xs text-amber-300 max-w-md">
+                            Aucune synchronisation avec les listes ONU, UE ou OFAC : ce dispositif
+                            n&apos;est pas connecte. Le criblage doit etre effectue sur les registres
+                            officiels et son resultat consigne au dossier.
                         </p>
                     </div>
-                    <div className="bg-slate-800 p-3 rounded-full animate-spin-slow">
+                    <div className="bg-slate-800 p-3 rounded-full">
                         <RefreshCw className="w-6 h-6 text-slate-400" />
                     </div>
                 </div>

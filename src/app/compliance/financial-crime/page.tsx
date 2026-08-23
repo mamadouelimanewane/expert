@@ -1,259 +1,243 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
-import {
-    ShieldAlert,
-    Search,
-    Filter,
-    Globe,
-    AlertCircle,
-    CheckCircle2,
-    XCircle,
-    UserX,
-    Building,
-    ExternalLink,
-    FileText,
-    History,
-    RefreshCw,
-    Download,
-    Eye,
-    Landmark,
-    Users,
-    Activity,
-    Lock
-} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { AlertTriangle, ExternalLink, ScanLine, Search, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { NEXUS_SCREENING_DATA } from "@/data/nexus-risk-data";
+// ─────────────────────────────────────────────────────────────────────────────
+// Criblage LCB-FT (lutte contre le blanchiment et le financement du terrorisme).
+//
+// Cette page affichait des CORRESPONDANCES DE SANCTIONS FABRIQUÉES contre des
+// personnes nommées : « Watchlist Sanctions ONU — Terrorism Finance, 95 % »,
+// « PEP List Sahel, 100 % », « Interpol Red Notice — Financial Fraud, 88 % »,
+// « OFAC SDN List — Money Laundering, 62 % ». Aucune de ces sources n'était
+// interrogée : les résultats étaient inscrits dans un fichier du code.
+//
+// Attribuer à une personne identifiée une correspondance sur une liste de
+// financement du terrorisme est une allégation grave. Produite par un logiciel
+// professionnel, elle peut fonder une déclaration de soupçon, une rupture de
+// relation d'affaires, ou un signalement. Elle ne peut pas être simulée.
+//
+// Aucun prestataire de criblage n'étant connecté, la page ne produit plus
+// aucun résultat. Elle liste le portefeuille à cribler et renvoie vers les
+// registres officiels, où la vérification doit être faite.
+// ─────────────────────────────────────────────────────────────────────────────
 
-export default function FinancialCrimeHubPage() {
-    const [entities, setEntities] = useState<any[]>(NEXUS_SCREENING_DATA);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isScreening, setIsScreening] = useState(false);
+type EntreeRegistre = {
+    id: string;
+    name: string;
+    country: string;
+    hasIdentifiers: boolean;
+    lastUpdate: string;
+    status: string;
+};
 
-    const getRiskColor = (level: string) => {
-        switch (level) {
-            case "critical": return "text-rose-400 bg-rose-500/10 border-rose-500/20";
-            case "high": return "text-orange-400 bg-orange-500/10 border-orange-500/20";
-            case "medium": return "text-amber-400 bg-amber-500/10 border-amber-500/20";
-            case "low": return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
-            default: return "text-slate-400 bg-slate-500/10 border-slate-500/20";
+/** Registres publics où le criblage doit être effectué, faute d'intégration. */
+const SOURCES_OFFICIELLES = [
+    {
+        nom: "Sanctions du Conseil de sécurité des Nations unies",
+        detail: "Liste consolidée, consultable et téléchargeable",
+        url: "https://www.un.org/securitycouncil/content/un-sc-consolidated-list",
+    },
+    {
+        nom: "OFAC — Specially Designated Nationals",
+        detail: "Département du Trésor des États-Unis",
+        url: "https://sanctionssearch.ofac.treas.gov/",
+    },
+    {
+        nom: "Sanctions financières de l'Union européenne",
+        detail: "Liste consolidée des gels d'avoirs",
+        url: "https://www.sanctionsmap.eu/",
+    },
+    {
+        nom: "GIABA — Groupe intergouvernemental d'action contre le blanchiment",
+        detail: "Dispositif LCB-FT pour l'Afrique de l'Ouest",
+        url: "https://www.giaba.org/",
+    },
+];
+
+export default function FinancialCrimePage() {
+    const [recherche, setRecherche] = useState("");
+    const [registre, setRegistre] = useState<EntreeRegistre[]>([]);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/compliance/kyc");
+            if (!res.ok) throw new Error(`Réponse ${res.status}`);
+            const data = await res.json();
+            setRegistre(data.registry ?? []);
+        } catch (e) {
+            console.error("Chargement du portefeuille à cribler :", e);
+            setErreur("Impossible de charger le portefeuille clients.");
+            setRegistre([]);
+        } finally {
+            setChargement(false);
         }
-    };
+    }, []);
 
-    const handleScreening = () => {
-        if (!searchQuery.trim()) return;
-        setIsScreening(true);
-        setTimeout(() => {
-            setIsScreening(false);
-            setSearchQuery("");
-        }, 3000);
-    };
+    useEffect(() => {
+        charger();
+    }, [charger]);
+
+    const normaliser = (t: string) =>
+        t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const terme = normaliser(recherche.trim());
+
+    const resultats = terme
+        ? registre.filter((e) => normaliser(e.name).includes(terme))
+        : registre;
 
     return (
-        <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
-            {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-rose-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <ShieldAlert className="w-64 h-64 text-rose-400" />
-                </div>
-
-                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-rose-500/20">
-                                NEXUS Premium
-                            </span>
-                            <span className="px-3 py-1 bg-slate-500/10 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-slate-500/20">
-                                Financial Crime Compliance
-                            </span>
-                        </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
-                            Financial <span className="text-rose-400">Crime Hub</span>
-                        </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                            Screening mondial contre le blanchiment d'argent (AML), les sanctions et les personnes politiquement exposées (PEP).
-                        </p>
-                    </div>
-
-                    <div className="flex bg-slate-900/40 p-2 rounded-3xl border border-white/5 shadow-inner">
-                        <div className="px-6 py-3 text-center border-r border-white/5">
-                            <div className="text-2xl font-black text-rose-400">1.2M+</div>
-                            <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">PEP Profilés</div>
-                        </div>
-                        <div className="px-6 py-3 text-center">
-                            <div className="text-2xl font-black text-white">200+</div>
-                            <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Listes de Sanctions</div>
-                        </div>
-                    </div>
+        <div className="space-y-8 pb-20">
+            <div className="flex items-start gap-3">
+                <span className="mt-1 rounded-xl bg-[var(--primary)]/10 p-2 text-[var(--primary)]">
+                    <ShieldAlert size={20} />
+                </span>
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        Criblage LCB-FT
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400">
+                        Portefeuille à cribler et registres officiels de référence.
+                    </p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Panel: Search & Screening */}
-                <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
-                        <h3 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-                            <Search className="w-5 h-5 text-rose-400" /> Lancer un Screening
-                        </h3>
-                        <div className="space-y-4">
-                            <input
-                                type="text"
-                                placeholder="Nom du bénéficiaire effectif ou société..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm text-white focus:ring-2 focus:ring-rose-500 transition-all outline-none"
-                            />
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] text-slate-500 font-black uppercase ml-1">Juridiction</label>
-                                    <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none">
-                                        <option>Toutes</option>
-                                        <option>UEMOA / CEDEAO</option>
-                                        <option>Union Européenne</option>
-                                        <option>États-Unis (OFAC)</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] text-slate-500 font-black uppercase ml-1">Type d'Entité</label>
-                                    <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none">
-                                        <option>Toutes</option>
-                                        <option>Particulier</option>
-                                        <option>Entreprise</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleScreening}
-                                disabled={isScreening || !searchQuery.trim()}
-                                className="w-full py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-rose-600/30 disabled:opacity-50"
-                            >
-                                {isScreening ? <RefreshCw className="w-5 h-5 animate-spin" /> : <ShieldAlert className="w-5 h-5" />}
-                                {isScreening ? "Analyse en cours..." : "Exécuter Screening Global"}
-                            </button>
-                        </div>
-                    </div>
+            {/* Ce que l'application ne fait pas, dit sans ambiguïté. */}
+            <div className="flex items-start gap-3 rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm dark:border-rose-800 dark:bg-rose-950/30">
+                <AlertTriangle
+                    size={16}
+                    className="mt-0.5 shrink-0 text-rose-600 dark:text-rose-400"
+                    aria-hidden="true"
+                />
+                <div className="text-rose-900 dark:text-rose-200">
+                    <p className="font-semibold">
+                        Aucun criblage automatique n&apos;est effectué par cette application.
+                    </p>
+                    <p className="mt-1">
+                        Elle n&apos;interroge aucune liste de sanctions, aucune base de personnes
+                        politiquement exposées, aucun fichier de notices Interpol. Le criblage doit
+                        être conduit sur les registres officiels ci-dessous, et son résultat consigné
+                        au dossier permanent du client, daté et signé.
+                    </p>
+                </div>
+            </div>
 
-                    {/* Stats/Status */}
-                    <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5">
-                        <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4">Statistiques du Cabinet</h4>
-                        <div className="space-y-3">
-                            {[
-                                { label: "Screenings ce mois", value: "342", icon: Activity, color: "text-blue-400" },
-                                { label: "Alertes rouges (hits)", value: "14", icon: AlertCircle, color: "text-rose-400" },
-                                { label: "Dossiers KYC validés", value: "298", icon: CheckCircle2, color: "text-emerald-400" },
-                            ].map((stat, i) => (
-                                <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-                                    <div className="flex items-center gap-3">
-                                        <stat.icon className={cn("w-4 h-4", stat.color)} />
-                                        <span className="text-xs font-bold text-slate-300">{stat.label}</span>
-                                    </div>
-                                    <span className="text-sm font-black text-white">{stat.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+            {/* Registres officiels */}
+            <section className="space-y-3">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Où effectuer le criblage
+                </h2>
+
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {SOURCES_OFFICIELLES.map((s) => (
+                        <a
+                            key={s.url}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-[var(--primary)] dark:border-slate-800 dark:bg-slate-950"
+                        >
+                            <div className="min-w-0">
+                                <p className="font-semibold text-slate-900 dark:text-white">
+                                    {s.nom}
+                                </p>
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                    {s.detail}
+                                </p>
+                            </div>
+                            <ExternalLink size={14} className="mt-1 shrink-0 text-slate-400" />
+                        </a>
+                    ))}
+                </div>
+            </section>
+
+            {/* Portefeuille à cribler */}
+            <section className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Portefeuille à cribler ({registre.length})
+                    </h2>
+
+                    <label className="relative w-full max-w-xs">
+                        <span className="sr-only">Rechercher un client</span>
+                        <Search
+                            size={16}
+                            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
+                        <input
+                            type="search"
+                            value={recherche}
+                            onChange={(e) => setRecherche(e.target.value)}
+                            placeholder="Nom du client…"
+                            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 outline-none transition-colors focus:border-[var(--primary)] dark:border-slate-800 dark:bg-slate-950 dark:text-white"
+                        />
+                    </label>
                 </div>
 
-                {/* Main Content: Screening Activity */}
-                <div className="lg:col-span-8 space-y-6">
-                    <div className="flex justify-between items-center px-2">
-                        <h3 className="text-sm font-black text-white uppercase tracking-widest">Activités de Surveillance</h3>
-                        <div className="flex gap-2">
-                            <button className="p-2 bg-white/5 rounded-lg border border-white/10 text-slate-400 hover:text-white transition-all">
-                                <Filter className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 bg-white/5 rounded-lg border border-white/10 text-slate-400 hover:text-white transition-all">
-                                <Download className="w-4 h-4" />
-                            </button>
-                        </div>
+                {erreur && (
+                    <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+                        {erreur}
                     </div>
+                )}
 
-                    <div className="space-y-4">
-                        {entities.map((entity: any) => (
-                            <div
-                                key={entity.id}
-                                className={cn(
-                                    "glass-card rounded-[32px] border p-6 transition-all hover:scale-[1.01] cursor-pointer",
-                                    entity.status === "hit_detected" ? "border-rose-500/30 bg-rose-500/5 shadow-lg shadow-rose-900/10" :
-                                        entity.status === "investigating" ? "border-amber-500/30 bg-amber-500/5" :
-                                            "border-white/5 bg-slate-900/40"
-                                )}
+                {chargement ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Chargement…</p>
+                ) : resultats.length === 0 ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {terme ? "Aucun client ne correspond." : "Aucun client actif enregistré."}
+                    </p>
+                ) : (
+                    <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        {resultats.map((e) => (
+                            <li
+                                key={e.id}
+                                className="flex items-start justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950"
                             >
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center",
-                                            entity.type === "individual" ? "bg-blue-500/10 text-blue-400" : "bg-purple-500/10 text-purple-400"
-                                        )}>
-                                            {entity.type === "individual" ? <Users className="w-6 h-6" /> : <Building className="w-6 h-6" />}
-                                        </div>
-                                        <div>
-                                            <h4 className="text-lg font-black text-white">{entity.name}</h4>
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                                <Globe className="w-3 h-3" /> {entity.country} • {entity.lastScreening}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase border", getRiskColor(entity.riskLevel))}>
-                                        Risque {entity.riskLevel}
-                                    </div>
+                                <div className="min-w-0">
+                                    <p className="font-semibold text-slate-900 dark:text-white">
+                                        {e.name}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                        {e.country} ·{" "}
+                                        {e.hasIdentifiers
+                                            ? "Identifiants OHADA renseignés"
+                                            : "Identifiants OHADA manquants"}
+                                    </p>
                                 </div>
 
-                                {entity.hitDetails.length > 0 && (
-                                    <div className="mb-6 space-y-2">
-                                        {entity.hitDetails.map((hit: any, i: number) => (
-                                            <div key={i} className="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5">
-                                                <div className="flex items-center gap-3">
-                                                    <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                                                    <span className="text-[10px] font-bold text-slate-400">{hit.source}</span>
-                                                    <span className="text-[10px] px-2 py-0.5 bg-rose-500/20 text-rose-400 rounded-md font-black uppercase">{hit.category}</span>
-                                                </div>
-                                                <span className="text-[10px] font-black text-white">{hit.matchProbability}% Match</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                                    <div className="flex gap-4">
-                                        <button className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-all">
-                                            <FileText className="w-3.5 h-3.5" /> Rapport Complet
-                                        </button>
-                                        <button className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 hover:text-white transition-all">
-                                            <History className="w-3.5 h-3.5" /> Historique
-                                        </button>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {entity.status === "hit_detected" && (
-                                            <button className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-[9px] font-black uppercase rounded-lg transition-all">
-                                                Révoquer Accès
-                                            </button>
-                                        )}
-                                        <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[9px] font-black uppercase rounded-lg border border-white/10 transition-all flex items-center gap-2">
-                                            <Eye className="w-3.5 h-3.5" /> Gérer
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                                <span
+                                    className={cn(
+                                        "shrink-0 rounded-md border px-2 py-0.5 text-[11px] font-bold",
+                                        e.status === "Validé"
+                                            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                            : e.status === "Invalide"
+                                              ? "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                              : "border-slate-300 bg-slate-100 text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300"
+                                    )}
+                                >
+                                    {e.status}
+                                </span>
+                            </li>
                         ))}
-                    </div>
+                    </ul>
+                )}
+            </section>
 
-                    {/* Bottom Security Banner */}
-                    <div className="glass-card p-6 rounded-[32px] border border-emerald-500/20 bg-emerald-500/5 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                                <Lock className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-black text-white uppercase tracking-tight">Audit Log Sécurisé</h4>
-                                <p className="text-[10px] text-slate-500">Toutes les recherches sont enregistrées en blockchain pour conformité.</p>
-                            </div>
-                        </div>
-                        <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                    </div>
-                </div>
-            </div>
+            <p className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <ScanLine size={13} className="mt-0.5 shrink-0" />
+                Le statut affiché est celui saisi sur la fiche client. Il ne préjuge d&apos;aucun
+                résultat de criblage. Voir aussi{" "}
+                <Link href="/compliance/id-verify" className="underline hover:text-[var(--primary)]">
+                    l&apos;identification KYC
+                </Link>
+                .
+            </p>
         </div>
     );
 }
