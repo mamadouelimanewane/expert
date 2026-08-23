@@ -56,13 +56,7 @@ type FundraisingTab = "research" | "investors" | "docs" | "simulator";
 
 export default function FundraisingPage() {
     const [activeTab, setActiveTab] = useState<FundraisingTab>("investors");
-    const [isGenerating, setIsGenerating] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-
-    const handleAIGenerate = () => {
-        setIsGenerating(true);
-        setTimeout(() => setIsGenerating(false), 2500);
-    };
 
     return (
         <div className="space-y-6 pb-20">
@@ -73,21 +67,7 @@ export default function FundraisingPage() {
                         <TrendingUp className="w-8 h-8 text-emerald-400" />
                         Pôle Levée de Fonds & Financement
                     </h2>
-                    <p className="text-slate-400 mt-1 italic">Recherche stratégique d'investisseurs et ingénierie financière assistée par IA.</p>
-                </div>
-                <div className="flex gap-3">
-                    <button className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm border border-slate-700 flex items-center gap-2 transition-all">
-                        <Calendar className="w-4 h-4 text-indigo-400" />
-                        Investor Meetings
-                    </button>
-                    <button
-                        onClick={handleAIGenerate}
-                        disabled={isGenerating}
-                        className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
-                    >
-                        {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                        {isGenerating ? "Analyse IA..." : "Optimiser Dossier (IA)"}
-                    </button>
+                    <p className="text-slate-400 mt-1 italic">Répertoire d'investisseurs et suivi de due diligence.</p>
                 </div>
             </div>
 
@@ -98,7 +78,6 @@ export default function FundraisingPage() {
                     onClick={() => setActiveTab("investors")}
                     icon={Users}
                     label="Recherche Investisseurs"
-                    badge="MATCHING"
                 />
                 <TabButton
                     active={activeTab === "research"}
