@@ -95,20 +95,21 @@ export default function DigitalOnboardingPage() {
                                 <p className="text-slate-400">Pour respecter la réglementation (KYC), nous avons besoin d'une pièce d'identité.</p>
                             </div>
 
-                            <div className="border-2 border-dashed border-slate-700 hover:border-rose-500/50 rounded-3xl p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all bg-slate-950/30 group">
-                                <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-rose-500/20 transition-colors">
-                                    <UploadCloud className="w-8 h-8 text-slate-500 group-hover:text-rose-400" />
+                            <div className="border-2 border-dashed border-slate-700 rounded-3xl p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center gap-4 bg-slate-950/30 opacity-60">
+                                <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center">
+                                    <UploadCloud className="w-8 h-8 text-slate-500" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-white font-bold">Glissez votre CNI ou Passeport ici</p>
-                                    <p className="text-xs text-slate-500 mt-1">Formats supportés: PDF, JPG, PNG</p>
+                                    <p className="text-white font-bold">Dépôt de pièce d&apos;identité</p>
+                                    <p className="text-xs text-slate-500 mt-1">Non implémenté — cette zone n&apos;envoie aucun fichier pour le moment.</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
-                                <Shield className="w-6 h-6 text-emerald-400 shrink-0" />
-                                <p className="text-xs text-emerald-300 leading-relaxed">
-                                    Vos données sont chiffrées et stockées sur des serveurs sécurisés certifiés ISO 27001.
+                            <div className="flex items-center gap-4 bg-slate-800/40 p-4 rounded-xl border border-white/5">
+                                <Shield className="w-6 h-6 text-slate-500 shrink-0" />
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                    Le chiffrement en transit (HTTPS) est en place. Aucune certification de sécurité spécifique
+                                    (ISO 27001 ou autre) n&apos;est actuellement détenue par le cabinet.
                                 </p>
                             </div>
                         </div>

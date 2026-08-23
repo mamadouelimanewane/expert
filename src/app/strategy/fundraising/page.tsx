@@ -33,6 +33,25 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Cette page associait des noms de fonds d'investissement réels (Partech
+// Africa, Launch Africa Ventures, Orange Ventures Africa, Norrsken22, Saviu
+// Ventures, Janngo Capital) à des scores de correspondance ("98% Match",
+// "Calculé par Neural IA") entièrement inventés, et simulait un "Intelligence
+// Web Crawler" qui prétendait interroger Crunchbase/Tracxn/LinkedIn en
+// temps réel avant d'ajouter deux nouveaux "investisseurs" en dur — aucune
+// recherche n'a réellement lieu. La checklist de due diligence affichait
+// des statuts "Validé"/"Brouillon" fixes comme si un vrai audit avait été
+// mené, et un encart "IA-Dossier Synthesis" citait un score d'
+// "Investability" de 82/100 sans base réelle. Le simulateur de pitch
+// rejouait toujours la même conversation scriptée.
+//
+// Les fonds réels restent listés comme un répertoire de référence (une
+// information publique légitime), mais sans score de correspondance
+// inventé. La checklist démarre non évaluée. Le simulateur de pitch appelle
+// désormais réellement /api/nexus/chat.
+// ─────────────────────────────────────────────────────────────────────────────
+
 type FundraisingTab = "research" | "investors" | "docs" | "simulator";
 
 export default function FundraisingPage() {
@@ -136,63 +155,29 @@ function TabButton({ active, onClick, icon: Icon, label, badge }: any) {
 
 // --- SECTIONS ---
 
+const REPERTOIRE_INVESTISSEURS = [
+    { name: "Partech Africa", type: "VC", geo: "Global", ticket: "500k - 5M $", sector: "Fintech, Logistics" },
+    { name: "Launch Africa Ventures", type: "VC / Angels", geo: "Pan-African", ticket: "100k - 300k $", sector: "Agnostic" },
+    { name: "Orange Ventures Africa", type: "CVC", geo: "MEA", ticket: "1M - 10M $", sector: "Digital, Infrastructure" },
+    { name: "Norrsken22", type: "Equity", geo: "Sub-Saharan Africa", ticket: "2M - 15M $", sector: "Tech Growth" },
+    { name: "Saviu Ventures", type: "VC", geo: "Francophone Africa", ticket: "200k - 2M $", sector: "Retail, Fintech" },
+    { name: "Janngo Capital", type: "Equity / Impact", geo: "West Africa", ticket: "50k - 500k $", sector: "Inclusion, Digital" },
+];
+
 function InvestorSearchSection() {
-    const [investors, setInvestors] = useState([
-        { name: "Partech Africa", type: "VC", geo: "Global", ticket: "500k - 5M", sector: "Fintech, Logistics", match: 98 },
-        { name: "Launch Africa Ventures", type: "VC / Angels", geo: "Pan-African", ticket: "100k - 300k", sector: "Agnostic", match: 92 },
-        { name: "Orange Ventures Africa", type: "CVC", geo: "MEA", ticket: "1M - 10M", sector: "Digital, Infrastructure", match: 85 },
-        { name: "Norrsken22", type: "Equity", geo: "Sub-Saharan Africa", ticket: "2M - 15M", sector: "Tech Growth", match: 79 },
-    ]);
+    const [recherche, setRecherche] = useState("");
 
-    const [isCrawling, setIsCrawling] = useState(false);
-    const [crawlerStatus, setCrawlerStatus] = useState("");
-
-    const runCrawler = () => {
-        setIsCrawling(true);
-        const statuses = [
-            "Initialisation des vecteurs de recherche...",
-            "Crawling Crunchbase & Tracxn (MEA nodes)...",
-            "Analyse des derniers deals enregistrés sur LinkedIn...",
-            "Filtrage des thèses d'investissement Tech Africa...",
-            "Extraction des coordonnées et tickets moyens..."
-        ];
-
-        let i = 0;
-        const interval = setInterval(() => {
-            setCrawlerStatus(statuses[i]);
-            i++;
-            if (i === statuses.length) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    const newInvestors = [
-                        { name: "Saviu Ventures", type: "VC", geo: "Francophone Africa", ticket: "200k - 2M", sector: "Retail, Fintech", match: 94 },
-                        { name: "Janngo Capital", type: "Equity / Impact", geo: "West Africa", ticket: "50k - 500k", sector: "Inclusion, Digital", match: 88 }
-                    ];
-                    setInvestors(prev => [...newInvestors, ...prev]);
-                    setIsCrawling(false);
-                    setCrawlerStatus("");
-                }, 1000);
-            }
-        }, 800);
-    };
+    const filtres = REPERTOIRE_INVESTISSEURS.filter((inv) =>
+        !recherche.trim() ||
+        `${inv.name} ${inv.sector} ${inv.geo}`.toLowerCase().includes(recherche.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
-            {/* Crawler Awareness Bar */}
-            {isCrawling && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between animate-pulse">
-                    <div className="flex items-center gap-4">
-                        <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin" />
-                        <div>
-                            <p className="text-sm font-bold text-white">Neural Crawler en cours...</p>
-                            <p className="text-xs text-emerald-400 font-mono">{crawlerStatus}</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">Source: Web Intelligence</p>
-                    </div>
-                </div>
-            )}
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-xs text-amber-200">
+                Répertoire de référence à but informatif — coordonnées et thèses d&apos;investissement à vérifier
+                directement auprès de chaque fonds. Aucun score de correspondance n&apos;est calculé par l&apos;application.
+            </div>
 
             {/* Filter Bar */}
             <div className="glass-card p-4 rounded-2xl border border-slate-700/50 flex flex-wrap gap-4 items-center">
@@ -200,68 +185,36 @@ function InvestorSearchSection() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                         type="text"
-                        placeholder="Rechercher par secteur, ticket moyen, localisation..."
+                        value={recherche}
+                        onChange={(e) => setRecherche(e.target.value)}
+                        placeholder="Rechercher par secteur, localisation..."
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
                     />
-                </div>
-                <div className="flex gap-2">
-                    <FilterButton label="Type VC" />
-                    <FilterButton label="Ticket Min" />
-                    <button
-                        onClick={runCrawler}
-                        disabled={isCrawling}
-                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20"
-                    >
-                        <Globe className="w-4 h-4" />
-                        Intelligence Web Crawler
-                    </button>
-                    <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all">
-                        <Zap className="w-4 h-4" />
-                        AI Matching
-                    </button>
                 </div>
             </div>
 
             {/* Investor Cards grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {investors.map((inv, idx) => (
-                    <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 p-6 hover:border-emerald-500/50 transition-all group animate-in zoom-in-95 duration-500">
-                        <div className="flex justify-between items-start mb-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-white text-xl">
-                                    {inv.name[0]}
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-white text-lg">{inv.name}</h4>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{inv.type}</span>
-                                        <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                                            <Globe className="w-3 h-3" /> {inv.geo}
-                                        </span>
-                                    </div>
-                                </div>
+                {filtres.map((inv, idx) => (
+                    <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 p-6 transition-all group">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-white text-xl">
+                                {inv.name[0]}
                             </div>
-                            <div className="text-right">
-                                <div className="text-emerald-400 font-bold flex items-center justify-end gap-1">
-                                    <Star className="w-4 h-4 fill-emerald-400" />
-                                    {inv.match}% Match
+                            <div>
+                                <h4 className="font-bold text-white text-lg">{inv.name}</h4>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{inv.type}</span>
+                                    <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                        <Globe className="w-3 h-3" /> {inv.geo}
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mt-1 italic">Calculé par Neural IA</p>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            <SmallInfo label="Ticket Moyen" value={inv.ticket} />
+                        <div className="grid grid-cols-2 gap-4">
+                            <SmallInfo label="Ticket Moyen (indicatif)" value={inv.ticket} />
                             <SmallInfo label="Secteurs" value={inv.sector} />
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2">
-                                <Linkedin className="w-3 h-3" /> Profile
-                            </button>
-                            <button className="flex-1 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2">
-                                <Mail className="w-3 h-3" /> Pitcher (IA)
-                            </button>
                         </div>
                     </div>
                 ))}
@@ -279,13 +232,15 @@ function SmallInfo({ label, value }: any) {
     );
 }
 
+const DUE_DILIGENCE_CHECKLIST = [
+    { category: "Corporate & Legal", items: ["Structure Actionnariale", "Statuts OHADA à jour", "Contrats Clés (Clients/Fournisseurs)"] },
+    { category: "Financial", items: ["États Financiers Y-1 à Y-3", "Tableau de Flux de Trésorerie", "Burn Rate Analysis"] },
+    { category: "Intellectual Property", items: ["Marques Déposées (OAPI)", "Propriété du Code/Logiciel", "Brevets éventuels"] },
+    { category: "Operations", items: ["Procédure KYC/KYB", "Système de Gestion des Risques", "Organigramme"] },
+];
+
 function ResearchDossierSection() {
-    const DUE_DILIGENCE_CHECKLIST = [
-        { category: "Corporate & Legal", items: ["Structure Actionnariale", "Statuts OHADA à jour", "Contrats Clés (Clients/Fournisseurs)"], status: "validated" },
-        { category: "Financial", items: ["États Financiers Y-1 à Y-3", "Tableau de Flux de Trésorerie", "Burn Rate Analysis"], status: "pending" },
-        { category: "Intellectual Property", items: ["Marques Déposées (OAPI)", "Propriété du Code/Logiciel", "Brevets éventuels"], status: "validated" },
-        { category: "Operations", items: ["Procédure KYC/KYB", "Système de Gestion des Risques", "Organigramme"], status: "draft" },
-    ];
+    const [statuts, setStatuts] = useState<Record<string, "pending" | "draft" | "validated">>({});
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -294,21 +249,30 @@ function ResearchDossierSection() {
                 <div className="glass-card rounded-2xl border border-slate-700/50 p-6">
                     <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-3">
                         <ShieldCheck className="w-5 h-5 text-indigo-400" />
-                        Infrastructure Due Diligence (IA-Ready)
+                        Checklist Due Diligence
                     </h3>
                     <div className="space-y-4">
-                        {DUE_DILIGENCE_CHECKLIST.map((cat, idx) => (
+                        {DUE_DILIGENCE_CHECKLIST.map((cat, idx) => {
+                            const statut = statuts[cat.category] ?? "pending";
+                            const cycler = () => {
+                                const suivant: Record<string, "pending" | "draft" | "validated"> = { pending: "draft", draft: "validated", validated: "pending" };
+                                setStatuts((prev) => ({ ...prev, [cat.category]: suivant[statut] }));
+                            };
+                            return (
                             <div key={idx} className="p-4 bg-slate-900/30 rounded-2xl border border-slate-800/50">
                                 <div className="flex justify-between items-center mb-3">
                                     <h4 className="font-bold text-white uppercase text-xs tracking-widest">{cat.category}</h4>
-                                    <span className={cn(
-                                        "text-[10px] px-2 py-0.5 rounded-full font-bold",
-                                        cat.status === "validated" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
-                                            cat.status === "pending" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
-                                                "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                    )}>
-                                        {cat.status === "validated" ? "VALIDE" : cat.status === "pending" ? "A FAIRE" : "BROUILLON"}
-                                    </span>
+                                    <button
+                                        onClick={cycler}
+                                        className={cn(
+                                            "text-[10px] px-2 py-0.5 rounded-full font-bold",
+                                            statut === "validated" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                                                statut === "pending" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
+                                                    "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                        )}
+                                    >
+                                        {statut === "validated" ? "VALIDE" : statut === "pending" ? "A FAIRE" : "BROUILLON"}
+                                    </button>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                     {cat.items.map((item, i) => (
@@ -319,36 +283,20 @@ function ResearchDossierSection() {
                                     ))}
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>
 
             {/* Sidebar Column */}
             <div className="space-y-6">
-                <div className="glass-card rounded-2xl border border-slate-700/50 p-6 bg-indigo-900/10 shadow-xl">
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-emerald-400" />
-                        IA-Dossier Synthesis
-                    </h4>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-6 italic">
-                        "L'analyse de vos fichiers montre un manque de doc juridique OAPI. Votre score de 'Investability' est actuellement de 82/100. Une mise à jour des contrats fournisseurs augmenterait ce score de 5%."
-                    </p>
-                    <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-transform hover:scale-105">
-                        <ArrowRight className="w-4 h-4" /> Scanner Data Room Virtuelle
-                    </button>
-                </div>
-
                 <div className="glass-card rounded-2xl border border-slate-700/50 p-6">
-                    <h4 className="font-bold text-white mb-4">Exportation Stratégique</h4>
-                    <button className="w-full flex justify-between items-center p-3 hover:bg-slate-800 rounded-xl transition-colors text-xs text-slate-300">
-                        Investment Memorandum PDF
-                        <Download className="w-4 h-4 text-slate-500" />
-                    </button>
-                    <button className="w-full flex justify-between items-center p-3 hover:bg-slate-800 rounded-xl transition-colors text-xs text-slate-300">
-                        Term Sheet OHADA Template
-                        <Download className="w-4 h-4 text-slate-500" />
-                    </button>
+                    <h4 className="font-bold text-white mb-4">Progression</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Cliquez sur le badge de chaque catégorie pour faire évoluer son statut. Aucune analyse
+                        automatique de documents n&apos;est effectuée par l&apos;application.
+                    </p>
                 </div>
             </div>
         </div>
@@ -383,10 +331,6 @@ function FinanceDocsSection() {
                 desc="Multi-currency model (EUR/XOF/USD) avec retraitements."
                 tags={["Excel", "Forecast", "OHADA"]}
             />
-            <div className="glass-card rounded-2xl border border-dashed border-slate-700 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
-                <Plus className="w-10 h-10 text-slate-500" />
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-center leading-tight">Générer Nouveau Document<br /><span className="text-[10px] lowercase font-normal">via IA Prompt</span></p>
-            </div>
         </div>
     );
 }
@@ -404,38 +348,59 @@ function DocTemplateCard({ title, desc, tags }: any) {
                 </div>
             </div>
             <div className="flex gap-2">
-                <button className="flex-1 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-lg text-xs font-bold transition-all">Générer IA</button>
-                <button className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all"><Download className="w-4 h-4 text-slate-400" /></button>
+                <button disabled title="Non implémenté" className="flex-1 py-2 bg-slate-800/50 text-slate-500 border border-slate-700 rounded-lg text-xs font-bold cursor-not-allowed">Générer (non disponible)</button>
             </div>
         </div>
     );
 }
 
+const SYSTEM_PITCH_VC =
+    "Tu joues le rôle d'un investisseur VC exigeant, spécialisé dans les startups d'Afrique de l'Ouest. Réponds en français, " +
+    "pose des questions difficiles mais réalistes sur le modèle économique, le risque juridique OHADA et la traction. Reste bref (3-4 phrases).";
+
 function PitchSimulatorSection() {
-    const [messages, setMessages] = useState([
-        { role: 'assistant', text: "Bonjour ! Je suis 'DeepInvestor', un simulateur d'investisseur VC spécialisé en Afrique. Prêt à pitcher votre concept 'Africa Marketplace Neo' ?" },
-        { role: 'user', text: "Oui, nous révolutionnons le financement des PME avec un marketplace de facturation." },
-        { role: 'assistant', text: "Intéressant. Mais comment gérez-vous le risque de défaut dans une zone juridique comme l'OHADA où le recouvrement peut être lent ?" }
+    const [messages, setMessages] = useState<{ role: "assistant" | "user"; text: string }[]>([
+        { role: "assistant", text: "Bonjour, je joue le rôle d'un investisseur pour cette simulation. Présentez-moi votre projet." },
     ]);
     const [input, setInput] = useState("");
+    const [envoiEnCours, setEnvoiEnCours] = useState(false);
+
+    const envoyer = async () => {
+        if (!input.trim() || envoiEnCours) return;
+        const question = input;
+        const historique = [...messages, { role: "user" as const, text: question }];
+        setMessages(historique);
+        setInput("");
+        setEnvoiEnCours(true);
+        try {
+            const res = await fetch("/api/nexus/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `${SYSTEM_PITCH_VC}\n\nHistorique : ${historique.map((m) => `${m.role}: ${m.text}`).join(" | ")}` }),
+            });
+            const data = await res.json();
+            setMessages((prev) => [...prev, { role: "assistant", text: data.response || data.error || "Réponse indisponible." }]);
+        } catch {
+            setMessages((prev) => [...prev, { role: "assistant", text: "Impossible de contacter l'assistant IA." }]);
+        } finally {
+            setEnvoiEnCours(false);
+        }
+    };
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[350px] sm:h-[450px] lg:h-[600px]">
+        <div className="max-w-3xl h-[350px] sm:h-[450px] lg:h-[600px]">
             {/* Chat Area */}
-            <div className="lg:col-span-3 flex flex-col glass-card rounded-2xl border border-slate-700/50 overflow-hidden bg-slate-950/20">
+            <div className="flex flex-col h-full glass-card rounded-2xl border border-slate-700/50 overflow-hidden bg-slate-950/20">
                 <div className="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
                             <Zap className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                            <p className="text-xs font-bold text-white">Neural Pitch Simulator</p>
-                            <p className="text-[10px] text-emerald-400">Mode: Tough VC Round A</p>
+                            <p className="text-xs font-bold text-white">Simulateur de Pitch</p>
+                            <p className="text-[10px] text-slate-500">Répond via l&apos;assistant IA (DeepSeek si configuré)</p>
                         </div>
                     </div>
-                    <span className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Feedback Active
-                    </span>
                 </div>
 
                 <div className="flex-1 p-6 overflow-y-auto space-y-6">
@@ -449,57 +414,21 @@ function PitchSimulatorSection() {
                             </div>
                         </div>
                     ))}
+                    {envoiEnCours && <p className="text-xs text-slate-500">L'investisseur réfléchit…</p>}
                 </div>
 
                 <div className="p-4 bg-slate-900/50 border-t border-slate-800 flex gap-3">
                     <input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && envoyer()}
                         placeholder="Répondre à l'investisseur..."
                         className="flex-1 bg-slate-800 border-none rounded-xl px-4 py-2 text-sm text-white focus:outline-none placeholder:text-slate-500"
                     />
-                    <button className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl transition-all shadow-lg shadow-emerald-500/10">
+                    <button onClick={envoyer} disabled={envoiEnCours} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white p-2 rounded-xl transition-all shadow-lg shadow-emerald-500/10">
                         <Send className="w-5 h-5" />
                     </button>
                 </div>
-            </div>
-
-            {/* Stats/Feedback Sidebar */}
-            <div className="space-y-6">
-                <div className="glass-card rounded-2xl border border-slate-700/50 p-6 h-full">
-                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-800 pb-2">Analysis Real-Time</h4>
-                    <div className="space-y-6">
-                        <StatProgress label="Confidence Level" score={72} color="bg-emerald-500" />
-                        <StatProgress label="Clarity of Concept" score={88} color="bg-indigo-500" />
-                        <StatProgress label="Financial Rigor" score={45} color="bg-rose-500" />
-                    </div>
-
-                    <div className="mt-12">
-                        <h4 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3">Conseils de l'IA</h4>
-                        <ul className="space-y-2 text-[10px] text-slate-400 italic">
-                            <li className="flex gap-2">
-                                <ArrowRight className="w-3 h-3 text-emerald-500 shrink-0" /> Focus davantage sur les garanties OHADA.
-                            </li>
-                            <li className="flex gap-2">
-                                <ArrowRight className="w-3 h-3 text-emerald-500 shrink-0" /> Ton explication du CAC est trop vague.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function StatProgress({ label, score, color }: any) {
-    return (
-        <div className="space-y-1.5">
-            <div className="flex justify-between text-[10px] font-bold">
-                <span className="text-slate-500 uppercase tracking-wider">{label}</span>
-                <span className="text-white">{score}%</span>
-            </div>
-            <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-                <div className={cn("h-full rounded-full", color)} style={{ width: `${score}%` }} />
             </div>
         </div>
     );

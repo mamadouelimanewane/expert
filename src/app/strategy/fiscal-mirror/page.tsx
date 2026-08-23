@@ -13,47 +13,54 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Mock Data for Comparison
+// ─────────────────────────────────────────────────────────────────────────────
+// Les taux fiscaux ci-dessous sont une donnée de référence (à réviser à
+// chaque loi de finances, au même titre que le calendrier de
+// src/lib/ohada/obligations-fiscales.ts). Ce qui a été retiré : un « Indice
+// Attractivité » sur 10 sans méthodologie, une barre de progression fixe à
+// 87% indépendante de la valeur affichée, et un « Verdict Stratégique —
+// Nexus IA Simulation » au texte figé annonçant un écart de "+2.5%" qui ne
+// correspondait même pas à la différence réelle entre les deux pays
+// affichés. Le bouton "Télécharger l'Aide au Choix" était également sans
+// fonction.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const COUNTRIES_DATA: Record<string, any> = {
     "CI": {
         name: "Côte d'Ivoire",
         is: "25%",
         tva: "18%",
         its: "Prog.",
-        social: "23%",
+        social: 23,
         dividends: "15%",
         advantages: ["Secteur Agro-ind.", "ZBTIC", "Zones Franches"],
-        rating: 8.5
     },
     "SN": {
         name: "Sénégal",
         is: "30%",
         tva: "18%",
         its: "Prog.",
-        social: "21.5%",
+        social: 21.5,
         dividends: "10%",
         advantages: ["Espaces Pôles Urb.", "Start-up Act", "Gaz/Pétrole"],
-        rating: 8.2
     },
     "CM": {
         name: "Cameroun",
         is: "30.8%",
         tva: "19.25%",
         its: "Prog.",
-        social: "16.2%",
+        social: 16.2,
         dividends: "16.5%",
         advantages: ["Énergie", "Bois", "Infrastructure"],
-        rating: 7.8
     },
     "BEN": {
         name: "Bénin",
         is: "25%",
         tva: "18%",
         its: "Prog.",
-        social: "20%",
+        social: 20,
         dividends: "12%",
         advantages: ["Logistique", "Tourisme Hub", "GDIZ"],
-        rating: 8.7
     }
 };
 
@@ -75,18 +82,15 @@ export default function FiscalMirrorPage() {
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-6">
                         <div className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-indigo-500/20">
-                            Nexus Strategy Suite
-                        </div>
-                        <div className="text-[10px] font-bold text-slate-500 flex items-center gap-2">
-                             Modèle OHADA v2026.4
+                            Strategy Suite
                         </div>
                     </div>
-                    
+
                     <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
-                        Nexus <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Fiscal Mirror</span>
+                        Comparateur <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Fiscal</span>
                     </h1>
                     <p className="text-lg sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
-                        Benchmarking régional temps-réel. Comparez les cadres fiscaux et légaux pour optimiser vos flux et implantations panafricaines.
+                        Comparez les cadres fiscaux de référence par pays pour éclairer vos choix d&apos;implantation.
                     </p>
                 </div>
             </div>
@@ -129,7 +133,7 @@ export default function FiscalMirrorPage() {
                              <MetricsRow label="Impôt Sociétés (IS)" a={dataA.is} b={dataB.is} />
                              <MetricsRow label="TVA (Standard)" a={dataA.tva} b={dataB.tva} />
                              <MetricsRow label="Dividendes" a={dataA.dividends} b={dataB.dividends} />
-                             <MetricsRow label="Charges Patronales" a={dataA.social} b={dataB.social} />
+                             <MetricsRow label="Charges Patronales" a={`${dataA.social}%`} b={`${dataB.social}%`} />
                              <MetricsRow label="Régime Salarié" a={dataA.its} b={dataB.its} />
                         </div>
                     </div>
@@ -140,33 +144,31 @@ export default function FiscalMirrorPage() {
                     </div>
                 </div>
 
-                {/* AI Recommendation Sidebar */}
+                {/* Comparaison synthétique */}
                 <div className="lg:col-span-4 space-y-6">
                     <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/10 to-transparent">
                         <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                             <BrainCircuit className="w-8 h-8 text-indigo-400" />
                         </div>
-                        <h4 className="text-xl font-black text-white uppercase mb-2">Verdict Stratégique</h4>
-                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-6">Nexus IA Simulation</p>
-                        
+                        <h4 className="text-xl font-black text-white uppercase mb-6">Écart de Charges Sociales</h4>
+
                         <div className="p-6 bg-white/[0.03] rounded-3xl border border-white/5 mb-6">
-                            <p className="text-sm text-slate-300 italic leading-relaxed">
-                                "Pour un projet à forte intensité de main-d'œuvre, le <span className="text-indigo-400 font-bold">{dataB.name}</span> présente un avantage compétitif de <span className="text-emerald-400 font-black">2.5%</span> sur les charges sociales."
-                            </p>
+                            {dataA.social === dataB.social ? (
+                                <p className="text-sm text-slate-300 leading-relaxed">
+                                    Les charges patronales sont identiques ({dataA.social}%) entre {dataA.name} et {dataB.name}.
+                                </p>
+                            ) : (
+                                <p className="text-sm text-slate-300 leading-relaxed">
+                                    Les charges patronales sont plus basses de{" "}
+                                    <span className="text-emerald-400 font-black">{Math.abs(dataA.social - dataB.social).toFixed(1)} point{Math.abs(dataA.social - dataB.social) >= 2 ? "s" : ""}</span>{" "}
+                                    au <span className="text-indigo-400 font-bold">{dataA.social < dataB.social ? dataA.name : dataB.name}</span> par rapport à{" "}
+                                    {dataA.social < dataB.social ? dataB.name : dataA.name}.
+                                </p>
+                            )}
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-end mb-1">
-                                <span className="text-[10px] text-slate-500 font-black uppercase">Indice Attractivité</span>
-                                <span className="text-emerald-400 font-black text-lg">{Math.max(dataA.rating, dataB.rating)}/10</span>
-                            </div>
-                            <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-indigo-500 w-[87%] shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
-                            </div>
-                        </div>
-
-                        <button className="w-full mt-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-3">
-                            Télécharger l'Aide au Choix <ArrowRight className="w-4 h-4" />
+                        <button disabled title="Non implémenté" className="w-full py-5 bg-indigo-600/50 text-white/50 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-not-allowed flex items-center justify-center gap-3">
+                            Télécharger l'Aide au Choix (non disponible) <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
 
