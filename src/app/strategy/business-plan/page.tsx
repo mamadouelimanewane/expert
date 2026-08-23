@@ -29,13 +29,35 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Plusieurs éléments de cette page laissaient croire à une analyse réelle
+// alors qu'ils étaient fixes quel que soit le projet ou les hypothèses
+// saisies : le scorecard "Analyses des Risques" (85/62/45/78 sur 100) ne
+// changeait jamais, le bouton "Optimiser via IA v4.5" ne faisait qu'un
+// setTimeout de 2s, et "Aperçu Client" / "Ouvrir Investment Memorandum" /
+// "Exporter .PPTX" n'avaient aucun gestionnaire. Le modèle financier et la
+// valorisation (multiples/DCF) restent un vrai calcul sur les curseurs
+// saisis par l'utilisateur — c'est un outil de modélisation, pas une donnée
+// client. Le scorecard fixe est retiré, le bouton IA appelle réellement
+// /api/nexus/chat, et les boutons sans fonction sont désactivés avec une
+// explication plutôt que de simuler un résultat.
+// ─────────────────────────────────────────────────────────────────────────────
+
 type TabType = "plan" | "finance" | "valuation" | "deck";
+
+const SECTIONS_VIERGES = [
+    { title: "Vision & Proposition de Valeur", key: "vision", content: "" },
+    { title: "Analyse du Marché (TAM/SAM/SOM)", key: "marche", content: "" },
+    { title: "Stratégie Go-to-Market", key: "gtm", content: "" },
+    { title: "Modèle Économique", key: "modele", content: "" },
+];
 
 export default function BusinessPlanPage() {
     const [activeTab, setActiveTab] = useState<TabType>("plan");
     const [isGenerating, setIsGenerating] = useState(false);
-    const [projectName, setProjectName] = useState("Africa Marketplace Neo");
-    const [isEditMode, setIsEditMode] = useState(false);
+    const [projectName, setProjectName] = useState("");
+    const [isEditMode, setIsEditMode] = useState(true);
+    const [sections, setSections] = useState(SECTIONS_VIERGES);
 
     // Projections State
     const [projections, setProjections] = useState({
@@ -62,9 +84,33 @@ export default function BusinessPlanPage() {
 
     const valuation = calculateValuation();
 
-    const generateAIPlan = () => {
+    const generateAIPlan = async () => {
+        if (!projectName.trim()) return;
         setIsGenerating(true);
-        setTimeout(() => setIsGenerating(false), 2000);
+        try {
+            const res = await fetch("/api/nexus/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message:
+                        `Rédige un projet de business plan pour un projet nommé "${projectName}". Réponds en 4 paragraphes ` +
+                        `distincts séparés par une ligne vide, dans cet ordre exact : (1) Vision & proposition de valeur, ` +
+                        `(2) Analyse de marché TAM/SAM/SOM, (3) Stratégie go-to-market, (4) Modèle économique. ` +
+                        `N'invente aucun chiffre précis (part de marché, CA, nombre de clients) : utilise [à compléter] ` +
+                        `pour toute donnée que je devrai renseigner moi-même.`,
+                }),
+            });
+            const data = await res.json();
+            const texte: string = data.response || "";
+            const paragraphes = texte.split(/\n\s*\n/).filter((p: string) => p.trim());
+            setSections((prev) =>
+                prev.map((s, i) => ({ ...s, content: paragraphes[i]?.trim() || s.content }))
+            );
+        } catch (e) {
+            console.error("Génération du business plan :", e);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     return (
@@ -76,29 +122,27 @@ export default function BusinessPlanPage() {
                         <Rocket className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-2">
-                            {projectName}
-                            <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[10px] font-bold text-emerald-400 uppercase">Premium AI Plan</div>
-                        </h2>
+                        <input
+                            type="text"
+                            value={projectName}
+                            onChange={(e) => setProjectName(e.target.value)}
+                            placeholder="Nom du projet"
+                            className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight bg-transparent border-b border-transparent hover:border-slate-700 focus:border-indigo-500 outline-none"
+                        />
                         <div className="flex items-center gap-4 mt-1">
-                            <p className="text-slate-400 text-sm">Startup Valuation & Strategic Business Plan Lab</p>
-                            <span className="w-1 h-1 bg-slate-700 rounded-full" />
-                            <p className="text-indigo-400 text-sm font-medium">Secteur: Digital FinTech / OHADA Zone</p>
+                            <p className="text-slate-400 text-sm">Business Plan & Modèle Financier</p>
                         </div>
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm border border-slate-700 flex items-center gap-2 transition-all">
-                        <Eye className="w-4 h-4" />
-                        Aperçu Client
-                    </button>
                     <button
                         onClick={generateAIPlan}
-                        disabled={isGenerating}
+                        disabled={isGenerating || !projectName.trim()}
+                        title={!projectName.trim() ? "Renseignez un nom de projet" : ""}
                         className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                         {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                        {isGenerating ? "Génération IA..." : "Optimiser via IA v4.5"}
+                        {isGenerating ? "Génération…" : "Rédiger un projet via IA"}
                     </button>
                 </div>
             </div>
@@ -133,7 +177,7 @@ export default function BusinessPlanPage() {
 
             {/* Content Area */}
             <div className="min-h-[350px] sm:h-[450px] lg:h-[600px] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {activeTab === "plan" && <PlanSection isEditMode={isEditMode} setIsEditMode={setIsEditMode} />}
+                {activeTab === "plan" && <PlanSection isEditMode={isEditMode} setIsEditMode={setIsEditMode} sections={sections} setSections={setSections} />}
                 {activeTab === "finance" && <FinanceSection projections={projections} setProjections={setProjections} />}
                 {activeTab === "valuation" && <ValuationSection valuation={valuation} />}
                 {activeTab === "deck" && <DeckSection projectName={projectName} />}
@@ -161,34 +205,14 @@ function TabButton({ active, onClick, icon: Icon, label }: any) {
 
 // --- SUB-COMPONENTS ---
 
-function PlanSection({ isEditMode, setIsEditMode }: any) {
-    const sections = [
-        {
-            title: "Vision & Proposition de Valeur",
-            icon: Lightbulb,
-            color: "text-amber-400 bg-amber-500/10",
-            content: "Révolutionner l'accès au financement pour les PMEs de la zone OHADA via un marketplace intelligent de facturation et de crédit inter-entreprises. Notre solution réduit les délais de paiement de 65% en moyenne."
-        },
-        {
-            title: "Analyse du Marché (TAM/SAM/SOM)",
-            icon: Globe,
-            color: "text-cyan-400 bg-cyan-500/10",
-            content: "Marché total adressable : 45M de PMEs en Afrique de l'Ouest. Marché cible initial : Côte d'Ivoire, Sénégal, Cameroun. Une opportunité de 12.5 Mds $ de flux financiers non bancarisés."
-        },
-        {
-            title: "Stratégie Go-to-Market",
-            icon: Target,
-            color: "text-rose-400 bg-rose-500/10",
-            content: "Partenariats stratégiques avec les banques locales (API integration) et acquisition directe via marketing digital ciblé (SaaS B2B model). Objectif : 5,000 entreprises actives en Year 3."
-        },
-        {
-            title: "Modèle Économique",
-            icon: DollarSign,
-            color: "text-emerald-400 bg-emerald-500/10",
-            content: "Modèle transactionnel (0.5% à 1.5% par facture échangée) combiné à un abonnement premium SaaS pour les outils de gestion de trésorerie analytique."
-        }
-    ];
+const SECTION_STYLE: Record<string, { icon: any; color: string }> = {
+    vision: { icon: Lightbulb, color: "text-amber-400 bg-amber-500/10" },
+    marche: { icon: Globe, color: "text-cyan-400 bg-cyan-500/10" },
+    gtm: { icon: Target, color: "text-rose-400 bg-rose-500/10" },
+    modele: { icon: DollarSign, color: "text-emerald-400 bg-emerald-500/10" },
+};
 
+function PlanSection({ isEditMode, setIsEditMode, sections, setSections }: any) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
@@ -208,11 +232,13 @@ function PlanSection({ isEditMode, setIsEditMode }: any) {
                     </button>
                 </div>
 
-                {sections.map((s, idx) => (
+                {sections.map((s: any, idx: number) => {
+                    const style = SECTION_STYLE[s.key];
+                    return (
                     <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden group">
                         <div className="p-4 border-b border-slate-700/50 bg-slate-900/50 flex items-center gap-3">
-                            <div className={cn("p-2 rounded-lg", s.color)}>
-                                <s.icon className="w-5 h-5" />
+                            <div className={cn("p-2 rounded-lg", style.color)}>
+                                <style.icon className="w-5 h-5" />
                             </div>
                             <h4 className="font-bold text-white">{s.title}</h4>
                         </div>
@@ -220,55 +246,32 @@ function PlanSection({ isEditMode, setIsEditMode }: any) {
                             {isEditMode ? (
                                 <textarea
                                     className="w-full h-32 bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 focus:outline-none focus:border-indigo-500"
-                                    defaultValue={s.content}
+                                    placeholder="À rédiger — vous pouvez aussi utiliser « Rédiger un projet via IA »."
+                                    value={s.content}
+                                    onChange={(e) => setSections((prev: any[]) => prev.map((x, i) => i === idx ? { ...x, content: e.target.value } : x))}
                                 />
-                            ) : (
+                            ) : s.content ? (
                                 <p className="text-sm text-slate-400 leading-relaxed italic">
                                     "{s.content}"
                                 </p>
+                            ) : (
+                                <p className="text-sm text-slate-600 italic">Non renseigné.</p>
                             )}
                         </div>
                     </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className="space-y-6">
-                <div className="glass-card rounded-2xl border border-slate-700/50 p-8 h-full">
-                    <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-3">
-                        <PieChart className="w-5 h-5 text-indigo-400" />
-                        Part de Marché Prévisionnelle
-                    </h3>
-                    <div className="relative h-[300px] flex items-center justify-center">
-                        {/* Simulation d'un chart circulaire premium */}
-                        <div className="w-48 h-48 rounded-full border-[16px] border-slate-800 relative flex items-center justify-center">
-                            <div className="absolute inset-0 rounded-full border-[16px] border-indigo-500 border-t-transparent border-l-transparent rotate-[45deg]" />
-                            <div className="text-center">
-                                <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">12%</p>
-                                <p className="text-xs text-slate-500 uppercase font-bold">SOM Target</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 mt-8">
-                        <MarketStat label="TAM" value="45.0M" sub="PMEs OHADA" color="bg-slate-700" />
-                        <MarketStat label="SAM" value="12.5M" sub="Digital Ready" color="bg-indigo-900" />
-                        <MarketStat label="SOM" value="1.5M" sub="Phase 1 (3 ans)" color="bg-indigo-600" />
-                        <MarketStat label="LTV" value="4,500$" sub="Life Time Val" color="bg-rose-600" />
-                    </div>
+                <div className="glass-card rounded-2xl border border-slate-700/50 p-8 h-full flex flex-col items-center justify-center text-center gap-3">
+                    <PieChart className="w-10 h-10 text-slate-700" />
+                    <p className="text-sm text-slate-500 max-w-xs">
+                        Aucune donnée de marché (TAM/SAM/SOM) chiffrée n&apos;est calculée par l&apos;application :
+                        renseignez-la dans la section « Analyse du Marché » ci-contre si vous en disposez.
+                    </p>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function MarketStat({ label, value, sub, color }: any) {
-    return (
-        <div className="p-4 rounded-2xl bg-slate-800/30 border border-slate-700/50">
-            <div className="flex items-center gap-2 mb-1">
-                <div className={cn("w-2 h-2 rounded-full", color)} />
-                <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">{label}</span>
-            </div>
-            <p className="text-lg font-bold text-white">{value}</p>
-            <p className="text-[10px] text-slate-500">{sub}</p>
         </div>
     );
 }
@@ -417,9 +420,9 @@ function ValuationSection({ valuation }: any) {
                         </div>
 
                         <div className="pt-8 border-t border-slate-700/50">
-                            <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-3">
+                            <button disabled title="Non implémenté" className="w-full py-4 bg-indigo-600/50 text-white/50 rounded-2xl font-bold cursor-not-allowed flex items-center justify-center gap-3">
                                 <Briefcase className="w-5 h-5" />
-                                Ouvrir "Investment Memorandum"
+                                Générer un mémorandum d'investissement (non disponible)
                             </button>
                         </div>
                     </div>
@@ -428,42 +431,16 @@ function ValuationSection({ valuation }: any) {
 
             <div className="space-y-6">
                 <div className="glass-card rounded-2xl border border-slate-700/50 p-6">
-                    <h4 className="font-bold text-white mb-6 flex items-center gap-2">
+                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
                         <Zap className="w-4 h-4 text-rose-400" />
-                        Analyses des Risques & Scorecard
+                        Hypothèses de la méthode
                     </h4>
-                    <div className="space-y-4">
-                        <RiskScore label="Qualité de l'Équipe" score={85} />
-                        <RiskScore label="Traction & Go-To-Market" score={62} />
-                        <RiskScore label="Barrière à l'Entrée" score={45} />
-                        <RiskScore label="Sujétion Réglementaire (OHADA)" score={78} />
-                    </div>
-                    <div className="mt-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                        <p className="text-xs text-rose-400 leading-relaxed font-medium">
-                            ⚠️ Attention : La dépendance aux régulations OHADA locales impose un risque juridique modéré. Valorisation ajustée de -10% pour ce facteur de risque.
-                        </p>
-                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Multiple de sortie et taux d&apos;actualisation (WACC) sont des hypothèses par défaut, non ajustées
+                        au profil de risque du projet. Aucun scoring qualitatif (équipe, traction, réglementation) n&apos;est
+                        calculé par l&apos;application.
+                    </p>
                 </div>
-            </div>
-        </div>
-    );
-}
-
-function RiskScore({ label, score }: any) {
-    return (
-        <div className="space-y-2">
-            <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">{label}</span>
-                <span className={cn(
-                    "font-bold",
-                    score >= 80 ? "text-emerald-400" : score >= 60 ? "text-amber-400" : "text-rose-400"
-                )}>{score}/100</span>
-            </div>
-            <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div className={cn(
-                    "h-full rounded-full transition-all duration-1000",
-                    score >= 80 ? "bg-emerald-500" : score >= 60 ? "bg-amber-500" : "bg-rose-500"
-                )} style={{ width: `${score}%` }} />
             </div>
         </div>
     );
@@ -476,13 +453,13 @@ function DeckSection({ projectName }: any) {
                 <div>
                     <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
                         <Presentation className="w-5 h-5 text-indigo-400" />
-                        Pitch Deck Preview
+                        Structure de Pitch Deck (exemple)
                     </h3>
-                    <p className="text-slate-500 text-sm mt-1">Structure de présentation optimisée pour investisseurs VC</p>
+                    <p className="text-slate-500 text-sm mt-1">Trame indicative à personnaliser — pas un contenu généré pour {projectName || "votre projet"}.</p>
                 </div>
-                <button className="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold border border-slate-700 flex items-center gap-2">
+                <button disabled title="Non implémenté" className="px-4 py-2 bg-slate-800/50 text-slate-500 rounded-lg text-xs font-bold border border-slate-700 flex items-center gap-2 cursor-not-allowed">
                     <Download className="w-4 h-4" />
-                    Exporter .PPTX
+                    Exporter .PPTX (non disponible)
                 </button>
             </div>
 

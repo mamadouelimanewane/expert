@@ -1,5 +1,16 @@
-import React from 'react';
+import Link from 'next/link';
 import { ImportBalance } from '@/components/etats-financiers/ImportBalance';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Le fichier déposé restait en état React local (ImportBalance) : rien n'était
+// jamais envoyé au serveur, et le bouton "Analyser et Mapper" n'avait aucun
+// gestionnaire. Aucun pipeline ne convertit une balance générale importée en
+// écritures exploitables par le moteur SYSCOHADA — le bilan et le compte de
+// résultat réels sont calculés à partir des écritures du journal (voir
+// /comptabilite/liasse-fiscale et /ingest/connectors), pas d'une balance
+// importée directement. Le bouton est donc désactivé avec une explication
+// plutôt que de simuler une analyse.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function ImportPage() {
     return (
@@ -16,18 +27,25 @@ export default function ImportPage() {
                 <ImportBalance year="N-1 (Exercice Précédent)" />
             </div>
 
-            <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                <h4 className="font-semibold">Format attendu :</h4>
-                <ul className="mt-2 list-inside list-disc space-y-1">
-                    <li>Fichier Excel (.xlsx) ou CSV</li>
-                    <li>Colonnes : Compte, Intitulé, Solde Débit, Solde Crédit</li>
-                    <li>Ne pas inclure les sous-totaux dans le fichier</li>
-                </ul>
+            <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                <p className="font-semibold">Import de balance non disponible.</p>
+                <p className="mt-1">
+                    Le bilan et le compte de résultat sont calculés à partir des écritures du journal comptable. Pour
+                    importer des transactions, utilisez{" "}
+                    <Link href="/ingest/connectors" className="underline font-semibold">
+                        Import Wave/CSV
+                    </Link>{" "}
+                    ou saisissez-les directement, puis générez la liasse depuis{" "}
+                    <Link href="/comptabilite/liasse-fiscale" className="underline font-semibold">
+                        Liasse Fiscale
+                    </Link>
+                    .
+                </p>
             </div>
 
             <div className="flex justify-end pt-4">
-                <button className="rounded-lg bg-indigo-600 px-6 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
-                    Analyser et Mapper
+                <button disabled title="Non implémenté" className="rounded-lg bg-slate-300 px-6 py-2.5 font-semibold text-slate-500 cursor-not-allowed dark:bg-slate-800 dark:text-slate-500">
+                    Analyser et Mapper (non disponible)
                 </button>
             </div>
         </div>

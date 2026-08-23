@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
     AlertTriangle,
     CheckCircle2,
     FileSpreadsheet,
+    Printer,
     RefreshCw,
     Table as TableIcon,
 } from "lucide-react";
@@ -24,6 +26,13 @@ import ControlesBanner from "@/components/etats-financiers/ControlesBanner";
 // tableaux, les montants et les anomalies viennent des écritures réelles. Les
 // tableaux que le moteur ne produit pas encore — flux de trésorerie et notes
 // annexes — sont annoncés comme non disponibles, et non présentés « en cours ».
+//
+// Correctif ultérieur : les trois appels API se faisaient sans clientId ni
+// période, ce qui agrégeait les écritures de TOUS les clients du cabinet
+// dans une seule « liasse » — inutilisable en pratique, puisque chaque
+// client doit avoir sa propre DSF. Un sélecteur de client et de période a
+// été ajouté ; les appels API et les liens d'impression le respectent
+// désormais.
 // ─────────────────────────────────────────────────────────────────────────────
 
 type EtatTableau = "COMPLET" | "ANOMALIE" | "VIDE" | "NON_IMPLEMENTE";
@@ -70,6 +79,10 @@ const ETAT: Record<EtatTableau, { libelle: string; classe: string }> = {
 const fcfa = (n: number) => Math.round(n).toLocaleString("fr-FR");
 
 export default function LiasseFiscalePage() {
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clientId, setClientId] = useState("");
+    const [periode, setPeriode] = useState(new Date().toISOString().substring(0, 7));
+
     const [tableaux, setTableaux] = useState<Tableau[]>([]);
     const [selection, setSelection] = useState<string>("bilan-actif");
     const [controles, setControles] = useState<Record<string, unknown> | null>(null);
@@ -85,14 +98,37 @@ export default function LiasseFiscalePage() {
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState<string | null>(null);
 
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/clients?limit=200&isActive=true");
+                if (!res.ok) return;
+                const data = await res.json();
+                setClients(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                );
+            } catch (e) {
+                console.error("Chargement du portefeuille :", e);
+            }
+        })();
+    }, []);
+
     const charger = useCallback(async () => {
+        if (!clientId) {
+            setChargement(false);
+            return;
+        }
         setChargement(true);
         setErreur(null);
         try {
+            const qs = `clientId=${clientId}&periode=${periode}`;
             const [rl, rb, rr] = await Promise.all([
-                fetch("/api/comptabilite/liasse-fiscale"),
-                fetch("/api/comptabilite/etats-financiers/bilan"),
-                fetch("/api/comptabilite/etats-financiers/resultat"),
+                fetch(`/api/comptabilite/liasse-fiscale?${qs}`),
+                fetch(`/api/comptabilite/etats-financiers/bilan?${qs}`),
+                fetch(`/api/comptabilite/etats-financiers/resultat?${qs}`),
             ]);
             if (!rl.ok || !rb.ok || !rr.ok) {
                 throw new Error(`Réponses ${rl.status} / ${rb.status} / ${rr.status}`);
@@ -116,7 +152,7 @@ export default function LiasseFiscalePage() {
         } finally {
             setChargement(false);
         }
-    }, []);
+    }, [clientId, periode]);
 
     useEffect(() => {
         charger();
@@ -154,16 +190,56 @@ export default function LiasseFiscalePage() {
                     </div>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={charger}
-                    disabled={chargement}
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
-                >
-                    <RefreshCw size={14} className={chargement ? "animate-spin" : ""} />
-                    Recalculer
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <select
+                        value={clientId}
+                        onChange={(e) => setClientId(e.target.value)}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                    >
+                        <option value="">Sélectionner un client</option>
+                        {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+                    </select>
+                    <input
+                        type="month"
+                        value={periode}
+                        onChange={(e) => setPeriode(e.target.value)}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                    />
+                    {clientId && (
+                        <>
+                            <Link
+                                href={`/etats-financiers/print/bilan?clientId=${clientId}&periode=${periode}`}
+                                target="_blank"
+                                className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                            >
+                                <Printer size={14} /> Bilan
+                            </Link>
+                            <Link
+                                href={`/etats-financiers/print/resultat?clientId=${clientId}&periode=${periode}`}
+                                target="_blank"
+                                className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                            >
+                                <Printer size={14} /> Résultat
+                            </Link>
+                        </>
+                    )}
+                    <button
+                        type="button"
+                        onClick={charger}
+                        disabled={chargement || !clientId}
+                        className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                    >
+                        <RefreshCw size={14} className={chargement ? "animate-spin" : ""} />
+                        Recalculer
+                    </button>
+                </div>
             </div>
+
+            {!clientId && (
+                <div className="rounded-xl border border-slate-300 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+                    Sélectionnez un client pour générer sa liasse fiscale.
+                </div>
+            )}
 
             {erreur && (
                 <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
@@ -171,7 +247,7 @@ export default function LiasseFiscalePage() {
                 </div>
             )}
 
-            {!chargement && !erreur && aucuneDonnee && (
+            {clientId && !chargement && !erreur && aucuneDonnee && (
                 <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
                     <strong className="font-semibold">Aucune écriture exportée.</strong> Les tableaux
                     sont vides parce que le journal ne contient rien pour ce périmètre, et non parce
@@ -179,7 +255,7 @@ export default function LiasseFiscalePage() {
                 </div>
             )}
 
-            {!chargement && !erreur && !aucuneDonnee && (
+            {clientId && !chargement && !erreur && !aucuneDonnee && (
                 <div
                     className={cn(
                         "flex items-start gap-3 rounded-xl border p-4 text-sm",

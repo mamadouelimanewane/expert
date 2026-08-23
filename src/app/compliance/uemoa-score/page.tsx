@@ -7,15 +7,12 @@ import { cn } from "@/lib/utils";
 import { UEMOA_CHECKLIST, calculateComplianceScore } from "@/lib/compliance-engine";
 
 export default function UemoaScorePage() {
-  const [answers, setAnswers] = useState<Record<string, 'conforme'|'attention'|'non_conforme'>>({
-    // Initial mock state to show a score around 74
-    "C1": "conforme", "C2": "attention", "C3": "conforme", "C4": "conforme", "C5": "conforme",
-    "F1": "conforme", "F2": "attention", "F3": "conforme", "F4": "conforme", "F5": "conforme", "F6": "non_conforme", "F7": "conforme",
-    "J1": "attention", "J2": "conforme", "J3": "non_conforme", "J4": "conforme", "J5": "conforme",
-    "B1": "non_conforme", "B2": "conforme", "B3": "conforme", "B4": "conforme",
-    "S1": "conforme", "S2": "conforme", "S3": "conforme", "S4": "conforme", "S5": "conforme",
-    "G1": "attention", "G2": "non_conforme", "G3": "attention", "G4": "conforme"
-  });
+  // La checklist démarrait pré-remplie avec ~29 réponses fictives (commentaire
+  // d'origine : "Initial mock state to show a score around 74"), affichant un
+  // score et des points critiques précis dès le premier chargement, sans
+  // qu'aucune évaluation n'ait eu lieu. Elle démarre désormais vide : le
+  // score reflète uniquement les réponses effectivement cochées.
+  const [answers, setAnswers] = useState<Record<string, 'conforme'|'attention'|'non_conforme'>>({});
   
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     "États Financiers": true

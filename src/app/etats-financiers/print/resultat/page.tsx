@@ -1,19 +1,40 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { LiasseHeader } from '@/components/etats-financiers/print/LiasseHeader';
 import { clsx } from 'clsx';
 
-export default function PrintResultatPage() {
+// ─────────────────────────────────────────────────────────────────────────────
+// Cette page appelait l'API résultat sans clientId ni période : sans filtre,
+// l'API agrège les écritures de tous les clients et toutes les périodes,
+// ce qui n'a aucun sens pour un compte de résultat imprimable au nom d'un
+// client précis. Les paramètres ?clientId= et ?periode= sont désormais
+// requis.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function PrintResultatInner() {
+    const searchParams = useSearchParams();
+    const clientId = searchParams?.get('clientId') || '';
+    const periode = searchParams?.get('periode') || '';
+
     const [compteResultat, setCompteResultat] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/comptabilite/etats-financiers/resultat')
+        if (!clientId || !periode) {
+            setLoading(false);
+            return;
+        }
+        fetch(`/api/comptabilite/etats-financiers/resultat?clientId=${clientId}&periode=${periode}`)
             .then(res => res.json())
             .then(data => setCompteResultat(data.resultat || []))
             .finally(() => setLoading(false));
-    }, []);
+    }, [clientId, periode]);
+
+    if (!clientId || !periode) {
+        return <div className="p-8 text-sm">Client et période requis (paramètres ?clientId=&amp;periode= manquants).</div>;
+    }
 
     if (loading) {
         return <div className="p-8 text-sm">Chargement…</div>;
@@ -70,5 +91,13 @@ export default function PrintResultatPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PrintResultatPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-sm">Chargement…</div>}>
+            <PrintResultatInner />
+        </Suspense>
     );
 }

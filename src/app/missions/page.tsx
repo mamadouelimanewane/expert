@@ -1,5 +1,6 @@
 ﻿export const dynamic = 'force-dynamic';
 
+import Link from "next/link";
 import prisma from "@/lib/prisma";
 import {
     CheckCircle2,
@@ -65,10 +66,10 @@ export default async function MissionsPage() {
                             className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-2xl text-sm text-white focus:border-indigo-500 outline-none transition-all shadow-inner"
                         />
                     </div>
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 active:scale-95">
+                    <Link href="/missions/new" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 active:scale-95">
                         <Plus className="w-5 h-5" />
-                        Nouvelle Misson
-                    </button>
+                        Nouvelle Mission
+                    </Link>
                 </div>
             </div>
 
@@ -125,14 +126,14 @@ export default async function MissionsPage() {
                                                     {mission.deadline ? format(new Date(mission.deadline), 'dd MMM yyyy', { locale: fr }) : 'Pas d\'échéance'}
                                                 </div>
 
-                                                <div className="flex -space-x-2">
-                                                    <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-[8px] font-black text-white shadow-xl">
-                                                        {mission.assignedTo?.firstName?.[0] || 'A'}
+                                                {mission.assignedTo && (
+                                                    <div
+                                                        className="w-7 h-7 rounded-full bg-slate-700 border-2 border-slate-800 flex items-center justify-center text-[8px] font-black text-white shadow-xl"
+                                                        title={[mission.assignedTo.firstName, mission.assignedTo.lastName].filter(Boolean).join(" ")}
+                                                    >
+                                                        {mission.assignedTo.firstName?.[0] || 'A'}
                                                     </div>
-                                                    <div className="w-7 h-7 rounded-full bg-indigo-600 border-2 border-slate-800 flex items-center justify-center text-[8px] font-black text-white shadow-xl">
-                                                        AI
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
                                     )) : (
