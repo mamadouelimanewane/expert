@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/Version-2.0.0-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.4-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Tests](https://img.shields.io/badge/Tests-306-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-322-brightgreen)
 ![Licence](https://img.shields.io/badge/Licence-Propri%C3%A9taire-red)
 
 Logiciel de gestion intégré pour **un** cabinet d'expertise comptable exerçant
@@ -39,7 +39,7 @@ d'introduire la notion de locataire sur les modèles métier, de cloisonner les
 | Interface | 217 pages, dont 214 statiques inventoriées |
 | API | 123 routes |
 | Données | 107 modèles et énumérations Prisma (MongoDB) |
-| Tests | 306, dont 1 000 balances en test de propriété |
+| Tests | 322, dont 1 000 balances en test de propriété |
 
 ---
 
@@ -187,6 +187,7 @@ npm test
 | `obligations-legales` | Référentiel OHADA, états de conformité |
 | `amortissement-couts` | Plans linéaire et dégressif, coût de revient, marge |
 | `zones-franches` | Économie d'IS et de douane, exclusion de la TVA |
+| `rentabilite-mission` | Boni/mali, coût interne indéterminé si non paramétré |
 | `navigation` | Inventaire des écrans, garde-fou anti-dérive |
 
 L'intégration continue (`.github/workflows/ci.yml`) exécute typecheck, lint,

@@ -31,6 +31,10 @@ model User {
   role          UserRole @default(COLLABORATOR)
   phone         String?
   avatar        String?
+  // Cout horaire interne (charge, hors marge), utilise pour le calcul du
+  // boni/mali de mission. Absent tant que le cabinet ne l'a pas parametre :
+  // le cout interne d'une mission reste alors indetermine plutot que nul.
+  costRate      Float?
   isActive      Boolean  @default(true)
   lastLoginAt   DateTime?
   createdAt     DateTime @default(now())
