@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/badge/Version-2.0.0-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.4-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Tests](https://img.shields.io/badge/Tests-219-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-306-brightgreen)
 ![Licence](https://img.shields.io/badge/Licence-Propri%C3%A9taire-red)
 
 Logiciel de gestion intégré pour **un** cabinet d'expertise comptable exerçant
@@ -22,7 +22,7 @@ cabinet**.
 
 C'est un choix assumé, pas un oubli. Le passage au multi-cabinet suppose
 d'introduire la notion de locataire sur les modèles métier, de cloisonner les
-115 routes API et de migrer les données existantes. Le suivi est dans
+123 routes API et de migrer les données existantes. Le suivi est dans
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 > Les documents `docs/ANALYSE_*.md` et `docs/PROJECT_REPORT.md` sont des
@@ -36,10 +36,10 @@ d'introduire la notion de locataire sur les modèles métier, de cloisonner les
 | | |
 |---|---|
 | Code | ~68 000 lignes TypeScript / TSX |
-| Interface | 216 pages (App Router) |
-| API | 115 routes |
-| Données | 102 modèles et énumérations Prisma (MongoDB) |
-| Tests | 219, dont 1 000 balances en test de propriété |
+| Interface | 217 pages, dont 214 statiques inventoriées |
+| API | 123 routes |
+| Données | 107 modèles et énumérations Prisma (MongoDB) |
+| Tests | 306, dont 1 000 balances en test de propriété |
 
 ---
 
@@ -183,6 +183,11 @@ npm test
 | `accounting-engine` | Imputation, TVA, partie double, compte d'attente |
 | `infrastructure` | Validation zod, pagination, limitation de débit, journal → balance |
 | `webhook-signature` | HMAC Wave et générique, anti-rejeu |
+| `obligations-fiscales` | Calendrier réglementaire, échéances, urgence |
+| `obligations-legales` | Référentiel OHADA, états de conformité |
+| `amortissement-couts` | Plans linéaire et dégressif, coût de revient, marge |
+| `zones-franches` | Économie d'IS et de douane, exclusion de la TVA |
+| `navigation` | Inventaire des écrans, garde-fou anti-dérive |
 
 L'intégration continue (`.github/workflows/ci.yml`) exécute typecheck, lint,
 tests et build sur `main` et sur chaque pull request.

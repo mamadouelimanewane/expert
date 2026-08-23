@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Factory,
     Boxes,
@@ -16,7 +16,6 @@ import {
     Truck,
     Settings,
     BarChart4,
-    Activity,
     Thermometer,
     Cog,
     Calculator
@@ -24,55 +23,64 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
 // Mock Data for Industrial Clients
-const INDUSTRIAL_PORTFOLIO = [
-    {
-        id: "1",
-        name: "Cimenterie d'Abidjan",
-        sector: "Matériaux Construction",
-        turnover: "1.2B FCFA",
-        margin: "18%",
-        stockValue: "450M FCFA",
-        wip: "120M FCFA", // Work In Progress
-        productionStatus: "Optimal",
-        alerts: 0,
-        costingMethod: "Standard Cost",
-        stockRotation: 45 // days
-    },
-    {
-        id: "2",
-        name: "Agro-Industrie du Nord",
-        sector: "Transformation Alimentaire",
-        turnover: "850M FCFA",
-        margin: "24%",
-        stockValue: "180M FCFA",
-        wip: "45M FCFA",
-        productionStatus: "Warning",
-        alerts: 2, // e.g. Perissable stock risk
-        costingMethod: "FIFO",
-        stockRotation: 12 // days (fast)
-    },
-    {
-        id: "3",
-        name: "Plastiques & Emballages SA",
-        sector: "Manufacture",
-        turnover: "2.1B FCFA",
-        margin: "11%",
-        stockValue: "800M FCFA",
-        wip: "300M FCFA",
-        productionStatus: "Critical",
-        alerts: 4, // Machine downtime impact on finance
-        costingMethod: "Weighted Avg",
-        stockRotation: 60 // days
-    }
-];
+/** Client industriel, tel que renvoye par /api/industries/portfolio. */
+type ClientIndustriel = {
+    id: string;
+    nom: string;
+    secteur: string | null;
+    pays: string;
+    nbProduits: number;
+    chiffreAffaires: number;
+    margeTotale: number;
+    tauxMarge: number | null;
+    nbImmobilisations: number;
+    valeurNetteComptable: number;
+    dotationExercice: number;
+    alertes: string[];
+};
+
+type SynthesePortefeuille = {
+    nbClients: number;
+    chiffreAffaires: number;
+    margeTotale: number;
+    valeurNetteComptable: number;
+    totalAlertes: number;
+};
+
+const fcfa = (n: number) => Math.round(n).toLocaleString("fr-FR");
 
 export default function ManufacturingPortfolioPage() {
+    const [portefeuille, setPortefeuille] = useState<ClientIndustriel[]>([]);
+    const [synthese, setSynthese] = useState<SynthesePortefeuille | null>(null);
+    const [aucuneDonnee, setAucuneDonnee] = useState(false);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/industries/portfolio");
+            if (!res.ok) throw new Error(`Reponse ${res.status}`);
+            const data = await res.json();
+            setPortefeuille(data.portefeuille ?? []);
+            setSynthese(data.synthese ?? null);
+            setAucuneDonnee(Boolean(data.aucuneDonnee));
+        } catch (e) {
+            console.error("Chargement du portefeuille industriel :", e);
+            setErreur("Impossible de charger le portefeuille industriel.");
+            setPortefeuille([]);
+            setSynthese(null);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { charger(); }, [charger]);
+
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
-            <DonneesDemo />
-
 
             {/* Industrial Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 relative overflow-hidden">
@@ -102,35 +110,45 @@ export default function ManufacturingPortfolioPage() {
                 </div>
             </div>
 
-            {/* KPIs Industriel Globaux */}
+            {erreur && (
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">
+                    {erreur}
+                </div>
+            )}
+
+            {!chargement && !erreur && aucuneDonnee && (
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+                    <span className="font-bold">Aucun client industriel.</span> Le portefeuille se
+                    construit sur les clients ayant des produits ou des immobilisations enregistres :
+                    rien n&apos;a encore ete saisi.
+                </div>
+            )}
+
+            {/* KPI calcules sur le portefeuille reel. Les stocks, les en-cours de
+                production et la rotation ne sont suivis par aucun modele : ils ne
+                sont pas affiches plutot que d'etre estimes. */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <KpiCard
-                    label="Volume d'Affaires Industriel"
-                    value="4.15 Milliards"
-                    trend="+8.5% vs N-1"
+                    label="Clients industriels"
+                    value={String(synthese?.nbClients ?? 0)}
                     icon={Factory}
                     color="text-orange-400"
                 />
                 <KpiCard
-                    label="Valeur des Stocks (Brut)"
-                    value="1.43 Milliards"
-                    trend="En hausse (Sur-stockage ?)"
-                    trendColor="text-rose-400"
-                    icon={Boxes}
+                    label="Chiffre d'affaires analytique"
+                    value={`${fcfa(synthese?.chiffreAffaires ?? 0)} F`}
+                    icon={TrendingUp}
                     color="text-sky-400"
                 />
                 <KpiCard
-                    label="Marge Brute Industrielle"
-                    value="19.2%"
-                    trend="-1.2% pts (Coût Énergie)"
-                    trendColor="text-amber-400"
+                    label="Marge degagee"
+                    value={`${fcfa(synthese?.margeTotale ?? 0)} F`}
                     icon={TrendingUp}
                     color="text-emerald-400"
                 />
                 <KpiCard
-                    label="Encours de Production (WIP)"
-                    value="465 Millions"
-                    trend="Stable"
+                    label="Valeur nette du parc"
+                    value={`${fcfa(synthese?.valeurNetteComptable ?? 0)} F`}
                     icon={PackagePlus}
                     color="text-violet-400"
                 />
@@ -160,55 +178,69 @@ export default function ManufacturingPortfolioPage() {
                     </div>
 
                     <div className="p-6 grid gap-4">
-                        {INDUSTRIAL_PORTFOLIO.map((client) => (
-                            <div key={client.id} className="group p-6 rounded-3xl bg-slate-950/50 border border-white/5 hover:border-orange-500/30 transition-all hover:bg-slate-900/60 cursor-pointer">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center border",
-                                            client.sector === "Transformation Alimentaire" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-                                                client.sector === "Matériaux Construction" ? "bg-slate-700/30 border-slate-600 text-slate-300" :
-                                                    "bg-orange-500/10 border-orange-500/20 text-orange-400"
-                                        )}>
+                        {chargement ? (
+                            <p className="text-sm text-slate-500">Chargement du portefeuille...</p>
+                        ) : portefeuille.length === 0 ? (
+                            <p className="text-sm text-slate-500">Aucun client industriel a afficher.</p>
+                        ) : portefeuille.map((client) => (
+                            <div key={client.id} className="group p-6 rounded-3xl bg-slate-950/50 border border-white/5 hover:border-orange-500/30 transition-all hover:bg-slate-900/60">
+                                <div className="flex justify-between items-start gap-4 mb-6">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-orange-500/10 border-orange-500/20 text-orange-400 shrink-0">
                                             <Factory className="w-6 h-6" />
                                         </div>
-                                        <div>
-                                            <h4 className="text-lg font-bold text-white group-hover:text-orange-400 transition-colors">{client.name}</h4>
-                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{client.sector}</p>
+                                        <div className="min-w-0">
+                                            <h4 className="text-lg font-bold text-white truncate">{client.nom}</h4>
+                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider truncate">
+                                                {client.secteur ?? "Secteur non renseigne"} &bull; {client.pays}
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-2xl font-black text-white">{client.turnover}</div>
-                                        <div className="text-xs text-slate-500 font-bold">Chiffre d'Affaires</div>
+                                    <div className="text-right shrink-0">
+                                        <div className="text-2xl font-black text-white tabular-nums">
+                                            {client.chiffreAffaires > 0 ? `${fcfa(client.chiffreAffaires)} F` : "\u2014"}
+                                        </div>
+                                        <div className="text-xs text-slate-500 font-bold">
+                                            {client.chiffreAffaires > 0 ? "CA analytique" : "Volumes non saisis"}
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-4 border-t border-b border-white/5 bg-black/20 rounded-xl px-4">
-                                    <MetricItem label="Marge Brute" value={client.margin} up={parseFloat(client.margin) > 15} />
-                                    <MetricItem label="Valeur Stocks" value={client.stockValue} />
-                                    <MetricItem label="Rotation Stock" value={`${client.stockRotation} Jours`} color={client.stockRotation > 50 ? "text-rose-400" : "text-emerald-400"} />
-                                    <MetricItem label="Méthode Coût" value={client.costingMethod} icon={Settings} />
+                                    <MetricItem
+                                        label="Taux de marge"
+                                        value={client.tauxMarge != null ? `${client.tauxMarge}%` : "\u2014"}
+                                        up={client.tauxMarge != null && client.tauxMarge > 15}
+                                    />
+                                    <MetricItem label="Produits suivis" value={String(client.nbProduits)} />
+                                    <MetricItem label="Immobilisations" value={String(client.nbImmobilisations)} />
+                                    <MetricItem
+                                        label="Valeur nette du parc"
+                                        value={client.valeurNetteComptable > 0 ? `${fcfa(client.valeurNetteComptable)} F` : "\u2014"}
+                                        icon={Settings}
+                                    />
                                 </div>
 
-                                <div className="mt-4 flex justify-between items-center">
-                                    <div className="flex gap-2">
-                                        {client.productionStatus === "Critical" ? (
-                                            <span className="px-3 py-1 bg-rose-500/10 text-rose-400 rounded-lg text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                                <AlertTriangle className="w-3 h-3" /> Arrêt Production
-                                            </span>
-                                        ) : client.productionStatus === "Warning" ? (
-                                            <span className="px-3 py-1 bg-amber-500/10 text-amber-400 rounded-lg text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                                <Activity className="w-3 h-3" /> Risque Rupture
+                                <div className="mt-4 flex flex-wrap justify-between items-center gap-3">
+                                    <div className="flex flex-wrap gap-2">
+                                        {client.alertes.length === 0 ? (
+                                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                                                <PackageCheck className="w-3 h-3" /> Dossier complet
                                             </span>
                                         ) : (
-                                            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                                <PackageCheck className="w-3 h-3" /> Production OK
-                                            </span>
+                                            client.alertes.map((a, i) => (
+                                                <span key={i} className="px-3 py-1 bg-amber-500/10 text-amber-400 rounded-lg text-xs font-bold flex items-center gap-2">
+                                                    <AlertTriangle className="w-3 h-3 shrink-0" /> {a}
+                                                </span>
+                                            ))
                                         )}
                                     </div>
-                                    <button className="text-xs font-bold text-slate-500 hover:text-white flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                                        Voir Analytique <ArrowUpRight className="w-3 h-3" />
-                                    </button>
+                                    <Link
+                                        href="/industries/manufacturing/costing"
+                                        className="text-xs font-bold text-slate-500 hover:text-white flex items-center gap-1 transition-colors"
+                                    >
+                                        Voir analytique <ArrowUpRight className="w-3 h-3" />
+                                    </Link>
                                 </div>
                             </div>
                         ))}
@@ -226,13 +258,20 @@ export default function ManufacturingPortfolioPage() {
                             <span className="text-xs text-slate-500 font-normal ml-auto">Moyenne Portefeuille</span>
                         </h3>
 
-                        <div className="space-y-4">
-                            <CostBar label="Matières Premières" percent={45} color="bg-sky-500" />
-                            <CostBar label="Main d'Oeuvre Directe (MOD)" percent={20} color="bg-emerald-500" />
-                            <CostBar label="Énergie & Fluides" percent={15} color="bg-amber-500" alert />
-                            <CostBar label="Amortissements Industriels" percent={12} color="bg-violet-500" />
-                            <CostBar label="Frais Généraux Usine" percent={8} color="bg-slate-500" />
-                        </div>
+                        {/* La repartition moyenne exige les ventilations de cout de chaque
+                            produit : elle est disponible sur l'ecran analytique, ou chaque
+                            produit porte la sienne. On renvoie vers lui plutot que d'afficher
+                            une moyenne inventee. */}
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            La ventilation des couts est etablie produit par produit, a partir des
+                            composantes saisies.
+                        </p>
+                        <Link
+                            href="/industries/manufacturing/costing"
+                            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-xs font-bold text-violet-300 transition-colors hover:bg-violet-500/20"
+                        >
+                            <Calculator className="w-3 h-3" /> Ouvrir l&apos;analytique produit
+                        </Link>
 
                         <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
                             <div className="flex items-start gap-3">
@@ -312,20 +351,6 @@ function MetricItem({ label, value, up, color, icon: Icon }: any) {
                     </span>
                 )}
             </p>
-        </div>
-    );
-}
-
-function CostBar({ label, percent, color, alert }: any) {
-    return (
-        <div className="space-y-2">
-            <div className="flex justify-between text-xs font-bold">
-                <span className={cn("text-slate-300", alert && "text-amber-400")}>{label} {alert && "⚠️"}</span>
-                <span className="text-white">{percent}%</span>
-            </div>
-            <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                <div className={cn("h-full rounded-full", color)} style={{ width: `${percent}%` }} />
-            </div>
         </div>
     );
 }

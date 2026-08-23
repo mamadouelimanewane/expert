@@ -151,6 +151,7 @@ model Client {
   employees         Employee[]
   payrollPeriods    PayrollPeriod[]
   fixedAssets       FixedAsset[]
+  products          Product[]
   proposals         Proposal[]
   consolidationEntities ConsolidationEntity[]
   judicialCases     JudicialCase[]
@@ -832,6 +833,12 @@ enum FixedAssetStatus {
   DISPOSED
 }
 
+enum DepreciationMethod {
+  LINEAIRE
+  DEGRESSIF
+  NON_AMORTISSABLE
+}
+
 model FixedAsset {
   id            String           @id @default(auto()) @map("_id") @db.ObjectId
   code          String
@@ -843,6 +850,18 @@ model FixedAsset {
   status        FixedAssetStatus @default(TO_VERIFY)
   lastAuditDate DateTime?
 
+  // Plan d'amortissement — indispensable pour calculer la valeur nette
+  // comptable et la dotation de l'exercice. Ces champs manquaient : l'actif
+  // etait suivi pour l'inventaire physique, jamais pour sa depreciation.
+  depreciationMethod DepreciationMethod @default(LINEAIRE)
+  usefulLifeYears    Int?               // Duree d'utilite, en annees
+  residualValue      Float              @default(0)
+  // Date de mise en service, qui peut differer de la date d'acquisition et
+  // constitue le point de depart de l'amortissement.
+  serviceDate        DateTime?
+  serialNumber       String?
+  supplier           String?
+
   clientId      String           @db.ObjectId
   client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
@@ -850,6 +869,73 @@ model FixedAsset {
   updatedAt     DateTime         @updatedAt
 
   @@map("fixed_assets")
+}
+
+// ── Comptabilite analytique de gestion ──────────────────────────────────────
+
+enum CostCategory {
+  MATIERE_PREMIERE
+  MAIN_OEUVRE_DIRECTE
+  ENERGIE
+  AMORTISSEMENT
+  CHARGES_INDIRECTES
+  AUTRE
+}
+
+/** Produit fabrique ou revendu par un client industriel. */
+model Product {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  reference    String
+  name         String
+  family       String?
+  /** Unite de mesure : sac, tonne, unite, litre... */
+  unit         String   @default("unite")
+  sellingPrice Float    @default(0)
+  isActive     Boolean  @default(true)
+
+  clientId     String   @db.ObjectId
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  costs        CostComponent[]
+  volumes      ProductionVolume[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("products")
+}
+
+/** Composante du cout de revient unitaire d'un produit. */
+model CostComponent {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  category  CostCategory
+  label     String
+  /** Cout unitaire, dans la devise du dossier. */
+  unitCost  Float        @default(0)
+
+  productId String       @db.ObjectId
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("cost_components")
+}
+
+/** Quantite produite sur une periode donnee. */
+model ProductionVolume {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  /** Periode au format AAAA-MM. */
+  periode   String
+  quantity  Float    @default(0)
+
+  productId String   @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("production_volumes")
 }
 
 enum AuditConclusion {

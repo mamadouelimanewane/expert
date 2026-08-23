@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Calculator,
     TrendingUp,
@@ -20,61 +20,116 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
 // Mock Data for Product Costing
-const PRODUCT_COSTING = [
-    {
-        id: "P-101",
-        name: "Ciment CPJ 45 - Sac 50kg",
-        family: "Cimenterie",
-        sellingPrice: 4200,
-        costPrice: 3150,
-        margin: 1050,
-        marginPercent: 25,
-        volume: "120k U/mois",
-        trend: "down", // Margin trend
-        costStructure: { material: 60, energy: 25, labor: 10, overhead: 5 }
-    },
-    {
-        id: "P-204",
-        name: "Brique 15x20x40",
-        family: "Matériaux",
-        sellingPrice: 350,
-        costPrice: 180,
-        margin: 170,
-        marginPercent: 48.5,
-        volume: "500k U/mois",
-        trend: "up",
-        costStructure: { material: 40, energy: 15, labor: 35, overhead: 10 }
-    },
-    {
-        id: "P-305",
-        name: "Fer à Béton FE-500 12mm",
-        family: "Métallurgie",
-        sellingPrice: 3800,
-        costPrice: 3650,
-        margin: 150,
-        marginPercent: 3.9,
-        volume: "45k U/mois",
-        trend: "critical", // Low margin alert
-        costStructure: { material: 80, energy: 10, labor: 5, overhead: 5 }
-    }
-];
+/** Produit analyse, renvoye par /api/industries/costing. */
+type VentilationCout = {
+    category: string;
+    libelle: string;
+    montant: number;
+    part: number;
+};
+
+type ProduitAnalyse = {
+    id: string;
+    reference: string;
+    name: string;
+    family: string | null;
+    unit: string;
+    sellingPrice: number;
+    coutRevient: number | null;
+    marge: number | null;
+    tauxMarge: number | null;
+    ventilation: VentilationCout[];
+    quantite: number | null;
+    margeTotale: number | null;
+    chiffreAffaires: number | null;
+    avertissements: string[];
+    periode: string | null;
+};
+
+type SyntheseAnalytique = {
+    nbProduits: number;
+    nbEvalues: number;
+    nbIndetermines: number;
+    nbAPerte: number;
+    chiffreAffaires: number;
+    margeTotale: number;
+    tauxMargeGlobal: number | null;
+};
+
+/** Teinte hexadecimale par categorie, pour l'anneau SVG. */
+const TEINTE_CATEGORIE: Record<string, string> = {
+    MATIERE_PREMIERE: "#0ea5e9",
+    ENERGIE: "#f59e0b",
+    MAIN_OEUVRE_DIRECTE: "#10b981",
+    AMORTISSEMENT: "#8b5cf6",
+    CHARGES_INDIRECTES: "#64748b",
+    AUTRE: "#475569",
+};
+
+/** Couleur de la barre de ventilation, par categorie de cout. */
+const COULEUR_CATEGORIE: Record<string, string> = {
+    MATIERE_PREMIERE: "bg-sky-500",
+    ENERGIE: "bg-amber-500",
+    MAIN_OEUVRE_DIRECTE: "bg-emerald-500",
+    AMORTISSEMENT: "bg-violet-500",
+    CHARGES_INDIRECTES: "bg-slate-500",
+    AUTRE: "bg-slate-600",
+};
 
 export default function IndustrialCostingPage() {
-    const [selectedProduct, setSelectedProduct] = useState<string | null>("P-101");
+    const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+    const [produits, setProduits] = useState<ProduitAnalyse[]>([]);
+    const [synthese, setSynthese] = useState<SyntheseAnalytique | null>(null);
+    const [aucuneDonnee, setAucuneDonnee] = useState(false);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+    const [filtre, setFiltre] = useState("");
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/industries/costing");
+            if (!res.ok) throw new Error(`Reponse ${res.status}`);
+            const data = await res.json();
+            const liste: ProduitAnalyse[] = data.produits ?? [];
+            setProduits(liste);
+            setSynthese(data.synthese ?? null);
+            setAucuneDonnee(Boolean(data.aucuneDonnee));
+            setSelectedProduct(prev => (liste.some(x => x.id === prev) ? prev : (liste[0]?.id ?? null)));
+        } catch (e) {
+            console.error("Chargement des couts de production :", e);
+            setErreur("Impossible de charger les couts de production.");
+            setProduits([]);
+            setSynthese(null);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { charger(); }, [charger]);
+
+    const produitsFiltres = filtre.trim()
+        ? produits.filter(x =>
+            `${x.name} ${x.reference} ${x.family ?? ""}`.toLowerCase().includes(filtre.trim().toLowerCase()))
+        : produits;
     const [energySimulation, setEnergySimulation] = useState(0); // % increase
 
-    const activeProduct = PRODUCT_COSTING.find(p => p.id === selectedProduct);
+    const activeProduct = produits.find(p => p.id === selectedProduct);
 
     // Simple simulation logic
-    const simulatedCost = activeProduct ? activeProduct.costPrice * (1 + (activeProduct.costStructure.energy / 100 * energySimulation / 100)) : 0;
+    // La simulation porte sur la part energie reellement ventilee ; sans cout
+    // de revient etabli, elle n'a pas de sens et vaut zero.
+    const partEnergie = activeProduct?.ventilation.find(v => v.category === "ENERGIE")?.part ?? 0;
+    const simulatedCost = activeProduct?.coutRevient != null
+        ? activeProduct.coutRevient * (1 + (partEnergie / 100) * (energySimulation / 100))
+        : 0;
     const simulatedMargin = activeProduct ? activeProduct.sellingPrice - simulatedCost : 0;
     const simulatedMarginPercent = activeProduct ? (simulatedMargin / activeProduct.sellingPrice) * 100 : 0;
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
-            <DonneesDemo />
 
 
             {/* Header */}
@@ -104,11 +159,23 @@ export default function IndustrialCostingPage() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-xl border border-white/5">
                         <Search className="w-4 h-4 text-slate-500 ml-2" />
-                        <input type="text" placeholder="Filtrer produits..." className="bg-transparent border-none focus:ring-0 text-sm w-full" />
+                        <input type="text" value={filtre} onChange={(e) => setFiltre(e.target.value)} placeholder="Filtrer produits..." className="bg-transparent border-none focus:ring-0 text-sm w-full outline-none" />
                     </div>
 
                     <div className="space-y-3">
-                        {PRODUCT_COSTING.map((product) => (
+                        {chargement ? (
+                            <p className="text-xs text-slate-500">Chargement des produits...</p>
+                        ) : erreur ? (
+                            <p className="text-xs text-rose-400">{erreur}</p>
+                        ) : aucuneDonnee ? (
+                            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200">
+                                <span className="font-bold">Aucun produit enregistre.</span> Les couts
+                                de revient se calculent a partir des produits et de leurs composantes
+                                de cout saisis pour le client : rien n&apos;a encore ete renseigne.
+                            </div>
+                        ) : produitsFiltres.length === 0 ? (
+                            <p className="text-xs text-slate-500">Aucun produit ne correspond au filtre.</p>
+                        ) : produitsFiltres.map((product) => (
                             <div
                                 key={product.id}
                                 onClick={() => setSelectedProduct(product.id)}
@@ -117,24 +184,40 @@ export default function IndustrialCostingPage() {
                                     selectedProduct === product.id ? "bg-slate-800/80 border-violet-500/50 shadow-lg shadow-violet-500/10" : "bg-slate-900/20 border-white/5"
                                 )}
                             >
-                                <div className="flex justify-between items-start mb-2">
-                                    <div>
-                                        <h4 className="font-bold text-white text-sm">{product.name}</h4>
-                                        <p className="text-xs text-slate-500">{product.family} • {product.id}</p>
+                                <div className="flex justify-between items-start gap-2 mb-2">
+                                    <div className="min-w-0">
+                                        <h4 className="font-bold text-white text-sm truncate">{product.name}</h4>
+                                        <p className="text-xs text-slate-500 truncate">
+                                            {product.family ?? "Sans famille"} &bull; {product.reference}
+                                        </p>
                                     </div>
                                     <div className={cn(
-                                        "px-2 py-1 rounded-lg text-[10px] font-black uppercase",
-                                        product.trend === "up" ? "bg-emerald-500/10 text-emerald-400" :
-                                            product.trend === "critical" ? "bg-rose-500/10 text-rose-400" : "bg-slate-700 text-slate-400"
+                                        "shrink-0 px-2 py-1 rounded-lg text-[10px] font-black uppercase",
+                                        product.tauxMarge == null ? "bg-slate-700 text-slate-400" :
+                                            product.tauxMarge < 0 ? "bg-rose-500/10 text-rose-400" :
+                                                product.tauxMarge >= 20 ? "bg-emerald-500/10 text-emerald-400" :
+                                                    "bg-amber-500/10 text-amber-400"
                                     )}>
-                                        {product.marginPercent}% Marge
+                                        {product.tauxMarge == null ? "Indetermine" : `${product.tauxMarge}% Marge`}
                                     </div>
                                 </div>
-                                <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden flex">
-                                    <div className="h-full bg-sky-500" style={{ width: `${product.costStructure.material}%` }} />
-                                    <div className="h-full bg-amber-500" style={{ width: `${product.costStructure.energy}%` }} />
-                                    <div className="h-full bg-emerald-500" style={{ width: `${product.costStructure.labor}%` }} />
-                                </div>
+
+                                {product.ventilation.length > 0 ? (
+                                    <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden flex">
+                                        {product.ventilation.map((v) => (
+                                            <div
+                                                key={v.category}
+                                                className={cn("h-full", COULEUR_CATEGORIE[v.category] ?? "bg-slate-600")}
+                                                style={{ width: `${v.part}%` }}
+                                                title={`${v.libelle} : ${v.part}%`}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-[10px] text-amber-400">
+                                        Aucune composante de cout saisie.
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -181,9 +264,15 @@ export default function IndustrialCostingPage() {
 
                                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
                                         <div className="p-4 bg-slate-950/50 rounded-xl">
-                                            <p className="text-xs text-slate-500 mb-1 uppercase tracking-wider">Marge Actuelle</p>
-                                            <div className="text-2xl font-black text-white">{activeProduct.marginPercent.toFixed(1)}%</div>
-                                            <div className="text-xs text-slate-400 font-mono">{activeProduct.margin} FCFA / Unité</div>
+                                            <p className="text-xs text-slate-500 mb-1 uppercase tracking-wider">Marge actuelle</p>
+                                            <div className="text-2xl font-black text-white">
+                                                {activeProduct.tauxMarge == null ? "\u2014" : `${activeProduct.tauxMarge.toFixed(1)}%`}
+                                            </div>
+                                            <div className="text-xs text-slate-400 font-mono">
+                                                {activeProduct.marge == null
+                                                    ? "Cout de revient indetermine"
+                                                    : `${activeProduct.marge.toLocaleString("fr-FR")} FCFA / ${activeProduct.unit}`}
+                                            </div>
                                         </div>
                                         <div className="p-4 bg-slate-950/50 rounded-xl relative overflow-hidden">
                                             {simulatedMarginPercent < 15 && (
@@ -193,13 +282,13 @@ export default function IndustrialCostingPage() {
                                             )}
                                             <p className="text-xs text-slate-500 mb-1 uppercase tracking-wider">Marge Simulée</p>
                                             <div className={cn("text-2xl font-black transition-colors",
-                                                simulatedMarginPercent < activeProduct.marginPercent ? "text-rose-400" : "text-white"
+                                                activeProduct.tauxMarge != null && simulatedMarginPercent < activeProduct.tauxMarge ? "text-rose-400" : "text-white"
                                             )}>
                                                 {simulatedMarginPercent.toFixed(1)}%
                                             </div>
                                             <div className="text-xs text-rose-400 font-mono flex items-center gap-1">
                                                 {simulatedMargin.toFixed(0)} FCFA
-                                                <span className="opacity-70">(-{(activeProduct.margin - simulatedMargin).toFixed(0)})</span>
+                                                <span className="opacity-70">{activeProduct.marge != null ? `(-${(activeProduct.marge - simulatedMargin).toFixed(0)})` : ""}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -212,23 +301,63 @@ export default function IndustrialCostingPage() {
                                     <h4 className="font-bold text-white mb-4 flex items-center gap-2">
                                         <PieChart className="w-4 h-4 text-sky-400" /> Structure du Coût
                                     </h4>
-                                    <div className="relative w-48 h-48 mx-auto my-4">
-                                        {/* Simple Visual Representation */}
-                                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0ea5e9" strokeWidth="20" strokeDasharray={`${activeProduct.costStructure.material * 2.51} 251`} />
-                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f59e0b" strokeWidth="20" strokeDasharray={`${activeProduct.costStructure.energy * 2.51} 251`} strokeDashoffset={-activeProduct.costStructure.material * 2.51} />
-                                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" strokeWidth="20" strokeDasharray={`${activeProduct.costStructure.labor * 2.51} 251`} strokeDashoffset={-(activeProduct.costStructure.material + activeProduct.costStructure.energy) * 2.51} />
-                                            <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
-                                                <span className="text-2xl font-black text-white">{activeProduct.costPrice}</span>
-                                                <span className="text-[10px] text-slate-500 uppercase">Coût Std.</span>
+                                    {activeProduct.ventilation.length === 0 ? (
+                                        <p className="my-8 text-center text-sm text-amber-400">
+                                            Aucune composante de cout saisie pour ce produit : la
+                                            structure de cout ne peut pas etre etablie.
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <div className="relative w-48 h-48 mx-auto my-4">
+                                                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                                                    {(() => {
+                                                        let offset = 0;
+                                                        return activeProduct.ventilation.map((v) => {
+                                                            const dash = v.part * 2.51;
+                                                            const el = (
+                                                                <circle
+                                                                    key={v.category}
+                                                                    cx="50"
+                                                                    cy="50"
+                                                                    r="40"
+                                                                    fill="transparent"
+                                                                    stroke={TEINTE_CATEGORIE[v.category] ?? "#64748b"}
+                                                                    strokeWidth="20"
+                                                                    strokeDasharray={`${dash} 251`}
+                                                                    strokeDashoffset={-offset}
+                                                                />
+                                                            );
+                                                            offset += dash;
+                                                            return el;
+                                                        });
+                                                    })()}
+                                                </svg>
+                                                <div className="absolute inset-0 flex items-center justify-center flex-col text-center">
+                                                    <span className="text-xl font-black text-white tabular-nums">
+                                                        {activeProduct.coutRevient?.toLocaleString("fr-FR")}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-500 uppercase">
+                                                        Cout de revient
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </svg>
-                                    </div>
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between"><span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-sky-500" />Matières Prem.</span> <span className="text-white font-bold">{activeProduct.costStructure.material}%</span></div>
-                                        <div className="flex justify-between"><span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-500" />Énergie</span> <span className="text-white font-bold">{activeProduct.costStructure.energy}%</span></div>
-                                        <div className="flex justify-between"><span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" />Main d'Oeuvre</span> <span className="text-white font-bold">{activeProduct.costStructure.labor}%</span></div>
-                                    </div>
+
+                                            <div className="space-y-2 text-sm">
+                                                {activeProduct.ventilation.map((v) => (
+                                                    <div key={v.category} className="flex justify-between">
+                                                        <span className="flex items-center gap-2">
+                                                            <div
+                                                                className="w-2 h-2 rounded-full"
+                                                                style={{ backgroundColor: TEINTE_CATEGORIE[v.category] ?? "#64748b" }}
+                                                            />
+                                                            {v.libelle}
+                                                        </span>
+                                                        <span className="text-white font-bold tabular-nums">{v.part}%</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 flex flex-col justify-center">
@@ -237,16 +366,46 @@ export default function IndustrialCostingPage() {
                                             <Scale className="w-8 h-8 text-slate-400" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-white text-lg">Point Mort (Break-even)</h4>
-                                            <p className="text-slate-500 text-sm">Seuil de rentabilité mensuel</p>
+                                            <h4 className="font-bold text-white text-lg">Marge de la periode</h4>
+                                            <p className="text-slate-500 text-sm">
+                                                {activeProduct.periode
+                                                    ? `Volume produit sur ${activeProduct.periode}`
+                                                    : "Aucun volume de production saisi"}
+                                            </p>
                                         </div>
+
                                         <div className="py-4 border-t border-b border-white/5">
-                                            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white block">38 500</span>
-                                            <span className="text-xs uppercase tracking-widest text-slate-500">Unités à vendre</span>
+                                            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white block tabular-nums">
+                                                {activeProduct.margeTotale != null
+                                                    ? activeProduct.margeTotale.toLocaleString("fr-FR")
+                                                    : "\u2014"}
+                                            </span>
+                                            <span className="text-xs uppercase tracking-widest text-slate-500">
+                                                {activeProduct.margeTotale != null
+                                                    ? "FCFA de marge"
+                                                    : "Marge non calculable"}
+                                            </span>
                                         </div>
-                                        <div className="text-xs text-emerald-400 font-bold bg-emerald-500/10 py-2 rounded-lg">
-                                            Objectif atteint à jour J-12
-                                        </div>
+
+                                        {activeProduct.quantite != null && (
+                                            <p className="text-xs text-slate-400 tabular-nums">
+                                                {activeProduct.quantite.toLocaleString("fr-FR")} {activeProduct.unit}
+                                                {activeProduct.chiffreAffaires != null
+                                                    ? ` \u2014 ${activeProduct.chiffreAffaires.toLocaleString("fr-FR")} FCFA de CA`
+                                                    : ""}
+                                            </p>
+                                        )}
+
+                                        {/* Le seuil de rentabilite exige les charges fixes totales,
+                                            que le modele ne porte pas : il n'est pas affiche plutot
+                                            que d'etre estime au juge. */}
+                                        {activeProduct.avertissements.length > 0 && (
+                                            <ul className="space-y-1 rounded-lg bg-amber-500/10 p-3 text-left text-[11px] text-amber-300">
+                                                {activeProduct.avertissements.map((a, i) => (
+                                                    <li key={i}>{a}</li>
+                                                ))}
+                                            </ul>
+                                        )}
                                     </div>
                                 </div>
                             </div>
