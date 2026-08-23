@@ -2,64 +2,85 @@
 
 import { useState } from "react";
 import {
-    Sparkles,
     Send,
-    Scale,
     FileText,
     Brain,
-    ShieldCheck,
     History,
-    Search,
     Mic,
     Paperclip,
-    ArrowUpRight,
     Scale as ScaleIcon,
     Gavel,
     ScrollText,
-    Copy,
-    Download,
+    Loader2,
     UserCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cette page simulait une conversation : quelle que soit la question posée,
+// une seule réponse fixe apparaissait après 1,5 s (« la constitution d'une
+// SARL nécessite un capital... »), avec une fausse référence juridique
+// cliquable ne menant nulle part (href="#"). Le panneau « Urgent / Alertes
+// Fiscales » affirmait « 3 dossiers dépassent le seuil de capital social
+// minimum » sans aucune source : aucun modèle Prisma ne stocke de capital
+// social ni de forme juridique par client, ce chiffre est donc invérifiable
+// et a été retiré plutôt qu'inventé. Le chat appelle désormais /api/nexus/chat
+// (répond honnêtement si l'IA n'est pas configurée) au lieu de rejouer un
+// script.
+// ─────────────────────────────────────────────────────────────────────────────
 
 interface ChatMessage {
     role: "user" | "assistant";
     content: string;
     timestamp: string;
-    references?: { title: string; link: string }[];
 }
+
+const SYSTEM_PROMPT =
+    "Tu es l'assistant juridique et comptable OHADA/SYSCOHADA d'un cabinet d'expertise comptable. Réponds en français, de façon concise et professionnelle. Cite le texte OHADA pertinent quand tu le connais, et dis clairement quand tu n'es pas certain plutôt que d'inventer une référence.";
 
 export default function AssistantPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([
         {
             role: "assistant",
-            content: "Bonjour Maître. Je suis votre assistant spécialisé en droit OHADA et normes SYSCOHADA. Comment puis-je vous assister aujourd'hui ?",
+            content: "Bonjour. Je suis l'assistant spécialisé en droit OHADA et normes SYSCOHADA. Comment puis-je vous assister aujourd'hui ?",
             timestamp: "09:00",
-            references: [
-                { title: "Acte Uniforme - Sociétés Commerciales", link: "#" },
-                { title: "Guide PCG 2024", link: "#" }
-            ]
         }
     ]);
     const [input, setInput] = useState("");
+    const [envoiEnCours, setEnvoiEnCours] = useState(false);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim() || envoiEnCours) return;
 
-        const userMsg: ChatMessage = { role: "user", content: input, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-        setMessages([...messages, userMsg]);
+        const question = input;
+        const userMsg: ChatMessage = { role: "user", content: question, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+        setMessages((prev) => [...prev, userMsg]);
         setInput("");
+        setEnvoiEnCours(true);
 
-        // Simulate AI thinking and response
-        setTimeout(() => {
-            const aiMsg: ChatMessage = {
-                role: "assistant",
-                content: "Selon l'Acte Uniformre relatif au Droit des Sociétés Commerciales et du GIE (AUSCGIE), la constitution d'une SARL nécessite un capital social minimum de 1 000 000 FCFA dans la plupart des juridictions OHADA, sauf disposition nationale contraire plus favorable. Souhaitez-vous que je rédige un projet de statuts ?",
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                references: [{ title: "AUSCGIE Article 311", link: "#" }]
-            };
-            setMessages(prev => [...prev, aiMsg]);
-        }, 1500);
+        try {
+            const res = await fetch("/api/nexus/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `${SYSTEM_PROMPT}\n\nQuestion : ${question}` }),
+            });
+            const data = await res.json();
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: "assistant",
+                    content: data.response || data.error || "Réponse indisponible.",
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                },
+            ]);
+        } catch {
+            setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: "Impossible de contacter l'assistant IA.", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+            ]);
+        } finally {
+            setEnvoiEnCours(false);
+        }
     };
 
     return (
@@ -111,25 +132,21 @@ export default function AssistantPage() {
                                         : "bg-indigo-600 border-indigo-400 text-white"
                                 )}>
                                     <p className="text-sm leading-relaxed">{msg.content}</p>
-
-                                    {msg.references && (
-                                        <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
-                                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Fondements Juridiques</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {msg.references.map((ref, idx) => (
-                                                    <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-slate-900/50 rounded-full border border-white/5 text-[10px] font-bold text-slate-400 hover:text-white transition-colors cursor-pointer">
-                                                        <ScaleIcon className="w-3 h-3" />
-                                                        {ref.title}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                                 <span className="text-[9px] font-black text-slate-700 uppercase">{msg.timestamp}</span>
                             </div>
                         </div>
                     ))}
+                    {envoiEnCours && (
+                        <div className="flex gap-4 max-w-4xl mx-auto">
+                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl shadow-black/20 bg-indigo-600 border-indigo-400 text-white">
+                                <Brain className="w-5 h-5" />
+                            </div>
+                            <div className="p-6 rounded-3xl border shadow-xl bg-slate-800/80 border-white/5 text-slate-400 flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Rédaction en cours…
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Chat Input */}
@@ -154,7 +171,8 @@ export default function AssistantPage() {
                                 </button>
                                 <button
                                     onClick={handleSend}
-                                    className="p-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+                                    disabled={envoiEnCours}
+                                    className="p-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
                                 >
                                     <Send className="w-5 h-5" />
                                 </button>
@@ -176,18 +194,6 @@ export default function AssistantPage() {
                         <AssistantAction icon={ScrollText} label="Générer PV d'AG" />
                         <AssistantAction icon={ScaleIcon} label="Consultation Article OHADA" />
                         <AssistantAction icon={Brain} label="Analyse de clause contractuelle" />
-                    </div>
-                </div>
-
-                <div className="glass-card rounded-3xl p-6 border border-rose-500/10 bg-rose-500/[0.02]">
-                    <h3 className="text-rose-400 font-black text-[10px] uppercase tracking-widest mb-4">Urgent / Alertes Fiscales</h3>
-                    <div className="p-4 bg-rose-500/10 rounded-2xl border border-rose-500/20">
-                        <p className="text-xs text-rose-200 font-bold leading-relaxed italic">
-                            "Attention Maître, 3 dossiers dépassent le seuil de capital social minimum pour leur forme juridique actuelle."
-                        </p>
-                        <button className="mt-3 text-[10px] text-white font-black uppercase tracking-widest flex items-center gap-2 hover:underline">
-                            Dépiler les dossiers <ArrowUpRight className="w-3 h-3" />
-                        </button>
                     </div>
                 </div>
             </div>
