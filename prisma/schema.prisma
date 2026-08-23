@@ -23,51 +23,51 @@ enum UserRole {
 }
 
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  email         String   @unique
-  password      String
-  firstName     String
-  lastName      String
-  role          UserRole @default(COLLABORATOR)
-  phone         String?
-  avatar        String?
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        UserRole  @default(COLLABORATOR)
+  phone       String?
+  avatar      String?
   // Cout horaire interne (charge, hors marge), utilise pour le calcul du
   // boni/mali de mission. Absent tant que le cabinet ne l'a pas parametre :
   // le cout interne d'une mission reste alors indetermine plutot que nul.
-  costRate      Float?
-  isActive      Boolean  @default(true)
-  lastLoginAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  costRate    Float?
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
-  assignedMissions Mission[] @relation("AssignedTo")
-  createdMissions  Mission[] @relation("CreatedBy")
-  timeEntries      TimeEntry[]
-  meetings         Meeting[]
-  documents        Document[]
-  notifications    Notification[]
-  auditLogs        AuditLog[]
-  createdProspects Prospect[]
-  proposals        Proposal[]
-  trainingEnrollments TrainingEnrollment[]
-  certificates     Certificate[]
-  quizAttempts     QuizAttempt[]
-  expenses         Expense[]        @relation("ExpenseOwner")
-  expensesApproved Expense[]        @relation("ExpenseApprover")
-  missionOrders    MissionOrder[]
-  judicialCases    JudicialCase[]
-  engagementLetters EngagementLetter[]
-  correspondences  Correspondence[]
-  procedures       Procedure[]
-  resourceAllocations ResourceAllocation[]
-  apiKeys          ApiKey[]
-  webhooks         Webhook[]
-  workspacesCreated Workspace[]     @relation("WorkspaceCreator")
-  workspaceMemberships WorkspaceMember[] @relation("WorkspaceMemberships")
-  workspaceActivities WorkspaceActivity[] @relation("WorkspaceActivityAuthor")
-  forumPosts       ForumPost[]
-  forumComments    ForumComment[]
+  assignedMissions     Mission[]            @relation("AssignedTo")
+  createdMissions      Mission[]            @relation("CreatedBy")
+  timeEntries          TimeEntry[]
+  meetings             Meeting[]
+  documents            Document[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+  createdProspects     Prospect[]
+  proposals            Proposal[]
+  trainingEnrollments  TrainingEnrollment[]
+  certificates         Certificate[]
+  quizAttempts         QuizAttempt[]
+  expenses             Expense[]            @relation("ExpenseOwner")
+  expensesApproved     Expense[]            @relation("ExpenseApprover")
+  missionOrders        MissionOrder[]
+  judicialCases        JudicialCase[]
+  engagementLetters    EngagementLetter[]
+  correspondences      Correspondence[]
+  procedures           Procedure[]
+  resourceAllocations  ResourceAllocation[]
+  apiKeys              ApiKey[]
+  webhooks             Webhook[]
+  workspacesCreated    Workspace[]          @relation("WorkspaceCreator")
+  workspaceMemberships WorkspaceMember[]    @relation("WorkspaceMemberships")
+  workspaceActivities  WorkspaceActivity[]  @relation("WorkspaceActivityAuthor")
+  forumPosts           ForumPost[]
+  forumComments        ForumComment[]
 
   @@map("users")
 }
@@ -90,81 +90,81 @@ enum FiscalRegime {
 }
 
 model Client {
-  id                String       @id @default(auto()) @map("_id") @db.ObjectId
-  type              ClientType   @default(ENTREPRISE)
-  
+  id   String     @id @default(auto()) @map("_id") @db.ObjectId
+  type ClientType @default(ENTREPRISE)
+
   // Identification
-  companyName       String?
-  firstName         String?
-  lastName          String?
-  email             String       @unique
-  phone             String
-  
+  companyName String?
+  firstName   String?
+  lastName    String?
+  email       String  @unique
+  phone       String
+
   // Identifiants OHADA
-  rccm              String?      // Registre Commerce
-  ninea             String?      // Sénégal
-  ifu               String?      // Bénin/CI
-  nif               String?      // Cameroun
-  
+  rccm  String? // Registre Commerce
+  ninea String? // Sénégal
+  ifu   String? // Bénin/CI
+  nif   String? // Cameroun
+
   // Fiscal
-  fiscalRegime      FiscalRegime @default(REEL_NORMAL)
-  sector            String?      // Secteur d'activité
-  country           String       @default("CI") // CI, SN, CM, etc.
-  
+  fiscalRegime FiscalRegime @default(REEL_NORMAL)
+  sector       String? // Secteur d'activité
+  country      String       @default("CI") // CI, SN, CM, etc.
+
   // Adresse
-  address           String?
-  city              String?
-  postalCode        String?
-  
+  address    String?
+  city       String?
+  postalCode String?
+
   // Haute Expertise - Governance & Health (Real Data)
-  agStatus          String?      // late, valid, expiring
-  mandatStatus      String?
+  agStatus           String? // late, valid, expiring
+  mandatStatus       String?
   depotComptesStatus String?
-  kycStatus         String?      // valid, invalid
-  healthScore       Float?       // 0-100
-  rating            String?      // AAA, AA, B, etc.
-  
+  kycStatus          String? // valid, invalid
+  healthScore        Float? // 0-100
+  rating             String? // AAA, AA, B, etc.
+
   // Status
-  subjectToTva      Boolean      @default(false) // Paramétrage flexible de la TVA
-  isActive          Boolean      @default(true)
-  
+  subjectToTva Boolean @default(false) // Paramétrage flexible de la TVA
+  isActive     Boolean @default(true)
+
   // Portail PMI
   // Pas de contrainte @unique en base : de nombreux clients existants ont portalToken=null,
   // et MongoDB rejette un index unique classique sur des valeurs null dupliquées. L'unicité
   // effective est garantie côté application par une génération cryptographiquement aléatoire
   // (32 octets, voir src/app/api/clients/route.ts) — collision négligeable.
-  portalToken       String?      // Token unique pour l'URL du portail client
-  portalEnabled     Boolean      @default(false)
-  portalCreatedAt   DateTime?
-  
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  
+  portalToken     String? // Token unique pour l'URL du portail client
+  portalEnabled   Boolean   @default(false)
+  portalCreatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  missions          Mission[]
-  invoices          Invoice[]
-  documents         Document[]
-  meetings          Meeting[]
-  timeEntries       TimeEntry[]
-  declarations      TaxDeclaration[]
-  financialData     FinancialData[]
-  mobileMoneyTx     MobileMoneyTransaction[]
-  creditScores      CreditScore[]
-  informelBusiness  InformelBusiness?
-  tpeJournals       TpeJournal[]
-  employees         Employee[]
-  payrollPeriods    PayrollPeriod[]
-  fixedAssets       FixedAsset[]
-  products          Product[]
-  proposals         Proposal[]
+  missions              Mission[]
+  invoices              Invoice[]
+  documents             Document[]
+  meetings              Meeting[]
+  timeEntries           TimeEntry[]
+  declarations          TaxDeclaration[]
+  financialData         FinancialData[]
+  mobileMoneyTx         MobileMoneyTransaction[]
+  creditScores          CreditScore[]
+  informelBusiness      InformelBusiness?
+  tpeJournals           TpeJournal[]
+  employees             Employee[]
+  payrollPeriods        PayrollPeriod[]
+  fixedAssets           FixedAsset[]
+  products              Product[]
+  proposals             Proposal[]
   consolidationEntities ConsolidationEntity[]
-  judicialCases     JudicialCase[]
-  engagementLetters EngagementLetter[]
-  personalAssets    PersonalAsset[]
-  correspondences   Correspondence[]
-  workspaces        Workspace[]
-  fraudAlerts       FraudAlert[]
-  fiscalRisks       FiscalRisk[]
+  judicialCases         JudicialCase[]
+  engagementLetters     EngagementLetter[]
+  personalAssets        PersonalAsset[]
+  correspondences       Correspondence[]
+  workspaces            Workspace[]
+  fraudAlerts           FraudAlert[]
+  fiscalRisks           FiscalRisk[]
 
   @@map("clients")
 }
@@ -192,64 +192,64 @@ enum MissionType {
 }
 
 model Mission {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  title           String
-  description     String?
-  type            MissionType
-  status          MissionStatus @default(DRAFT)
-  
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  type        MissionType
+  status      MissionStatus @default(DRAFT)
+
   // Dates
-  startDate       DateTime
-  endDate         DateTime?
-  deadline        DateTime?
-  
+  startDate DateTime
+  endDate   DateTime?
+  deadline  DateTime?
+
   // Financial
-  estimatedHours  Float?
-  hourlyRate      Float?
-  fixedPrice      Float?
-  
+  estimatedHours Float?
+  hourlyRate     Float?
+  fixedPrice     Float?
+
   // Relations
-  clientId        String        @db.ObjectId
-  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  assignedToId    String?       @db.ObjectId
-  assignedTo      User?         @relation("AssignedTo", fields: [assignedToId], references: [id])
-  
-  createdById     String        @db.ObjectId
-  createdBy       User          @relation("CreatedBy", fields: [createdById], references: [id])
-  
-  tasks           Task[]
-  timeEntries     TimeEntry[]
-  documents       Document[]
-  auditSections   AuditSection[]
-  expenses        Expense[]
-  missionOrders   MissionOrder[]
-  engagementLetters EngagementLetter[]
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  assignedToId String? @db.ObjectId
+  assignedTo   User?   @relation("AssignedTo", fields: [assignedToId], references: [id])
+
+  createdById String @db.ObjectId
+  createdBy   User   @relation("CreatedBy", fields: [createdById], references: [id])
+
+  tasks               Task[]
+  timeEntries         TimeEntry[]
+  documents           Document[]
+  auditSections       AuditSection[]
+  expenses            Expense[]
+  missionOrders       MissionOrder[]
+  engagementLetters   EngagementLetter[]
   resourceAllocations ResourceAllocation[]
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("missions")
 }
 
 model Task {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  title           String
-  description     String?
-  status          MissionStatus @default(DRAFT)
-  priority        Int           @default(1) // 1-5
-  
-  dueDate         DateTime?
-  completedAt     DateTime?
-  
-  missionId       String        @db.ObjectId
-  mission         Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  status      MissionStatus @default(DRAFT)
+  priority    Int           @default(1) // 1-5
+
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  missionId String  @db.ObjectId
+  mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   resourceAllocations ResourceAllocation[]
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("tasks")
 }
@@ -275,30 +275,30 @@ enum TimeEntryStatus {
 }
 
 model TimeEntry {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  
-  date            DateTime
-  duration        Float             // En heures (ex: 2.5)
-  category        TimeEntryCategory @default(PRODUCTION)
-  status          TimeEntryStatus   @default(DRAFT)
-  description     String?
-  
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  date        DateTime
+  duration    Float // En heures (ex: 2.5)
+  category    TimeEntryCategory @default(PRODUCTION)
+  status      TimeEntryStatus   @default(DRAFT)
+  description String?
+
   // Relations
-  userId          String            @db.ObjectId
-  user            User              @relation(fields: [userId], references: [id])
-  
-  clientId        String?           @db.ObjectId
-  client          Client?           @relation(fields: [clientId], references: [id])
-  
-  missionId       String?           @db.ObjectId
-  mission         Mission?          @relation(fields: [missionId], references: [id])
-  
-  invoiceId       String?           @db.ObjectId
-  invoice         Invoice?          @relation(fields: [invoiceId], references: [id])
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
+
+  invoiceId String?  @db.ObjectId
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("time_entries")
 }
 
@@ -315,33 +315,33 @@ enum InvoiceStatus {
 }
 
 model Invoice {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  invoiceNumber   String        @unique
-  
-  issueDate       DateTime      @default(now())
-  dueDate         DateTime
-  paidDate        DateTime?
-  
-  status          InvoiceStatus @default(DRAFT)
-  
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String @unique
+
+  issueDate DateTime  @default(now())
+  dueDate   DateTime
+  paidDate  DateTime?
+
+  status InvoiceStatus @default(DRAFT)
+
   // Amounts (en FCFA)
-  subtotal        Float
-  taxRate         Float         @default(18) // TVA 18% OHADA
-  taxAmount       Float
-  total           Float
-  
-  notes           String?
-  
+  subtotal  Float
+  taxRate   Float @default(18) // TVA 18% OHADA
+  taxAmount Float
+  total     Float
+
+  notes String?
+
   // Relations
-  clientId        String        @db.ObjectId
-  client          Client        @relation(fields: [clientId], references: [id])
-  
-  timeEntries     TimeEntry[]
-  transactions    BankTransaction[]
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  timeEntries  TimeEntry[]
+  transactions BankTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("invoices")
 }
 
@@ -367,33 +367,33 @@ enum DocumentStatus {
 }
 
 model Document {
-  id              String         @id @default(auto()) @map("_id") @db.ObjectId
-  fileName        String
-  originalName    String
-  fileSize        Int
-  mimeType        String
-  fileUrl         String
-  
-  type            DocumentType   @default(AUTRE)
-  status          DocumentStatus @default(UPLOADED)
-  
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  fileName     String
+  originalName String
+  fileSize     Int
+  mimeType     String
+  fileUrl      String
+
+  type   DocumentType   @default(AUTRE)
+  status DocumentStatus @default(UPLOADED)
+
   // OCR Data
-  ocrData         Json?          // Données extraites par OCR
-  ocrProcessedAt  DateTime?
-  
+  ocrData        Json? // Données extraites par OCR
+  ocrProcessedAt DateTime?
+
   // Relations
-  clientId        String?        @db.ObjectId
-  client          Client?        @relation(fields: [clientId], references: [id])
-  
-  missionId       String?        @db.ObjectId
-  mission         Mission?       @relation(fields: [missionId], references: [id])
-  
-  uploadedById    String         @db.ObjectId
-  uploadedBy      User           @relation(fields: [uploadedById], references: [id])
-  
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
+
+  uploadedById String @db.ObjectId
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("documents")
 }
 
@@ -418,24 +418,24 @@ enum DeclarationStatus {
 }
 
 model TaxDeclaration {
-  id              String            @id @default(auto()) @map("_id") @db.ObjectId
-  type            DeclarationType
-  status          DeclarationStatus @default(DRAFT)
-  
-  period          String            // Ex: "2024-01" pour Janvier 2024
-  dueDate         DateTime
-  submittedDate   DateTime?
-  
-  amount          Float?
-  reference       String?           // Numéro de quittance
-  
+  id     String            @id @default(auto()) @map("_id") @db.ObjectId
+  type   DeclarationType
+  status DeclarationStatus @default(DRAFT)
+
+  period        String // Ex: "2024-01" pour Janvier 2024
+  dueDate       DateTime
+  submittedDate DateTime?
+
+  amount    Float?
+  reference String? // Numéro de quittance
+
   // Relations
-  clientId        String            @db.ObjectId
-  client          Client            @relation(fields: [clientId], references: [id])
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("tax_declarations")
 }
 
@@ -455,31 +455,31 @@ enum MeetingStatus {
 }
 
 model Meeting {
-  id              String        @id @default(auto()) @map("_id") @db.ObjectId
-  title           String
-  description     String?
-  
-  type            MeetingType   @default(VIRTUELLE)
-  status          MeetingStatus @default(PLANIFIE)
-  
-  startTime       DateTime
-  endTime         DateTime
-  location        String?
-  meetingUrl      String?       // Lien visio
-  
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+
+  type   MeetingType   @default(VIRTUELLE)
+  status MeetingStatus @default(PLANIFIE)
+
+  startTime  DateTime
+  endTime    DateTime
+  location   String?
+  meetingUrl String? // Lien visio
+
   notes           String?
-  reportGenerated Boolean       @default(false)
-  
+  reportGenerated Boolean @default(false)
+
   // Relations
-  clientId        String?       @db.ObjectId
-  client          Client?       @relation(fields: [clientId], references: [id])
-  
-  organizerId     String        @db.ObjectId
-  organizer       User          @relation(fields: [organizerId], references: [id])
-  
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  organizerId String @db.ObjectId
+  organizer   User   @relation(fields: [organizerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("meetings")
 }
 
@@ -495,19 +495,19 @@ enum NotificationType {
 }
 
 model Notification {
-  id              String           @id @default(auto()) @map("_id") @db.ObjectId
-  type            NotificationType @default(INFO)
-  title           String
-  message         String
-  
-  isRead          Boolean          @default(false)
-  readAt          DateTime?
-  
-  userId          String           @db.ObjectId
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime         @default(now())
-  
+  id      String           @id @default(auto()) @map("_id") @db.ObjectId
+  type    NotificationType @default(INFO)
+  title   String
+  message String
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
   @@map("notifications")
 }
 
@@ -516,23 +516,23 @@ model Notification {
 // ============================================
 
 model AuditLog {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  action          String   // CREATE, UPDATE, DELETE, LOGIN, etc.
-  entity          String   // Client, Mission, Invoice, etc.
-  entityId        String?
-  details         String?  // Complementary info
-  
-  oldValue        Json?
-  newValue        Json?
-  
-  ipAddress       String?
-  userAgent       String?
-  
-  userId          String?  @db.ObjectId
-  user            User?    @relation(fields: [userId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  action   String // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity   String // Client, Mission, Invoice, etc.
+  entityId String?
+  details  String? // Complementary info
+
+  oldValue Json?
+  newValue Json?
+
+  ipAddress String?
+  userAgent String?
+
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
   @@map("audit_logs")
 }
 
@@ -541,32 +541,32 @@ model AuditLog {
 // ============================================
 
 model Communication {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  type      String   // email, whatsapp, portal, teams
-  sender    String
-  avatar    String?  // Initials
-  subject   String?
-  preview   String?
-  content   String
-  date      DateTime @default(now())
-  clientId  String?  @db.ObjectId
-  read      Boolean  @default(false)
-  tags      String[]
-  
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  type     String // email, whatsapp, portal, teams
+  sender   String
+  avatar   String? // Initials
+  subject  String?
+  preview  String?
+  content  String
+  date     DateTime @default(now())
+  clientId String?  @db.ObjectId
+  read     Boolean  @default(false)
+  tags     String[]
+
   @@map("communications")
 }
 
 model NewsBrief {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
-  type      String   // FISCAL, LEGAL, URGENT
+  type      String // FISCAL, LEGAL, URGENT
   content   String
   summary   String?
   source    String?
   relevance Int      @default(5) // 1-10
   date      DateTime @default(now())
   isRead    Boolean  @default(false)
-  
+
   @@map("news_briefs")
 }
 
@@ -575,29 +575,29 @@ model NewsBrief {
 // ============================================
 
 model FinancialData {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  year            Int      // Ex: 2023, 2024
-  period          String?  // Ex: "ANNUAL", "H1", "Q1"
-  
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  year   Int // Ex: 2023, 2024
+  period String? // Ex: "ANNUAL", "H1", "Q1"
+
   // Key Indicators (Calculated or Imported)
-  ca              Float    @default(0)
-  ebitda          Float    @default(0) // EBE
-  netResult       Float    @default(0)
-  totalBilan      Float    @default(0)
-  equity          Float    @default(0) // Fonds propres
-  netCash         Float    @default(0)
-  bfr             Float    @default(0)
-  
+  ca         Float @default(0)
+  ebitda     Float @default(0) // EBE
+  netResult  Float @default(0)
+  totalBilan Float @default(0)
+  equity     Float @default(0) // Fonds propres
+  netCash    Float @default(0)
+  bfr        Float @default(0)
+
   // Status
-  isProjected     Boolean  @default(false)
-  
+  isProjected Boolean @default(false)
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("financial_data")
 }
 
@@ -606,39 +606,39 @@ model FinancialData {
 // ============================================
 
 model MobileMoneyTransaction {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  operator        String   // Wave, Orange Money, MTN MoMo
-  reference       String   @unique
-  senderName      String?
-  senderPhone     String
-  amount          Float
-  type            String   // IN, OUT
-  status          String   @default("PENDING") // PENDING, RECONCILED
-  
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  operator    String // Wave, Orange Money, MTN MoMo
+  reference   String  @unique
+  senderName  String?
+  senderPhone String
+  amount      Float
+  type        String // IN, OUT
+  status      String  @default("PENDING") // PENDING, RECONCILED
+
   transactionDate DateTime
   reconciledAt    DateTime?
-  
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("mobile_money_transactions")
 }
 
 model CreditScore {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  score           Int      // 0 - 1000
-  factors         Json     // Details of the score components
-  isEligible      Boolean  @default(false)
-  
-  evaluatedAt     DateTime @default(now())
-  
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  score      Int // 0 - 1000
+  factors    Json // Details of the score components
+  isEligible Boolean @default(false)
+
+  evaluatedAt DateTime @default(now())
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@map("credit_scores")
 }
@@ -648,22 +648,22 @@ model CreditScore {
 // ============================================
 
 model InformelBusiness {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  businessName    String
-  activityType    String
-  phone           String
-  
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  businessName String
+  activityType String
+  phone        String
+
   // Workflow Status
-  stepIdCompleted Boolean  @default(false)
-  stepRccmDone    Boolean  @default(false)
-  isFormalized    Boolean  @default(false)
-  
+  stepIdCompleted Boolean @default(false)
+  stepRccmDone    Boolean @default(false)
+  isFormalized    Boolean @default(false)
+
   // Relations
-  clientId        String   @unique @db.ObjectId // Links to the Client once formalized
-  client          Client   @relation(fields: [clientId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  clientId String @unique @db.ObjectId // Links to the Client once formalized
+  client   Client @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("informel_businesses")
 }
@@ -673,38 +673,38 @@ model InformelBusiness {
 // ============================================
 
 model TpeJournal {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  periode         String   // Ex: "JUIN-2026"
-  businessName    String   // Nom du commerçant/TPE
-  
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  periode      String // Ex: "JUIN-2026"
+  businessName String // Nom du commerçant/TPE
+
   // Raw line from client
-  date            String
-  libelle         String
-  entree          Float    @default(0)
-  sortie          Float    @default(0)
-  
+  date    String
+  libelle String
+  entree  Float  @default(0)
+  sortie  Float  @default(0)
+
   // Nouveaux champs BPO (Informel)
-  source          String   @default("WHATSAPP") // WHATSAPP, MOBILE_MONEY
-  rawContent      String?  // Le texte brut ou la transcription vocale
-  confidenceScore Float    @default(0) // Score de confiance de l'IA (0 - 1)
-  
+  source          String  @default("WHATSAPP") // WHATSAPP, MOBILE_MONEY
+  rawContent      String? // Le texte brut ou la transcription vocale
+  confidenceScore Float   @default(0) // Score de confiance de l'IA (0 - 1)
+
   // OHADA accounting (generated by engine)
-  debitCompte     String
-  debitIntitule   String
-  creditCompte    String
-  creditIntitule  String
-  montant         Float
-  
+  debitCompte    String
+  debitIntitule  String
+  creditCompte   String
+  creditIntitule String
+  montant        Float
+
   // Status
-  exportedAt      DateTime? // Date de validation
-  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED, EXPORTED
-  
+  exportedAt DateTime? // Date de validation
+  status     String    @default("PENDING") // PENDING, APPROVED, REJECTED, EXPORTED
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id])
-  
-  createdAt       DateTime @default(now())
-  
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+
   @@map("tpe_journals")
 }
 
@@ -714,114 +714,112 @@ model TpeJournal {
 
 // --- 1. BANQUE & LETTRAGE IA ---
 model BankTransaction {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  date            DateTime
-  description     String
-  amount          Float
-  type            String    // "DEBIT" ou "CREDIT"
-  status          String    @default("PENDING") // "PENDING", "RECONCILED", "IGNORED"
-  
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  date        DateTime
+  description String
+  amount      Float
+  type        String // "DEBIT" ou "CREDIT"
+  status      String   @default("PENDING") // "PENDING", "RECONCILED", "IGNORED"
+
   // Relation avec une facture si rapprochée
-  invoiceId       String?   @db.ObjectId
-  invoice         Invoice?  @relation(fields: [invoiceId], references: [id])
+  invoiceId String?  @db.ObjectId
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
 
-  fraudAlerts     FraudAlert[]
+  fraudAlerts FraudAlert[]
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("bank_transactions")
 }
 
 // --- 2. MACHINE LEARNING & AUTO-APPRENTISSAGE ---
 model AccountingRuleMapping {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  keyword         String   // Ex: "sonatel", "shell"
-  debitCompte     String
-  creditCompte    String
-  clientId        String?  @db.ObjectId // Si null, la règle est globale au cabinet
-  usageCount      Int      @default(1)
-  createdAt       DateTime @default(now())
-  
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  keyword      String // Ex: "sonatel", "shell"
+  debitCompte  String
+  creditCompte String
+  clientId     String?  @db.ObjectId // Si null, la règle est globale au cabinet
+  usageCount   Int      @default(1)
+  createdAt    DateTime @default(now())
+
   @@map("accounting_rule_mappings")
 }
 
-
-
 // --- 3. MODULE PAIE & SOCIAL (PHASE 3) ---
 model Employee {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  firstName       String
-  lastName        String
-  phone           String?
-  email           String?
-  position        String?
-  baseSalary      Float
-  
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  firstName  String
+  lastName   String
+  phone      String?
+  email      String?
+  position   String?
+  baseSalary Float
+
   // Paramètres Multi-Pays (ex: Sénégal)
-  maritalStatus   String?  @default("CELIBATAIRE")
-  childrenCount   Int      @default(0)
-  isCadre         Boolean  @default(false)
-  transportAllowance Float @default(0)
-  
+  maritalStatus      String? @default("CELIBATAIRE")
+  childrenCount      Int     @default(0)
+  isCadre            Boolean @default(false)
+  transportAllowance Float   @default(0)
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  payslips        Payslip[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  payslips Payslip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("employees")
 }
 
 model PayrollPeriod {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  periodName      String   // Ex: "Juin 2026"
-  status          String   @default("DRAFT") // DRAFT, VALIDATED, PAID
-  
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  periodName String // Ex: "Juin 2026"
+  status     String @default("DRAFT") // DRAFT, VALIDATED, PAID
+
   // Relations
-  clientId        String   @db.ObjectId
-  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  payslips        Payslip[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  payslips Payslip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("payroll_periods")
 }
 
 model Payslip {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
   // Variables de paie extraites (IA)
-  absencesDays    Int      @default(0)
-  overtimeHours   Int      @default(0)
-  bonuses         Float    @default(0)
-  
+  absencesDays  Int   @default(0)
+  overtimeHours Int   @default(0)
+  bonuses       Float @default(0)
+
   // Calculs finaux
-  grossSalary     Float
-  netSalary       Float
-  
+  grossSalary Float
+  netSalary   Float
+
   // Détails Multi-Pays (Cotisations et Impôts)
-  taxableIncome   Float    @default(0)
-  taxes           Float    @default(0) // IR, TRIMF
-  employeeSocials Float    @default(0) // IPRES part salariale
-  employerSocials Float    @default(0) // IPRES part patronale, CSS, CFCE
-  
-  status          String   @default("DRAFT") // DRAFT, VALIDATED, PAID
-  
+  taxableIncome   Float @default(0)
+  taxes           Float @default(0) // IR, TRIMF
+  employeeSocials Float @default(0) // IPRES part salariale
+  employerSocials Float @default(0) // IPRES part patronale, CSS, CFCE
+
+  status String @default("DRAFT") // DRAFT, VALIDATED, PAID
+
   // Relations
-  employeeId      String   @db.ObjectId
-  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  
-  periodId        String   @db.ObjectId
-  period          PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  employeeId String   @db.ObjectId
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  periodId String        @db.ObjectId
+  period   PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("payslips")
 }
@@ -858,7 +856,7 @@ model FixedAsset {
   // comptable et la dotation de l'exercice. Ces champs manquaient : l'actif
   // etait suivi pour l'inventaire physique, jamais pour sa depreciation.
   depreciationMethod DepreciationMethod @default(LINEAIRE)
-  usefulLifeYears    Int?               // Duree d'utilite, en annees
+  usefulLifeYears    Int? // Duree d'utilite, en annees
   residualValue      Float              @default(0)
   // Date de mise en service, qui peut differer de la date d'acquisition et
   // constitue le point de depart de l'amortissement.
@@ -866,11 +864,11 @@ model FixedAsset {
   serialNumber       String?
   supplier           String?
 
-  clientId      String           @db.ObjectId
-  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("fixed_assets")
 }
@@ -886,55 +884,67 @@ enum CostCategory {
   AUTRE
 }
 
-/** Produit fabrique ou revendu par un client industriel. */
+/**
+ * Produit fabrique ou revendu par un client industriel.
+ */
 model Product {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
   reference    String
   name         String
   family       String?
-  /** Unite de mesure : sac, tonne, unite, litre... */
-  unit         String   @default("unite")
-  sellingPrice Float    @default(0)
-  isActive     Boolean  @default(true)
+  /**
+   * Unite de mesure : sac, tonne, unite, litre...
+   */
+  unit         String  @default("unite")
+  sellingPrice Float   @default(0)
+  isActive     Boolean @default(true)
 
-  clientId     String   @db.ObjectId
-  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  costs        CostComponent[]
-  volumes      ProductionVolume[]
+  costs   CostComponent[]
+  volumes ProductionVolume[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("products")
 }
 
-/** Composante du cout de revient unitaire d'un produit. */
+/**
+ * Composante du cout de revient unitaire d'un produit.
+ */
 model CostComponent {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
-  category  CostCategory
-  label     String
-  /** Cout unitaire, dans la devise du dossier. */
-  unitCost  Float        @default(0)
+  id       String       @id @default(auto()) @map("_id") @db.ObjectId
+  category CostCategory
+  label    String
+  /**
+   * Cout unitaire, dans la devise du dossier.
+   */
+  unitCost Float        @default(0)
 
-  productId String       @db.ObjectId
-  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("cost_components")
 }
 
-/** Quantite produite sur une periode donnee. */
+/**
+ * Quantite produite sur une periode donnee.
+ */
 model ProductionVolume {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  /** Periode au format AAAA-MM. */
-  periode   String
-  quantity  Float    @default(0)
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  /**
+   * Periode au format AAAA-MM.
+   */
+  periode  String
+  quantity Float  @default(0)
 
-  productId String   @db.ObjectId
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @db.ObjectId
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -949,20 +959,20 @@ enum AuditConclusion {
 }
 
 model AuditSection {
-  id         String            @id @default(auto()) @map("_id") @db.ObjectId
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
   name       String
-  order      Int               @default(0)
-  progress   Int               @default(0)
+  order      Int              @default(0)
+  progress   Int              @default(0)
   conclusion AuditConclusion?
   note       String?
 
-  missionId  String            @db.ObjectId
-  mission    Mission           @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionId String  @db.ObjectId
+  mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
-  items      AuditChecklistItem[]
+  items AuditChecklistItem[]
 
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("audit_sections")
 }
@@ -981,11 +991,11 @@ model AuditChecklistItem {
   ref         String?
   comment     String?
 
-  sectionId   String          @db.ObjectId
-  section     AuditSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId String       @db.ObjectId
+  section   AuditSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("audit_checklist_items")
 }
@@ -1004,23 +1014,23 @@ enum ProspectStage {
 }
 
 model Prospect {
-  id             String        @id @default(auto()) @map("_id") @db.ObjectId
-  entreprise     String
-  contact        String?
-  email          String?
-  telephone      String?
-  secteur        String?
-  source         String?
-  valeurEstimee  Float         @default(0)
-  etape          ProspectStage @default(PROSPECT)
-  prochainRdv    DateTime?
-  score           Int          @default(0)
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  entreprise    String
+  contact       String?
+  email         String?
+  telephone     String?
+  secteur       String?
+  source        String?
+  valeurEstimee Float         @default(0)
+  etape         ProspectStage @default(PROSPECT)
+  prochainRdv   DateTime?
+  score         Int           @default(0)
 
-  createdById    String?       @db.ObjectId
-  createdBy      User?         @relation(fields: [createdById], references: [id])
+  createdById String? @db.ObjectId
+  createdBy   User?   @relation(fields: [createdById], references: [id])
 
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("prospects")
 }
@@ -1040,21 +1050,21 @@ enum ProposalStatus {
 }
 
 model Proposal {
-  id        String         @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  type      ProposalType   @default(ACCOUNTING)
-  amount    Float          @default(0)
-  status    ProposalStatus @default(DRAFT)
-  date      DateTime       @default(now())
+  id     String         @id @default(auto()) @map("_id") @db.ObjectId
+  title  String
+  type   ProposalType   @default(ACCOUNTING)
+  amount Float          @default(0)
+  status ProposalStatus @default(DRAFT)
+  date   DateTime       @default(now())
 
-  clientId  String?        @db.ObjectId
-  client    Client?        @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  expertId  String?        @db.ObjectId
-  expert    User?          @relation(fields: [expertId], references: [id])
+  expertId String? @db.ObjectId
+  expert   User?   @relation(fields: [expertId], references: [id])
 
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("proposals")
 }
@@ -1064,7 +1074,7 @@ model Proposal {
 // ============================================
 
 model LegalClause {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   category        String
   subcategory     String?
@@ -1072,12 +1082,12 @@ model LegalClause {
   annotations     String[]
   negotiationTips String[]
   acteUniforme    String?
-  isFavorite      Boolean  @default(false)
-  usageCount      Int      @default(0)
+  isFavorite      Boolean   @default(false)
+  usageCount      Int       @default(0)
   lastUsed        DateTime?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("legal_clauses")
 }
@@ -1106,8 +1116,8 @@ model LegalCitation {
   source     String?
   notes      String?
 
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("legal_citations")
 }
@@ -1117,56 +1127,56 @@ model LegalCitation {
 // ============================================
 
 model ConsolidationGroup {
-  id        String                @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
 
-  entities  ConsolidationEntity[]
+  entities     ConsolidationEntity[]
   eliminations ConsolidationElimination[]
 
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("consolidation_groups")
 }
 
 model ConsolidationEntity {
-  id        String             @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  rccm      String?
-  country   String?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  rccm    String?
+  country String?
 
-  groupId   String             @db.ObjectId
-  group     ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String             @db.ObjectId
+  group   ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  clientId  String?            @db.ObjectId
-  client    Client?            @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
   buyerEliminations  ConsolidationElimination[] @relation("BuyerEntity")
   sellerEliminations ConsolidationElimination[] @relation("SellerEntity")
 
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("consolidation_entities")
 }
 
 model ConsolidationElimination {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
   type          String
   debitAccount  String
   creditAccount String
   amount        Float
 
-  groupId       String             @db.ObjectId
-  group         ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String             @db.ObjectId
+  group   ConsolidationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  buyerEntityId  String?           @db.ObjectId
-  buyerEntity    ConsolidationEntity? @relation("BuyerEntity", fields: [buyerEntityId], references: [id])
+  buyerEntityId String?              @db.ObjectId
+  buyerEntity   ConsolidationEntity? @relation("BuyerEntity", fields: [buyerEntityId], references: [id])
 
-  sellerEntityId String?           @db.ObjectId
+  sellerEntityId String?              @db.ObjectId
   sellerEntity   ConsolidationEntity? @relation("SellerEntity", fields: [sellerEntityId], references: [id])
 
-  createdAt     DateTime           @default(now())
+  createdAt DateTime @default(now())
 
   @@map("consolidation_eliminations")
 }
@@ -1198,27 +1208,27 @@ model TrainingCourse {
 
   instructorName String?
 
-  modules       TrainingModule[]
-  enrollments   TrainingEnrollment[]
-  certificates  Certificate[]
-  quiz          Quiz?
+  modules      TrainingModule[]
+  enrollments  TrainingEnrollment[]
+  certificates Certificate[]
+  quiz         Quiz?
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("training_courses")
 }
 
 model TrainingModule {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  order     Int      @default(0)
-  duration  String?
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  order    Int     @default(0)
+  duration String?
 
-  courseId  String   @db.ObjectId
-  course    TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String         @db.ObjectId
+  course   TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  lessons   TrainingLesson[]
+  lessons TrainingLesson[]
 
   @@map("training_modules")
 }
@@ -1230,14 +1240,14 @@ enum LessonType {
 }
 
 model TrainingLesson {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
-  duration  String?
-  type      LessonType @default(VIDEO)
-  order     Int        @default(0)
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  duration String?
+  type     LessonType @default(VIDEO)
+  order    Int        @default(0)
 
-  moduleId  String     @db.ObjectId
-  module    TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  moduleId String         @db.ObjectId
+  module   TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   @@map("training_lessons")
 }
@@ -1254,14 +1264,14 @@ model TrainingEnrollment {
   status         EnrollmentStatus @default(NOT_STARTED)
   completedHours Float            @default(0)
 
-  userId         String           @db.ObjectId
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  courseId       String           @db.ObjectId
-  course         TrainingCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String         @db.ObjectId
+  course   TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  startedAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId])
   @@map("training_enrollments")
@@ -1277,30 +1287,30 @@ model Certificate {
   verificationCode String    @unique
   skills           String[]
 
-  userId           String    @db.ObjectId
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  courseId         String    @db.ObjectId
-  course           TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String         @db.ObjectId
+  course   TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  createdAt        DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@map("certificates")
 }
 
 model Quiz {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  timeLimit     Int            @default(600)
-  passingScore  Int            @default(70)
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  title        String
+  timeLimit    Int    @default(600)
+  passingScore Int    @default(70)
 
-  courseId      String         @unique @db.ObjectId
-  course        TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String         @unique @db.ObjectId
+  course   TrainingCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  questions     QuizQuestion[]
-  attempts      QuizAttempt[]
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
 
-  createdAt     DateTime       @default(now())
+  createdAt DateTime @default(now())
 
   @@map("quizzes")
 }
@@ -1313,23 +1323,23 @@ model QuizQuestion {
   explanation  String?
   order        Int      @default(0)
 
-  quizId       String   @db.ObjectId
-  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId String @db.ObjectId
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@map("quiz_questions")
 }
 
 model QuizAttempt {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  score       Int
-  passed      Boolean
-  answers     Json?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  score   Int
+  passed  Boolean
+  answers Json?
 
-  quizId      String   @db.ObjectId
-  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId String @db.ObjectId
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
-  userId      String   @db.ObjectId
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   completedAt DateTime @default(now())
 
@@ -1337,15 +1347,15 @@ model QuizAttempt {
 }
 
 model Masterclass {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  title           String
-  instructorName  String
-  date            DateTime
-  duration        String?
-  isLive          Boolean  @default(false)
-  attendeesCount  Int      @default(0)
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  instructorName String
+  date           DateTime
+  duration       String?
+  isLive         Boolean  @default(false)
+  attendeesCount Int      @default(0)
 
-  createdAt       DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@map("masterclasses")
 }
@@ -1370,26 +1380,26 @@ enum ExpenseStatus {
 }
 
 model Expense {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  label         String
-  category      ExpenseCategory @default(AUTRE)
-  amount        Float
-  status        ExpenseStatus   @default(EN_ATTENTE)
-  expenseDate   DateTime
-  receiptUrl    String?
-  notes         String?
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  label       String
+  category    ExpenseCategory @default(AUTRE)
+  amount      Float
+  status      ExpenseStatus   @default(EN_ATTENTE)
+  expenseDate DateTime
+  receiptUrl  String?
+  notes       String?
 
-  missionId     String?         @db.ObjectId
-  mission       Mission?        @relation(fields: [missionId], references: [id])
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
 
-  userId        String          @db.ObjectId
-  user          User            @relation("ExpenseOwner", fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation("ExpenseOwner", fields: [userId], references: [id])
 
-  approvedById  String?         @db.ObjectId
-  approvedBy    User?           @relation("ExpenseApprover", fields: [approvedById], references: [id])
+  approvedById String? @db.ObjectId
+  approvedBy   User?   @relation("ExpenseApprover", fields: [approvedById], references: [id])
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("expenses")
 }
@@ -1410,14 +1420,14 @@ model MissionOrder {
   status        MissionOrderStatus @default(BROUILLON)
   estimatedCost Float?
 
-  missionId     String?            @db.ObjectId
-  mission       Mission?           @relation(fields: [missionId], references: [id])
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
 
-  userId        String             @db.ObjectId
-  user          User               @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
 
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("mission_orders")
 }
@@ -1432,25 +1442,36 @@ enum JudicialCaseStatus {
   CLOTURE
 }
 
+enum JudicialCaseCategory {
+  DOUANE
+  FISCAL
+  SOCIAL
+  COMMERCIAL
+  AUTRE
+}
+
 model JudicialCase {
-  id              String             @id @default(auto()) @map("_id") @db.ObjectId
+  id              String                @id @default(auto()) @map("_id") @db.ObjectId
   caseNumber      String
   court           String
   judge           String?
   parties         String
   natureOfDispute String?
+  // Permet aux ecrans specialises (contentieux douanier, controle fiscal...)
+  // de filtrer le registre commun sans dupliquer le modele.
+  category        JudicialCaseCategory?
   deadline        DateTime?
-  status          JudicialCaseStatus @default(EN_COURS)
+  status          JudicialCaseStatus    @default(EN_COURS)
   notes           String?
 
-  clientId        String?            @db.ObjectId
-  client          Client?            @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  expertId        String             @db.ObjectId
-  expert          User               @relation(fields: [expertId], references: [id])
+  expertId String @db.ObjectId
+  expert   User   @relation(fields: [expertId], references: [id])
 
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("judicial_cases")
 }
@@ -1475,17 +1496,17 @@ model EngagementLetter {
   signedAt      DateTime?
   signatoryName String?
 
-  clientId      String                 @db.ObjectId
-  client        Client                 @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  missionId     String?                @db.ObjectId
-  mission       Mission?               @relation(fields: [missionId], references: [id])
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
 
-  createdById   String                 @db.ObjectId
-  createdBy     User                   @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("engagement_letters")
 }
@@ -1510,11 +1531,11 @@ model PersonalAsset {
   acquisitionDate DateTime?
   notes           String?
 
-  clientId        String            @db.ObjectId
-  client          Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("personal_assets")
 }
@@ -1531,13 +1552,13 @@ enum CorrespondenceType {
 }
 
 model WritingTemplate {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  category    String
-  content     String
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  category String
+  content  String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("writing_templates")
 }
@@ -1549,13 +1570,13 @@ model Correspondence {
   content       String
   recipientName String?
 
-  clientId      String?            @db.ObjectId
-  client        Client?            @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  createdById   String             @db.ObjectId
-  createdBy     User               @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  createdAt     DateTime           @default(now())
+  createdAt DateTime @default(now())
 
   @@map("correspondences")
 }
@@ -1571,18 +1592,18 @@ enum ProcedureStatus {
 }
 
 model Procedure {
-  id          String          @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  category    String
-  content     String
-  version     Int             @default(1)
-  status      ProcedureStatus @default(BROUILLON)
+  id       String          @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  category String
+  content  String
+  version  Int             @default(1)
+  status   ProcedureStatus @default(BROUILLON)
 
-  createdById String          @db.ObjectId
-  createdBy   User            @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("procedures")
 }
@@ -1598,17 +1619,17 @@ model ResourceAllocation {
   durationHours Float
   capacityHours Float    @default(8)
 
-  userId        String   @db.ObjectId
-  user          User     @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
 
-  taskId        String?  @db.ObjectId
-  task          Task?    @relation(fields: [taskId], references: [id])
+  taskId String? @db.ObjectId
+  task   Task?   @relation(fields: [taskId], references: [id])
 
-  missionId     String?  @db.ObjectId
-  mission       Mission? @relation(fields: [missionId], references: [id])
+  missionId String?  @db.ObjectId
+  mission   Mission? @relation(fields: [missionId], references: [id])
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("resource_allocations")
 }
@@ -1623,50 +1644,50 @@ enum ApiKeyStatus {
 }
 
 model ApiKey {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  label       String
-  keyPrefix   String
-  hashedKey   String       @unique
-  scopes      String[]
-  status      ApiKeyStatus @default(ACTIVE)
-  lastUsedAt  DateTime?
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  label      String
+  keyPrefix  String
+  hashedKey  String       @unique
+  scopes     String[]
+  status     ApiKeyStatus @default(ACTIVE)
+  lastUsedAt DateTime?
 
-  createdById String       @db.ObjectId
-  createdBy   User         @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
   requestLogs ApiRequestLog[]
 
-  createdAt   DateTime     @default(now())
-  revokedAt   DateTime?
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
 
   @@map("api_keys")
 }
 
 model Webhook {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  url         String
-  event       String
-  isActive    Boolean  @default(true)
-  secret      String
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  url      String
+  event    String
+  isActive Boolean @default(true)
+  secret   String
 
-  createdById String   @db.ObjectId
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@map("webhooks")
 }
 
 model ApiRequestLog {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  endpoint    String
-  method      String
-  statusCode  Int
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  endpoint   String
+  method     String
+  statusCode Int
 
-  apiKeyId    String?  @db.ObjectId
-  apiKey      ApiKey?  @relation(fields: [apiKeyId], references: [id])
+  apiKeyId String? @db.ObjectId
+  apiKey   ApiKey? @relation(fields: [apiKeyId], references: [id])
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@map("api_request_logs")
 }
@@ -1688,53 +1709,53 @@ enum WorkspaceStatus {
 }
 
 model Workspace {
-  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  type        WorkspaceType       @default(AUTRE)
-  status      WorkspaceStatus     @default(ACTIF)
+  type        WorkspaceType   @default(AUTRE)
+  status      WorkspaceStatus @default(ACTIF)
   description String?
 
-  clientId    String?             @db.ObjectId
-  client      Client?             @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  members     WorkspaceMember[]
-  activities  WorkspaceActivity[]
+  members    WorkspaceMember[]
+  activities WorkspaceActivity[]
 
-  createdById String              @db.ObjectId
-  createdBy   User                @relation("WorkspaceCreator", fields: [createdById], references: [id])
+  createdById String @db.ObjectId
+  createdBy   User   @relation("WorkspaceCreator", fields: [createdById], references: [id])
 
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("workspaces")
 }
 
 model WorkspaceMember {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   workspaceId String    @db.ObjectId
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  userId      String    @db.ObjectId
-  user        User      @relation("WorkspaceMemberships", fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation("WorkspaceMemberships", fields: [userId], references: [id])
 
-  role        String    @default("membre")
-  joinedAt    DateTime  @default(now())
+  role     String   @default("membre")
+  joinedAt DateTime @default(now())
 
   @@map("workspace_members")
 }
 
 model WorkspaceActivity {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   workspaceId String    @db.ObjectId
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-  userId      String    @db.ObjectId
-  user        User      @relation("WorkspaceActivityAuthor", fields: [userId], references: [id])
+  userId String @db.ObjectId
+  user   User   @relation("WorkspaceActivityAuthor", fields: [userId], references: [id])
 
-  action      String
-  createdAt   DateTime  @default(now())
+  action    String
+  createdAt DateTime @default(now())
 
   @@map("workspace_activities")
 }
@@ -1758,22 +1779,22 @@ enum FraudAlertStatus {
 }
 
 model FraudAlert {
-  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   description   String
-  severity      FraudAlertSeverity  @default(MOYENNE)
-  status        FraudAlertStatus    @default(NOUVELLE)
+  severity      FraudAlertSeverity @default(MOYENNE)
+  status        FraudAlertStatus   @default(NOUVELLE)
   amount        Float?
   ruleTriggered String
 
-  clientId      String?             @db.ObjectId
-  client        Client?             @relation(fields: [clientId], references: [id])
+  clientId String? @db.ObjectId
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  transactionId String?             @db.ObjectId
-  transaction   BankTransaction?    @relation(fields: [transactionId], references: [id])
+  transactionId String?          @db.ObjectId
+  transaction   BankTransaction? @relation(fields: [transactionId], references: [id])
 
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("fraud_alerts")
 }
@@ -1802,11 +1823,11 @@ model FiscalRisk {
   status          FiscalRiskStatus @default(IDENTIFIE)
   potentialImpact Float?
 
-  clientId        String           @db.ObjectId
-  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("fiscal_risks")
 }
@@ -1816,35 +1837,35 @@ model FiscalRisk {
 // ============================================
 
 model ForumPost {
-  id          String          @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  content     String
-  topic       String
-  tags        String[]
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  content String
+  topic   String
+  tags    String[]
 
-  authorId    String          @db.ObjectId
-  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  comments    ForumComment[]
-  likedByIds  String[]        @db.ObjectId
+  comments   ForumComment[]
+  likedByIds String[]       @db.ObjectId
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("forum_posts")
 }
 
 model ForumComment {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  content     String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String
 
-  postId      String    @db.ObjectId
-  post        ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String    @db.ObjectId
+  post   ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  authorId    String    @db.ObjectId
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String @db.ObjectId
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@map("forum_comments")
 }

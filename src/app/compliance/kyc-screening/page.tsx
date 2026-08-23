@@ -1,209 +1,267 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-    ShieldCheck,
-    Search,
     AlertTriangle,
-    FileText,
     CheckCircle2,
-    XCircle,
     Globe,
+    Search,
+    ShieldCheck,
     UserCheck,
-    Lock,
-    Eye,
-    RefreshCw,
-    Download
+    XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const KYC_CASES = [
-    {
-        id: "1",
-        entity: "Société Ivoirienne de Banque",
-        type: "Personne Morale",
-        riskLevel: "Low",
-        score: 95,
-        status: "Compliant",
-        lastCheck: "27/01/2026",
-        flags: 0
+// ─────────────────────────────────────────────────────────────────────────────
+// Surveillance KYC.
+//
+// Cette page attribuait à des entités nommées un score KYC sur 100, un niveau
+// de risque et un statut « Compliant » / « Review Required » / « Blocked »,
+// affichés en jauge circulaire — le tout inscrit dans le code, sans qu'aucune
+// vérification n'ait eu lieu. Elle prétendait aussi se mettre à jour « en
+// temps réel via Kanta API », un service qui n'est intégré nulle part.
+//
+// Comme /compliance/id-verify et /compliance/financial-crime, corrigés dans le
+// même lot : aucun prestataire de criblage n'est connecté à cette application.
+// Elle ne peut donc produire ni score, ni statut de conformité automatique.
+// Ce qu'elle affiche est le registre réel — identifiants OHADA et statut KYC
+// saisi par le cabinet — et non un verdict calculé.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type EntreeRegistre = {
+    id: string;
+    name: string;
+    country: string;
+    hasIdentifiers: boolean;
+    lastUpdate: string;
+    status: string;
+};
+
+type Kpis = {
+    total: number;
+    validCount: number;
+    invalidCount: number;
+    pendingCount: number;
+    coveragePct: number | null;
+};
+
+const STATUT: Record<string, { classe: string; icone: typeof CheckCircle2 }> = {
+    "Validé": {
+        classe: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+        icone: CheckCircle2,
     },
-    {
-        id: "2",
-        entity: "M. Jean KOUASSI",
-        type: "Personne Physique (Dirigeant)",
-        riskLevel: "Medium",
-        score: 65,
-        status: "Review Required",
-        lastCheck: "25/01/2026",
-        flags: 2 // PPE (Personne Politiquement Exposée) ?
+    Invalide: {
+        classe: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+        icone: XCircle,
     },
-    {
-        id: "3",
-        entity: "Global Trade Import",
-        type: "Personne Morale",
-        riskLevel: "High",
-        score: 30,
-        status: "Blocked",
-        lastCheck: "20/01/2026",
-        flags: 4 // Sanctions List match ?
-    }
-];
+    "Non renseigné": {
+        classe: "bg-slate-800 text-slate-400 border-white/10",
+        icone: AlertTriangle,
+    },
+};
 
 export default function KycScreeningPage() {
+    const [recherche, setRecherche] = useState("");
+    const [registre, setRegistre] = useState<EntreeRegistre[]>([]);
+    const [kpis, setKpis] = useState<Kpis | null>(null);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/compliance/kyc");
+            if (!res.ok) throw new Error(`Réponse ${res.status}`);
+            const data = await res.json();
+            setRegistre(data.registry ?? []);
+            setKpis(data.kpis ?? null);
+        } catch (e) {
+            console.error("Chargement du registre KYC :", e);
+            setErreur("Impossible de charger le registre des clients.");
+            setRegistre([]);
+            setKpis(null);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        charger();
+    }, [charger]);
+
+    const normaliser = (t: string) =>
+        t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+    const terme = normaliser(recherche.trim());
+
+    const resultats = terme
+        ? registre.filter(
+              (e) => normaliser(e.name).includes(terme) || normaliser(e.country).includes(terme)
+          )
+        : registre;
+
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
-            <DonneesDemo />
-
-
-            {/* Header Kanta Style */}
+            {/* Header */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
                     <ShieldCheck className="w-48 h-48 text-emerald-400" />
                 </div>
 
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-emerald-500/20">
-                            Conformité LCB-FT
-                        </div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
-                            <UserCheck className="w-10 h-10 text-emerald-500" />
-                            Screening KYC & Risques
-                        </h1>
-                        <p className="text-slate-400 mt-3 text-lg max-w-2xl leading-relaxed">
-                            Contrôle automatisé des bénéficiaires effectifs, listes de sanctions et PPE.
-                            Mise à jour en temps réel via <span className="text-emerald-400 font-bold">Kanta API</span>.
-                        </p>
+                <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-emerald-500/20">
+                        Conformité LCB-FT
                     </div>
-                    <div className="flex gap-4">
-                        <button className="px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-emerald-600/25 flex items-center gap-3 active:scale-95">
-                            <Search className="w-4 h-4" /> Nouveau Screening
-                        </button>
-                    </div>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                        <UserCheck className="w-10 h-10 text-emerald-500" />
+                        Registre KYC
+                    </h1>
+                    <p className="text-slate-400 mt-3 text-lg max-w-2xl leading-relaxed">
+                        Identifiants OHADA enregistrés et statut de vérification saisi par le cabinet
+                        sur chaque fiche client.
+                    </p>
                 </div>
             </div>
 
-            {/* Risk Dashboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Conformité Portefeuille</p>
-                    <div className="flex items-end gap-2">
-                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">92%</h3>
-                        <span className="text-emerald-400 font-bold mb-1.5">+4%</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
-                        <div className="bg-emerald-500 h-full w-[92%]" />
-                    </div>
+            {/* Ce que la page ne fait pas, dit sans ambiguïté */}
+            <div className="glass-card p-6 rounded-3xl border border-amber-500/20 bg-amber-500/5 flex items-start gap-4">
+                <div className="bg-amber-500/10 p-3 rounded-full shrink-0">
+                    <AlertTriangle className="w-6 h-6 text-amber-400" />
                 </div>
-
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Dossiers à Risque</p>
-                    <div className="flex items-end gap-2">
-                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-rose-500">3</h3>
-                        <span className="text-slate-500 text-xs font-bold mb-1.5 font-mono">CRITICAL</span>
-                    </div>
-                </div>
-
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 lg:col-span-2 flex items-center justify-between">
-                    <div>
-                        <h4 className="text-lg font-bold text-white mb-1">Listes de sanctions</h4>
-                        <p className="text-xs text-amber-300 max-w-md">
-                            Aucune synchronisation avec les listes ONU, UE ou OFAC : ce dispositif
-                            n&apos;est pas connecte. Le criblage doit etre effectue sur les registres
-                            officiels et son resultat consigne au dossier.
-                        </p>
-                    </div>
-                    <div className="bg-slate-800 p-3 rounded-full">
-                        <RefreshCw className="w-6 h-6 text-slate-400" />
-                    </div>
+                <div>
+                    <h4 className="text-sm font-bold text-white mb-1">
+                        Aucun criblage automatique n&apos;est effectué
+                    </h4>
+                    <p className="text-xs text-amber-200/80 max-w-2xl leading-relaxed">
+                        Aucune synchronisation avec les listes de sanctions ONU, UE ou OFAC, ni avec un
+                        registre de personnes politiquement exposées : ce dispositif n&apos;est pas
+                        connecté à l&apos;application. Le criblage doit être conduit sur les registres
+                        officiels et son résultat consigné au dossier permanent du client.
+                    </p>
                 </div>
             </div>
 
-            {/* Active Monitoring List */}
+            {/* Indicateurs, issus du registre réel */}
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+                {[
+                    { label: "Clients actifs", valeur: kpis?.total ?? 0, icone: Globe },
+                    { label: "Statut validé", valeur: kpis?.validCount ?? 0, icone: CheckCircle2 },
+                    { label: "Statut invalide", valeur: kpis?.invalidCount ?? 0, icone: XCircle },
+                    { label: "Non renseigné", valeur: kpis?.pendingCount ?? 0, icone: AlertTriangle },
+                ].map((k) => (
+                    <div
+                        key={k.label}
+                        className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40"
+                    >
+                        <k.icone className="w-5 h-5 mb-3 text-slate-500" />
+                        <h3 className="text-2xl sm:text-3xl font-black text-white tabular-nums">
+                            {k.valeur}
+                        </h3>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
+                            {k.label}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Registre */}
             <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden">
-                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/60">
+                <div className="p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-900/60">
                     <h3 className="text-xl font-bold text-white flex items-center gap-3">
                         <Globe className="w-5 h-5 text-indigo-400" />
-                        Surveillance Active
+                        Portefeuille ({resultats.length})
                     </h3>
-                    <div className="flex gap-3">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input type="text" placeholder="Rechercher une entité..." className="bg-slate-950 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-indigo-500" />
-                        </div>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                            type="search"
+                            value={recherche}
+                            onChange={(e) => setRecherche(e.target.value)}
+                            placeholder="Rechercher une entité…"
+                            className="bg-slate-950 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-indigo-500"
+                        />
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-950/50">
-                            <tr>
-                                <th className="px-8 py-5">Entité / Personne</th>
-                                <th className="px-6 py-5">Niveau de Risque</th>
-                                <th className="px-6 py-5">KYC Score</th>
-                                <th className="px-6 py-5">Statut</th>
-                                <th className="px-6 py-5">Dernier Scan</th>
-                                <th className="px-8 py-5 text-right">Rapport</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {KYC_CASES.map((kyc) => (
-                                <tr key={kyc.id} className="hover:bg-white/[0.02] transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <div className="font-bold text-white">{kyc.entity}</div>
-                                        <div className="text-xs text-slate-500">{kyc.type}</div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2">
-                                            <div className={cn("w-2 h-2 rounded-full",
-                                                kyc.riskLevel === "Low" ? "bg-emerald-500" :
-                                                    kyc.riskLevel === "Medium" ? "bg-amber-500" : "bg-rose-500"
-                                            )} />
-                                            <span className={cn("text-xs font-bold",
-                                                kyc.riskLevel === "Low" ? "text-emerald-400" :
-                                                    kyc.riskLevel === "Medium" ? "text-amber-400" : "text-rose-400"
-                                            )}>{kyc.riskLevel}</span>
-                                        </div>
-                                        {kyc.flags > 0 && (
-                                            <div className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 bg-rose-500/10 text-rose-400 rounded text-[9px] font-black uppercase">
-                                                <AlertTriangle className="w-3 h-3" /> {kyc.flags} Alertes
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="w-16 h-16 relative flex items-center justify-center">
-                                            <svg className="w-full h-full -rotate-90">
-                                                <circle cx="32" cy="32" r="28" fill="transparent" stroke="#1e293b" strokeWidth="4" />
-                                                <circle cx="32" cy="32" r="28" fill="transparent" stroke={kyc.score > 80 ? "#10b981" : kyc.score > 50 ? "#f59e0b" : "#f43f5e"} strokeWidth="4" strokeDasharray={175} strokeDashoffset={175 * (1 - kyc.score / 100)} />
-                                            </svg>
-                                            <span className="absolute text-xs font-bold text-white">{kyc.score}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className={cn(
-                                            "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
-                                            kyc.status === "Compliant" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                kyc.status === "Review Required" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                                                    "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                                        )}>
-                                            {kyc.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5 text-sm font-mono text-slate-400">{kyc.lastCheck}</td>
-                                    <td className="px-8 py-5 text-right">
-                                        <button className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
-                                            <Download className="w-5 h-5" />
-                                        </button>
-                                    </td>
+                {erreur && <p className="p-8 text-sm text-rose-400">{erreur}</p>}
+
+                {!erreur && (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-950/50">
+                                <tr>
+                                    <th className="px-8 py-5">Entité</th>
+                                    <th className="px-6 py-5">Pays</th>
+                                    <th className="px-6 py-5">Identifiants OHADA</th>
+                                    <th className="px-6 py-5">Statut KYC</th>
+                                    <th className="px-8 py-5">Dernière mise à jour</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {chargement ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-8 py-10 text-center text-sm text-slate-500">
+                                            Chargement…
+                                        </td>
+                                    </tr>
+                                ) : resultats.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-8 py-10 text-center text-sm text-slate-500">
+                                            {terme ? "Aucun client ne correspond." : "Aucun client actif enregistré."}
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    resultats.map((e) => {
+                                        const statut = STATUT[e.status] ?? STATUT["Non renseigné"];
+                                        const Icone = statut.icone;
+
+                                        return (
+                                            <tr key={e.id} className="hover:bg-white/[0.02] transition-colors">
+                                                <td className="px-8 py-5">
+                                                    <div className="font-bold text-white">{e.name}</div>
+                                                </td>
+                                                <td className="px-6 py-5 text-sm font-mono text-slate-400">
+                                                    {e.country}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    {e.hasIdentifiers ? (
+                                                        <span className="text-xs font-bold text-emerald-400">
+                                                            Renseignés
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-amber-400">
+                                                            Manquants
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span
+                                                        className={cn(
+                                                            "inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
+                                                            statut.classe
+                                                        )}
+                                                    >
+                                                        <Icone className="w-3 h-3" />
+                                                        {e.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-5 text-sm font-mono text-slate-400">
+                                                    {e.lastUpdate}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
+            <p className="text-xs text-slate-500">
+                Le statut KYC est saisi manuellement sur la fiche client. Il reflète le jugement du
+                collaborateur qui l&apos;a renseigné, et non une vérification automatique.
+            </p>
         </div>
     );
 }

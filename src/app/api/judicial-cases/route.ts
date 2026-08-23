@@ -12,9 +12,11 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
+        const category = searchParams.get("category");
 
         const where: Record<string, unknown> = {};
         if (status) where.status = status;
+        if (category) where.category = category;
 
         const cases = await prisma.judicialCase.findMany({
             where,
@@ -40,7 +42,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { caseNumber, court, judge, parties, natureOfDispute, deadline, clientId, notes } = body;
+        const { caseNumber, court, judge, parties, natureOfDispute, category, deadline, clientId, notes } = body;
 
         if (!caseNumber || !court || !parties) {
             return NextResponse.json({ error: "Champs requis manquants (numéro, tribunal, parties)" }, { status: 400 });
@@ -53,6 +55,7 @@ export async function POST(request: NextRequest) {
                 judge: judge || null,
                 parties,
                 natureOfDispute: natureOfDispute || null,
+                category: category || null,
                 deadline: deadline ? new Date(deadline) : null,
                 notes: notes || null,
                 clientId: clientId || null,
