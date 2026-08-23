@@ -1,72 +1,115 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    MessageSquare,
-    Search,
-    Filter,
-    MoreHorizontal,
+    AlertCircle,
     CheckCircle2,
     Clock,
-    AlertCircle,
-    Send,
     FileQuestion,
+    MessageSquare,
     Paperclip,
-    Mail,
-    Phone,
-    ArrowUpRight
+    Plus,
+    Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const REQUESTS = [
-    {
-        id: "REQ-001",
-        client: "Société Ivoirienne de Banque",
-        type: "Justificatif Manquant",
-        details: "Transaction -50 000 FCFA (10/06/2024)",
-        status: "pending",
-        date: "Il y a 2h",
-        priority: "high"
-    },
-    {
-        id: "REQ-002",
-        client: "Global Tech Solutions",
-        type: "Signature Requise",
-        details: "PV d'Assemblée Générale Ordinaire",
-        status: "sent",
-        date: "Il y a 1j",
-        priority: "medium"
-    },
-    {
-        id: "REQ-003",
-        client: "Pharmacie du Plateau",
-        type: "Information Manquante",
-        details: "Matricule Nouveaux Employés",
-        status: "replied",
-        date: "Il y a 2j",
-        priority: "low"
-    },
-    {
-        id: "REQ-004",
-        client: "Boulangerie Moderne",
-        type: "Justificatif Manquant",
-        details: "Facture Orange (Internet)",
-        status: "completed",
-        date: "Il y a 3j",
-        priority: "low"
-    }
-];
+// ─────────────────────────────────────────────────────────────────────────────
+// Centre de requêtes client.
+//
+// Cette page nommait une institution réelle (« Société Ivoirienne de
+// Banque ») comme ayant une demande de justificatif en attente, à côté de
+// clients fictifs, avec des compteurs précis (« 12 en attente, 128 traitées,
+// 3 urgentes ») sans rapport avec les quatre lignes affichées. Les boutons
+// Email / WhatsApp / Nouvelle requête n'avaient aucun effet.
+//
+// Aucun modèle ne suit aujourd'hui les demandes de pièces adressées aux
+// clients : plutôt que d'inventer des statuts, cette page devient une liste
+// de suivi qui démarre vide et se remplit avec les demandes réellement
+// envoyées. Les compteurs sont calculés sur cette liste, jamais fixés à
+// l'avance.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type TypeRequete = "Justificatif manquant" | "Signature requise" | "Information manquante";
+type Priorite = "Haute" | "Moyenne" | "Basse";
+type Statut = "À envoyer" | "Envoyée" | "Réponse reçue" | "Traitée";
+
+type Requete = {
+    id: string;
+    client: string;
+    type: TypeRequete;
+    details: string;
+    priorite: Priorite;
+    statut: Statut;
+};
+
+const TYPES: TypeRequete[] = ["Justificatif manquant", "Signature requise", "Information manquante"];
+const PRIORITES: Priorite[] = ["Haute", "Moyenne", "Basse"];
+const STATUTS: Statut[] = ["À envoyer", "Envoyée", "Réponse reçue", "Traitée"];
+
+const ICONE_TYPE: Record<TypeRequete, typeof FileQuestion> = {
+    "Justificatif manquant": FileQuestion,
+    "Signature requise": Paperclip,
+    "Information manquante": AlertCircle,
+};
+
+const STYLE_STATUT: Record<Statut, string> = {
+    "À envoyer": "bg-amber-500/5 border-amber-500/20 text-amber-400",
+    "Envoyée": "bg-indigo-500/5 border-indigo-500/20 text-indigo-400",
+    "Réponse reçue": "bg-cyan-500/5 border-cyan-500/20 text-cyan-400",
+    "Traitée": "bg-emerald-500/5 border-emerald-500/20 text-emerald-400",
+};
 
 export default function CollaborationRequestsPage() {
-    const [filter, setFilter] = useState("all");
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [requetes, setRequetes] = useState<Requete[]>([]);
+    const [filtre, setFiltre] = useState<Statut | "all">("all");
+    const [formOuvert, setFormOuvert] = useState(false);
+    const [nouvelle, setNouvelle] = useState({ client: "", type: TYPES[0], details: "", priorite: "Moyenne" as Priorite });
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/clients?limit=200&isActive=true");
+                if (!res.ok) return;
+                const data = await res.json();
+                setClients(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                );
+            } catch (e) {
+                console.error("Chargement du portefeuille :", e);
+            }
+        })();
+    }, []);
+
+    const ajouter = () => {
+        if (!nouvelle.client || !nouvelle.details.trim()) return;
+        setRequetes((prev) => [...prev, { id: crypto.randomUUID(), ...nouvelle, statut: "À envoyer" }]);
+        setNouvelle({ client: "", type: TYPES[0], details: "", priorite: "Moyenne" });
+        setFormOuvert(false);
+    };
+
+    const changerStatut = (id: string, statut: Statut) => {
+        setRequetes((prev) => prev.map((r) => (r.id === id ? { ...r, statut } : r)));
+    };
+
+    const supprimer = (id: string) => {
+        setRequetes((prev) => prev.filter((r) => r.id !== id));
+    };
+
+    const visibles = filtre === "all" ? requetes : requetes.filter((r) => r.statut === filtre);
+
+    const metrics = [
+        { label: "À envoyer", value: requetes.filter((r) => r.statut === "À envoyer").length, color: "text-amber-400", bg: "bg-amber-500/10", icon: Clock },
+        { label: "Réponse reçue", value: requetes.filter((r) => r.statut === "Réponse reçue").length, color: "text-indigo-400", bg: "bg-indigo-500/10", icon: MessageSquare },
+        { label: "Traitées", value: requetes.filter((r) => r.statut === "Traitée").length, color: "text-emerald-400", bg: "bg-emerald-500/10", icon: CheckCircle2 },
+        { label: "Priorité haute", value: requetes.filter((r) => r.priorite === "Haute").length, color: "text-rose-400", bg: "bg-rose-500/10", icon: AlertCircle },
+    ];
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8">
-            <DonneesDemo />
-
-
-            {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-8 border-b border-white/5">
                 <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
@@ -77,143 +120,138 @@ export default function CollaborationRequestsPage() {
                         Centre de Requêtes
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl">
-                        Gérez les demandes de justificatifs, signatures et informations manquantes.
-                        Relancez vos clients en un clic par Email ou WhatsApp.
+                        Suivi manuel des demandes de justificatifs, signatures et informations
+                        manquantes.
                     </p>
                 </div>
-                <div className="flex gap-3">
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2">
-                        <Send className="w-4 h-4" /> Nouvelle Requête
-                    </button>
-                </div>
+                <button
+                    onClick={() => setFormOuvert((v) => !v)}
+                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2"
+                >
+                    <Plus className="w-4 h-4" /> Nouvelle Requête
+                </button>
             </div>
 
-            {/* Metrics */}
+            {formOuvert && (
+                <div className="bg-slate-900/60 border border-indigo-500/20 rounded-3xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <select value={nouvelle.client} onChange={(e) => setNouvelle((f) => ({ ...f, client: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                        <option value="">Sélectionner un client *</option>
+                        {clients.map((c) => <option key={c.id} value={c.nom}>{c.nom}</option>)}
+                    </select>
+                    <select value={nouvelle.type} onChange={(e) => setNouvelle((f) => ({ ...f, type: e.target.value as TypeRequete }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                        {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <input
+                        value={nouvelle.details}
+                        onChange={(e) => setNouvelle((f) => ({ ...f, details: e.target.value }))}
+                        placeholder="Détail de la demande *"
+                        className="sm:col-span-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                    />
+                    <select value={nouvelle.priorite} onChange={(e) => setNouvelle((f) => ({ ...f, priorite: e.target.value as Priorite }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                        {PRIORITES.map((p) => <option key={p} value={p}>Priorité : {p}</option>)}
+                    </select>
+                    <div className="flex justify-end gap-3">
+                        <button onClick={() => setFormOuvert(false)} className="px-4 py-2 text-xs font-bold text-slate-400">Annuler</button>
+                        <button onClick={ajouter} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase">Créer</button>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[
-                    { label: "En attente client", value: "12", color: "text-amber-400", bg: "bg-amber-500/10", icon: Clock },
-                    { label: "Répondues", value: "5", color: "text-indigo-400", bg: "bg-indigo-500/10", icon: MessageSquare },
-                    { label: "Traitées", value: "128", color: "text-emerald-400", bg: "bg-emerald-500/10", icon: CheckCircle2 },
-                    { label: "Urgent", value: "3", color: "text-rose-400", bg: "bg-rose-500/10", icon: AlertCircle },
-                ].map((metric, i) => (
-                    <div key={i} className="glass-card p-6 rounded-2xl border border-white/5 bg-slate-900/40 flex items-center gap-4">
-                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", metric.bg)}>
-                            <metric.icon className={cn("w-6 h-6", metric.color)} />
+                {metrics.map((m) => (
+                    <div key={m.label} className="glass-card p-6 rounded-2xl border border-white/5 bg-slate-900/40 flex items-center gap-4">
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", m.bg)}>
+                            <m.icon className={cn("w-6 h-6", m.color)} />
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-white">{metric.value}</p>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{metric.label}</p>
+                            <p className="text-2xl font-black text-white">{m.value}</p>
+                            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{m.label}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-900/30 p-2 rounded-xl border border-white/5">
-                <div className="flex gap-2">
-                    {["all", "pending", "replied", "completed"].map((f) => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={cn(
-                                "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
-                                filter === f ? "bg-slate-800 text-white shadow-md" : "text-slate-500 hover:text-slate-300"
-                            )}
-                        >
-                            {f === "all" ? "Toutes" : f === "pending" ? "En attente" : f === "replied" ? "Répondues" : "Terminées"}
-                        </button>
-                    ))}
-                </div>
-                <div className="relative w-full md:w-64">
-                    <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                        type="text"
-                        placeholder="Rechercher un dossier..."
-                        className="w-full bg-slate-950 border-none rounded-lg pl-10 py-2 text-sm text-white placeholder:text-slate-600 focus:ring-0"
-                    />
-                </div>
+            <div className="flex gap-2 bg-slate-900/30 p-2 rounded-xl border border-white/5 w-fit">
+                {(["all", ...STATUTS] as const).map((f) => (
+                    <button
+                        key={f}
+                        onClick={() => setFiltre(f)}
+                        className={cn(
+                            "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
+                            filtre === f ? "bg-slate-800 text-white shadow-md" : "text-slate-500 hover:text-slate-300"
+                        )}
+                    >
+                        {f === "all" ? "Toutes" : f}
+                    </button>
+                ))}
             </div>
 
-            {/* Request List */}
             <div className="glass-card rounded-3xl border border-white/5 bg-slate-900/40 overflow-hidden">
-                <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-950/50 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">
-                        <tr>
-                            <th className="p-6">Client</th>
-                            <th className="p-6">Type de Requête</th>
-                            <th className="p-6">Priorité</th>
-                            <th className="p-6">Statut</th>
-                            <th className="p-6 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {REQUESTS.map((req) => (
-                            <tr key={req.id} className="group hover:bg-white/[0.02] transition-colors">
-                                <td className="p-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-xs">
-                                            {req.client.substring(0, 2).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-white group-hover:text-indigo-400 transition-colors">{req.client}</p>
-                                            <p className="text-xs text-slate-500">{req.date}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="p-6">
-                                    <div className="flex items-start gap-3">
-                                        <div className="mt-1">
-                                            {req.type === "Justificatif Manquant" ? <FileQuestion className="w-4 h-4 text-amber-500" /> :
-                                                req.type === "Signature Requise" ? <Paperclip className="w-4 h-4 text-indigo-500" /> :
-                                                    <AlertCircle className="w-4 h-4 text-slate-500" />}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-200">{req.type}</p>
-                                            <p className="text-xs text-slate-500 mt-1">{req.details}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="p-6">
-                                    <span className={cn(
-                                        "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest",
-                                        req.priority === "high" ? "bg-rose-500/10 text-rose-400" :
-                                            req.priority === "medium" ? "bg-amber-500/10 text-amber-400" :
-                                                "bg-slate-500/10 text-slate-400"
-                                    )}>
-                                        {req.priority === "high" ? "Haute" : req.priority === "medium" ? "Moyenne" : "Basse"}
-                                    </span>
-                                </td>
-                                <td className="p-6">
-                                    <span className={cn(
-                                        "px-3 py-1.5 rounded-full text-xs font-bold border",
-                                        req.status === "pending" ? "bg-amber-500/5 border-amber-500/20 text-amber-400" :
-                                            req.status === "sent" ? "bg-indigo-500/5 border-indigo-500/20 text-indigo-400" :
-                                                req.status === "replied" ? "bg-cyan-500/5 border-cyan-500/20 text-cyan-400" :
-                                                    "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
-                                    )}>
-                                        {req.status === "pending" ? "À Envoyer" :
-                                            req.status === "sent" ? "Envoyé" :
-                                                req.status === "replied" ? "Réponse Reçue" : "Traité"}
-                                    </span>
-                                </td>
-                                <td className="p-6 text-right">
-                                    <div className="flex justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                                        <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white" title="Envoyer Email">
-                                            <Mail className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2 bg-emerald-900/30 hover:bg-emerald-800/50 text-emerald-400 rounded-lg" title="Relancer WhatsApp">
-                                            <Phone className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2 border border-white/10 hover:bg-white/5 rounded-lg text-slate-400" title="Voir Détails">
-                                            <ArrowUpRight className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table></div>
+                {visibles.length === 0 ? (
+                    <p className="p-8 text-sm text-slate-500">Aucune requête enregistrée.</p>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-950/50 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th className="p-6">Client</th>
+                                    <th className="p-6">Type</th>
+                                    <th className="p-6">Priorité</th>
+                                    <th className="p-6">Statut</th>
+                                    <th className="p-6 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {visibles.map((req) => {
+                                    const Icone = ICONE_TYPE[req.type];
+                                    return (
+                                        <tr key={req.id} className="group hover:bg-white/[0.02] transition-colors">
+                                            <td className="p-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 text-xs">
+                                                        {req.client.substring(0, 2).toUpperCase()}
+                                                    </div>
+                                                    <p className="font-bold text-white">{req.client}</p>
+                                                </div>
+                                            </td>
+                                            <td className="p-6">
+                                                <div className="flex items-start gap-3">
+                                                    <Icone className="w-4 h-4 text-amber-500 mt-1" />
+                                                    <div>
+                                                        <p className="font-bold text-slate-200">{req.type}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{req.details}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-6">
+                                                <span className={cn(
+                                                    "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest",
+                                                    req.priorite === "Haute" ? "bg-rose-500/10 text-rose-400" : req.priorite === "Moyenne" ? "bg-amber-500/10 text-amber-400" : "bg-slate-500/10 text-slate-400"
+                                                )}>
+                                                    {req.priorite}
+                                                </span>
+                                            </td>
+                                            <td className="p-6">
+                                                <select
+                                                    value={req.statut}
+                                                    onChange={(e) => changerStatut(req.id, e.target.value as Statut)}
+                                                    className={cn("px-3 py-1.5 rounded-full text-xs font-bold border bg-transparent", STYLE_STATUT[req.statut])}
+                                                >
+                                                    {STATUTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                                                </select>
+                                            </td>
+                                            <td className="p-6 text-right">
+                                                <button onClick={() => supprimer(req.id)} className="p-2 text-slate-500 hover:text-rose-400">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

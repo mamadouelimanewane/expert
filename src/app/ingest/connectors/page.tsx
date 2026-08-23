@@ -1,186 +1,285 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link2, UploadCloud, FileSpreadsheet, CheckCircle2, ArrowRight, Settings, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, CheckCircle2, FileSpreadsheet, Link2, Loader2, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { parseWaveCSV } from "@/lib/connectors/wave-connector";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const CONNECTORS = [
-  { id: "wave", name: "Wave Accounting", color: "emerald", desc: "Logiciel cloud TPE", badge: "Populaire" },
-  { id: "sage", name: "Sage 100", color: "blue", desc: "Fichier d'écritures .PNM / .TXT", badge: "Standard" },
-  { id: "quickbooks", name: "QuickBooks", color: "green", desc: "Export FEC comptable", badge: "Nouveau" },
-  { id: "csv", name: "CSV Générique", color: "slate", desc: "Format universel paramétrable", badge: "" }
+// ─────────────────────────────────────────────────────────────────────────────
+// Connecteurs & imports.
+//
+// Cette page simulait un import : la zone de dépôt ne lisait aucun fichier,
+// et après un délai artificiel affichait toujours les cinq mêmes lignes
+// fictives, annonçant « 342 écritures détectées, 100 % mappé automatiquement »
+// et un bouton « Valider & Intégrer au Grand Livre » qui n'écrivait rien.
+//
+// Seuls les formats CSV (Wave, CSV générique) disposent d'un analyseur réel
+// (parseWaveCSV). Sage 100 (.PNM propriétaire) et QuickBooks (FEC) n'en ont
+// pas : plutôt que de prétendre les supporter, ils sont désactivés. Le
+// fichier déposé est réellement lu, chaque ligne passe par le même moteur
+// d'imputation que le canal WhatsApp (règles, apprentissage, sinon compte
+// d'attente), et le résultat affiché est celui que l'import a réellement
+// produit — jamais un taux de succès annoncé à l'avance.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Connecteur = {
+    id: string;
+    name: string;
+    color: string;
+    desc: string;
+    badge: string;
+    disponible: boolean;
+};
+
+const CONNECTORS: Connecteur[] = [
+    { id: "wave", name: "Wave Accounting", color: "emerald", desc: "Export CSV (date, description, compte, montant)", badge: "CSV", disponible: true },
+    { id: "csv", name: "CSV Générique", color: "slate", desc: "Même format de colonnes que Wave", badge: "CSV", disponible: true },
+    { id: "sage", name: "Sage 100", color: "blue", desc: "Format .PNM propriétaire — non pris en charge", badge: "Indisponible", disponible: false },
+    { id: "quickbooks", name: "QuickBooks (FEC)", color: "amber", desc: "Export FEC — non pris en charge", badge: "Indisponible", disponible: false },
 ];
 
+type ResultatImport = { importees: number; ecritures: number; aQualifier: number; periode: string };
+
 export default function ConnectorsPage() {
-  const [activeConnector, setActiveConnector] = useState(CONNECTORS[0].id);
-  const [isUploading, setIsUploading] = useState(false);
-  const [fileImported, setFileImported] = useState(false);
-  
-  const activeConnData = CONNECTORS.find(c => c.id === activeConnector);
+    const [activeConnector, setActiveConnector] = useState(CONNECTORS[0].id);
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clientId, setClientId] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [resultat, setResultat] = useState<ResultatImport | null>(null);
+    const [erreur, setErreur] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = () => {
-    setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
-      setFileImported(true);
-    }, 1500);
-  };
+    const activeConnData = CONNECTORS.find((c) => c.id === activeConnector)!;
 
-  return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-            <DonneesDemo />
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/clients?limit=200&isActive=true");
+                if (!res.ok) return;
+                const data = await res.json();
+                setClients(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                );
+            } catch (e) {
+                console.error("Chargement du portefeuille :", e);
+            }
+        })();
+    }, []);
 
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <Link2 className="w-6 h-6 text-indigo-500" /> Connecteurs & Imports
-          </h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Ingestion automatisée des données comptables clients</p>
-        </div>
-      </div>
+    const handleFile = async (file: File) => {
+        if (!clientId) {
+            setErreur("Sélectionnez le client concerné avant d'importer.");
+            return;
+        }
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left: Connectors List */}
-        <div className="lg:col-span-4 space-y-4">
-          {CONNECTORS.map((conn) => (
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              key={conn.id}
-              onClick={() => {
-                setActiveConnector(conn.id);
-                setFileImported(false);
-              }}
-              className={cn(
-                "p-6 rounded-[32px] border transition-all cursor-pointer relative overflow-hidden group",
-                activeConnector === conn.id 
-                  ? "bg-slate-900/80 border-indigo-500/50 shadow-xl shadow-indigo-500/10" 
-                  : "bg-slate-900/40 border-white/5 hover:bg-slate-900/60"
-              )}
-            >
-              {activeConnector === conn.id && (
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] pointer-events-none"></div>
-              )}
-              
-              <div className="flex items-center gap-4 relative z-10">
-                <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl",
-                  `bg-${conn.color}-500/20 text-${conn.color}-400`
-                )}>
-                  {conn.name.charAt(0)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-1">
-                    <h3 className={cn("text-lg font-black", activeConnector === conn.id ? "text-white" : "text-slate-200")}>{conn.name}</h3>
-                    {conn.badge && (
-                      <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-400">
-                        {conn.badge}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-400">{conn.desc}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        setIsUploading(true);
+        setErreur(null);
+        setResultat(null);
+        try {
+            const contenu = await file.text();
+            const transactions = parseWaveCSV(contenu);
 
-        {/* Right: Import Area */}
-        <div className="lg:col-span-8">
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={activeConnector}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl h-full min-h-[500px] flex flex-col"
-            >
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
+            if (transactions.length === 0) {
+                throw new Error("Aucune ligne exploitable dans ce fichier (colonnes attendues : date, description, compte, montant).");
+            }
+
+            const res = await fetch("/api/ingest/import", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    clientId,
+                    transactions: transactions.map((t) => ({
+                        date: t.date,
+                        libelle: t.description,
+                        amount: t.amount,
+                        type: t.type,
+                    })),
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Réponse ${res.status}`);
+
+            setResultat(data);
+        } catch (e) {
+            console.error("Import :", e);
+            setErreur(e instanceof Error ? e.message : "Échec de l'import.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-xl font-black text-white flex items-center gap-3">
-                    Importer depuis {activeConnData?.name}
-                  </h3>
-                  <p className="text-sm text-slate-400 mt-1">Mappage automatique vers le plan comptable SYSCOHADA</p>
-                </div>
-                <button className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors">
-                  <Settings className="w-5 h-5" />
-                </button>
-              </div>
-
-              {!fileImported ? (
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  <div 
-                    className="w-full max-w-lg border-2 border-dashed border-indigo-500/30 rounded-[32px] bg-indigo-500/5 hover:bg-indigo-500/10 transition-colors flex flex-col items-center justify-center p-12 cursor-pointer group"
-                    onClick={handleUpload}
-                  >
-                    <div className="w-20 h-20 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                      {isUploading ? <Loader2 className="w-10 h-10 animate-spin" /> : <UploadCloud className="w-10 h-10" />}
-                    </div>
-                    <h4 className="text-lg font-black text-white mb-2">
-                      {isUploading ? "Analyse en cours..." : "Glissez votre fichier d'export ici"}
-                    </h4>
-                    <p className="text-slate-400 text-sm text-center">
-                      Ou cliquez pour parcourir (Formats acceptés : .CSV, .TXT, .PNM)
+                    <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                        <Link2 className="w-6 h-6 text-indigo-500" /> Connecteurs & Imports
+                    </h2>
+                    <p className="text-slate-400 text-sm font-medium mt-1">
+                        Import réel d&apos;écritures, imputées par le même moteur que le canal WhatsApp
                     </p>
-                  </div>
                 </div>
-              ) : (
-                <div className="flex-1 flex flex-col">
-                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-4 mb-6">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                    <div>
-                      <h4 className="text-sm font-bold text-emerald-400">Fichier analysé avec succès</h4>
-                      <p className="text-xs text-emerald-400/80">342 écritures détectées. 100% mappé automatiquement.</p>
+            </div>
+
+            <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-6">
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
+                    Client concerné *
+                </label>
+                <select
+                    value={clientId}
+                    onChange={(e) => {
+                        setClientId(e.target.value);
+                        setResultat(null);
+                        setErreur(null);
+                    }}
+                    className="w-full max-w-md bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                >
+                    <option value="">Sélectionner un client</option>
+                    {clients.map((c) => (
+                        <option key={c.id} value={c.id}>
+                            {c.nom}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-4 space-y-4">
+                    {CONNECTORS.map((conn) => (
+                        <button
+                            key={conn.id}
+                            disabled={!conn.disponible}
+                            onClick={() => {
+                                setActiveConnector(conn.id);
+                                setResultat(null);
+                                setErreur(null);
+                            }}
+                            className={cn(
+                                "w-full text-left p-6 rounded-[32px] border transition-all",
+                                !conn.disponible && "opacity-40 cursor-not-allowed",
+                                activeConnector === conn.id
+                                    ? "bg-slate-900/80 border-indigo-500/50 shadow-xl shadow-indigo-500/10"
+                                    : "bg-slate-900/40 border-white/5 hover:bg-slate-900/60"
+                            )}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xl", `bg-${conn.color}-500/20 text-${conn.color}-400`)}>
+                                    {conn.name.charAt(0)}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <h3 className="text-lg font-black text-slate-200">{conn.name}</h3>
+                                        <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-400">
+                                            {conn.badge}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-400">{conn.desc}</p>
+                                </div>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+
+                <div className="lg:col-span-8">
+                    <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl h-full min-h-[400px] flex flex-col">
+                        <div className="mb-8 pb-6 border-b border-white/5">
+                            <h3 className="text-xl font-black text-white">Importer depuis {activeConnData.name}</h3>
+                            <p className="text-sm text-slate-400 mt-1">
+                                Chaque ligne est imputée par le moteur comptable ; les écritures non
+                                reconnues partent en compte d&apos;attente, à qualifier avant export.
+                            </p>
+                        </div>
+
+                        {!activeConnData.disponible ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+                                <AlertCircle className="w-12 h-12 text-slate-600 mb-4" />
+                                <p className="text-slate-400 text-sm max-w-sm">
+                                    Aucun analyseur n&apos;est implémenté pour ce format. Exportez en CSV
+                                    (colonnes date, description, compte, montant) puis utilisez le
+                                    connecteur « CSV Générique ».
+                                </p>
+                            </div>
+                        ) : erreur ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center">
+                                <AlertCircle className="w-12 h-12 text-rose-400 mb-4" />
+                                <p className="text-rose-300 text-sm max-w-sm">{erreur}</p>
+                                <button
+                                    onClick={() => setErreur(null)}
+                                    className="mt-4 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold"
+                                >
+                                    Réessayer
+                                </button>
+                            </div>
+                        ) : resultat ? (
+                            <div className="flex-1 flex flex-col">
+                                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-4 mb-4">
+                                    <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                                    <div>
+                                        <h4 className="text-sm font-bold text-emerald-400">Import terminé</h4>
+                                        <p className="text-xs text-emerald-400/80">
+                                            {resultat.importees} transaction{resultat.importees > 1 ? "s" : ""} lue
+                                            {resultat.importees > 1 ? "s" : ""}, {resultat.ecritures} écriture
+                                            {resultat.ecritures > 1 ? "s" : ""} créée{resultat.ecritures > 1 ? "s" : ""} en
+                                            attente de validation.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {resultat.aQualifier > 0 && (
+                                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-200 mb-4">
+                                        {resultat.aQualifier} transaction{resultat.aQualifier > 1 ? "s n'ont" : " n'a"} pas
+                                        pu être imputée{resultat.aQualifier > 1 ? "s" : ""} automatiquement et
+                                        {resultat.aQualifier > 1 ? " sont" : " est"} en compte d&apos;attente.
+                                    </div>
+                                )}
+
+                                <a
+                                    href="/comptabilite/production"
+                                    className="mt-auto flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest"
+                                >
+                                    <FileSpreadsheet className="w-4 h-4" /> Voir la production comptable
+                                </a>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center">
+                                <div
+                                    className={cn(
+                                        "w-full max-w-lg border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center p-12 transition-colors",
+                                        clientId
+                                            ? "border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer"
+                                            : "border-white/5 bg-white/[0.02] cursor-not-allowed"
+                                    )}
+                                    onClick={() => clientId && fileInputRef.current?.click()}
+                                >
+                                    <div className="w-20 h-20 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mb-6">
+                                        {isUploading ? <Loader2 className="w-10 h-10 animate-spin" /> : <UploadCloud className="w-10 h-10" />}
+                                    </div>
+                                    <h4 className="text-lg font-black text-white mb-2">
+                                        {isUploading ? "Import en cours…" : "Cliquez pour choisir un fichier"}
+                                    </h4>
+                                    <p className="text-slate-400 text-sm text-center">
+                                        {clientId ? "Format accepté : .CSV" : "Sélectionnez un client ci-dessus au préalable"}
+                                    </p>
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".csv,text/csv"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleFile(file);
+                                        e.target.value = "";
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
-                  </div>
-
-                  <div className="flex-1 overflow-x-auto bg-slate-950/50 rounded-2xl border border-white/5 mb-6">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Source</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center"><ArrowRight className="w-4 h-4 mx-auto" /></th>
-                          <th className="px-4 py-3 text-[10px] font-black text-indigo-400 uppercase tracking-widest">Compte OHADA</th>
-                          <th className="px-4 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Montant</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5 text-sm">
-                        {[
-                          { d: "12/06", s: "Sales Revenue", o: "7011 - Ventes march.", a: "450 000" },
-                          { d: "13/06", s: "Office Supplies", o: "6054 - Fournitures bureau", a: "-25 000" },
-                          { d: "14/06", s: "Consulting Fee", o: "6224 - Honoraires", a: "-150 000" },
-                          { d: "15/06", s: "Payment Received", o: "4111 - Clients", a: "450 000" },
-                          { d: "16/06", s: "Bank Fees", o: "6311 - Frais bancaires", a: "-5 500" },
-                        ].map((row, i) => (
-                          <tr key={i} className="hover:bg-slate-800/50 transition-colors">
-                            <td className="px-4 py-3 text-slate-400">{row.d}</td>
-                            <td className="px-4 py-3 text-slate-300">{row.s}</td>
-                            <td className="px-4 py-3 text-center text-slate-600">→</td>
-                            <td className="px-4 py-3 font-mono text-indigo-400">{row.o}</td>
-                            <td className={cn("px-4 py-3 text-right font-medium", row.a.startsWith('-') ? "text-red-400" : "text-emerald-400")}>{row.a}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="flex justify-end gap-4 mt-auto">
-                    <button onClick={() => setFileImported(false)} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
-                      Annuler
-                    </button>
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg flex items-center gap-2">
-                      <FileSpreadsheet className="w-4 h-4" /> Valider & Intégrer au Grand Livre
-                    </button>
-                  </div>
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

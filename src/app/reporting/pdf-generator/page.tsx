@@ -1,188 +1,143 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { FileText, Download, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { AlertCircle, ArrowRight, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { REPORT_TEMPLATES } from "@/components/reporting/ReportTemplates";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const RECENT_REPORTS = [
-  { id: 1, name: "Rapport d'Audit - Senelec 2025.pdf", date: "05 Juil 2026", size: "2.4 MB" },
-  { id: 2, name: "Liasse Fiscale - Orange SN.pdf", date: "02 Juil 2026", size: "1.1 MB" },
-  { id: 3, name: "Rapport de Mission - BOA.pdf", date: "28 Juin 2026", size: "3.5 MB" },
-  { id: 4, name: "Bilan Annuel - Eiffage.pdf", date: "15 Juin 2026", size: "1.8 MB" },
-  { id: 5, name: "Audit Légal - Sonatel.pdf", date: "10 Juin 2026", size: "4.2 MB" },
-];
+// ─────────────────────────────────────────────────────────────────────────────
+// Générateur de rapports PDF.
+//
+// Cette page proposait un sélecteur de client limité à trois entreprises
+// réelles (Senelec SA, Sonatel, Orange SN), affichait toujours « SENELEC SA »
+// dans l'aperçu quel que soit le choix, et un bouton « Générer le PDF »
+// affirmait un succès sans qu'aucun document n'ait été produit. Une liste
+// « Rapports Récents » nommait cinq entreprises réelles avec des documents et
+// des tailles de fichier fabriqués.
+//
+// Aucune génération de PDF n'est implémentée dans l'application, pour aucun
+// type de rapport. Plutôt que de le simuler, cette page liste les modèles
+// disponibles et redirige vers l'outil réel quand il existe (la liasse
+// fiscale et le rapport de gestion sont tous deux calculés à partir de
+// données réelles ailleurs dans l'application) ; pour les modèles sans
+// générateur réel, elle le dit explicitement.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DESTINATION_REELLE: Record<string, { href: string; label: string }> = {
+    liasse: { href: "/comptabilite/liasse-fiscale", label: "Ouvrir la liasse fiscale" },
+    annuel: { href: "/comptabilite/reporting", label: "Ouvrir le rapport de gestion" },
+};
 
 export default function PdfGeneratorPage() {
-  const [selectedType, setSelectedType] = useState(REPORT_TEMPLATES[0].id);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generated, setGenerated] = useState(false);
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [selectedType, setSelectedType] = useState(REPORT_TEMPLATES[0].id);
 
-  const activeTemplate = REPORT_TEMPLATES.find(t => t.id === selectedType) || REPORT_TEMPLATES[0];
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/clients?limit=200&isActive=true");
+                if (!res.ok) return;
+                const data = await res.json();
+                setClients(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                );
+            } catch (e) {
+                console.error("Chargement du portefeuille :", e);
+            }
+        })();
+    }, []);
 
-  const handleGenerate = () => {
-    setIsGenerating(true);
-    setGenerated(false);
-    setTimeout(() => {
-      setIsGenerating(false);
-      setGenerated(true);
-    }, 2000);
-  };
+    const activeTemplate = REPORT_TEMPLATES.find((t) => t.id === selectedType) ?? REPORT_TEMPLATES[0];
+    const destination = DESTINATION_REELLE[selectedType];
 
-  return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-            <DonneesDemo />
-
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Générateur PDF Automatisé</h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Créez des rapports professionnels aux normes OHADA</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Panel: Configuration */}
-        <div className="lg:col-span-5 space-y-6">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
-            <h3 className="text-lg font-black text-white mb-6">Configuration</h3>
-            
-            <div className="space-y-5">
-              {/* Type Select */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Type de Rapport</label>
-                <div className="relative">
-                  <select 
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium text-white focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
-                  >
-                    {REPORT_TEMPLATES.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Client Select */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Client</label>
-                <div className="relative">
-                  <select className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium text-white focus:outline-none focus:border-indigo-500 transition-colors appearance-none">
-                    <option>Senelec SA</option>
-                    <option>Sonatel</option>
-                    <option>Orange SN</option>
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Période */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Période</label>
-                <input type="text" defaultValue="Exercice clos le 31/12/2025" className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium text-white focus:outline-none focus:border-indigo-500 transition-colors" />
-              </div>
-
-              {/* Sections */}
-              <div>
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">Sections à inclure</label>
-                <div className="space-y-2">
-                  {activeTemplate.sections.map(section => (
-                    <label key={section.id} className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-white/5 cursor-pointer hover:bg-slate-800/50 transition-colors">
-                      <input type="checkbox" defaultChecked={section.defaultChecked} className="w-4 h-4 rounded border-white/10 text-indigo-600 focus:ring-indigo-500 bg-slate-950" />
-                      <span className="text-sm text-slate-300">{section.title}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/30"
-              >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                {isGenerating ? "Génération en cours..." : "Générer le PDF"}
-              </button>
-
-              {generated && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-emerald-400">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-sm font-bold">Rapport généré avec succès</span>
-                  </div>
-                  <button className="p-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl transition-colors">
-                    <Download className="w-4 h-4" />
-                  </button>
-                </motion.div>
-              )}
+    return (
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div>
+                <h2 className="text-2xl font-black text-white tracking-tight">Générateur de rapports</h2>
+                <p className="text-slate-400 text-sm font-medium mt-1">
+                    {clients.length} client{clients.length > 1 ? "s" : ""} dans le portefeuille
+                </p>
             </div>
-          </motion.div>
-        </div>
 
-        {/* Right Panel: Preview & History */}
-        <div className="lg:col-span-7 space-y-6">
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl h-[500px] flex flex-col">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-black text-white">Aperçu du Document</h3>
-              <div className="px-3 py-1 bg-slate-800 rounded-full text-xs text-slate-400">Page 1 / 14</div>
-            </div>
-            
-            <div className="flex-1 bg-white rounded-xl p-8 overflow-hidden relative shadow-inner">
-              <div className="absolute top-8 left-8 right-8 bottom-8 border border-slate-200">
-                {/* Header Letterhead */}
-                <div className="border-b border-slate-200 p-6 flex justify-between items-start">
-                  <div className="w-32 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-bold">LOGO CABINET</div>
-                  <div className="text-right">
-                    <p className="text-slate-800 font-bold text-sm">GANTIC360 EXPERT</p>
-                    <p className="text-slate-500 text-xs mt-1">123 Rue des Auditeurs, Dakar</p>
-                  </div>
-                </div>
-                
-                {/* Body Preview */}
-                <div className="p-12 text-center mt-12">
-                  <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">{activeTemplate.name}</h1>
-                  <div className="w-16 h-1 bg-indigo-600 mx-auto mt-6 mb-8"></div>
-                  <p className="text-slate-600 text-lg">SENELEC SA</p>
-                  <p className="text-slate-500 text-sm mt-2">Exercice clos le 31/12/2025</p>
-                  
-                  <div className="mt-20 space-y-3 text-left max-w-md mx-auto">
-                    {activeTemplate.sections.map((sec, i) => (
-                      <div key={sec.id} className="h-4 bg-slate-100 rounded w-full flex items-center px-2">
-                        <span className="text-[8px] text-slate-300 font-bold uppercase">{sec.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-5 space-y-6">
+                    <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
+                        <h3 className="text-lg font-black text-white mb-6">Type de rapport</h3>
+                        <div className="space-y-3">
+                            {REPORT_TEMPLATES.map((t) => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => setSelectedType(t.id)}
+                                    className={cn(
+                                        "w-full text-left p-4 rounded-2xl border transition-all",
+                                        selectedType === t.id ? "bg-indigo-600/20 border-indigo-500/50" : "bg-slate-950/50 border-white/5 hover:border-white/20"
+                                    )}
+                                >
+                                    <p className="text-sm font-bold text-white">{t.name}</p>
+                                    <p className="text-xs text-slate-500 mt-1">{t.description}</p>
+                                </button>
+                            ))}
+                        </div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
-            <h3 className="text-lg font-black text-white mb-6">Rapports Récents</h3>
-            <div className="space-y-3">
-              {RECENT_REPORTS.map((report) => (
-                <div key={report.id} className="flex items-center justify-between p-4 bg-slate-800/30 border border-white/5 rounded-2xl hover:bg-slate-800/50 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-red-500/10 text-red-400 rounded-xl">
-                      <FileText className="w-5 h-5" />
+                        <div className="mt-6">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Sections du modèle</label>
+                            <div className="space-y-2">
+                                {activeTemplate.sections.map((section) => (
+                                    <div key={section.id} className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-white/5">
+                                        <span className="text-sm text-slate-300">{section.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {destination ? (
+                            <Link
+                                href={destination.href}
+                                className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/30"
+                            >
+                                {destination.label} <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        ) : (
+                            <div className="w-full mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-amber-200">
+                                    La génération PDF de ce modèle n&apos;est pas encore implémentée.
+                                </p>
+                            </div>
+                        )}
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{report.name}</p>
-                      <p className="text-xs text-slate-500 mt-1">{report.date} • {report.size}</p>
-                    </div>
-                  </div>
-                  <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-xl transition-all">
-                    <Download className="w-4 h-4" />
-                  </button>
                 </div>
-              ))}
+
+                <div className="lg:col-span-7">
+                    <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
+                        <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3">
+                            <FileText className="w-5 h-5 text-indigo-400" /> {activeTemplate.name}
+                        </h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">{activeTemplate.description}</p>
+
+                        <div className="mt-8 space-y-2">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Ce modèle inclut</p>
+                            {activeTemplate.sections.map((s) => (
+                                <div key={s.id} className="h-8 bg-slate-800/40 rounded-lg flex items-center px-4 text-xs text-slate-400">
+                                    {s.title}
+                                </div>
+                            ))}
+                        </div>
+
+                        {clients.length > 0 && (
+                            <p className="mt-8 text-xs text-slate-500">
+                                {destination
+                                    ? `Sélectionnez le client concerné depuis « ${destination.label} ».`
+                                    : "Aucun outil réel ne produit encore ce document."}
+                            </p>
+                        )}
+                    </div>
+                </div>
             </div>
-          </motion.div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }

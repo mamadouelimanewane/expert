@@ -148,7 +148,6 @@ const menuItems: MenuItem[] = [
 
     { header: "PLATEFORME & ÉCOSYSTÈME" },
     { icon: Users, label: "Portail TPE / Client", href: "/portal/tpe-client" },
-    { icon: Globe, label: "Mission Control SaaS", href: "/settings/saas-admin" },
     { icon: FileDigit, label: "Developer Hub & API", href: "/settings/api-keys" },
     // La barre laterale ne presente qu'une selection des 214 ecrans.
     // /plan les inventorie tous et les rend atteignables.

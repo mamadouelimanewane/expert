@@ -6,17 +6,20 @@ export interface WaveTransaction {
   account?: string;
 }
 
+/**
+ * Parseur CSV générique (colonnes attendues : date, description, compte,
+ * montant). Couvre les exports Wave et tout CSV respectant cet ordre ; ne gère
+ * ni le format .PNM propriétaire de Sage, ni le FEC de QuickBooks.
+ */
 export function parseWaveCSV(csvContent: string): WaveTransaction[] {
-  // Mock parser for Wave Accounting CSV exports
-  // In reality, this would use a proper CSV parser and map columns
-  
   const lines = csvContent.split('\n').filter(line => line.trim() !== '');
   if (lines.length < 2) return [];
-  
+
   const transactions: WaveTransaction[] = [];
-  
-  // Skip header
-  for (let i = 1; i < Math.min(lines.length, 100); i++) {
+
+  // Ligne d'en-tête ignorée ; 500 lignes au maximum par import (même plafond
+  // que /api/ingest/import).
+  for (let i = 1; i < Math.min(lines.length, 501); i++) {
     const line = lines[i];
     const columns = line.split(',');
     

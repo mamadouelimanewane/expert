@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import {
     FileDigit, Upload, BookOpen, BarChart2, ArrowRight,
@@ -126,6 +126,10 @@ export default function InformelPage() {
     const [journal, setJournal] = useState<JournalLine[]>([]);
     const [balance, setBalance] = useState<BalanceLine[]>([]);
     const [businessName, setBusinessName] = useState('');
+    // Client réel du portefeuille — sans lui, la sauvegarde attribuait
+    // silencieusement les écritures au premier client de la base.
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clientId, setClientId] = useState('');
     const [periode, setPeriode] = useState('JUIN-2026');
     const [imported, setImported] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -135,6 +139,24 @@ export default function InformelPage() {
     const [exporting, setExporting] = useState(false);
     const [exported, setExported] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch('/api/clients?limit=200&isActive=true');
+                if (!res.ok) return;
+                const data = await res.json();
+                setClients(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(' ') || 'Client sans nom',
+                    }))
+                );
+            } catch (e) {
+                console.error('Chargement du portefeuille :', e);
+            }
+        })();
+    }, []);
 
     const f = (val: number) => new Intl.NumberFormat('fr-FR').format(val);
 
@@ -193,14 +215,19 @@ export default function InformelPage() {
     }, []);
 
     const saveToDatabase = async () => {
+        if (!clientId) {
+            alert("Sélectionnez le client concerné avant d'enregistrer : sans cela, les écritures ne peuvent pas être rattachées au bon dossier.");
+            return;
+        }
         setSaving(true);
         try {
             const res = await fetch('/api/comptabilite/tpe-journal', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ journal, businessName, periode })
+                body: JSON.stringify({ journal, businessName, periode, clientId })
             });
             const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? 'Échec de la sauvegarde');
             setSavedCount(data.count);
         } catch {
             alert("Erreur lors de la sauvegarde.");
@@ -321,12 +348,20 @@ export default function InformelPage() {
                     {/* Métadonnées */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="glass-card p-4 rounded-2xl border border-indigo-500/20 col-span-2 md:col-span-1 flex flex-col gap-2">
-                            <p className="text-xs font-bold text-muted-foreground">Client / TPE</p>
-                            <input
+                            <p className="text-xs font-bold text-muted-foreground">Client / TPE *</p>
+                            <select
                                 className="font-bold text-sm bg-transparent focus:outline-none border-b border-border/30 pb-1"
-                                value={businessName}
-                                onChange={e => setBusinessName(e.target.value)}
-                            />
+                                value={clientId}
+                                onChange={e => {
+                                    setClientId(e.target.value);
+                                    setBusinessName(clients.find(c => c.id === e.target.value)?.nom ?? '');
+                                }}
+                            >
+                                <option value="">Sélectionner un client</option>
+                                {clients.map(c => (
+                                    <option key={c.id} value={c.id}>{c.nom}</option>
+                                ))}
+                            </select>
                         </div>
                         <div className="glass-card p-4 rounded-2xl border border-indigo-500/20 flex flex-col gap-2">
                             <p className="text-xs font-bold text-muted-foreground">Période</p>

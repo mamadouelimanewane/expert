@@ -2,20 +2,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 import { requireStaff } from "@/lib/api-auth";
-async function getDefaultClient() {
-    let client = await prisma.client.findFirst();
-    if (!client) {
-        client = await prisma.client.create({
-            data: {
-                type: 'ENTREPRISE',
-                companyName: 'TPE Client Default',
-                email: 'tpe@defaultclient.com',
-                phone: '+225 00000000',
-            }
-        });
-    }
-    return client;
-}
 
 // GET: Récupérer tous les journaux TPE sauvegardés
 export async function GET() {
@@ -41,18 +27,30 @@ export async function POST(request: Request) {
     if (denied) return denied;
 
     try {
-        const { journal, businessName, periode } = await request.json();
-        const client = await getDefaultClient();
+        const { journal, businessName, periode, clientId } = await request.json();
 
         if (!journal || !Array.isArray(journal)) {
             return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+        }
+
+        // `clientId` est obligatoire : sans lui, les écritures étaient
+        // silencieusement attribuées au premier client de la base (voire à un
+        // client factice créé à la volée), quel que soit le TPE réellement
+        // importé.
+        if (!clientId) {
+            return NextResponse.json({ error: "clientId requis" }, { status: 400 });
+        }
+
+        const client = await prisma.client.findUnique({ where: { id: clientId } });
+        if (!client) {
+            return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
 
         // Bulk insert all journal lines
         const result = await prisma.tpeJournal.createMany({
             data: journal.map((line: any) => ({
                 periode: periode || 'PERIODE-INCONNUE',
-                businessName: businessName || 'Commerçant',
+                businessName: businessName || client.companyName || 'Commerçant',
                 date: line.date,
                 libelle: line.libelle,
                 entree: line.entree || 0,
