@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     ClipboardCheck,
     CheckCircle2,
@@ -21,7 +21,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
+/**
+ * Section de revision, construite depuis /api/audit/dossier.
+ *
+ * Le dossier de travail est le meme objet metier que pour l'audit legal
+ * (AuditSection + AuditChecklistItem) : seul le type de mission differe.
+ */
 interface ReviewSection {
     id: string;
     title: string;
@@ -30,43 +35,58 @@ interface ReviewSection {
     tasks: { id: string; label: string; completed: boolean }[];
 }
 
-const REVIEW_DATA: ReviewSection[] = [
-    {
-        id: "s1",
-        title: "Trésorerie & Banque",
-        description: "Vérification des soldes bancaires et rapprochements.",
-        status: "done",
-        tasks: [
-            { id: "t1", label: "Contrôle des soldes de clôture", completed: true },
-            { id: "t2", label: "Vérification des suspens de rapprochement", completed: true },
-            { id: "t3", label: "État des cautions et garanties", completed: true }
-        ]
-    },
-    {
-        id: "s2",
-        title: "Cycles Ventes & Clients",
-        description: "Analyse du poste clients et des facturations.",
-        status: "pending",
-        tasks: [
-            { id: "t4", label: "Coupure des ventes (Cut-off)", completed: true },
-            { id: "t5", label: "Analyse des créances douteuses", completed: false },
-            { id: "t6", label: "Circularisation clients", completed: false }
-        ]
-    },
-    {
-        id: "s3",
-        title: "Cycles Achats & Fournisseurs",
-        description: "Contrôle des charges et dettes fournisseurs.",
-        status: "alert",
-        tasks: [
-            { id: "t7", label: "Vérification des factures non parvenues", completed: false },
-            { id: "t8", label: "Contrôle des doublons fournisseurs", completed: true },
-            { id: "t9", label: "Analyse des anomalies de TVA sur achats", completed: false }
-        ]
-    }
-];
+
 
 export default function RevisionPage() {
+    const [sections, setSections] = useState<ReviewSection[]>([]);
+    const [mission, setMission] = useState<{ name: string; client: string } | null>(null);
+    const [avancement, setAvancement] = useState(0);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/audit/dossier?type=TENUE_COMPTABLE");
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+
+            const checklists: Record<string, { id: string; description: string; status: string }[]> =
+                data.checklists ?? {};
+
+            setSections(
+                (data.sections ?? []).map((sec: Record<string, unknown>) => {
+                    const items = checklists[String(sec.id)] ?? [];
+                    const progress = Number(sec.progress ?? 0);
+                    return {
+                        id: String(sec.id),
+                        title: String(sec.name),
+                        description: String(sec.note ?? "Aucune note de revue enregistree."),
+                        status: progress === 100 ? "done" : progress === 0 ? "alert" : "pending",
+                        tasks: items.map((i) => ({
+                            id: i.id,
+                            label: i.description,
+                            completed: i.status === "TERMINE",
+                        })),
+                    } as ReviewSection;
+                })
+            );
+            setMission(data.mission ? { name: data.mission.name, client: data.mission.client } : null);
+            setAvancement(Number(data.globalProgress ?? 0));
+        } catch (e) {
+            console.error("Chargement du dossier de revision :", e);
+            setErreur(e instanceof Error ? e.message : "Impossible de charger le dossier de revision.");
+            setSections([]);
+            setMission(null);
+            setAvancement(0);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { charger(); }, [charger]);
+
     const [expandedSections, setExpandedSections] = useState<string[]>(["s1", "s2"]);
 
     const toggleSection = (id: string) => {
@@ -77,7 +97,6 @@ export default function RevisionPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <DonneesDemo />
 
             {/* Header SEPTEO Style */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
@@ -117,13 +136,32 @@ export default function RevisionPage() {
                         <div className="relative w-20 h-20">
                             <svg className="w-20 h-20 -rotate-90">
                                 <circle cx="40" cy="40" r="36" fill="transparent" stroke="currentColor" strokeWidth="8" className="text-slate-800" />
-                                <circle cx="40" cy="40" r="36" fill="transparent" stroke="currentColor" strokeWidth="8" strokeDasharray={226} strokeDashoffset={226 * (1 - 0.65)} className="text-indigo-500" />
+                                <circle
+                                    cx="40"
+                                    cy="40"
+                                    r="36"
+                                    fill="transparent"
+                                    stroke="currentColor"
+                                    strokeWidth="8"
+                                    strokeDasharray={226}
+                                    strokeDashoffset={226 * (1 - avancement / 100)}
+                                    className="text-indigo-500 transition-all"
+                                />
                             </svg>
-                            <span className="absolute inset-0 flex items-center justify-center font-black text-white text-lg">65%</span>
+                            <span className="absolute inset-0 flex items-center justify-center font-black text-white text-lg tabular-nums">
+                                {avancement}%
+                            </span>
                         </div>
                         <div>
-                            <h4 className="text-2xl font-black text-white">Prêt pour Clôture</h4>
-                            <p className="text-xs text-slate-500 font-medium">12 sections vérifiées sur 18</p>
+                            <h4 className="text-2xl font-black text-white">
+                                {avancement === 100 ? "Pret pour cloture" : "Revision en cours"}
+                            </h4>
+                            <p className="text-xs text-slate-500 font-medium">
+                                {sections.filter(x => x.status === "done").length} section
+                                {sections.filter(x => x.status === "done").length > 1 ? "s" : ""} verifiee
+                                {sections.filter(x => x.status === "done").length > 1 ? "s" : ""} sur {sections.length}
+                                {mission ? ` \u2014 ${mission.client}` : ""}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -157,7 +195,23 @@ export default function RevisionPage() {
 
             {/* Main Review Workflow */}
             <div className="space-y-6">
-                {REVIEW_DATA.map((section) => (
+                {chargement && (
+                    <p className="px-4 text-sm text-slate-500">Chargement du dossier de revision...</p>
+                )}
+
+                {!chargement && erreur && (
+                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-200">
+                        {erreur}
+                    </div>
+                )}
+
+                {!chargement && !erreur && sections.length === 0 && (
+                    <p className="px-4 text-sm text-slate-500">
+                        Aucune section dans ce dossier.
+                    </p>
+                )}
+
+                {sections.map((section) => (
                     <div key={section.id} className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden transition-all">
                         <div
                             className="p-8 flex items-center justify-between cursor-pointer hover:bg-white/[0.02]"

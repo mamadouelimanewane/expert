@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import type { MissionType } from "@prisma/client";
 
 import { requireStaff } from "@/lib/api-auth";
 const DEFAULT_SECTIONS = [
@@ -21,6 +22,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const missionId = searchParams.get("missionId");
+    // Le dossier de travail sert aussi bien l'audit legal que la revision
+    // comptable : meme structure de sections et de diligences, seul le type
+    // de mission change.
+    const type = (searchParams.get("type") || "AUDIT") as MissionType;
 
     const mission = missionId
       ? await prisma.mission.findUnique({
@@ -28,13 +33,13 @@ export async function GET(request: NextRequest) {
           include: { client: { select: { companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
         })
       : await prisma.mission.findFirst({
-          where: { type: "AUDIT" },
+          where: { type },
           include: { client: { select: { companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
           orderBy: { createdAt: "desc" },
         });
 
     if (!mission) {
-      return NextResponse.json({ error: "Aucune mission d'audit trouvée. Créez une mission de type AUDIT." }, { status: 404 });
+      return NextResponse.json({ error: `Aucune mission de type ${type} trouvée. Créez-en une pour ouvrir un dossier de travail.` }, { status: 404 });
     }
 
     let sections = await prisma.auditSection.findMany({

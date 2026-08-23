@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Briefcase,
     CheckCircle2,
@@ -24,42 +24,122 @@ import {
     SearchCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockClients } from "@/data/mock-clients";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-interface AuditStep {
+type MissionAudit = {
     id: string;
     title: string;
-    description: string;
-    status: "todo" | "doing" | "done" | "warning";
-    norms: string;
-    progress?: number;
-}
+    status: string;
+    deadline: string | null;
+    client: { id: string; companyName: string | null; firstName: string | null; lastName: string | null } | null;
+};
 
-const CAC_CHECKLIST: AuditStep[] = [
-    { id: "1", title: "Acceptation & Indépendance", description: "Vérification des incompatibilités OHADA et lettre d'acceptation.", status: "done", norms: "ISA 210" },
-    { id: "2", title: "Contrôle Interne (Cycle Ventes)", description: "Évaluation des risques SI et procédures d'autorisation.", status: "doing", norms: "ISA 315", progress: 75 },
-    { id: "3", title: "Planification Stratégique", description: "Seuils de significativité et calendrier ISA 300.", status: "todo", norms: "ISA 300" },
-    { id: "4", title: "Circularisation Tiers (Banques)", description: "Confirmation directe des soldes OHADA (Directrice UEMOA).", status: "warning", norms: "ISA 505" },
-    { id: "5", title: "Examen des États Financiers", description: "Audit de conformité SYSCOHADA Révisé (AUDCIF).", status: "todo", norms: "OHADA v2026" },
-];
+/** Section du dossier de travail, telle que renvoyee par /api/audit/dossier. */
+type SectionAudit = {
+    id: string;
+    name: string;
+    progress: number;
+    conclusion: string | null;
+    note: string | null;
+};
+
+type RisqueCategorie = {
+    category: string;
+    score: number;
+    label: string;
+    observations: string;
+};
+
+const nomClient = (m: MissionAudit | null) =>
+    m?.client?.companyName ||
+    [m?.client?.firstName, m?.client?.lastName].filter(Boolean).join(" ") ||
+    "Client non renseigne";
+
 
 export default function NexusAuditAssurancePage() {
-    const [selectedClient, setSelectedClient] = useState(mockClients[1]); // Let's pick a Corporate client
+    const [missions, setMissions] = useState<MissionAudit[]>([]);
+    const [missionId, setMissionId] = useState<string>("");
+    const [sections, setSections] = useState<SectionAudit[]>([]);
+    const [avancement, setAvancement] = useState(0);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    // Analyse de risque : calculee par AuditService a partir des declarations,
+    // des missions et des ecritures reelles du client.
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [risque, setRisque] = useState<{ globalScore: string; breakdown: RisqueCategorie[] } | null>(null);
+    const [erreurRisque, setErreurRisque] = useState<string | null>(null);
 
-    const runIAAudit = () => {
-        setIsAnalyzing(true);
-        setTimeout(() => {
-            setIsAnalyzing(false);
+    const missionCourante = missions.find(m => m.id === missionId) ?? null;
+
+    // Chargement des missions d'audit du cabinet.
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch("/api/missions?type=AUDIT");
+                if (!res.ok) throw new Error(`Reponse ${res.status}`);
+                const data = await res.json();
+                const liste: MissionAudit[] = data.missions ?? [];
+                setMissions(liste);
+                setMissionId(prev => (liste.some(m => m.id === prev) ? prev : (liste[0]?.id ?? "")));
+            } catch (e) {
+                console.error("Chargement des missions d'audit :", e);
+                setErreur("Impossible de charger les missions d'audit.");
+            }
+        })();
+    }, []);
+
+    // Chargement du dossier de travail de la mission selectionnee.
+    const chargerDossier = useCallback(async (id: string) => {
+        if (!id) { setChargement(false); return; }
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch(`/api/audit/dossier?missionId=${encodeURIComponent(id)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+            setSections(data.sections ?? []);
+            setAvancement(data.globalProgress ?? 0);
+        } catch (e) {
+            console.error("Chargement du dossier d'audit :", e);
+            setErreur(e instanceof Error ? e.message : "Impossible de charger le dossier de travail.");
+            setSections([]);
+            setAvancement(0);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { chargerDossier(missionId); }, [chargerDossier, missionId]);
+
+    const runIAAudit = async () => {
+        const clientId = missionCourante?.client?.id;
+        if (!clientId) {
+            setErreurRisque("Selectionnez une mission rattachee a un client.");
             setShowResults(true);
-        }, 2500);
+            return;
+        }
+
+        setIsAnalyzing(true);
+        setErreurRisque(null);
+        try {
+            const res = await fetch(`/api/audit/risk-score?clientId=${encodeURIComponent(clientId)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+            setRisque(data);
+            setShowResults(true);
+        } catch (e) {
+            console.error("Calcul du score de risque :", e);
+            setErreurRisque(e instanceof Error ? e.message : "Echec du calcul du score de risque.");
+            setRisque(null);
+            setShowResults(true);
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
-            <DonneesDemo />
 
             {/* Elite Header */}
             <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
@@ -87,19 +167,26 @@ export default function NexusAuditAssurancePage() {
 
                     <div className="flex flex-col sm:flex-row gap-4">
                         <select
-                            value={selectedClient.id}
-                            onChange={(e) => setSelectedClient(mockClients.find(c => c.id === e.target.value) || mockClients[0])}
-                            className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-emerald-500 outline-none transition-all hover:bg-white/10 shadow-xl"
+                            value={missionId}
+                            onChange={(e) => setMissionId(e.target.value)}
+                            disabled={missions.length === 0}
+                            className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-emerald-500 outline-none transition-all hover:bg-white/10 shadow-xl disabled:opacity-50"
                         >
-                            {mockClients.map(client => (
-                                <option key={client.id} value={client.id} className="bg-slate-900">{client.name} - CAC 2026</option>
-                            ))}
+                            {missions.length === 0 ? (
+                                <option value="">Aucune mission d&apos;audit</option>
+                            ) : (
+                                missions.map(m => (
+                                    <option key={m.id} value={m.id} className="bg-slate-900">
+                                        {nomClient(m)} &mdash; {m.title}
+                                    </option>
+                                ))
+                            )}
                         </select>
                         <button
                             onClick={runIAAudit}
                             className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-emerald-600/30">
                             {isAnalyzing ? <Cpu className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-                            {isAnalyzing ? "Analyse Risques..." : "IA Risk Scanning"}
+                            {isAnalyzing ? "Calcul en cours..." : "Score de risque"}
                         </button>
                     </div>
                 </div>
@@ -115,25 +202,38 @@ export default function NexusAuditAssurancePage() {
                         </div>
 
                         <div className="flex items-end gap-3 mb-4">
-                            <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">40<span className="text-xl text-slate-500">%</span></span>
+                            <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tabular-nums">
+                                {avancement}<span className="text-xl text-slate-500">%</span>
+                            </span>
                             <div className="flex flex-col mb-1">
-                                <span className="text-[10px] font-black text-emerald-400 uppercase leading-none">On Track</span>
-                                <span className="text-[9px] text-slate-500 uppercase leading-none mt-1">Completion rate</span>
+                                <span className="text-[10px] font-black text-emerald-400 uppercase leading-none">
+                                    {missionCourante?.status ?? "\u2014"}
+                                </span>
+                                <span className="text-[9px] text-slate-500 uppercase leading-none mt-1">
+                                    Diligences achevees
+                                </span>
                             </div>
                         </div>
 
                         <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden mb-8">
-                            <div className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" style={{ width: '40%' }} />
+                            <div
+                                className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all"
+                                style={{ width: `${avancement}%` }}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
-                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Heures Audit</p>
-                                <p className="text-sm font-black text-white">124h / 300h</p>
+                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Sections du dossier</p>
+                                <p className="text-sm font-black text-white tabular-nums">
+                                    {sections.filter(x => x.progress === 100).length} / {sections.length}
+                                </p>
                             </div>
                             <div className="p-4 bg-white/5 border border-white/5 rounded-2xl">
-                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Points en suspens</p>
-                                <p className="text-sm font-black text-rose-400">12 Points</p>
+                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Sections non entamees</p>
+                                <p className="text-sm font-black text-rose-400 tabular-nums">
+                                    {sections.filter(x => x.progress === 0).length}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -169,7 +269,7 @@ export default function NexusAuditAssurancePage() {
                     <div className="flex justify-between items-center px-4">
                         <div>
                             <h3 className="text-sm font-black text-white uppercase tracking-widest">Plan d'Audit & Scrutin des Cycles</h3>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 tracking-widest">{selectedClient.name} • Audit Légal 2026</p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 tracking-widest">{missionCourante ? `${nomClient(missionCourante)} • ${missionCourante.title}` : "Aucune mission selectionnee"}</p>
                         </div>
                         <div className="flex gap-2">
                             <button className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-500 hover:text-white transition-all"><BarChart3 className="w-5 h-5" /></button>
@@ -177,51 +277,68 @@ export default function NexusAuditAssurancePage() {
                         </div>
                     </div>
 
+                    {erreur && (
+                        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-5 text-sm text-rose-300">
+                            {erreur}
+                        </div>
+                    )}
+
                     <div className="space-y-4">
-                        {CAC_CHECKLIST.map((step) => (
-                            <div key={step.id} className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all cursor-pointer group flex gap-8 items-center relative overflow-hidden">
-                                {step.status === 'doing' && (
+                        {chargement ? (
+                            <p className="px-4 text-sm text-slate-500">Chargement du dossier de travail...</p>
+                        ) : sections.length === 0 ? (
+                            <p className="px-4 text-sm text-slate-500">
+                                Aucune section. Le dossier se cree a la premiere ouverture d&apos;une mission d&apos;audit.
+                            </p>
+                        ) : sections.map((section) => {
+                            const etat = section.progress === 100 ? "done" : section.progress > 0 ? "doing" : "todo";
+                            return (
+                            <div key={section.id} className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all cursor-pointer group flex gap-8 items-center relative overflow-hidden">
+                                {etat === "doing" && (
                                     <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
                                 )}
 
                                 <div className={cn(
                                     "w-16 h-16 rounded-[24px] flex items-center justify-center border transition-all",
-                                    step.status === "done" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                        step.status === "doing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]" :
-                                            step.status === "warning" ? "bg-rose-500/10 text-rose-400 border-rose-500/20 animate-pulse" :
-                                                "bg-slate-800 text-slate-500 border-slate-700"
+                                    etat === "done" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                        etat === "doing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]" :
+                                            "bg-slate-800 text-slate-500 border-slate-700"
                                 )}>
-                                    {step.status === "done" ? <CheckCircle2 className="w-8 h-8" /> :
-                                        step.status === "doing" ? <FileSearch className="w-8 h-8" /> :
-                                            step.status === "warning" ? <AlertCircle className="w-8 h-8" /> : <Target className="w-8 h-8" />}
+                                    {etat === "done" ? <CheckCircle2 className="w-8 h-8" /> :
+                                        etat === "doing" ? <FileSearch className="w-8 h-8" /> : <Target className="w-8 h-8" />}
                                 </div>
 
                                 <div className="flex-1">
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex items-center gap-4">
                                             <h4 className="text-xl font-black text-slate-200 group-hover:text-emerald-400 transition-all uppercase tracking-tight">
-                                                {step.title}
+                                                {section.name}
                                             </h4>
-                                            <span className="text-[9px] font-black text-slate-500 bg-black/40 px-3 py-1 rounded-full border border-white/5 uppercase tracking-widest">{step.norms}</span>
+                                            {section.conclusion && (
+                                                <span className="text-[9px] font-black text-slate-500 bg-black/40 px-3 py-1 rounded-full border border-white/5 uppercase tracking-widest">
+                                                    {section.conclusion}
+                                                </span>
+                                            )}
                                         </div>
                                         <ArrowRight className="w-5 h-5 text-slate-800 group-hover:text-emerald-400 transition-all transform group-hover:translate-x-1" />
                                     </div>
-                                    <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-2xl">{step.description}</p>
+                                    <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-2xl">
+                                        {section.note || "Aucune note de revue enregistree sur cette section."}
+                                    </p>
 
-                                    {step.progress && (
-                                        <div className="mt-6 p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex items-center gap-6">
-                                            <div className="flex-1">
-                                                <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Revue de Procédures Active</p>
-                                                <div className="h-1.5 w-full bg-slate-800 rounded-full">
-                                                    <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" style={{ width: `${step.progress}%` }} />
-                                                </div>
+                                    <div className="mt-6 p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex items-center gap-6">
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Avancement des diligences</p>
+                                            <div className="h-1.5 w-full bg-slate-800 rounded-full">
+                                                <div className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" style={{ width: `${section.progress}%` }} />
                                             </div>
-                                            <span className="text-sm font-black text-emerald-400">{step.progress}%</span>
                                         </div>
-                                    )}
+                                        <span className="text-sm font-black text-emerald-400">{section.progress}%</span>
+                                    </div>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {/* Report Generation Footer Elite */}
@@ -249,7 +366,7 @@ export default function NexusAuditAssurancePage() {
                 </div>
             </div>
 
-            {/* Hyper-Spectral Scan Results Modal */}
+            {/* Panneau du score de risque */}
             {showResults && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 animate-in zoom-in duration-300">
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setShowResults(false)} />
@@ -265,9 +382,9 @@ export default function NexusAuditAssurancePage() {
                                         <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
                                             <Zap className="w-6 h-6 text-white" />
                                         </div>
-                                        Rapport Hyper-Spectral IA
+                                        Score de risque du dossier
                                     </h3>
-                                    <p className="text-slate-400 mt-2 font-medium">Analyse prédictive de conformité SYSCOHADA - {selectedClient.name}</p>
+                                    <p className="text-slate-400 mt-2 font-medium">Calcule sur les declarations, missions et ecritures enregistrees{missionCourante ? ` \u2014 ${nomClient(missionCourante)}` : ""}</p>
                                 </div>
                                 <button 
                                     onClick={() => setShowResults(false)}
@@ -277,44 +394,49 @@ export default function NexusAuditAssurancePage() {
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                                <div className="p-6 bg-rose-500/5 border border-rose-500/20 rounded-3xl">
-                                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Risque Anomalies</p>
-                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">High <span className="text-xs text-rose-500 underline">82%</span></p>
+                            {erreurRisque ? (
+                                <div className="rounded-3xl border border-rose-500/30 bg-rose-500/10 p-6 text-sm text-rose-300">
+                                    {erreurRisque}
                                 </div>
-                                <div className="p-6 bg-amber-500/5 border border-amber-500/20 rounded-3xl">
-                                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Conformité AUDCIF</p>
-                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">Full <span className="text-xs text-emerald-500">100%</span></p>
-                                </div>
-                                <div className="p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-3xl">
-                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Neural Mapping</p>
-                                    <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">Active</p>
-                                </div>
-                            </div>
+                            ) : !risque ? (
+                                <p className="text-sm text-slate-500">Aucun score calcule.</p>
+                            ) : (
+                                <>
+                                    <div className="mb-12 p-8 bg-white/5 border border-white/10 rounded-3xl">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                                            Score global
+                                        </p>
+                                        <p className="text-4xl font-black text-white tabular-nums">
+                                            {risque.globalScore}
+                                            <span className="text-sm text-slate-500 font-bold"> / 10</span>
+                                        </p>
+                                        <p className="mt-3 text-xs text-slate-500 leading-relaxed max-w-xl">
+                                            Moyenne des quatre axes ci-dessous. Il s&apos;agit d&apos;un indicateur
+                                            d&apos;orientation des diligences, en aucun cas d&apos;une conclusion
+                                            d&apos;audit : chaque point releve doit etre verifie avant d&apos;etre
+                                            porte au dossier.
+                                        </p>
+                                    </div>
 
-                            <div className="space-y-6">
-                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Neural Red Flags (Top 3)</h4>
-                                <ScanResultItem 
-                                    title="Divergence Stock / Facturation" 
-                                    desc="Écart de 12% détecté entre le cycle achat et la valorisation OHADA du stock final (Probable survalorisation)." 
-                                    urgent 
-                                />
-                                <ScanResultItem 
-                                    title="Flux Trésorerie Atypique" 
-                                    desc="Plusieurs virements UEMOA/CEMAC sans justificatifs probants liés à l'objet social." 
-                                />
-                                <ScanResultItem 
-                                    title="Provisions Non-Deductibles" 
-                                    desc="Provision pour litige fiscal mal isolée au bilan (Impact IS potentiel)." 
-                                />
-                            </div>
+                                    <div className="space-y-6">
+                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                                            Detail par axe
+                                        </h4>
+                                        {risque.breakdown.map((axe) => (
+                                            <ScanResultItem
+                                                key={axe.category}
+                                                title={`${axe.category} \u2014 ${axe.label}`}
+                                                desc={`${axe.observations} Score : ${Math.round(axe.score) / 10}/10.`}
+                                                urgent={axe.score >= 70}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
 
                             <div className="mt-16 flex gap-4">
                                 <button className="flex-1 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all" onClick={() => setShowResults(false)}>
-                                    Intégrer au Dossier de Travail
-                                </button>
-                                <button className="px-10 py-5 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/10" onClick={() => setShowResults(false)}>
-                                    Export PDF
+                                    Fermer
                                 </button>
                             </div>
                         </div>

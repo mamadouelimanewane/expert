@@ -13,10 +13,14 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const clientId = searchParams.get('clientId');
+        // Filtre par nature de mission (AUDIT, TENUE_COMPTABLE, CONSEIL...),
+        // necessaire pour n'ouvrir que les dossiers d'audit legal.
+        const type = searchParams.get('type');
 
         const where: Record<string, unknown> = {};
         if (status) where.status = status;
         if (clientId) where.clientId = clientId;
+        if (type) where.type = type;
 
         const missions = await prisma.mission.findMany({
             where,

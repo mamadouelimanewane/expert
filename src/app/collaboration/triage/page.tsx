@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Inbox,
     CheckSquare,
@@ -19,58 +19,61 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const TRIAGE_ITEMS = [
-    {
-        id: "1",
-        type: "email",
-        priority: "high",
-        from: "Amadou Diallo (SIB)",
-        subject: "Urgent : Pièces manquantes Audit 2024",
-        preview: "Bonjour Maître, suite à notre échange téléphonique, voici les relevés manquants...",
-        time: "10:45",
-        status: "new",
-        assignee: null
-    },
-    {
-        id: "2",
-        type: "task",
-        priority: "medium",
-        from: "Système (Boni/Mali)",
-        subject: "Alerte Rentabilité : Dossier Orange CI",
-        preview: "Le budget temps est dépassé de 15% sur la mission d'Audit Légal.",
-        time: "09:30",
-        status: "new",
-        assignee: "Expert Principal"
-    },
-    {
-        id: "3",
-        type: "note",
-        priority: "low",
-        from: "Sophie Koné (Interne)",
-        subject: "Note sur la réunion TVA",
-        preview: "Les points à vérifier pour la déclaration de Juillet sont les suivants...",
-        time: "Hier",
-        status: "read",
-        assignee: null
-    },
-    {
-        id: "4",
-        type: "email",
-        priority: "medium",
-        from: "Direction Générale Impôts",
-        subject: "Accusé de réception - Liasse Fiscale",
-        preview: "Votre dépôt a bien été enregistré sous le numéro REF-2024-8899...",
-        time: "Hier",
-        status: "read",
-        assignee: null
-    }
-];
+/** Element de la file de triage, issu de /api/communications/hub. */
+type ElementTriage = {
+    id: string;
+    type: string;
+    from: string;
+    subject: string;
+    preview: string;
+    time: string;
+    status: "new" | "read";
+    assignee: string | null;
+};
 
 export default function TriagePage() {
+    // File de triage alimentee par les communications reellement enregistrees.
+    // La priorite n'existe pas au modele : on ne l'invente pas, le tri se fait
+    // sur le caractere non lu et l'anciennete.
+    const [elements, setElements] = useState<ElementTriage[]>([]);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/communications/hub");
+            if (!res.ok) throw new Error(`Reponse ${res.status}`);
+            const data = await res.json();
+            setElements(
+                (Array.isArray(data) ? data : []).map((m: Record<string, unknown>) => ({
+                    id: String(m.id),
+                    type: String(m.type ?? "email"),
+                    from: String(m.sender ?? "Expediteur inconnu"),
+                    subject: String(m.subject ?? "Sans objet"),
+                    preview: String(m.preview ?? ""),
+                    time: String(m.date ?? ""),
+                    status: m.read ? "read" : "new",
+                    assignee: null,
+                }))
+            );
+        } catch (e) {
+            console.error("Chargement de la file de triage :", e);
+            setErreur("Impossible de charger les communications.");
+            setElements([]);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { charger(); }, [charger]);
+
+    const nonLus = elements.filter(e => e.status === "new");
+    const traites = elements.filter(e => e.status === "read");
+
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
-            <DonneesDemo />
 
 
             {/* Karbon-style Header */}
@@ -139,10 +142,18 @@ export default function TriagePage() {
                     {/* Timeline Items */}
                     <div className="space-y-4">
                         <h4 className="text-sm font-bold text-white mb-4">Aujourd'hui</h4>
-                        {TRIAGE_ITEMS.slice(0, 2).map((item) => <TriageItem key={item.id} item={item} />)}
+                        {chargement ? (
+                            <p className="text-xs text-slate-500">Chargement...</p>
+                        ) : erreur ? (
+                            <p className="text-xs text-rose-400">{erreur}</p>
+                        ) : nonLus.length === 0 ? (
+                            <p className="text-xs text-slate-500">Aucune communication non lue.</p>
+                        ) : nonLus.map((item) => <TriageItem key={item.id} item={item} />)}
 
                         <h4 className="text-sm font-bold text-slate-500 mt-8 mb-4">Hier</h4>
-                        {TRIAGE_ITEMS.slice(2).map((item) => <TriageItem key={item.id} item={item} />)}
+                        {!chargement && !erreur && traites.length === 0 ? (
+                            <p className="text-xs text-slate-500">Aucune communication traitee.</p>
+                        ) : traites.map((item) => <TriageItem key={item.id} item={item} />)}
                     </div>
 
                 </div>
@@ -151,7 +162,7 @@ export default function TriagePage() {
     );
 }
 
-function TriageItem({ item }: any) {
+function TriageItem({ item }: { item: ElementTriage }) {
     return (
         <div className={cn(
             "group glass-card p-4 rounded-xl border transition-all cursor-pointer flex gap-4 items-start",
