@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Calendar, Flag, Zap, Bell, CheckCircle2, AlertTriangle, Clock,
   ChevronLeft, ChevronRight, FileText, Download, Send, Loader2,
@@ -9,57 +9,41 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-// ============================================
-// DONNÉES : Obligations fiscales OHADA / SN
-// ============================================
-const OBLIGATIONS = [
-  {
-    id: "tva-mensuelle", titre: "Déclaration & Paiement TVA Mensuelle", echeance: "15 Juin",
-    pays: ["SN", "CI", "CM", "BJ"], type: "TVA", urgence: "IMMINENTE",
-    montantEstime: 4_800_000, statut: "EN_ATTENTE", nbDossiers: 12,
-    description: "Déclaration de la TVA collectée et déductible du mois de mai."
-  },
-  {
-    id: "ipres-css", titre: "Cotisations Sociales IPRES / CSS", echeance: "15 Juin",
-    pays: ["SN"], type: "SOCIAL", urgence: "IMMINENTE",
-    montantEstime: 2_340_000, statut: "EN_ATTENTE", nbDossiers: 7,
-    description: "Déclaration et paiement des cotisations retraite (IPRES RG + RC) et CSS."
-  },
-  {
-    id: "cmb", titre: "Contribution Minimum de Base (CMB)", echeance: "30 Juin",
-    pays: ["SN"], type: "IS", urgence: "NORMALE",
-    montantEstime: 500_000, statut: "BROUILLON", nbDossiers: 18,
-    description: "Acompte minimum IS (CMB). Minimum 500 000 FCFA pour les sociétés au SN."
-  },
-  {
-    id: "cfce", titre: "CFCE — Contribution Forf. Charge Employeurs", echeance: "15 Juin",
-    pays: ["SN"], type: "SOCIAL", urgence: "IMMINENTE",
-    montantEstime: 890_000, statut: "VALIDE", nbDossiers: 7,
-    description: "3% de la masse salariale brute. Déclarée conjointement avec la paie."
-  },
-  {
-    id: "bic-acompte", titre: "Acompte BIC (1/3 annuel)", echeance: "30 Juin",
-    pays: ["SN", "CI"], type: "BIC", urgence: "NORMALE",
-    montantEstime: 3_200_000, statut: "BROUILLON", nbDossiers: 5,
-    description: "Premier tiers de l'impôt BIC à payer en avance (1/4 pour les sociétés soumises à l'IS)."
-  },
-  {
-    id: "irs", titre: "Retenue à la Source BNC / IRS", echeance: "30 Juin",
-    pays: ["SN", "CI", "CM"], type: "RAS", urgence: "NORMALE",
-    montantEstime: 620_000, statut: "EN_ATTENTE", nbDossiers: 9,
-    description: "Retenues effectuées sur les honoraires versés à des non-salariés."
-  },
-];
-
 const STATUT_STYLE: Record<string, string> = {
   VALIDE: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
   EN_ATTENTE: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   BROUILLON: "text-slate-400 bg-slate-500/10 border-slate-500/20",
 };
 const URGENCE_STYLE: Record<string, string> = {
+  DEPASSEE: "text-rose-300 bg-rose-600/20 border-rose-500/40",
   IMMINENTE: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+  PROCHE: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   NORMALE: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+};
+
+/** Obligation telle qu'affichée, issue de /api/fiscalite/obligations. */
+type ObligationVue = {
+  id: string;
+  titre: string;
+  description: string;
+  type: string;
+  pays: string[];
+  reference: string;
+  echeance: string;
+  urgence: string;
+  statut: string;
+  montantEstime: number;
+  nbDossiers: number;
+  nbRestants: number;
+};
+
+type Synthese = {
+  clientsActifs: number;
+  declarationsPeriode: number;
+  montantADeclarer: number;
+  obligationsImminentes: number;
+  obligationsDepassees: number;
+  dossiersRestants: number;
 };
 const TYPE_COLOR: Record<string, string> = {
   TVA: "text-violet-400", IS: "text-indigo-400", SOCIAL: "text-emerald-400",
@@ -68,16 +52,68 @@ const TYPE_COLOR: Record<string, string> = {
 
 export default function FiscaliteOhada() {
   const [activeTab, setActiveTab] = useState<"calendrier" | "obligations" | "simulation">("obligations");
-  const [selected, setSelected] = useState(OBLIGATIONS[0]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isProcessed, setIsProcessed] = useState(false);
   const [paysCible, setPaysCible] = useState("SN");
   const [simulCA, setSimulCA] = useState(50000000);
   const [simulCharges, setSimulCharges] = useState(30000000);
 
-  const totalADeclarer = OBLIGATIONS.filter(o => o.statut !== "VALIDE").reduce((a, o) => a + o.montantEstime, 0);
-  const nbImminentes = OBLIGATIONS.filter(o => o.urgence === "IMMINENTE").length;
-  const dossiersCibles = OBLIGATIONS.filter(o => o.statut !== "VALIDE").reduce((a, o) => a + o.nbDossiers, 0);
+  // Le calendrier reglementaire est une donnee de reference (src/lib/ohada) ;
+  // les volumes et les montants viennent des declarations reellement saisies.
+  const [obligations, setObligations] = useState<ObligationVue[]>([]);
+  const [synthese, setSynthese] = useState<Synthese | null>(null);
+  const [periode, setPeriode] = useState<string>("");
+  const [aucuneDonnee, setAucuneDonnee] = useState(false);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const charger = useCallback(async (pays: string) => {
+    setChargement(true);
+    setErreur(null);
+    try {
+      const res = await fetch(`/api/fiscalite/obligations?pays=${encodeURIComponent(pays)}`);
+      if (!res.ok) throw new Error(`Reponse ${res.status}`);
+      const data = await res.json();
+
+      const vues: ObligationVue[] = (data.obligations ?? []).map((o: Record<string, unknown>) => ({
+        id: String(o.id),
+        titre: String(o.titre),
+        description: String(o.description),
+        type: String(o.categorie),
+        pays: (o.pays as string[]) ?? [],
+        reference: String(o.reference ?? ""),
+        echeance: new Date(String(o.echeance)).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }),
+        urgence: String(o.urgence),
+        statut:
+          o.statut === "VALIDE" ? "VALIDE" : o.statut === "EN_COURS" ? "EN_ATTENTE" : "BROUILLON",
+        montantEstime: Number(o.montantADeclarer ?? 0),
+        nbDossiers: Number(o.nbDossiers ?? 0),
+        nbRestants: Number(o.nbRestants ?? 0),
+      }));
+
+      setObligations(vues);
+      setSynthese(data.synthese ?? null);
+      setPeriode(String(data.periode ?? ""));
+      setAucuneDonnee(Boolean(data.aucuneDonnee));
+      setSelectedId((actuel) => (vues.some((v) => v.id === actuel) ? actuel : (vues[0]?.id ?? null)));
+    } catch (e) {
+      console.error("Chargement des obligations fiscales:", e);
+      setErreur("Impossible de charger les obligations fiscales.");
+      setObligations([]);
+      setSynthese(null);
+    } finally {
+      setChargement(false);
+    }
+  }, []);
+
+  useEffect(() => { charger(paysCible); }, [charger, paysCible]);
+
+  const selected = obligations.find((o) => o.id === selectedId) ?? null;
+
+  const totalADeclarer = synthese?.montantADeclarer ?? 0;
+  const nbImminentes = synthese?.obligationsImminentes ?? 0;
+  const dossiersCibles = synthese?.dossiersRestants ?? 0;
 
   const handleGenerate = async () => {
     setIsProcessing(true);
@@ -96,7 +132,6 @@ export default function FiscaliteOhada() {
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
-            <DonneesDemo />
 
 
       {/* Header */}
@@ -124,13 +159,29 @@ export default function FiscaliteOhada() {
         </div>
       </div>
 
+      {erreur && (
+        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">
+          {erreur}
+        </div>
+      )}
+
+      {/* Une base sans declaration donne des compteurs a zero : il faut
+          distinguer « cabinet a jour » de « rien n'a encore ete saisi ». */}
+      {!chargement && !erreur && aucuneDonnee && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+          <span className="font-bold">Aucune déclaration saisie pour la période {periode}.</span>{" "}
+          Les compteurs ci-dessous sont donc à zéro : cela ne signifie pas que les obligations
+          sont remplies. Le calendrier réglementaire reste affiché à titre d&apos;échéancier.
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: AlertTriangle, label: "Obligations imminentes", val: nbImminentes, sub: "Avant le 15 Juin", color: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
           { icon: Clock, label: "Montant total à déclarer", val: (totalADeclarer / 1_000_000).toFixed(1) + " M FCFA", sub: "Sur le mois", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
           { icon: FileText, label: "Dossiers impactés", val: dossiersCibles, sub: "à traiter", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
-          { icon: CheckCircle2, label: "Déclarations validées", val: OBLIGATIONS.filter(o => o.statut === "VALIDE").length, sub: "Ce mois", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+          { icon: CheckCircle2, label: "Déclarations validées", val: obligations.filter(o => o.statut === "VALIDE").length, sub: "Ce mois", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
         ].map((k, i) => (
           <div key={i} className={cn("rounded-[24px] border p-5", k.color)}>
             <k.icon className="w-5 h-5 mb-4" />
@@ -163,17 +214,17 @@ export default function FiscaliteOhada() {
         <div className="grid lg:grid-cols-12 gap-8">
           {/* Liste */}
           <div className="lg:col-span-5 space-y-3">
-            {OBLIGATIONS.map(ob => (
+            {obligations.map(ob => (
               <div
                 key={ob.id}
-                onClick={() => { setSelected(ob); setIsProcessed(false); }}
+                onClick={() => { setSelectedId(ob.id); setIsProcessed(false); }}
                 className={cn(
                   "cursor-pointer p-5 rounded-2xl border transition-all",
-                  selected.id === ob.id ? "bg-rose-600/10 border-rose-500/30" : "bg-slate-900/40 border-white/5 hover:bg-slate-800/40"
+                  selected?.id === ob.id ? "bg-rose-600/10 border-rose-500/30" : "bg-slate-900/40 border-white/5 hover:bg-slate-800/40"
                 )}
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <p className={cn("font-bold text-sm", selected.id === ob.id ? "text-rose-300" : "text-white")}>{ob.titre}</p>
+                  <p className={cn("font-bold text-sm", selected?.id === ob.id ? "text-rose-300" : "text-white")}>{ob.titre}</p>
                   <span className={cn("text-[9px] px-2 py-1 rounded-lg border font-black uppercase shrink-0", URGENCE_STYLE[ob.urgence])}>
                     {ob.urgence}
                   </span>
@@ -197,6 +248,13 @@ export default function FiscaliteOhada() {
 
           {/* Détail + Action */}
           <div className="lg:col-span-7 space-y-5">
+            {!selected ? (
+              <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8 text-center text-slate-400">
+                {chargement
+                  ? "Chargement des obligations…"
+                  : "Sélectionnez une obligation pour en afficher le détail."}
+              </div>
+            ) : (
             <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
               <div className="flex items-start justify-between mb-6">
                 <div>
@@ -249,6 +307,7 @@ export default function FiscaliteOhada() {
                 </div>
               )}
             </div>
+            )}
 
             {/* Lien liasse */}
             <Link href="/comptabilite/liasse-fiscale" className="flex items-center justify-between p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl hover:bg-indigo-600/20 transition-all group">
@@ -345,10 +404,7 @@ export default function FiscaliteOhada() {
           <div className="grid grid-cols-7 gap-3">
             {/* Décalage (Lundi = 1er Juin 2026) */}
             {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
-              const evts = OBLIGATIONS.filter(o => {
-                const d = parseInt(o.echeance);
-                return d === day;
-              });
+              const evts = obligations.filter(o => parseInt(o.echeance, 10) === day);
               const isToday = day === 3;
               return (
                 <div key={day} className={cn(

@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FileText, Building2, User, Calendar, ChevronLeft, Send, Sparkles, CheckCircle2, Briefcase, Scale } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
 const MISSION_TYPES = [
   { value: "AUDIT", label: "Audit Légal", icon: Scale },
   { value: "EXPERTISE", label: "Expertise Comptable", icon: FileText },
@@ -17,6 +16,7 @@ const MISSION_TYPES = [
 export default function NewLettreMissionPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
+    clientId: "",
     clientName: "",
     missionType: "EXPERTISE",
     startDate: "",
@@ -28,14 +28,75 @@ export default function NewLettreMissionPage() {
   });
   const [generated, setGenerated] = useState(false);
 
-  const handleGenerate = () => {
-    setGenerated(true);
-    setStep(3);
+  // Le client est choisi dans le portefeuille reel : une lettre de mission
+  // rattachee a un nom saisi librement ne pourrait pas etre enregistree.
+  const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+  const [chargementClients, setChargementClients] = useState(true);
+  const [envoi, setEnvoi] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [reference, setReference] = useState<string | null>(null);
+
+  const chargerClients = useCallback(async () => {
+    setChargementClients(true);
+    try {
+      const res = await fetch("/api/clients?limit=200&isActive=true");
+      if (!res.ok) throw new Error(`Reponse ${res.status}`);
+      const data = await res.json();
+      setClients(
+        (data.clients ?? []).map((c: Record<string, unknown>) => ({
+          id: String(c.id),
+          nom:
+            (c.companyName as string) ||
+            [c.firstName, c.lastName].filter(Boolean).join(" ") ||
+            String(c.email ?? "Client sans nom"),
+        }))
+      );
+    } catch (e) {
+      console.error("Chargement du portefeuille clients :", e);
+      setErreur("Impossible de charger la liste des clients.");
+    } finally {
+      setChargementClients(false);
+    }
+  }, []);
+
+  useEffect(() => { chargerClients(); }, [chargerClients]);
+
+  const handleGenerate = async () => {
+    if (!form.clientId) {
+      setErreur("Selectionnez un client du portefeuille.");
+      return;
+    }
+
+    setEnvoi(true);
+    setErreur(null);
+    try {
+      const res = await fetch("/api/engagement-letters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: form.clientId,
+          scope: form.description || MISSION_TYPES.find(m => m.value === form.missionType)?.label,
+          fees: form.honoraires || null,
+          signatoryName: form.signataire || null,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `Reponse ${res.status}`);
+
+      setReference(data.letter?.reference ?? null);
+      setGenerated(true);
+      setStep(3);
+    } catch (e) {
+      console.error("Creation de la lettre de mission :", e);
+      setErreur(e instanceof Error ? e.message : "Echec de l'enregistrement de la lettre.");
+    } finally {
+      setEnvoi(false);
+    }
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-            <DonneesDemo />
 
       {/* Header */}
       <div className="flex items-center gap-4">
@@ -78,14 +139,28 @@ export default function NewLettreMissionPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Nom du Client / Entreprise *</label>
-              <input
-                type="text"
-                value={form.clientName}
-                onChange={e => setForm({ ...form, clientName: e.target.value })}
-                placeholder="SONELEC SA, Moussa Diallo..."
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
-              />
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Client du portefeuille *</label>
+              <select
+                value={form.clientId}
+                onChange={e => {
+                  const id = e.target.value;
+                  setForm({ ...form, clientId: id, clientName: clients.find(c => c.id === id)?.nom ?? "" });
+                }}
+                disabled={chargementClients}
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50"
+              >
+                <option value="">
+                  {chargementClients ? "Chargement du portefeuille..." : "Selectionnez un client"}
+                </option>
+                {clients.map(c => (
+                  <option key={c.id} value={c.id}>{c.nom}</option>
+                ))}
+              </select>
+              {!chargementClients && clients.length === 0 && (
+                <p className="mt-2 text-[11px] text-amber-400">
+                  Aucun client actif. Creez d&apos;abord une fiche client.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Signataire (Expert) *</label>
@@ -144,7 +219,7 @@ export default function NewLettreMissionPage() {
           <div className="flex justify-end">
             <button
               onClick={() => setStep(2)}
-              disabled={!form.clientName || !form.signataire}
+              disabled={!form.clientId || !form.signataire}
               className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Suivant →
@@ -214,16 +289,22 @@ export default function NewLettreMissionPage() {
             </div>
           )}
 
+          {erreur && (
+            <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-sm text-rose-300">
+              {erreur}
+            </div>
+          )}
+
           <div className="flex justify-between gap-4">
             <button onClick={() => setStep(1)} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-white/5">
               ← Retour
             </button>
             <button
               onClick={handleGenerate}
-              disabled={!form.honoraires}
+              disabled={!form.honoraires || envoi}
               className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4" /> Générer la Lettre
+              <Sparkles className="w-4 h-4" /> {envoi ? "Enregistrement…" : "Générer la Lettre"}
             </button>
           </div>
         </div>
@@ -235,8 +316,12 @@ export default function NewLettreMissionPage() {
           <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3">
             <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
             <div>
-              <p className="text-emerald-400 font-black text-sm">Lettre de mission générée avec succès</p>
-              <p className="text-slate-400 text-xs">Vérifiez le document ci-dessous avant de l'envoyer au client</p>
+              <p className="text-emerald-400 font-black text-sm">
+                Lettre de mission enregistrée{reference ? ` sous la référence ${reference}` : ""}
+              </p>
+              <p className="text-slate-400 text-xs">
+                Statut « brouillon ». Vérifiez le document ci-dessous avant de l&apos;envoyer au client.
+              </p>
             </div>
           </div>
 

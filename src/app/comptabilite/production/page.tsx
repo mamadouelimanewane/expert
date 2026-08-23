@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     LayoutDashboard,
     PieChart,
@@ -22,20 +22,67 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DonneesDemo from "@/components/layout/DonneesDemo";
-const ALL_FLOWS = [
-    { id: "1", client: "Société Ivoirienne de Banque", amount: "4 250 000", date: "27/01/2024", type: "Vente", status: "Matching IA (98%)", tags: ["Audit", "SIB"] },
-    { id: "2", client: "Orange Sénégal", amount: "1 200 000", date: "26/01/2024", type: "Vente", status: "A réviser", tags: ["Télécoms"] },
-    { id: "3", client: "Traoré Import-Export", amount: "890 000", date: "26/01/2024", type: "Achat", status: "Matching IA (95%)", tags: ["SYSCOHADA"] },
-    { id: "4", client: "Boulangerie du Plateau", amount: "45 000", date: "25/01/2024", type: "Achat", status: "A réviser", tags: ["Frais"] },
-];
+/** Flux tel que renvoye par /api/comptabilite/production. */
+type Flux = {
+    id: string;
+    date: string;
+    libelle: string;
+    montant: number;
+    sens: "RECETTE" | "DEPENSE";
+    imputation: { debit: string; debitIntitule: string; credit: string; creditIntitule: string };
+    statut: "A_QUALIFIER" | "A_VALIDER" | "VALIDEE";
+    confiance: number | null;
+    origine: string;
+    client: { id: string | null; nom: string };
+};
+
+type SyntheseProduction = {
+    total: number;
+    aQualifier: number;
+    aValider: number;
+    validees: number;
+};
+
+const LIBELLE_STATUT: Record<Flux["statut"], string> = {
+    A_QUALIFIER: "A qualifier",
+    A_VALIDER: "A valider",
+    VALIDEE: "Validee",
+};
 
 export default function CollaborativeProductionPage() {
     const [activeView, setActiveView] = useState<"production" | "pilotage">("production");
 
+    // Ecritures reelles en attente de revision, issues du journal.
+    const [flux, setFlux] = useState<Flux[]>([]);
+    const [synthese, setSynthese] = useState<SyntheseProduction | null>(null);
+    const [aucuneDonnee, setAucuneDonnee] = useState(false);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState<string | null>(null);
+
+    const charger = useCallback(async () => {
+        setChargement(true);
+        setErreur(null);
+        try {
+            const res = await fetch("/api/comptabilite/production?limit=50");
+            if (!res.ok) throw new Error(`Reponse ${res.status}`);
+            const data = await res.json();
+            setFlux(data.flux ?? []);
+            setSynthese(data.synthese ?? null);
+            setAucuneDonnee(Boolean(data.aucuneDonnee));
+        } catch (e) {
+            console.error("Chargement de la production comptable :", e);
+            setErreur("Impossible de charger les ecritures en attente.");
+            setFlux([]);
+            setSynthese(null);
+        } finally {
+            setChargement(false);
+        }
+    }, []);
+
+    useEffect(() => { charger(); }, [charger]);
+
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            <DonneesDemo />
 
             {/* Pennylane Style Hero */}
             <div className="bg-slate-950 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
@@ -83,10 +130,10 @@ export default function CollaborativeProductionPage() {
 
             {/* Real-time KPI Stream */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <KpiCard title="Flux à traiter" value="124" trend="-12" icon={RefreshCw} color="text-indigo-400" />
-                <KpiCard title="Matching Auto IA" value="88%" trend="+5%" icon={Zap} color="text-amber-400" />
-                <KpiCard title="Écarts Lettrage" value="12" subtext="Requérant attention" icon={AlertCircle} color="text-rose-400" />
-                <KpiCard title="Temps de saisie sauvé" value="2.5h" subtext="Ce jour" icon={Clock} color="text-emerald-400" />
+                <KpiCard title="Écritures au journal" value={String(synthese?.total ?? 0)} icon={RefreshCw} color="text-indigo-400" />
+                <KpiCard title="Imputées par règle" value={String((synthese?.total ?? 0) - (synthese?.aQualifier ?? 0))} subtext="Compte déterminé" icon={Zap} color="text-amber-400" />
+                <KpiCard title="À qualifier" value={String(synthese?.aQualifier ?? 0)} subtext="En compte d'attente 471" icon={AlertCircle} color="text-rose-400" />
+                <KpiCard title="Validées" value={String(synthese?.validees ?? 0)} subtext="Exportées" icon={Clock} color="text-emerald-400" />
             </div>
 
             {/* Main Production Table (PENNYLANE STYLE) */}
@@ -131,39 +178,59 @@ export default function CollaborativeProductionPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {ALL_FLOWS.map((flow) => (
+                            {chargement ? (
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-10 text-center text-sm text-slate-500">
+                                        Chargement des écritures…
+                                    </td>
+                                </tr>
+                            ) : flux.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-10 text-center text-sm text-slate-500">
+                                        {erreur ?? (aucuneDonnee
+                                            ? "Aucune écriture dans le journal : la file est vide parce que rien n'a été collecté."
+                                            : "Aucune écriture à afficher.")}
+                                    </td>
+                                </tr>
+                            ) : flux.map((flow) => (
                                 <tr key={flow.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-mono font-bold text-slate-500">{flow.date}</span>
                                     </td>
                                     <td className="px-6 py-6">
                                         <div>
-                                            <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{flow.client}</span>
+                                            <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{flow.client.nom}</span>
+                                            <p className="text-[10px] text-slate-500 mt-1 truncate max-w-xs">{flow.libelle}</p>
                                             <div className="flex gap-1 mt-1">
-                                                {flow.tags.map(tag => (
-                                                    <span key={tag} className="text-[8px] px-1.5 py-0.5 bg-white/5 rounded text-slate-500 uppercase font-black">{tag}</span>
-                                                ))}
+                                                <span className="text-[8px] px-1.5 py-0.5 bg-white/5 rounded text-slate-500 uppercase font-black font-mono">
+                                                    {flow.imputation.debit} / {flow.imputation.credit}
+                                                </span>
+                                                <span className="text-[8px] px-1.5 py-0.5 bg-white/5 rounded text-slate-500 uppercase font-black">{flow.origine}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-6 text-right">
-                                        <span className="font-bold text-white font-mono">{flow.amount}</span>
+                                        <span className="font-bold text-white font-mono">{flow.montant.toLocaleString("fr-FR")}</span>
                                     </td>
                                     <td className="px-6 py-6">
                                         <span className={cn(
                                             "px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border",
-                                            flow.type === "Vente" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                            flow.sens === "RECETTE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
                                         )}>
-                                            {flow.type}
+                                            {flow.sens === "RECETTE" ? "Vente" : "Achat"}
                                         </span>
                                     </td>
                                     <td className="px-6 py-6">
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
-                                                flow.status.includes("IA") ? "bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" : "bg-amber-500"
+                                                flow.statut === "VALIDEE" ? "bg-emerald-500" :
+                                                flow.statut === "A_QUALIFIER" ? "bg-rose-500" : "bg-amber-500"
                                             )} />
-                                            <span className="text-xs font-bold text-slate-400">{flow.status}</span>
+                                            <span className="text-xs font-bold text-slate-400">
+                                                {LIBELLE_STATUT[flow.statut]}
+                                                {flow.confiance !== null && ` (${Math.round(flow.confiance * 100)}%)`}
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6 text-right">
