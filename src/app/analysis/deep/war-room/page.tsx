@@ -1,34 +1,93 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    LayoutDashboard,
-    TrendingUp,
     ShieldAlert,
     Target,
     Zap,
-    Users,
-    ArrowUpRight,
-    ArrowDownRight,
-    Search,
-    Filter,
-    Activity,
     Clock,
     Flame,
-    PieChart,
     BarChart3,
-    Sparkles,
     AlertCircle,
     CheckCircle2,
-    DollarSign,
+    Loader2,
     Briefcase
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// War Room stratégique (vue associés).
+//
+// Cette page ne faisait aucun appel réseau : quatre KPI fixes (« Budget
+// Recovered 84% », « Client Sentiment 4.8/5 »…), trois dossiers en retard
+// fictifs (« SOCIÉTÉ D'HOTELLERIE DU GABON »…), trois « leads » de croissance
+// inventés nommant une entreprise réelle (« Orange Sénégal »), une
+// profitabilité « +14.2% YoY » et un badge « Elite Pro 360 v2.4 » sans aucune
+// signification. Aucune de ces métriques n'a d'équivalent calculable dans
+// l'application (pas de sentiment client, pas de suivi de synergies M&A) :
+// elles sont donc retirées plutôt que rebranchées sur une fausse source.
+// Les dossiers en retard viennent maintenant de /api/missions (deadline
+// dépassée), et les indicateurs de risque du nombre réel d'alertes de fraude
+// ouvertes (/api/audit/fraud-alerts) et de clients au KYC non conforme
+// (/api/clients).
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface MissionEnRetard {
+    id: string;
+    title: string;
+    type: string;
+    deadline: string;
+    delayDays: number;
+    client: string;
+    assignedTo: string | null;
+}
+
 export default function PartnerWarRoom() {
+    const [chargement, setChargement] = useState(true);
+    const [retards, setRetards] = useState<MissionEnRetard[]>([]);
+    const [stats, setStats] = useState({ total: 0, inProgress: 0, completed: 0 });
+    const [alertesFraudeOuvertes, setAlertesFraudeOuvertes] = useState(0);
+    const [clientsKycNonConforme, setClientsKycNonConforme] = useState(0);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const [rm, rf, rc] = await Promise.all([
+                    fetch("/api/missions"),
+                    fetch("/api/audit/fraud-alerts?status=NOUVELLE"),
+                    fetch("/api/clients?limit=200&isActive=true"),
+                ]);
+                const [dm, df, dc] = await Promise.all([rm.json(), rf.json(), rc.json()]);
+
+                const maintenant = Date.now();
+                const enRetard: MissionEnRetard[] = (dm.missions ?? [])
+                    .filter((m: any) => m.deadline && m.status !== "COMPLETED" && new Date(m.deadline).getTime() < maintenant)
+                    .map((m: any) => ({
+                        id: m.id,
+                        title: m.title,
+                        type: m.type,
+                        deadline: m.deadline,
+                        delayDays: Math.floor((maintenant - new Date(m.deadline).getTime()) / (1000 * 60 * 60 * 24)),
+                        client: m.client?.companyName || [m.client?.firstName, m.client?.lastName].filter(Boolean).join(" ") || "Client",
+                        assignedTo: m.assignedTo ? [m.assignedTo.firstName, m.assignedTo.lastName].filter(Boolean).join(" ") : null,
+                    }))
+                    .sort((a: MissionEnRetard, b: MissionEnRetard) => b.delayDays - a.delayDays);
+
+                setRetards(enRetard);
+                setStats({ total: dm.stats?.total ?? 0, inProgress: dm.stats?.inProgress ?? 0, completed: dm.stats?.completed ?? 0 });
+                setAlertesFraudeOuvertes((df.alerts ?? []).length);
+                setClientsKycNonConforme((dc.clients ?? []).filter((c: any) => c.kycStatus === "invalid").length);
+            } catch (e) {
+                console.error("Chargement du war room :", e);
+            } finally {
+                setChargement(false);
+            }
+        })();
+    }, []);
+
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
-            {/* Header: War Room / Partner View */}
+            {/* Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-10 pointer-events-none">
                     <Target className="w-64 h-64 text-rose-500" />
@@ -40,135 +99,101 @@ export default function PartnerWarRoom() {
                             <span className="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
                                 Command Center (Associés)
                             </span>
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
-                                Strategic Deep Analysis
-                            </span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             War Room <span className="text-rose-500">Stratégique</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                            Vision 360° sur la performance globale du cabinet. Croissance des honoraires, risques de conformité et opportunités d'Advisory IA.
+                            Dossiers en retard, alertes de fraude ouvertes et conformité KYC sur le portefeuille réel.
                         </p>
                     </div>
-
-                    <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-rose-600/30 active:scale-95">
-                            <Flame className="w-5 h-5" /> Sprint de Clôture
-                        </button>
-                    </div>
                 </div>
             </div>
 
-            {/* Strategic KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <WarStatCard title="Budget Recovered" value="84" unit="%" trend="+4%" icon={DollarSign} color="text-indigo-400" />
-                <WarStatCard title="KYC Compliance" value="92" unit="%" trend="stable" icon={ShieldAlert} color="text-emerald-400" />
-                <WarStatCard title="Production Speed" value="x1.8" trend="+20%" icon={Zap} color="text-amber-400" />
-                <WarStatCard title="Client Sentiment" value="4.8" unit="/5" trend="+0.2" icon={Users} color="text-cyan-400" />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* 1. Production Bottlenecks (Left) */}
-                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5">
-                        <Briefcase className="w-48 h-48 text-white" />
-                    </div>
-
-                    <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Production Critique (Retards)</h3>
-                        <div className="flex gap-2">
-                            <span className="px-3 py-1 bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase rounded-full border border-rose-500/20 animate-pulse">8 Dossiers Bloqués</span>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        <BottleneckRow client="SOCIÉTÉ D'HOTELLERIE DU GABON" mission="Commissariat aux Comptes" delay="12 Jours" expert="Moussa S." status="Bloqué (Pièces)" progress={85} />
-                        <BottleneckRow client="INDUSTRIE TEXTILE SENEGAL" mission="Bilan Annuel 2023" delay="5 Jours" expert="Awa D." status="En Révision" progress={45} color="bg-amber-500" />
-                        <BottleneckRow client="TECH LOGISTICS IVOIRE" mission="Audit Social" delay="2 Jours" expert="Jean-Paul M." status="En Saisie" progress={12} color="bg-indigo-500" />
-                    </div>
-
-                    <button className="mt-10 w-full py-5 bg-white/5 border border-white/10 rounded-3xl text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:bg-white/10 transition-all">
-                        Voir tout le pipeline de production
-                    </button>
+            {chargement ? (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
                 </div>
-
-                {/* 2. AI Growth Opportunities (Right) */}
-                <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-indigo-500/20 bg-indigo-600/5 relative overflow-hidden group shadow-2xl">
-                        <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-10 group-hover:scale-110 transition-transform">
-                            <Sparkles className="w-32 h-32 text-indigo-400" />
-                        </div>
-                        <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
-                            <Zap className="w-6 h-6 text-amber-400 fill-amber-400" />
-                            Nexus Growth Leads
-                        </h3>
-
-                        <div className="space-y-6">
-                            <LeadItem title="M&A Synergy" desc="TechLogistics & GlobalDev fusion potentielle détectée." value="350M FCFA" />
-                            <LeadItem title="Optimisation Fiscale" desc="SOG GABON éligible crédit impôt R&D (OHADA)." value="12M FCFA" />
-                            <LeadItem title="Financement" desc="Besoin de BFR critique sur Orange Sénégal (vague 5)." status="Urgent" />
-                        </div>
-
-                        <div className="mt-10 p-6 bg-indigo-600/20 border border-white/10 rounded-3xl text-center cursor-pointer hover:bg-indigo-600/30 transition-all">
-                            <p className="text-[10px] font-black text-white uppercase tracking-widest mb-2">Lancer les campagnes d'Advisory</p>
-                            <ArrowUpRight className="w-5 h-5 text-indigo-400 mx-auto" />
-                        </div>
+            ) : (
+                <>
+                    {/* Strategic KPI Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <WarStatCard title="Missions en cours" value={String(stats.inProgress)} icon={Zap} color="text-indigo-400" />
+                        <WarStatCard title="Missions terminées" value={String(stats.completed)} icon={CheckCircle2} color="text-emerald-400" />
+                        <WarStatCard title="Dossiers en retard" value={String(retards.length)} icon={Flame} color="text-rose-400" />
+                        <WarStatCard title="Alertes fraude ouvertes" value={String(alertesFraudeOuvertes)} icon={ShieldAlert} color="text-amber-400" />
                     </div>
 
-                    <div className="p-8 rounded-[40px] bg-slate-900/60 border border-white/5 flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Profitabilité Cabinet</p>
-                            <h4 className="text-2xl font-black text-white">+14.2% <span className="text-xs text-emerald-400">YoY</span></h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Production Bottlenecks */}
+                        <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5">
+                                <Briefcase className="w-48 h-48 text-white" />
+                            </div>
+
+                            <div className="flex justify-between items-center mb-10">
+                                <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Production Critique (Retards)</h3>
+                                <div className="flex gap-2">
+                                    <span className="px-3 py-1 bg-rose-500/10 text-rose-500 text-[9px] font-black uppercase rounded-full border border-rose-500/20">
+                                        {retards.length} Dossier{retards.length > 1 ? "s" : ""} Bloqué{retards.length > 1 ? "s" : ""}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {retards.length === 0 ? (
+                                <p className="text-sm text-slate-500 text-center py-10">Aucune mission en retard.</p>
+                            ) : (
+                                <div className="space-y-6">
+                                    {retards.slice(0, 8).map((m) => (
+                                        <BottleneckRow key={m.id} client={m.client} mission={m.title} delay={`${m.delayDays} Jour${m.delayDays > 1 ? "s" : ""}`} expert={m.assignedTo} />
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                        <BarChart3 className="w-10 h-10 text-indigo-500 opacity-50" />
-                    </div>
-                </div>
-            </div>
 
-            {/* Risk Management Floor */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
-                    <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
-                        <ShieldAlert className="w-6 h-6 text-rose-500" />
-                        Cartographie des Risques Majeurs
-                    </h3>
-                    <div className="space-y-4">
-                        <RiskAlert label="Risque de Churn Client" severity="High" clients="3 Dossiers" />
-                        <RiskAlert label="Défaut de Conformité KYC" severity="Medium" clients="12 Dossiers" />
-                    </div>
-                </div>
+                        {/* Risk Panel */}
+                        <div className="lg:col-span-4 space-y-8">
+                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                                <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
+                                    <ShieldAlert className="w-6 h-6 text-rose-500" />
+                                    Cartographie des Risques
+                                </h3>
+                                <div className="space-y-4">
+                                    <RiskAlert label="Alertes de fraude ouvertes" count={alertesFraudeOuvertes} />
+                                    <RiskAlert label="Clients au KYC non conforme" count={clientsKycNonConforme} />
+                                </div>
+                            </div>
 
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20 text-center flex flex-col items-center justify-center gap-4">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
-                        <PieChart className="w-8 h-8 text-indigo-400" />
+                            <div className="p-8 rounded-[40px] bg-slate-900/60 border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Missions actives</p>
+                                    <h4 className="text-2xl font-black text-white">{stats.total}</h4>
+                                </div>
+                                <BarChart3 className="w-10 h-10 text-indigo-500 opacity-50" />
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-loose">
-                        Votre cabinet est configuré sur le modèle <br /><b className="text-white">Elite Pro 360 v2.4</b>
-                    </p>
-                    <button className="text-xs font-black text-indigo-400 uppercase tracking-widest hover:underline">Accéder au paramétrage expert</button>
-                </div>
-            </div>
+                </>
+            )}
         </div>
     );
 }
 
-function WarStatCard({ title, value, unit, trend, icon: Icon, color }: any) {
+function WarStatCard({ title, value, icon: Icon, color }: any) {
     return (
         <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110 shadow-xl", color)}>
                     <Icon className="w-6 h-6" />
                 </div>
-                <div className="px-3 py-1 bg-white/5 rounded-full text-[9px] font-black text-slate-500 uppercase">{trend}</div>
             </div>
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{title}</p>
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}{unit || ""}</h3>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mt-1 tracking-tighter">{value}</h3>
         </div>
     );
 }
 
-function BottleneckRow({ client, mission, delay, expert, status, progress, color = "bg-rose-500" }: any) {
+function BottleneckRow({ client, mission, delay, expert }: any) {
     return (
         <div className="flex flex-col md:flex-row items-center justify-between p-6 bg-white/[0.02] border border-white/5 rounded-3xl group hover:bg-white/[0.05] transition-all gap-6">
             <div className="flex-1 w-full lg:w-auto">
@@ -181,54 +206,29 @@ function BottleneckRow({ client, mission, delay, expert, status, progress, color
                     </span>
                 </div>
             </div>
-            <div className="flex items-center gap-8 w-full lg:w-auto">
+            {expert && (
                 <div className="hidden sm:block text-right">
                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Chargé de Mission</p>
-                    <div className="flex items-center gap-2 justify-end">
-                        <span className="text-xs font-bold text-white uppercase">{expert}</span>
-                        <div className="w-6 h-6 bg-slate-800 rounded-lg flex items-center justify-center font-black text-[10px]">{expert[0]}</div>
-                    </div>
+                    <span className="text-xs font-bold text-white uppercase">{expert}</span>
                 </div>
-                <div className="w-24 text-center">
-                    <div className="text-[10px] font-black text-white mb-2 uppercase">{progress}%</div>
-                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className={cn("h-full transition-all duration-1000", color)} style={{ width: `${progress}%` }} />
-                    </div>
-                </div>
-                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase text-slate-400 tracking-widest whitespace-nowrap">{status}</span>
-            </div>
+            )}
         </div>
     );
 }
 
-function LeadItem({ title, desc, value, status }: any) {
-    return (
-        <div className="p-5 bg-white/5 rounded-2xl border border-white/5 group-hover:border-indigo-500/30 transition-all">
-            <div className="flex justify-between items-start mb-2">
-                <h4 className="text-xs font-black text-white uppercase tracking-tight">{title}</h4>
-                {value ? <span className="text-[10px] font-black text-emerald-400">{value}</span> : <span className="text-[10px] font-black text-rose-400 animate-pulse uppercase">{status}</span>}
-            </div>
-            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{desc}</p>
-        </div>
-    );
-}
-
-function RiskAlert({ label, severity, clients }: any) {
+function RiskAlert({ label, count }: { label: string; count: number }) {
     return (
         <div className="flex items-center justify-between p-4 bg-rose-500/5 border border-rose-500/10 rounded-2xl">
             <div className="flex items-center gap-3">
                 <AlertCircle className="w-4 h-4 text-rose-500" />
                 <span className="text-xs font-bold text-slate-300">{label}</span>
             </div>
-            <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{clients}</span>
-                <span className={cn(
-                    "text-[9px] font-black uppercase px-2 py-0.5 rounded",
-                    severity === "High" ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-amber-500 text-slate-900"
-                )}>
-                    {severity}
-                </span>
-            </div>
+            <span className={cn(
+                "text-[10px] font-black uppercase px-2 py-0.5 rounded",
+                count > 0 ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-emerald-500/20 text-emerald-400"
+            )}>
+                {count}
+            </span>
         </div>
     );
 }

@@ -1,43 +1,79 @@
 import { NextResponse } from "next/server";
 import { generateForecast, detectCriticalPoints } from "@/lib/forecast-engine";
+import prisma from "@/lib/prisma";
 
 import { requireStaff } from "@/lib/api-auth";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cette route renvoyait une trésorerie de départ fixe (18,4 M FCFA) et huit
+// événements entièrement inventés, dont plusieurs nommaient des entreprises
+// réelles (« Paiement Facture Sonatel », « Acompte Client Eiffage ») avec des
+// montants sans rapport avec la base. Le moteur de projection
+// (generateForecast) reste un modèle simplifié à hypothèses fixes — il est
+// conservé tel quel pour les trois scénarios — mais son point de départ et
+// les échéances affichées proviennent désormais de données réelles : le solde
+// bancaire courant (BankTransaction) et les factures du cabinet non encore
+// encaissées (Invoice, statut SENT/OVERDUE, échéance dans les 90 jours).
+// Aucune charge récurrente (loyer, salaires, TVA) n'est suivie par
+// l'application : elles ne sont donc plus fabriquées, et l'absence est
+// signalée au client de l'API plutôt que comblée par un chiffre inventé.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export async function GET() {
     const { denied } = await requireStaff();
     if (denied) return denied;
 
-  const baseCash = 18400000; // 18.4M FCFA
+    const soldeBancaire = await prisma.bankTransaction.aggregate({
+        _sum: { amount: true },
+        where: { status: { not: "IGNORED" } },
+    });
+    const baseCash = soldeBancaire._sum.amount ?? 0;
 
-  const optimiste = generateForecast(baseCash, 'optimiste');
-  const realiste = generateForecast(baseCash, 'realiste');
-  const pessimiste = generateForecast(baseCash, 'pessimiste');
+    const dans90Jours = new Date();
+    dans90Jours.setDate(dans90Jours.getDate() + 90);
 
-  const events = [
-    { id: 1, date: optimiste[1].date, libelle: "Paiement Facture Sonatel", encaissement: 1200000, decaissement: 0, solde: 0 },
-    { id: 2, date: optimiste[2].date, libelle: "TVA Mois précédent", encaissement: 0, decaissement: 4500000, solde: 0 },
-    { id: 3, date: optimiste[3].date, libelle: "Salaires", encaissement: 0, decaissement: 8500000, solde: 0 },
-    { id: 4, date: optimiste[5].date, libelle: "Acompte Client Eiffage", encaissement: 3500000, decaissement: 0, solde: 0 },
-    { id: 5, date: optimiste[7].date, libelle: "Paiement Fournisseur IT", encaissement: 0, decaissement: 1100000, solde: 0 },
-    { id: 6, date: optimiste[8].date, libelle: "Loyer Trimestre", encaissement: 0, decaissement: 3000000, solde: 0 },
-    { id: 7, date: optimiste[10].date, libelle: "Solde Mission Conseil", encaissement: 5000000, decaissement: 0, solde: 0 },
-    { id: 8, date: optimiste[12].date, libelle: "Charges Sociales", encaissement: 0, decaissement: 2100000, solde: 0 }
-  ];
+    const facturesAttendues = await prisma.invoice.findMany({
+        where: {
+            status: { in: ["SENT", "OVERDUE"] },
+            dueDate: { lte: dans90Jours },
+        },
+        orderBy: { dueDate: "asc" },
+        take: 50,
+        include: { client: { select: { companyName: true, firstName: true, lastName: true } } },
+    });
 
-  // Calculate projected balance for events based on realiste scenario
-  let currentEventCash = baseCash;
-  events.forEach(ev => {
-    currentEventCash = currentEventCash + ev.encaissement - ev.decaissement;
-    ev.solde = currentEventCash;
-  });
+    const enRetard = await prisma.invoice.aggregate({
+        _sum: { total: true },
+        where: { status: "OVERDUE" },
+    });
 
-  return NextResponse.json({
-    baseCash,
-    scenarios: {
-      optimiste,
-      realiste,
-      pessimiste
-    },
-    criticals: detectCriticalPoints(pessimiste),
-    events
-  });
+    let soldeCourant = baseCash;
+    const events = facturesAttendues.map((f) => {
+        soldeCourant += f.total;
+        const nomClient = f.client.companyName || [f.client.firstName, f.client.lastName].filter(Boolean).join(" ") || "Client";
+        return {
+            id: f.id,
+            date: f.dueDate.toISOString().split("T")[0],
+            libelle: `Facture ${f.invoiceNumber} — ${nomClient}`,
+            encaissement: f.total,
+            decaissement: 0,
+            solde: soldeCourant,
+        };
+    });
+
+    const optimiste = generateForecast(baseCash, "optimiste");
+    const realiste = generateForecast(baseCash, "realiste");
+    const pessimiste = generateForecast(baseCash, "pessimiste");
+
+    return NextResponse.json({
+        baseCash,
+        scenarios: { optimiste, realiste, pessimiste },
+        criticals: detectCriticalPoints(pessimiste),
+        events,
+        creancesEnRetard: enRetard._sum.total ?? 0,
+        // Aucune charge récurrente (loyer, salaires, TVA…) n'est suivie par
+        // l'application : les événements ci-dessus ne couvrent que les
+        // encaissements attendus (factures clients à échoir).
+        decaissementsNonSuivis: true,
+    });
 }

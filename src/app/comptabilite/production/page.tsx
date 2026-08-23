@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     LayoutDashboard,
     PieChart,
@@ -80,6 +80,26 @@ export default function CollaborativeProductionPage() {
     }, []);
 
     useEffect(() => { charger(); }, [charger]);
+
+    // Le « Pilotage par Portefeuille » affichait trois clients fixes
+    // (Telecom Afrique, SIB, Orange Sénégal) avec une progression inventée.
+    // Il est recalculé ici à partir des écritures réellement chargées
+    // ci-dessus : progression = part des écritures validées par client.
+    const parPortefeuille = useMemo(() => {
+        const parClient = new Map<string, { nom: string; total: number; validees: number; aQualifier: number }>();
+        for (const f of flux) {
+            const cle = f.client.id ?? f.client.nom;
+            const entree = parClient.get(cle) ?? { nom: f.client.nom, total: 0, validees: 0, aQualifier: 0 };
+            entree.total += 1;
+            if (f.statut === "VALIDEE") entree.validees += 1;
+            if (f.statut === "A_QUALIFIER") entree.aQualifier += 1;
+            parClient.set(cle, entree);
+        }
+        return Array.from(parClient.values())
+            .map((c) => ({ ...c, progress: c.total > 0 ? Math.round((c.validees / c.total) * 100) : 0 }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 5);
+    }, [flux]);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -256,30 +276,40 @@ export default function CollaborativeProductionPage() {
                         Pilotage par Portefeuille
                     </h3>
                     <div className="space-y-6">
-                        <PortfolioProgress client="Telecom Afrique" progress={92} status="Prêt pour Clôture" />
-                        <PortfolioProgress client="SIB" progress={45} status="En attente documents" color="bg-amber-500" />
-                        <PortfolioProgress client="Orange Sénégal" progress={12} status="Retard Majeur" color="bg-rose-500" />
+                        {parPortefeuille.length === 0 ? (
+                            <p className="text-sm text-slate-500">Aucune écriture chargée pour calculer une progression par client.</p>
+                        ) : (
+                            parPortefeuille.map((c) => (
+                                <PortfolioProgress
+                                    key={c.nom}
+                                    client={c.nom}
+                                    progress={c.progress}
+                                    status={c.progress === 100 ? "Toutes écritures validées" : `${c.aQualifier} à qualifier`}
+                                    color={c.progress === 100 ? "bg-emerald-500" : c.aQualifier > 0 ? "bg-rose-500" : "bg-amber-500"}
+                                />
+                            ))
+                        )}
                     </div>
                 </div>
 
                 <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-950/40">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-amber-400" />
-                        L'intelligence Pennylane x NEXUS
+                        Écritures à qualifier
                     </h3>
-                    <div className="p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-3xl space-y-4">
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                            "J'ai identifié 14 factures récurrentes non synchronisées sur le dossier SIB. Voulez-vous que je génère les écritures d'abonnements correspondantes ?"
-                        </p>
-                        <div className="flex gap-4">
-                            <button className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20">Oui, Appliquer</button>
-                            <button className="px-6 py-2.5 bg-white/5 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest">Voir le détail</button>
+                    {synthese && synthese.aQualifier > 0 ? (
+                        <div className="p-6 bg-rose-500/5 border border-rose-500/20 rounded-3xl space-y-2">
+                            <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                                {synthese.aQualifier} écriture{synthese.aQualifier > 1 ? "s" : ""} sans règle d&apos;imputation trouvée{synthese.aQualifier > 1 ? "s" : ""},
+                                actuellement en compte d&apos;attente 471. Ouvrez-les depuis le tableau ci-dessus pour les qualifier manuellement.
+                            </p>
                         </div>
-                    </div>
-                    <div className="mt-8 flex items-center gap-4 text-xs font-bold text-slate-500">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        Toutes les écritures sont synchronisées avec vos 300+ connecteurs.
-                    </div>
+                    ) : (
+                        <div className="flex items-center gap-4 text-xs font-bold text-slate-500">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            Aucune écriture en attente de qualification.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
