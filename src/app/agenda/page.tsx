@@ -9,7 +9,9 @@ import {
     UserPlus,
     MoreVertical,
     Loader2,
-    Save
+    Save,
+    Plus,
+    X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,8 +39,23 @@ export default function AgendaPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
-    useEffect(() => {
-        fetch("/api/meetings")
+    const [clientsList, setClientsList] = useState<{ id: string; name: string }[]>([]);
+    const [showCreate, setShowCreate] = useState(false);
+    const [creating, setCreating] = useState(false);
+    const [createError, setCreateError] = useState<string | null>(null);
+    const [form, setForm] = useState({
+        title: "",
+        clientId: "",
+        type: "VIRTUELLE" as "VIRTUELLE" | "PRESENTIEL",
+        date: new Date().toISOString().slice(0, 10),
+        startTime: "09:00",
+        endTime: "10:00",
+        location: "",
+        meetingUrl: "",
+    });
+
+    const loadMeetings = (): Promise<Meeting[]> => {
+        return fetch("/api/meetings")
             .then((r) => r.json())
             .then((data) => {
                 const list: Meeting[] = (data.meetings || []).map((m: any) => ({
@@ -56,13 +73,79 @@ export default function AgendaPage() {
                     reportGenerated: m.reportGenerated,
                 }));
                 setMeetings(list);
-                if (list.length > 0) {
-                    setSelectedId(list[0].id);
-                    setNotes(list[0].notes || "");
-                }
+                return list;
             })
-            .catch(() => setMeetings([]));
+            .catch(() => {
+                setMeetings([]);
+                return [];
+            });
+    };
+
+    useEffect(() => {
+        loadMeetings().then((list) => {
+            if (list && list.length > 0) {
+                setSelectedId(list[0].id);
+                setNotes(list[0].notes || "");
+            }
+        });
+        fetch("/api/clients?limit=200&isActive=true")
+            .then((r) => r.json())
+            .then((data) => {
+                setClientsList(
+                    (data.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        name: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                );
+            })
+            .catch(() => setClientsList([]));
     }, []);
+
+    const handleCreateMeeting = async () => {
+        if (!form.title.trim()) {
+            setCreateError("Le titre est obligatoire.");
+            return;
+        }
+        const startTime = new Date(`${form.date}T${form.startTime}`);
+        const endTime = new Date(`${form.date}T${form.endTime}`);
+        if (endTime <= startTime) {
+            setCreateError("L'heure de fin doit être après l'heure de début.");
+            return;
+        }
+        setCreating(true);
+        setCreateError(null);
+        try {
+            const res = await fetch("/api/meetings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    title: form.title,
+                    type: form.type,
+                    startTime: startTime.toISOString(),
+                    endTime: endTime.toISOString(),
+                    location: form.type === "PRESENTIEL" ? form.location || undefined : undefined,
+                    meetingUrl: form.type === "VIRTUELLE" ? form.meetingUrl || undefined : undefined,
+                    clientId: form.clientId || undefined,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setCreateError(data.error || "Échec de la création.");
+                return;
+            }
+            setShowCreate(false);
+            setForm({ title: "", clientId: "", type: "VIRTUELLE", date: new Date().toISOString().slice(0, 10), startTime: "09:00", endTime: "10:00", location: "", meetingUrl: "" });
+            loadMeetings().then(() => {
+                setSelectedId(data.meeting.id);
+                setNotes("");
+            });
+        } catch (e) {
+            console.error(e);
+            setCreateError("Erreur de connexion au serveur.");
+        } finally {
+            setCreating(false);
+        }
+    };
 
     const selectedMeeting = meetings?.find((m) => m.id === selectedId) || null;
 
@@ -155,11 +238,18 @@ export default function AgendaPage() {
 
                     {/* Meetings List */}
                     <div className="flex-1 glass-card rounded-2xl border border-slate-700/50 overflow-hidden flex flex-col min-h-[300px] lg:min-h-0">
-                        <div className="p-4 bg-slate-900/50 border-b border-slate-700/50">
+                        <div className="p-4 bg-slate-900/50 border-b border-slate-700/50 flex items-center justify-between gap-2">
                             <h3 className="font-bold text-white flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-indigo-400" />
                                 Réunions ({meetings.length})
                             </h3>
+                            <button
+                                onClick={() => { setShowCreate(true); setCreateError(null); }}
+                                className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+                                title="Nouvelle réunion"
+                            >
+                                <Plus className="w-4 h-4" />
+                            </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2">
                             {meetings.length === 0 && (
@@ -227,7 +317,7 @@ export default function AgendaPage() {
                                             <span className="sm:hidden">Visio</span>
                                         </a>
                                     )}
-                                    <button className="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700">
+                                    <button disabled title="Non implémenté" className="p-2.5 bg-slate-800/50 text-slate-600 rounded-xl border border-slate-700 cursor-not-allowed">
                                         <MoreVertical className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -262,7 +352,7 @@ export default function AgendaPage() {
                                             <p className="text-[10px] text-slate-500 mr-auto self-center">
                                                 Rédaction manuelle — la génération automatique par IA n'est pas disponible.
                                             </p>
-                                            <button className="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-xs sm:text-sm font-medium border border-slate-700 flex items-center justify-center gap-2">
+                                            <button disabled title="Non implémenté : aucun moteur de génération PDF n'est encore connecté" className="px-4 py-2 bg-slate-800/50 text-slate-600 rounded-lg text-xs sm:text-sm font-medium border border-slate-700 flex items-center justify-center gap-2 cursor-not-allowed">
                                                 <FileText className="w-4 h-4" />
                                                 Exporter PDF
                                             </button>
@@ -279,6 +369,138 @@ export default function AgendaPage() {
                     )}
                 </div>
             </div>
+
+            {/* Modale : nouvelle réunion (POST /api/meetings réel) */}
+            {showCreate && (
+                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-white">Nouvelle réunion</h3>
+                            <button onClick={() => setShowCreate(false)} className="p-1.5 text-slate-500 hover:text-white transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {createError && (
+                            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300">{createError}</div>
+                        )}
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="text-xs font-bold text-slate-400 mb-1 block">Titre *</label>
+                                <input
+                                    type="text"
+                                    value={form.title}
+                                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                    placeholder="Ex: Revue trimestrielle"
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold text-slate-400 mb-1 block">Client (optionnel)</label>
+                                <select
+                                    value={form.clientId}
+                                    onChange={(e) => setForm({ ...form, clientId: e.target.value })}
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                >
+                                    <option value="">Aucun</option>
+                                    {clientsList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 mb-1 block">Date</label>
+                                    <input
+                                        type="date"
+                                        value={form.date}
+                                        onChange={(e) => setForm({ ...form, date: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        style={{ colorScheme: "dark" }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 mb-1 block">Début</label>
+                                    <input
+                                        type="time"
+                                        value={form.startTime}
+                                        onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        style={{ colorScheme: "dark" }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 mb-1 block">Fin</label>
+                                    <input
+                                        type="time"
+                                        value={form.endTime}
+                                        onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        style={{ colorScheme: "dark" }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-bold text-slate-400 mb-1 block">Type</label>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setForm({ ...form, type: "VIRTUELLE" })}
+                                        className={cn("flex-1 py-2 rounded-lg text-xs font-bold border transition-all", form.type === "VIRTUELLE" ? "bg-purple-600/20 border-purple-500/50 text-purple-300" : "bg-slate-800 border-slate-700 text-slate-400")}
+                                    >
+                                        Virtuelle
+                                    </button>
+                                    <button
+                                        onClick={() => setForm({ ...form, type: "PRESENTIEL" })}
+                                        className={cn("flex-1 py-2 rounded-lg text-xs font-bold border transition-all", form.type === "PRESENTIEL" ? "bg-emerald-600/20 border-emerald-500/50 text-emerald-300" : "bg-slate-800 border-slate-700 text-slate-400")}
+                                    >
+                                        Présentiel
+                                    </button>
+                                </div>
+                            </div>
+
+                            {form.type === "VIRTUELLE" ? (
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 mb-1 block">Lien de visio (optionnel)</label>
+                                    <input
+                                        type="text"
+                                        value={form.meetingUrl}
+                                        onChange={(e) => setForm({ ...form, meetingUrl: e.target.value })}
+                                        placeholder="https://..."
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                    />
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 mb-1 block">Lieu (optionnel)</label>
+                                    <input
+                                        type="text"
+                                        value={form.location}
+                                        onChange={(e) => setForm({ ...form, location: e.target.value })}
+                                        placeholder="Ex: Siège, bureau du client..."
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-medium">
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleCreateMeeting}
+                                disabled={creating}
+                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold flex items-center gap-2"
+                            >
+                                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                                Créer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
