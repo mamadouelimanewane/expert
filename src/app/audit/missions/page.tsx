@@ -239,27 +239,19 @@ export default function NexusAuditAssurancePage() {
                     </div>
 
                     <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Seuils de Significativité</h3>
-                        <div className="space-y-6">
-                            {[
-                                { label: "Seuil Global (0.5% CA)", val: "22.5M FCFA", color: "text-white" },
-                                { label: "Erreur Tolérable (75%)", val: "16.8M FCFA", color: "text-emerald-400" },
-                                { label: "Seuil de Remontée", val: "1.1M FCFA", color: "text-amber-500" },
-                            ].map((s, i) => (
-                                <div key={i} className="flex justify-between items-center group cursor-pointer">
-                                    <span className="text-[11px] font-black text-slate-500 group-hover:text-white transition-colors">{s.label}</span>
-                                    <span className={cn("text-sm font-black font-mono", s.color)}>{s.val}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <button className="w-full mt-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase text-slate-400 hover:text-white hover:bg-white/10 transition-all">Réévaluer les Seuils</button>
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Seuils de Significativité</h3>
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                            Non calculés automatiquement : le chiffre d&apos;affaires du client n&apos;est pas encore relié à ce
+                            panneau. À déterminer manuellement selon la méthodologie du cabinet (généralement 0,5 % à 1 % du CA).
+                        </p>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] border border-indigo-500/20 bg-indigo-500/5 relative overflow-hidden group">
-                        <Fingerprint className="w-24 h-24 text-indigo-400/10 absolute -bottom-4 -right-4 group-hover:scale-110 transition-transform" />
-                        <h4 className="text-[10px] font-black text-indigo-400 uppercase mb-4">Audit Traceability</h4>
+                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden group">
+                        <Fingerprint className="w-24 h-24 text-slate-700/20 absolute -bottom-4 -right-4 group-hover:scale-110 transition-transform" />
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase mb-4">Traçabilité</h4>
                         <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                            Tous les travaux sont horodatés et chiffrés sur la blockchain Nexus pour garantir l'indépendance de l'auditeur.
+                            Chaque action est journalisée avec horodatage (journal d&apos;audit interne). Aucun ancrage
+                            blockchain n&apos;est utilisé.
                         </p>
                     </div>
                 </div>

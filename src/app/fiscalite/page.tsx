@@ -52,8 +52,6 @@ const TYPE_COLOR: Record<string, string> = {
 
 export default function FiscaliteOhada() {
   const [activeTab, setActiveTab] = useState<"calendrier" | "obligations" | "simulation">("obligations");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isProcessed, setIsProcessed] = useState(false);
   const [paysCible, setPaysCible] = useState("SN");
   const [simulCA, setSimulCA] = useState(50000000);
   const [simulCharges, setSimulCharges] = useState(30000000);
@@ -115,12 +113,12 @@ export default function FiscaliteOhada() {
   const nbImminentes = synthese?.obligationsImminentes ?? 0;
   const dossiersCibles = synthese?.dossiersRestants ?? 0;
 
-  const handleGenerate = async () => {
-    setIsProcessing(true);
-    await new Promise(r => setTimeout(r, 2000));
-    setIsProcessing(false);
-    setIsProcessed(true);
-  };
+  // Ce bouton affichait "Déclaration générée et transmise ... PDF archivé ·
+  // Accusé DGI enregistré · Dossiers clients notifiés" après un simple
+  // setTimeout — une fausse confirmation de télétransmission à
+  // l'administration fiscale. Aucune intégration de télétransmission DGI
+  // n'existe dans l'application (voir /declarations/e-depot, qui le signale
+  // honnêtement). Le bouton ne doit donc rien affirmer de tel.
 
   // === Simulation IS / BIC Sénégal ===
   const beneficeNet = simulCA - simulCharges;
@@ -217,7 +215,7 @@ export default function FiscaliteOhada() {
             {obligations.map(ob => (
               <div
                 key={ob.id}
-                onClick={() => { setSelectedId(ob.id); setIsProcessed(false); }}
+                onClick={() => setSelectedId(ob.id)}
                 className={cn(
                   "cursor-pointer p-5 rounded-2xl border transition-all",
                   selected?.id === ob.id ? "bg-rose-600/10 border-rose-500/30" : "bg-slate-900/40 border-white/5 hover:bg-slate-800/40"
@@ -280,32 +278,15 @@ export default function FiscaliteOhada() {
                 </div>
               </div>
 
-              {/* Action IA */}
-              {!isProcessed ? (
-                <button
-                  onClick={handleGenerate}
-                  disabled={isProcessing}
-                  className="w-full py-4 bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-rose-500/20 flex items-center justify-center gap-3"
-                >
-                  {isProcessing
-                    ? <><Loader2 className="w-5 h-5 animate-spin" /> Génération IA en cours…</>
-                    : <><Zap className="w-5 h-5" /> Générer & Télétransmettre la Déclaration</>
-                  }
-                </button>
-              ) : (
-                <div className="w-full p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-emerald-400">
-                    <CheckCircle2 className="w-6 h-6" />
-                    <div>
-                      <p className="font-black text-sm">Déclaration générée et transmise</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">PDF archivé · Accusé DGI enregistré · Dossiers clients notifiés</p>
-                    </div>
-                  </div>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-xl text-xs font-black text-white hover:bg-slate-700 border border-white/5 transition-colors">
-                    <Download className="w-3.5 h-3.5" /> Télécharger PDF
-                  </button>
-                </div>
-              )}
+              {/* Aucune télétransmission DGI n'est intégrée à l'application */}
+              <div className="w-full p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center gap-3 text-amber-300">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <p className="text-xs leading-relaxed">
+                  La télétransmission automatique à la DGI n&apos;est pas connectée. Préparez la déclaration puis
+                  déposez-la manuellement via le portail officiel (voir{" "}
+                  <Link href="/declarations/e-depot" className="underline font-bold">e-dépôt</Link>).
+                </p>
+              </div>
             </div>
             )}
 

@@ -8,6 +8,13 @@ interface FinancialHealthGaugeProps {
   rating: string; // AAA, AA, A, B, C
   clientName?: string;
   compact?: boolean;
+  // Sous-facteurs réels (régularité, trésorerie, croissance), sur 100.
+  // Optionnels : cette section n'est affichée que si le vrai détail est
+  // disponible. Elle affichait auparavant des valeurs dérivées par simple
+  // décalage arithmétique du score global (score+5, score-10, score+12),
+  // présentées comme des indicateurs indépendants alors qu'elles ne
+  // l'étaient pas.
+  factors?: { regularite: number; tresorerie: number; croissance: number };
 }
 
 function getRatingConfig(rating: string) {
@@ -27,7 +34,7 @@ function getRatingConfig(rating: string) {
   }
 }
 
-export function FinancialHealthGauge({ score, rating, clientName, compact = false }: FinancialHealthGaugeProps) {
+export function FinancialHealthGauge({ score, rating, clientName, compact = false, factors }: FinancialHealthGaugeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const config = getRatingConfig(rating);
   const Icon = config.icon;
@@ -142,22 +149,24 @@ export function FinancialHealthGauge({ score, rating, clientName, compact = fals
         </div>
       </div>
 
-      {/* Facteurs clés */}
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {[
-          { label: "Régularité", val: Math.min(100, score + 5), icon: "📋" },
-          { label: "Trésorerie", val: Math.max(0, score - 10), icon: "💰" },
-          { label: "Croissance", val: Math.min(100, score + 12), icon: "📈" },
-        ].map((f) => (
-          <div key={f.label} className="bg-white/5 rounded-xl p-2 text-center border border-white/5">
-            <span className="text-lg">{f.icon}</span>
-            <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${f.val}%`, background: config.color }} />
+      {/* Facteurs clés — uniquement si le vrai détail est fourni */}
+      {factors && (
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {[
+            { label: "Régularité", val: factors.regularite, icon: "📋" },
+            { label: "Trésorerie", val: factors.tresorerie, icon: "💰" },
+            { label: "Croissance", val: factors.croissance, icon: "📈" },
+          ].map((f) => (
+            <div key={f.label} className="bg-white/5 rounded-xl p-2 text-center border border-white/5">
+              <span className="text-lg">{f.icon}</span>
+              <div className="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${Math.max(0, Math.min(100, f.val))}%`, background: config.color }} />
+              </div>
+              <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase">{f.label}</p>
             </div>
-            <p className="text-[9px] text-slate-500 font-bold mt-1 uppercase">{f.label}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

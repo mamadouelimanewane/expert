@@ -156,7 +156,7 @@ function SaisieSimplifieeInner() {
       {/* Mobile Money Sync (Option) */}
       {showMobileSync && (
         <div className="animate-in slide-in-from-top-2 duration-300">
-          <MobileMoneySync clientId={client.id} />
+          <MobileMoneySync />
         </div>
       )}
 

@@ -64,27 +64,14 @@ export default function BankingPage() {
         fetchBankingData();
     }, []);
 
+    // Cette fonction créait deux transactions bancaires fictives ("Virement
+    // CLIENT OMEGA", "Achat Fournitures SONELEC") et les persistait réellement
+    // en base à chaque clic sur "Import Relevé", polluant le vrai relevé
+    // lettrable du cabinet. Aucune intégration bancaire réelle (agrégateur,
+    // API banque) n'existe dans l'application : ce bouton ne doit donc rien
+    // faire tant qu'une telle intégration n'est pas branchée.
     const handleSync = async () => {
-        setIsSyncing(true);
-        try {
-            const fakeData = [
-                { date: new Date().toISOString(), description: "Virement CLIENT OMEGA", amount: 1250000 },
-                { date: new Date().toISOString(), description: "Achat Fournitures SONELEC", amount: -45000 }
-            ];
-
-            const res = await fetch("/api/banking/transactions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "import", transactions: fakeData })
-            });
-            if(res.ok) {
-                await fetchBankingData();
-            }
-        } catch (error) {
-            console.error("Sync failed:", error);
-        } finally {
-            setIsSyncing(false);
-        }
+        alert("Aucune intégration bancaire n'est configurée. Utilisez l'import CSV/Wave depuis /ingest/connectors pour charger de vraies transactions.");
     };
 
     const handleReconcile = async (txId: string, invId: string) => {

@@ -75,23 +75,52 @@ export default function PortalByToken() {
       .finally(() => setLoading(false));
   }, [token]);
 
+  // Cette fonction n'envoyait jamais rien : un setTimeout puis un ajout à
+  // l'état React local (perdu au rechargement), avec le commentaire "en
+  // prod: POST /api/portal/[token]/entries" — un vrai client du cabinet
+  // croyait avoir transmis sa saisie alors qu'elle n'était jamais
+  // persistée. Elle appelle désormais réellement /api/portal/upload-journal
+  // (le même point d'entrée réel utilisé par /portal/saisie).
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleQuickSubmit = async () => {
     if (!quickEntry.libelle || !quickEntry.montant) return;
     setSending(true);
-    // Simuler l'envoi — en prod: POST /api/portal/[token]/entries
-    await new Promise(r => setTimeout(r, 800));
-    const newEntry = {
-      id: Date.now().toString(),
-      date: quickEntry.date || new Date().toISOString().slice(0, 10),
-      description: quickEntry.libelle,
-      debitAmount: quickEntry.type === "depense" ? parseFloat(quickEntry.montant) : 0,
-      creditAmount: quickEntry.type === "recette" ? parseFloat(quickEntry.montant) : 0,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-    setEntries(prev => [newEntry, ...prev]);
-    setQuickEntry({ date: "", libelle: "", montant: "", type: "recette" });
-    setSending(false);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/portal/upload-journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-portal-token": String(token) },
+        body: JSON.stringify({
+          entries: [{
+            date: quickEntry.date || new Date().toISOString().slice(0, 10),
+            libelle: quickEntry.libelle,
+            entree: quickEntry.type === "recette" ? quickEntry.montant : 0,
+            sortie: quickEntry.type === "depense" ? quickEntry.montant : 0,
+          }],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitError(data.error || "Échec de l'envoi.");
+        return;
+      }
+      const newEntry = {
+        id: Date.now().toString(),
+        date: quickEntry.date || new Date().toISOString().slice(0, 10),
+        description: quickEntry.libelle,
+        debitAmount: quickEntry.type === "depense" ? parseFloat(quickEntry.montant) : 0,
+        creditAmount: quickEntry.type === "recette" ? parseFloat(quickEntry.montant) : 0,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
+      setEntries(prev => [newEntry, ...prev]);
+      setQuickEntry({ date: "", libelle: "", montant: "", type: "recette" });
+    } catch {
+      setSubmitError("Impossible de contacter le serveur.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const clientName = client?.companyName || `${client?.firstName || ""} ${client?.lastName || ""}`.trim() || "Client";
@@ -314,6 +343,8 @@ export default function PortalByToken() {
                     className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
 
+                {submitError && <p className="text-xs text-rose-400">{submitError}</p>}
+
                 <button onClick={handleQuickSubmit} disabled={!quickEntry.libelle || !quickEntry.montant || sending}
                   className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-black text-sm transition-colors flex items-center justify-center gap-2">
                   {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</> : <><Send className="w-4 h-4" /> Envoyer au cabinet</>}
@@ -321,14 +352,14 @@ export default function PortalByToken() {
               </div>
             </div>
 
-            {/* Options alternatives */}
+            {/* Options alternatives — non implémentées, désactivées plutôt que simulées */}
             <div className="grid sm:grid-cols-3 gap-4">
               {[
-                { icon: Camera, label: "Scanner une facture", desc: "OCR automatique", color: "text-violet-400 bg-violet-500/10 border-violet-500/20" },
-                { icon: MessageCircle, label: "Envoyer par WhatsApp", desc: "Photo + message vocal", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
-                { icon: Smartphone, label: "Sync Mobile Money", desc: "Orange, MTN, Wave", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                { icon: Camera, label: "Scanner une facture", desc: "Non disponible", color: "text-slate-500 bg-white/5 border-white/10" },
+                { icon: MessageCircle, label: "Envoyer par WhatsApp", desc: "Non disponible", color: "text-slate-500 bg-white/5 border-white/10" },
+                { icon: Smartphone, label: "Sync Mobile Money", desc: "Non disponible", color: "text-slate-500 bg-white/5 border-white/10" },
               ].map(o => (
-                <button key={o.label} className={`p-5 rounded-2xl border text-left transition-all hover:scale-[1.02] ${o.color}`}>
+                <button key={o.label} disabled title="Non implémenté" className={`p-5 rounded-2xl border text-left cursor-not-allowed opacity-60 ${o.color}`}>
                   <o.icon className="w-5 h-5 mb-2" />
                   <p className="text-xs font-black">{o.label}</p>
                   <p className="text-[10px] opacity-60 mt-0.5">{o.desc}</p>

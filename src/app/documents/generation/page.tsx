@@ -224,23 +224,22 @@ export default function DocumentGenerationCenter() {
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-white">Document Généré avec Succès !</h3>
+                <h3 className="text-xl font-black text-white">Document généré</h3>
                 <p className="text-slate-400 text-sm mt-2">
-                  Il a été automatiquement publié sur le portail privé du client.
+                  La génération automatique de documents n&apos;est pas encore branchée à un moteur réel ; ce
+                  document n&apos;a pas été publié sur le portail du client. Téléchargez-le et transmettez-le
+                  manuellement si besoin.
                 </p>
               </div>
               <div className="flex justify-center gap-4">
-                <a 
-                  href={generatedDocUrl} 
-                  target="_blank" 
+                <a
+                  href={generatedDocUrl}
+                  target="_blank"
                   rel="noreferrer"
                   className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-colors flex items-center gap-2"
                 >
                   <Eye className="w-4 h-4" /> Prévisualiser
                 </a>
-                <button className="px-6 py-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl font-bold text-xs transition-colors flex items-center gap-2">
-                  <Send className="w-4 h-4" /> Notifier par WhatsApp
-                </button>
               </div>
             </div>
           )}

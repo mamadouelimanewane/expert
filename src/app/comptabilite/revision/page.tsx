@@ -173,22 +173,22 @@ export default function RevisionPage() {
                             <AlertCircle className="w-8 h-8 text-rose-500" />
                         </div>
                         <div>
-                            <h4 className="text-2xl font-black text-rose-400">04 Alertes</h4>
-                            <p className="text-xs text-slate-500 font-medium">Nécéssitent une correction immédiate</p>
+                            <h4 className="text-2xl font-black text-rose-400">{sections.filter(x => x.status === "alert").length} Alerte{sections.filter(x => x.status === "alert").length > 1 ? "s" : ""}</h4>
+                            <p className="text-xs text-slate-500 font-medium">Sections marquées en alerte</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col justify-center overflow-hidden relative">
                     <div className="absolute top-0 right-0 p-6 opacity-10">
-                        <Lock className="w-16 h-16 text-emerald-400" />
+                        <Lock className="w-16 h-16 text-slate-500" />
                     </div>
-                    <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <ShieldCheck className="w-3 h-3" /> Souveraineté & Compliance
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <ShieldCheck className="w-3 h-3" /> Traçabilité
                     </p>
-                    <h4 className="text-xl font-black text-white">Données Sécurisées</h4>
+                    <h4 className="text-xl font-black text-white">Journal des actions</h4>
                     <p className="text-xs text-slate-500 font-medium mt-1 leading-relaxed">
-                        Hébergement certifié SecNumCloud & RGPD. Tous vos processus de révision sont tracés.
+                        Chaque contrôle validé est journalisé. Aucune certification d&apos;hébergement (SecNumCloud, ISO...) n&apos;est actuellement détenue par le cabinet.
                     </p>
                 </div>
             </div>
@@ -281,43 +281,6 @@ export default function RevisionPage() {
                 ))}
             </div>
 
-            {/* Smart Audit Insights (AI) */}
-            <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-gradient-to-br from-slate-900 to-indigo-900/10">
-                <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
-                    <TrendingUp className="w-6 h-6 text-indigo-400" />
-                    Analytique & Points de Vigilance IA
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="p-6 bg-slate-950/50 rounded-3xl border border-white/5 space-y-4">
-                        <div className="flex justify-between items-start">
-                            <span className="px-3 py-1 bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase tracking-widest rounded-full">Anomalie Critique</span>
-                            <span className="text-xs text-slate-500 font-bold font-mono">27/01/2024</span>
-                        </div>
-                        <h4 className="font-bold text-white text-lg">Incohérence TVA / Chiffre d'Affaires</h4>
-                        <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                            L'IA a détecté un écart de 2.4% entre la TVA collectée déclarée et le volume des factures de ventes enregistrées ce mois-ci. Vérifiez le compte 4431.
-                        </p>
-                        <div className="pt-4 flex gap-4">
-                            <button className="text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:underline">Analyser le détail</button>
-                            <button className="text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">Ignorer</button>
-                        </div>
-                    </div>
-
-                    <div className="p-6 bg-slate-950/50 rounded-3xl border border-white/5 space-y-4 opacity-70">
-                        <div className="flex justify-between items-start">
-                            <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full">Optimisation</span>
-                            <span className="text-xs text-slate-500 font-bold font-mono">25/01/2024</span>
-                        </div>
-                        <h4 className="font-bold text-white text-lg">Poste Fournisseurs Débiteurs</h4>
-                        <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                            Présence de soldes débiteurs inhabituels sur 3 comptes fournisseurs. Probabilité de double paiement identifiée.
-                        </p>
-                        <div className="pt-4 flex gap-4">
-                            <button className="text-indigo-400 text-[10px] font-black uppercase tracking-widest hover:underline">Consulter les comptes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

@@ -6,33 +6,49 @@ import { PenTool, FileText, CheckCircle2, ShieldCheck, Download, Check, AlertCir
 import { cn } from "@/lib/utils";
 import { SignaturePad } from "@/components/signature/SignaturePad";
 
-interface MissionDoc {
+// ─────────────────────────────────────────────────────────────────────────────
+// Cette page listait des Missions et faisait signer un texte générique
+// ("Il a été convenu ce qui suit : ...") au nom d'un cabinet fictif
+// "GANTIC360 EXPERT" — incohérent avec la marque utilisée partout ailleurs
+// (Cabinet 360) — au lieu du vrai contenu de la lettre de mission
+// (modèle EngagementLetter : périmètre, honoraires, référence, signataire
+// désigné) déjà saisi via /lettres-mission/new. Elle source désormais
+// /api/engagement-letters et affiche le vrai contenu de la lettre.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface LetterDoc {
   id: string;
   client: string;
-  type: string;
+  reference: string;
+  scope: string;
+  fees: number | null;
+  signatoryName: string | null;
   status: string;
 }
 
 export default function SignaturePage() {
-  const [docs, setDocs] = useState<MissionDoc[]>([]);
+  const [docs, setDocs] = useState<LetterDoc[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDoc, setSelectedDoc] = useState<MissionDoc | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<LetterDoc | null>(null);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [isSigning, setIsSigning] = useState(false);
   const [certificate, setCertificate] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/missions")
+    fetch("/api/engagement-letters")
       .then(res => res.json())
       .then(data => {
-        const missions: MissionDoc[] = (data.missions || []).map((m: any) => ({
-          id: m.id,
-          client: m.client?.companyName || `${m.client?.firstName ?? ""} ${m.client?.lastName ?? ""}`.trim() || "—",
-          type: `Lettre de Mission — ${m.title}`,
-          status: m.status === "DRAFT" ? "En attente" : m.status === "COMPLETED" ? "Archivé" : "Signé",
+        const letters: LetterDoc[] = (data.letters || []).map((l: any) => ({
+          id: l.id,
+          client: l.client?.companyName || `${l.client?.firstName ?? ""} ${l.client?.lastName ?? ""}`.trim() || "—",
+          reference: l.reference,
+          scope: l.scope,
+          fees: l.fees ?? null,
+          signatoryName: l.signatoryName ?? null,
+          status: l.status === "SIGNEE" ? "Signé" : l.status === "EXPIREE" ? "Archivé" : "En attente",
         }));
-        setDocs(missions);
-        setSelectedDoc(missions[0] || null);
+        setDocs(letters);
+        setSelectedDoc(letters[0] || null);
         setLoading(false);
       });
   }, []);
@@ -60,7 +76,7 @@ export default function SignaturePage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-slate-400">Chargement des missions…</div>;
+    return <div className="p-8 text-slate-400">Chargement des lettres de mission…</div>;
   }
 
   return (
@@ -106,7 +122,7 @@ export default function SignaturePage() {
                       {doc.status}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">{doc.type}</p>
+                  <p className="text-xs text-slate-400">{doc.reference}</p>
                   <p className="text-[10px] font-bold text-slate-500 mt-2">{doc.id}</p>
                 </div>
               ))}
@@ -118,14 +134,14 @@ export default function SignaturePage() {
         <div className="lg:col-span-7">
           {!selectedDoc ? (
             <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 min-h-[600px] flex items-center justify-center text-slate-500 text-sm">
-              Aucune mission disponible. Créez une mission depuis <a href="/missions/new" className="text-indigo-400 underline ml-1">Nouvelle mission</a>.
+              Aucune lettre de mission disponible. Créez-en une depuis <a href="/lettres-mission/new" className="text-indigo-400 underline ml-1">Nouvelle lettre de mission</a>.
             </div>
           ) : (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} key={selectedDoc.id} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl min-h-[600px] flex flex-col">
-            
+
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-white/5">
               <div>
-                <h3 className="text-xl font-black text-white">{selectedDoc.type}</h3>
+                <h3 className="text-xl font-black text-white">{selectedDoc.reference}</h3>
                 <p className="text-sm font-medium text-slate-400 mt-1">{selectedDoc.client} • {selectedDoc.id}</p>
               </div>
               <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
@@ -174,12 +190,15 @@ export default function SignaturePage() {
             ) : (
               <div className="flex-1 flex flex-col">
                 <div className="bg-slate-100 p-8 rounded-2xl mb-8 flex-1 text-slate-800 overflow-y-auto max-h-[300px]">
-                  <h4 className="font-bold text-lg mb-4 text-center">LETTRE DE MISSION</h4>
+                  <h4 className="font-bold text-lg mb-4 text-center">LETTRE DE MISSION — {selectedDoc.reference}</h4>
                   <p className="text-sm mb-4">Entre les soussignés :</p>
-                  <p className="text-sm mb-4"><strong>Cabinet GANTIC360 EXPERT</strong>, représenté par son associé gérant, d'une part,</p>
-                  <p className="text-sm mb-4">Et <strong>{selectedDoc.client}</strong>, d'autre part.</p>
-                  <p className="text-sm mb-4">Il a été convenu ce qui suit : ...</p>
-                  {/* Plus de texte de démo pour simuler un document... */}
+                  <p className="text-sm mb-4">Le cabinet, représenté par {selectedDoc.signatoryName || "[signataire à compléter]"}, d&apos;une part,</p>
+                  <p className="text-sm mb-4">Et <strong>{selectedDoc.client}</strong>, d&apos;autre part.</p>
+                  <p className="text-sm font-bold mb-2">Objet de la mission :</p>
+                  <p className="text-sm mb-4 whitespace-pre-wrap">{selectedDoc.scope || "[à compléter]"}</p>
+                  {selectedDoc.fees != null && (
+                    <p className="text-sm mb-4">Honoraires convenus : <strong>{selectedDoc.fees.toLocaleString("fr-FR")} FCFA</strong>.</p>
+                  )}
                 </div>
                 
                 <div className="mb-6">
