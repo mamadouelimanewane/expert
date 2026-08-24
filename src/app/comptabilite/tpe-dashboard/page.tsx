@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Users, TrendingUp, Wallet, MessageCircle, Star, ShieldCheck,
   AlertTriangle, ArrowUpRight, ArrowDownRight, Zap, BarChart3,
-  FileText, Loader2, CheckCircle2, Building2, Phone, Plus, Search
+  FileText, Building2, Phone, Plus, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +16,8 @@ type Tpe = {
   activity: string;
   since: string;
   country: string;
-  creditScore: number;
-  creditRating: string;
+  creditScore: number | null;
+  creditRating: string | null;
   periodCA: number;
   periodExpenses: number;
   totalJournals: number;
@@ -33,14 +33,23 @@ const RATING_STYLES: Record<string, { bg: string; text: string; border: string }
   A: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
   B: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20" },
   C: { bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
+  NON_EVALUE: { bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/20" },
 };
 
-function ScoreBar({ score, color }: { score: number; color: string }) {
+function ratingStyle(rating: string | null) {
+  return (rating && RATING_STYLES[rating]) || RATING_STYLES.NON_EVALUE;
+}
+
+function ratingColor(rating: string | null) {
+  return rating === "AAA" ? "#10b981" : rating === "A" ? "#3b82f6" : rating === "B" ? "#f59e0b" : rating === "C" ? "#ef4444" : "#64748b";
+}
+
+function ScoreBar({ score, color }: { score: number | null; color: string }) {
   return (
     <div className="relative h-2 w-full bg-white/5 rounded-full overflow-hidden">
       <div
         className="absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out"
-        style={{ width: `${score}%`, backgroundColor: color }}
+        style={{ width: `${score ?? 0}%`, backgroundColor: color }}
       />
     </div>
   );
@@ -51,8 +60,6 @@ export default function TpeDashboard() {
   const [selected, setSelected] = useState<Tpe | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [isSendingReport, setIsSendingReport] = useState(false);
-  const [reportSent, setReportSent] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -95,8 +102,8 @@ export default function TpeDashboard() {
           activity: c.sector || "—",
           since: c.createdAt ? new Date(c.createdAt).toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "—",
           country: c.country || "—",
-          creditScore: c.healthScore ?? 0,
-          creditRating: c.rating || "C",
+          creditScore: c.healthScore ?? null,
+          creditRating: c.rating ?? null,
           periodCA: lastPeriode?.totalEntrees || 0,
           periodExpenses: lastPeriode?.totalSorties || 0,
           totalJournals: stat?.totalEcritures || 0,
@@ -123,18 +130,17 @@ export default function TpeDashboard() {
   const totalEcritures = tpeList.reduce((a, t) => a + t.totalJournals, 0);
   const totalPending = tpeList.reduce((a, t) => a + t.pendingJournals, 0);
 
-  const handleSendReport = async () => {
-    setIsSendingReport(true);
-    // L'envoi WhatsApp réel nécessite la configuration de l'API WhatsApp Business (WHATSAPP_VERIFY_TOKEN).
-    await new Promise(r => setTimeout(r, 800));
-    setIsSendingReport(false);
-    setReportSent(true);
-    setTimeout(() => setReportSent(false), 3000);
+  const handleSendReport = () => {
+    alert("L'envoi de rapport par WhatsApp Business n'est pas encore configuré (variable WHATSAPP_VERIFY_TOKEN manquante). Aucun message n'a été envoyé.");
   };
 
   const handleGenerateCredit = () => {
     if (!selected) return;
-    alert(`Attestation de Revenus Informels — ${selected.businessName}\n\nScore: ${selected.creditRating} (${selected.creditScore}/100)\nCA de la période: ${selected.periodCA.toLocaleString()} F\n\nDonnées issues de la comptabilité TPE réelle. Fichier prêt à être signé par l'Expert-Comptable.`);
+    if (selected.creditScore == null || selected.creditRating == null) {
+      alert(`Impossible de générer une attestation pour ${selected.businessName} : aucun score de solvabilité n'a encore été évalué pour ce client.`);
+      return;
+    }
+    alert(`Attestation de Revenus Informels — ${selected.businessName}\n\nScore: ${selected.creditRating} (${selected.creditScore}/100)\nCA de la période: ${selected.periodCA.toLocaleString()} F\n\nDonnées issues de la comptabilité TPE enregistrée. Brouillon à vérifier avant signature par l'Expert-Comptable — aucun fichier n'a été généré ou téléchargé.`);
   };
 
   if (loading) {
@@ -195,7 +201,7 @@ export default function TpeDashboard() {
 
           <div className="space-y-2 max-h-[350px] sm:h-[450px] lg:h-[600px] overflow-y-auto custom-scrollbar">
             {filtered.map(tpe => {
-              const r = RATING_STYLES[tpe.creditRating] || RATING_STYLES.C;
+              const r = ratingStyle(tpe.creditRating);
               const isSelected = selected?.id === tpe.id;
               return (
                 <div
@@ -217,11 +223,11 @@ export default function TpeDashboard() {
                       </div>
                     </div>
                     <div className={cn("px-2 py-1 rounded-lg text-[10px] font-black border shrink-0", r.bg, r.text, r.border)}>
-                      {tpe.creditRating}
+                      {tpe.creditRating ?? "N/É"}
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
-                    <ScoreBar score={tpe.creditScore} color={tpe.creditRating === "AAA" ? "#10b981" : tpe.creditRating === "A" ? "#3b82f6" : tpe.creditRating === "B" ? "#f59e0b" : "#ef4444"} />
+                    <ScoreBar score={tpe.creditScore} color={ratingColor(tpe.creditRating)} />
                     {tpe.trend && (
                       <span className={cn("ml-3 text-xs font-black shrink-0 flex items-center gap-1", tpe.trend === "UP" ? "text-emerald-400" : "text-rose-400")}>
                         {tpe.trend === "UP" ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
@@ -244,7 +250,7 @@ export default function TpeDashboard() {
               <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black border", RATING_STYLES[selected.creditRating]?.bg, RATING_STYLES[selected.creditRating]?.text, RATING_STYLES[selected.creditRating]?.border)}>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black border", ratingStyle(selected.creditRating).bg, ratingStyle(selected.creditRating).text, ratingStyle(selected.creditRating).border)}>
                       {selected.businessName.charAt(0)}
                     </div>
                     <div>
@@ -258,16 +264,10 @@ export default function TpeDashboard() {
                   <div className="flex gap-3 flex-wrap">
                     <button
                       onClick={handleSendReport}
-                      disabled={isSendingReport}
                       title="Nécessite la configuration de l'API WhatsApp Business (WHATSAPP_VERIFY_TOKEN)"
                       className="px-4 py-2.5 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-400 rounded-xl font-black text-xs transition-all flex items-center gap-2"
                     >
-                      {reportSent
-                        ? <><CheckCircle2 className="w-4 h-4" /> Rapport préparé</>
-                        : isSendingReport
-                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Préparation…</>
-                        : <><MessageCircle className="w-4 h-4" /> Rapport WhatsApp</>
-                      }
+                      <MessageCircle className="w-4 h-4" /> Rapport WhatsApp
                     </button>
                     <button
                       onClick={handleGenerateCredit}
@@ -280,20 +280,21 @@ export default function TpeDashboard() {
 
                 {/* Score de Crédit */}
                 <div className="mt-8 grid sm:grid-cols-2 gap-6">
-                  <div className={cn("p-6 rounded-2xl border", RATING_STYLES[selected.creditRating]?.bg, RATING_STYLES[selected.creditRating]?.border)}>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Score de Crédit IA</p>
+                  <div className={cn("p-6 rounded-2xl border", ratingStyle(selected.creditRating).bg, ratingStyle(selected.creditRating).border)}>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Score de Solvabilité</p>
                     <div className="flex items-end gap-3">
-                      <span className={cn("text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black tabular-nums", RATING_STYLES[selected.creditRating]?.text)}>
-                        {selected.creditScore}
+                      <span className={cn("text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black tabular-nums", ratingStyle(selected.creditRating).text)}>
+                        {selected.creditScore ?? "—"}
                       </span>
                       <div className="pb-1">
-                        <p className={cn("text-2xl font-black", RATING_STYLES[selected.creditRating]?.text)}>{selected.creditRating}</p>
+                        <p className={cn("text-2xl font-black", ratingStyle(selected.creditRating).text)}>{selected.creditRating ?? "N/É"}</p>
                         <p className="text-[10px] text-slate-500">/ 100 pts</p>
                       </div>
                     </div>
-                    <ScoreBar score={selected.creditScore} color={selected.creditRating === "AAA" ? "#10b981" : selected.creditRating === "A" ? "#3b82f6" : selected.creditRating === "B" ? "#f59e0b" : "#ef4444"} />
+                    <ScoreBar score={selected.creditScore} color={ratingColor(selected.creditRating)} />
                     <p className="text-xs text-slate-400 mt-3">
-                      {selected.creditScore >= 80 ? "✅ Éligible au micro-crédit bancaire" :
+                      {selected.creditScore == null ? "— Non évalué : aucun score de solvabilité disponible pour ce client." :
+                       selected.creditScore >= 80 ? "✅ Éligible au micro-crédit bancaire" :
                        selected.creditScore >= 60 ? "⚡ Profil en cours de consolidation" :
                        "⚠️ Profil à risque — accompagnement renforcé"}
                     </p>

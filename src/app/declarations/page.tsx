@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     FileCheck,
     Clock,
@@ -129,7 +130,7 @@ export default function DeclarationsPage() {
                                     <th className="px-8 py-6">Impôt / Client</th>
                                     <th className="px-6 py-6 text-center">Période</th>
                                     <th className="px-6 py-6 text-right">Montant</th>
-                                    <th className="px-6 py-6 text-center">Risque IA</th>
+                                    <th className="px-6 py-6 text-center">Risque</th>
                                     <th className="px-6 py-6 text-center">Statut</th>
                                     <th className="px-6 py-6 text-right">Action</th>
                                 </tr>
@@ -251,14 +252,17 @@ export default function DeclarationsPage() {
                             </div>
 
                             <div className="flex flex-col gap-3 relative z-10">
-                                <button className="w-full py-4 bg-white text-orange-950 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-50 transition-all flex items-center justify-center gap-2 shadow-xl shadow-white/5">
-                                    <CheckCircle2 className="w-4 h-4" /> Valider & Télétransmettre
-                                </button>
+                                <Link
+                                    href="/declarations/e-depot"
+                                    className="w-full py-4 bg-white text-orange-950 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-50 transition-all flex items-center justify-center gap-2 shadow-xl shadow-white/5"
+                                >
+                                    <CheckCircle2 className="w-4 h-4" /> Ouvrir la télétransmission
+                                </Link>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <button className="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs border border-white/5 transition-all">
+                                    <button disabled title="Non implémenté" className="py-3 bg-slate-800/40 text-slate-600 rounded-xl font-bold text-xs border border-white/5 cursor-not-allowed">
                                         Aperçu PDF
                                     </button>
-                                    <button className="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs border border-white/5 transition-all">
+                                    <button disabled title="Non implémenté" className="py-3 bg-slate-800/40 text-slate-600 rounded-xl font-bold text-xs border border-white/5 cursor-not-allowed">
                                         Justificatifs
                                     </button>
                                 </div>
@@ -285,9 +289,9 @@ export default function DeclarationsPage() {
 
 function PortalLink({ name }: { name: string }) {
     return (
-        <a href="#" className="flex items-center justify-between p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 transition-all group">
-            <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{name}</span>
-            <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-white transition-colors" />
-        </a>
+        <div title="Lien non configuré" className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-white/5 cursor-not-allowed opacity-60">
+            <span className="text-xs font-bold text-slate-500">{name}</span>
+            <ExternalLink className="w-3 h-3 text-slate-600" />
+        </div>
     );
 }

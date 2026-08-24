@@ -6,7 +6,6 @@ import {
     Target,
     Zap,
     Search,
-    FileText,
     CheckCircle2,
     ArrowRight,
     Fingerprint,
@@ -231,26 +230,9 @@ export default function IARiskAuditPage() {
                             <Search className="w-5 h-5 text-indigo-400" />
                             Générateur de Sondages
                         </h3>
-                        <p className="text-xs text-slate-400 mb-6">L'IA sélectionne les écritures les plus pertinentes à tester pour couvrir 80% du risque.</p>
-
-                        <div className="space-y-3 mb-6">
-                            {[
-                                "Sondage sur les factures > 10M",
-                                "Échantillon aléatoire (Strate B)",
-                                "Focus Cycle Achats Immobilisés"
-                            ].map((t, i) => (
-                                <div key={i} className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700 hover:border-indigo-500 transition-colors cursor-pointer group">
-                                    <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
-                                        <FileText className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-300">{t}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <button className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2">
-                            Générer les listes de pointage
-                        </button>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                            La génération automatique d&apos;échantillons de sondage n&apos;est pas encore implémentée : aucun moteur ne sélectionne d&apos;écritures à tester. Utilisez la matrice de risques ci-contre pour orienter manuellement vos travaux.
+                        </p>
                     </div>
 
                     <div className="glass-card rounded-2xl p-6 border border-slate-700/50">

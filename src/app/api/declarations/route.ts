@@ -40,17 +40,29 @@ export async function GET(request: NextRequest) {
         });
 
         // Format for the UI
-        const formatted = declarations.map(d => ({
-            id: d.id,
-            client: d.client.companyName || `${d.client.firstName} ${d.client.lastName}`,
-            type: d.type as string,
-            month: d.period,
-            country: d.client.country,
-            amountToPay: d.amount ? d.amount.toLocaleString() : "0",
-            status: d.status === "VALIDATED" ? "payee" : (d.status === "SUBMITTED" ? "teletransmise" : (d.status === "PENDING" ? "validation" : "a_preparer")),
-            deadline: new Date(d.dueDate).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short' }),
-            risk: "faible" 
-        }));
+        const now = new Date();
+        const formatted = declarations.map(d => {
+            // Risque derive du delai reel avant echeance : ce champ affichait
+            // auparavant "faible" pour toutes les declarations, quelle que soit
+            // leur date limite ou leur statut.
+            const daysUntilDue = (new Date(d.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+            let risk: "faible" | "moyen" | "élevé" = "faible";
+            if (d.status !== "VALIDATED" && d.status !== "SUBMITTED") {
+                if (daysUntilDue < 0) risk = "élevé";
+                else if (daysUntilDue <= 7) risk = "moyen";
+            }
+            return {
+                id: d.id,
+                client: d.client.companyName || `${d.client.firstName} ${d.client.lastName}`,
+                type: d.type as string,
+                month: d.period,
+                country: d.client.country,
+                amountToPay: d.amount ? d.amount.toLocaleString() : "0",
+                status: d.status === "VALIDATED" ? "payee" : (d.status === "SUBMITTED" ? "teletransmise" : (d.status === "PENDING" ? "validation" : "a_preparer")),
+                deadline: new Date(d.dueDate).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short' }),
+                risk
+            };
+        });
 
         const totalToPay = await prisma.taxDeclaration.aggregate({
             _sum: { amount: true },

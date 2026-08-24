@@ -93,7 +93,7 @@ export default function ManufacturingPortfolioPage() {
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
                         Pilotage des coûts de production, valorisation des stocks et analyse de marge industrielle.
-                        Vue consolidée des <span className="text-orange-400 font-bold">14 sites de production</span>.
+                        Vue consolidée de <span className="text-orange-400 font-bold">{synthese?.nbClients ?? 0} client{(synthese?.nbClients ?? 0) > 1 ? "s" : ""} industriel{(synthese?.nbClients ?? 0) > 1 ? "s" : ""}</span>.
                     </p>
                 </div>
 
@@ -104,7 +104,7 @@ export default function ManufacturingPortfolioPage() {
                     <Link href="/industries/manufacturing/machinery" className="px-6 py-3 bg-white/5 hover:bg-slate-800 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
                         <Cog className="w-4 h-4" /> Parc Machines
                     </Link>
-                    <button className="px-6 py-3 bg-orange-600 hover:bg-orange-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-orange-600/25 flex items-center gap-2">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-slate-800/50 text-slate-500 rounded-xl font-bold cursor-not-allowed flex items-center gap-2">
                         <BarChart4 className="w-4 h-4" /> Rapport de Gestion
                     </button>
                 </div>
@@ -273,20 +273,12 @@ export default function ManufacturingPortfolioPage() {
                             <Calculator className="w-3 h-3" /> Ouvrir l&apos;analytique produit
                         </Link>
 
-                        <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                            <div className="flex items-start gap-3">
-                                <TrendIndicator up={false} />
-                                <div>
-                                    <p className="text-sm font-bold text-white mb-1">Alerte Énergie</p>
-                                    <p className="text-xs text-amber-200 leading-relaxed">
-                                        Le poste "Énergie" a augmenté de 12% sur le trimestre (Impact Cimenterie d'Abidjan). Réviser le prix de revient standard.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Stock Health */}
+                    {/* La rotation, les ruptures et la valorisation des stocks exigent un
+                        suivi de mouvements de stock qu'aucun module n'alimente actuellement :
+                        rien n'est affiche plutot que d'etre invente (cf. note KPI ci-dessus). */}
                     <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/40 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-8 opacity-5">
                             <Boxes className="w-32 h-32 text-white" />
@@ -295,21 +287,9 @@ export default function ManufacturingPortfolioPage() {
                             <Thermometer className="w-5 h-5 text-rose-400" />
                             Santé des Stocks
                         </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-slate-900 rounded-2xl border border-white/5">
-                                <p className="text-[10px] text-slate-500 font-black uppercase">Rotation Lente</p>
-                                <p className="text-xl font-black text-rose-400 mt-1">450M</p>
-                                <p className="text-[10px] text-rose-500/70 mt-1 font-bold"> &gt; 180 Jours</p>
-                            </div>
-                            <div className="p-4 bg-slate-900 rounded-2xl border border-white/5">
-                                <p className="text-[10px] text-slate-500 font-black uppercase">Rupture</p>
-                                <p className="text-xl font-black text-amber-400 mt-1">12 Art.</p>
-                                <p className="text-[10px] text-amber-500/70 mt-1 font-bold">Impact Production</p>
-                            </div>
-                        </div>
-                        <button className="w-full mt-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all text-xs uppercase tracking-widest border border-white/5">
-                            Lancer Inventaire Tournant
-                        </button>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Aucun mouvement de stock n&apos;est enregistré dans l&apos;application : la rotation, les ruptures et l&apos;état des stocks ne peuvent pas être calculés.
+                        </p>
                     </div>
 
                 </div>
@@ -351,17 +331,6 @@ function MetricItem({ label, value, up, color, icon: Icon }: any) {
                     </span>
                 )}
             </p>
-        </div>
-    );
-}
-
-function TrendIndicator({ up }: { up: boolean }) {
-    return (
-        <div className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-            up ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
-        )}>
-            {up ? <ArrowUpRight className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
         </div>
     );
 }

@@ -3,19 +3,11 @@
 import { useState, useEffect } from "react";
 import {
     Sparkles,
-    Calendar,
-    AlertCircle,
     TrendingUp,
-    TrendingDown,
     Zap,
     Users,
     ArrowRight,
-    FileText,
-    Gavel,
-    Clock,
-    CheckCircle2,
-    Briefcase,
-    Mail
+    Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +15,7 @@ export default function MorningBriefPage() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [briefs, setBriefs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [exec, setExec] = useState<any>(null);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -38,13 +31,18 @@ export default function MorningBriefPage() {
                 setLoading(false);
             });
 
+        fetch("/api/dashboard/executive")
+            .then(res => res.json())
+            .then(setExec)
+            .catch(() => setExec(null));
+
         return () => clearInterval(timer);
     }, []);
 
     const metrics = [
-        { label: "Alertes Rentabilité", value: "3", color: "text-rose-400" },
-        { label: "Missions en Retard", value: "1", color: "text-amber-400" },
-        { label: "Briefings IA Actifs", value: briefs.length.toString(), color: "text-emerald-400" },
+        { label: "Briefings du Jour", value: briefs.length.toString(), color: "text-emerald-400" },
+        { label: "Dont Urgents", value: briefs.filter((b) => b.type === "URGENT").length.toString(), color: "text-rose-400" },
+        { label: "Non Lus", value: briefs.filter((b) => !b.isRead).length.toString(), color: "text-amber-400" },
     ];
 
     return (
@@ -58,7 +56,7 @@ export default function MorningBriefPage() {
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="px-4 py-1.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-indigo-500/30 backdrop-blur-md">
-                            IA Générative • Morning Briefing
+                            Morning Briefing
                         </div>
                         <div className="text-[10px] font-bold text-slate-500 flex items-center gap-2">
                             <Clock className="w-3 h-3" /> {currentTime.toLocaleTimeString()}
@@ -69,7 +67,7 @@ export default function MorningBriefPage() {
                         Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborateur</span>
                     </h1>
                     <p className="text-base sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
-                        Voici votre synthèse stratégique du <span className="text-white font-bold">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>. Nexus a analysé les dernières réformes et flux client pour vous.
+                        Voici votre synthèse du <span className="text-white font-bold">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> : briefings enregistrés et rentabilité de l'équipe.
                     </p>
                 </div>
 
@@ -111,36 +109,6 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-                        <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/40">
-                            <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6">Dernière Jurisprudence OHADA</h4>
-                            <div className="space-y-4">
-                                <div className="p-4 bg-white/5 rounded-2xl border-l-2 border-indigo-500">
-                                    <p className="text-xs font-bold text-white mb-1">Responsabilité des dirigeants</p>
-                                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">Nouvel arrêt de la CCJA sur l'action en comblement de passif. Impact direct sur vos missions de commissariat.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
-                            <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6">Agenda de l'Associé</h4>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-xs">14:00</div>
-                                    <div>
-                                        <p className="text-xs font-black text-white uppercase">Comité Associés</p>
-                                        <p className="text-[10px] text-slate-500 font-bold">Revue Profitabilité Q1</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 font-black text-xs">16:30</div>
-                                    <div>
-                                        <p className="text-xs font-black text-white uppercase tracking-tighter">BIDC - Sign. Rapport</p>
-                                        <p className="text-[10px] text-slate-500 font-bold">Commissariat aux comptes</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 {/* 2. Side Console: Cabinet Health & Comms */}
@@ -149,30 +117,36 @@ export default function MorningBriefPage() {
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-indigo-500/20">
                             <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
                         </div>
-                        <h4 className="text-white font-black uppercase text-xs tracking-widest mb-2">Santé du Cabinet</h4>
-                        <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-widest uppercase mb-4">92%</div>
+                        <h4 className="text-white font-black uppercase text-xs tracking-widest mb-2">Taux de Recouvrement</h4>
+                        <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-widest uppercase mb-4">
+                            {exec ? `${exec.kpis.recouvrement}%` : "—"}
+                        </div>
                         <p className="text-[10px] text-slate-500 font-bold leading-relaxed uppercase">
-                            Facturation en hausse de 12% <br /> par rapport au mois dernier.
+                            {exec
+                                ? `CA du mois : ${exec.kpis.croissance >= 0 ? "+" : ""}${exec.kpis.croissance}% vs mois dernier.`
+                                : "Chargement..."}
                         </p>
                         <div className="h-1.5 w-full bg-slate-800 rounded-full mt-8 overflow-hidden">
-                            <div className="h-full bg-indigo-500 w-[92%] shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
+                            <div className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{ width: `${exec?.kpis.recouvrement ?? 0}%` }} />
                         </div>
                     </div>
 
                     <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/40">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6 flex items-center gap-2">
-                            <Users className="w-4 h-4" /> Collaborateurs Clés
+                            <Users className="w-4 h-4" /> Rentabilité Collaborateurs
                         </h4>
                         <div className="space-y-4">
-                            <UserStatus name="A. Fall" role="Senior Manager" status="En ligne" performance="+8%" />
-                            <UserStatus name="K. Diop" role="Audit Junior" status="En mission" performance="-2%" />
-                            <UserStatus name="M. Diagne" role="Expert Fiscal" status="Occupé" performance="+15%" />
+                            {!exec ? (
+                                <p className="text-[10px] text-slate-500 italic">Chargement...</p>
+                            ) : exec.collaborateurs.length === 0 ? (
+                                <p className="text-[10px] text-slate-500 italic">Aucun collaborateur actif.</p>
+                            ) : (
+                                exec.collaborateurs.slice(0, 5).map((c: any) => (
+                                    <UserStatus key={c.id} name={c.name} hours={c.hours} billable={c.billable} />
+                                ))
+                            )}
                         </div>
                     </div>
-
-                    <button className="w-full py-5 bg-white/5 hover:bg-white/10 rounded-3xl border border-white/10 text-white font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95">
-                        <Mail className="w-4 h-4" /> Notifier l'Équipe (Briefing)
-                    </button>
                 </div>
             </div>
         </div>
@@ -202,7 +176,7 @@ function BriefItem({ type, title, desc, action, color }: any) {
     );
 }
 
-function UserStatus({ name, role, status, performance }: any) {
+function UserStatus({ name, hours, billable }: { name: string; hours: number; billable: number }) {
     return (
         <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] hover:bg-white/5 transition-all">
             <div className="flex items-center gap-3">
@@ -211,14 +185,14 @@ function UserStatus({ name, role, status, performance }: any) {
                 </div>
                 <div>
                     <h5 className="text-xs font-black text-white">{name}</h5>
-                    <p className="text-[9px] text-slate-500 font-bold uppercase">{role}</p>
+                    <p className="text-[9px] text-slate-500 font-bold uppercase">{hours}h ce mois</p>
                 </div>
             </div>
             <div className="text-right">
-                <div className={cn("text-[9px] font-black uppercase mb-1", performance.startsWith('+') ? "text-emerald-400" : "text-rose-400")}>
-                    {performance}
+                <div className={cn("text-[9px] font-black uppercase mb-1", "text-indigo-400")}>
+                    {billable}%
                 </div>
-                <div className="text-[8px] text-slate-600 font-black uppercase">{status}</div>
+                <div className="text-[8px] text-slate-600 font-black uppercase">Facturable</div>
             </div>
         </div>
     );

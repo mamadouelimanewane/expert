@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Mic, Paperclip, MoreVertical, Plus, ChevronRight, BarChart2, Calendar, FileText, Search } from "lucide-react";
+import { Send, Bot, User, Mic, Paperclip, MoreVertical, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
@@ -24,7 +24,8 @@ export default function NexusChatPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState(["📊 KPIs du cabinet", "📅 Échéances semaine", "🔍 Analyser TVA", "📝 Journal de clôture"]);
-  
+  const [llmStatus, setLlmStatus] = useState<'unknown' | 'connected' | 'not-configured'>('unknown');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -57,14 +58,15 @@ export default function NexusChatPage() {
         body: JSON.stringify({ message: text })
       });
       const data = await res.json();
-      
+
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }]);
-      setSuggestions(data.suggestions);
+      setSuggestions(data.suggestions || []);
+      setLlmStatus(data.notConfigured ? 'not-configured' : 'connected');
     } catch (error) {
       console.error(error);
     } finally {
@@ -106,19 +108,24 @@ export default function NexusChatPage() {
     <div className="flex h-[calc(100vh-120px)] animate-in fade-in duration-700 gap-6">
       {/* Sidebar - History */}
       <div className="hidden lg:flex w-72 flex-col bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
-        <button className="w-full mb-6 py-3 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border border-indigo-500/30 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+        <button
+          onClick={() => {
+            setMessages([{
+              id: "1",
+              role: 'assistant',
+              content: "Bonjour. Je suis NEXUS, votre assistant expert en normes OHADA/SYSCOHADA. Que puis-je analyser pour vous aujourd'hui ?",
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }]);
+            setSuggestions(["📊 KPIs du cabinet", "📅 Échéances semaine", "🔍 Analyser TVA", "📝 Journal de clôture"]);
+          }}
+          className="w-full mb-6 py-3 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border border-indigo-500/30 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+        >
           <Plus className="w-4 h-4" /> Nouvelle Conversation
         </button>
-        
-        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Aujourd'hui</h3>
-        <div className="space-y-2">
-          {["Analyse TVA Senelec", "Point sur la rentabilité", "Date limite BRS"].map((title, i) => (
-            <button key={i} className="w-full text-left px-4 py-3 rounded-xl bg-slate-800/30 hover:bg-slate-800/60 text-slate-300 text-sm font-medium transition-colors border border-transparent hover:border-white/5 flex items-center justify-between group">
-              <span className="truncate pr-2">{title}</span>
-              <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
-          ))}
-        </div>
+
+        <p className="text-[10px] text-slate-500 leading-relaxed italic">
+          L'historique des conversations n'est pas encore persisté : chaque rechargement de page repart d'une conversation vide.
+        </p>
       </div>
 
       {/* Main Chat */}
@@ -132,7 +139,11 @@ export default function NexusChatPage() {
             <div>
               <h2 className="text-xl font-black text-white tracking-tight">NEXUS Chat IA</h2>
               <p className="text-slate-400 text-sm font-medium flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Assistant connecté (SYSCOHADA)
+                <span className={cn(
+                  "w-2 h-2 rounded-full",
+                  llmStatus === 'connected' ? "bg-emerald-500" : llmStatus === 'not-configured' ? "bg-rose-500" : "bg-slate-500"
+                )}></span>
+                {llmStatus === 'connected' ? "Assistant connecté (SYSCOHADA)" : llmStatus === 'not-configured' ? "Assistant IA non configuré" : "Statut non vérifié"}
               </p>
             </div>
           </div>

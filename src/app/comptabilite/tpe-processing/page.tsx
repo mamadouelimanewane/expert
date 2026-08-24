@@ -177,7 +177,7 @@ export default function TpeProcessing() {
                         </div>
                       </div>
                       <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black flex items-center gap-1">
-                        <Zap className="w-3 h-3" /> IA Confiance: {(flow.confidenceScore * 100).toFixed(0)}%
+                        <Zap className="w-3 h-3" /> Fiabilité analyse: {(flow.confidenceScore * 100).toFixed(0)}%
                       </div>
                     </div>
 
@@ -191,7 +191,7 @@ export default function TpeProcessing() {
 
                     {/* Traduction Comptable IA */}
                     <div className="mb-8">
-                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Traduction OHADA (IA)</p>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-2">Traduction OHADA (analyse par mots-clés)</p>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-slate-800/50 rounded-2xl border border-white/5">
                           <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Débit ({flow.debitCompte})</p>
