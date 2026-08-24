@@ -79,10 +79,10 @@ export default function GovernancePage() {
                 </div>
 
                 <div className="flex gap-4 relative z-10">
-                    <button className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-2 transition-all">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-slate-800/50 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-2 cursor-not-allowed">
                         <BookOpen className="w-4 h-4" /> Registres Numériques
                     </button>
-                    <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-indigo-600/30 text-indigo-300/50 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed">
                         <Plus className="w-4 h-4" /> Créer un Acte
                     </button>
                 </div>
@@ -128,7 +128,7 @@ export default function GovernancePage() {
                             <h3 className="text-2xl font-black text-white">{entities.length}</h3>
                         </div>
                     </div>
-                    <button className="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase rounded-xl transition-all border border-white/10">
+                    <button disabled title="Non implémenté" className="w-full py-2 bg-white/5 text-white/40 text-[10px] font-black uppercase rounded-xl border border-white/10 cursor-not-allowed">
                         Consulter les archives
                     </button>
                 </div>
@@ -156,6 +156,15 @@ export default function GovernancePage() {
             </div>
 
             {/* Content Section */}
+            {selectedTab !== "entities" ? (
+                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 p-16 text-center shadow-2xl">
+                    <p className="text-sm text-slate-500">
+                        {selectedTab === "meetings"
+                            ? "La gestion des Assemblées Générales et Conseils d'Administration n'est pas encore implémentée."
+                            : "Les registres et titres numériques ne sont pas encore implémentés."}
+                    </p>
+                </div>
+            ) : (
             <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
                 <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
                     <div className="relative w-96">
@@ -214,10 +223,10 @@ export default function GovernancePage() {
                                     </td>
                                     <td className="px-8 py-6 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-indigo-400 transition-all border border-transparent hover:border-white/5">
+                                            <button disabled title="Non implémenté" className="p-2.5 rounded-xl text-slate-700 cursor-not-allowed border border-transparent">
                                                 <FileText className="w-4 h-4" />
                                             </button>
-                                            <button className="p-2.5 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all border border-transparent hover:border-white/5">
+                                            <button disabled title="Non implémenté" className="p-2.5 rounded-xl text-slate-700 cursor-not-allowed border border-transparent">
                                                 <MoreVertical className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -232,13 +241,17 @@ export default function GovernancePage() {
                     </table>
                 </div>
             </div>
+            )}
 
-            {/* Smart Templates Preview */}
+            {/* Modèles Juridiques — aucune génération automatique de documents juridiques
+                (convocation, PV, rapport de gestion, contrat de cession) n'est encore
+                implémentée : les cartes précédentes proposaient un faux CTA "Utiliser le
+                modèle" sans backend, retiré. */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <TemplateCard title="Convocation AG" desc="Conforme AUSCGIE Art. 331" />
-                <TemplateCard title="Procès-Verbal AG" desc="Automatisation des quorums" />
-                <TemplateCard title="Rapport de Gestion" desc="Génération via Balance" />
-                <TemplateCard title="Contrat de Cession" desc="Modèle certifié OHADA" />
+                <TemplateCard title="Convocation AG" desc="AUSCGIE Art. 331" />
+                <TemplateCard title="Procès-Verbal AG" desc="Non implémenté" />
+                <TemplateCard title="Rapport de Gestion" desc="Non implémenté" />
+                <TemplateCard title="Contrat de Cession" desc="Non implémenté" />
             </div>
         </div>
     );
@@ -246,23 +259,12 @@ export default function GovernancePage() {
 
 function TemplateCard({ title, desc }: { title: string, desc: string }) {
     return (
-        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/30 hover:bg-slate-900/50 transition-all cursor-pointer group">
-            <div className="p-3 bg-indigo-600/10 rounded-2xl text-indigo-400 w-fit mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/30 opacity-60">
+            <div className="p-3 bg-white/5 rounded-2xl text-slate-500 w-fit mb-4">
                 <FileText className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-white text-sm mb-1">{title}</h4>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{desc}</p>
-            <div className="mt-4 flex items-center gap-2 text-[10px] text-indigo-400 font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                Utiliser le modèle <ArrowRight className="w-3 h-3" />
-            </div>
+            <h4 className="font-bold text-slate-300 text-sm mb-1">{title}</h4>
+            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider">{desc}</p>
         </div>
     );
-}
-
-function ArrowRight({ className }: { className?: string }) {
-    return (
-        <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-    )
 }

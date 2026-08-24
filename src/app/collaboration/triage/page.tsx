@@ -38,6 +38,14 @@ export default function TriagePage() {
     const [elements, setElements] = useState<ElementTriage[]>([]);
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState<string | null>(null);
+    const [workspaces, setWorkspaces] = useState<{ id: string; name: string; type: string }[]>([]);
+
+    useEffect(() => {
+        fetch("/api/workspaces")
+            .then(r => r.json())
+            .then(d => setWorkspaces((d.workspaces ?? []).slice(0, 4)))
+            .catch(() => setWorkspaces([]));
+    }, []);
 
     const charger = useCallback(async () => {
         setChargement(true);
@@ -92,10 +100,10 @@ export default function TriagePage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-white/5 text-slate-600 rounded-xl font-bold border border-white/10 flex items-center gap-2 cursor-not-allowed">
                         <CheckSquare className="w-4 h-4" /> Créer Tâche
                     </button>
-                    <button className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-sky-500/25 flex items-center gap-2">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-slate-800 text-slate-600 rounded-xl font-bold flex items-center gap-2 cursor-not-allowed">
                         <Mail className="w-4 h-4" /> Nouveau Email
                     </button>
                 </div>
@@ -104,25 +112,31 @@ export default function TriagePage() {
             {/* Triage Dashboard */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                {/* Sidebar Filter */}
+                {/* Sidebar Filter — seul "Triage" reflete un etat reel (non-lus) ;
+                    les autres vues (tâches assignees, brouillons, envoyes...) ne sont
+                    pas encore implementees, elles ne sont donc pas cliquables. */}
                 <div className="space-y-2">
-                    {["Triage (3)", "À faire", "Assigné à d'autres", "Brouillons", "Envoyés", "Terminés"].map((label, i) => (
-                        <div key={i} className={cn(
-                            "flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all",
-                            i === 0 ? "bg-sky-500/10 text-sky-400 font-bold" : "text-slate-400 hover:text-white hover:bg-white/5"
-                        )}>
+                    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-sky-500/10 text-sky-400 font-bold">
+                        <span>Triage</span>
+                        <span className="bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{nonLus.length}</span>
+                    </div>
+                    {["À faire", "Assigné à d'autres", "Brouillons", "Envoyés", "Terminés"].map((label, i) => (
+                        <div key={i} title="Non implémenté" className="flex items-center justify-between px-4 py-3 rounded-xl text-slate-600 cursor-not-allowed">
                             <span>{label}</span>
-                            {i === 0 && <span className="bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>}
                         </div>
                     ))}
 
                     <div className="pt-8 text-xs font-bold text-slate-500 uppercase tracking-widest px-4 mb-2">Espaces de Travail</div>
-                    {["Audit & Légal", "Expertise Comptable", "Social & Paie", "Juridique"].map((space, i) => (
-                        <div key={i} className="flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-white cursor-pointer">
-                            <div className={cn("w-2 h-2 rounded-full", ["bg-rose-500", "bg-emerald-500", "bg-amber-500", "bg-violet-500"][i])} />
-                            <span className="text-sm font-medium">{space}</span>
-                        </div>
-                    ))}
+                    {workspaces.length === 0 ? (
+                        <p className="px-4 text-xs text-slate-600">Aucun workspace.</p>
+                    ) : (
+                        workspaces.map((ws, i) => (
+                            <div key={ws.id} className="flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-white cursor-pointer">
+                                <div className={cn("w-2 h-2 rounded-full", ["bg-rose-500", "bg-emerald-500", "bg-amber-500", "bg-violet-500"][i % 4])} />
+                                <span className="text-sm font-medium truncate">{ws.name}</span>
+                            </div>
+                        ))
+                    )}
                 </div>
 
                 {/* Main Inbox List */}
