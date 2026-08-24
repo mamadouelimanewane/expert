@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
   Users, TrendingUp, Wallet, MessageCircle, Star, ShieldCheck,
@@ -161,9 +162,9 @@ export default function TpeDashboard() {
             <p className="text-slate-400 mt-1">Pilotez vos abonnés du secteur informel. Flux WhatsApp, scores de crédit et attestations en temps réel.</p>
           </div>
         </div>
-        <button className="px-5 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
+        <Link href="/clients/new" className="px-5 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
           <Plus className="w-4 h-4" /> Ajouter un TPE
-        </button>
+        </Link>
       </div>
 
       {/* KPI Globaux */}

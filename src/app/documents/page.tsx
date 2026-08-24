@@ -17,6 +17,7 @@ interface DocFile {
     category: string;
     confidence: number | null;
     status: string;
+    fileUrl: string;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -53,6 +54,7 @@ export default function SmartGEDPage() {
                     category: d.type,
                     confidence: d.ocrData?.confidence ?? null,
                     status: d.status,
+                    fileUrl: d.fileUrl,
                 }));
                 setFiles(docs);
             })
@@ -106,11 +108,11 @@ export default function SmartGEDPage() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">GED <span className="text-indigo-400">Intelligente</span></h2>
                     <p className="text-slate-400 mt-2 max-w-xl font-medium">
-                        Déposez vos documents. Notre IA les lit, les classe et alerte vos clients automatiquement s'il manque des pièces comptables.
+                        Déposez vos documents : l'OCR les lit et en extrait les données automatiquement. L'alerte de pièces manquantes n'est pas encore implémentée.
                     </p>
                 </div>
                 <div className="relative z-10 flex gap-4">
-                    <button className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 border border-white/5 shadow-xl">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-slate-800/50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-2 cursor-not-allowed">
                         <Share2 className="w-4 h-4" /> Partager un dossier
                     </button>
                     <input ref={fileInputRef} type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileSelected} />
@@ -241,9 +243,9 @@ export default function SmartGEDPage() {
                                             <td className="px-6 py-4 text-right text-slate-500 text-xs font-medium">{new Date(file.date).toLocaleDateString()}</td>
                                             <td className="px-6 py-4 text-right">
                                                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><Eye className="w-4 h-4" /></button>
-                                                    <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><Download className="w-4 h-4" /></button>
-                                                    <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                                                    <a href={file.fileUrl} target="_blank" rel="noreferrer" title="Voir" className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><Eye className="w-4 h-4" /></a>
+                                                    <a href={file.fileUrl} download={file.name} title="Télécharger" className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><Download className="w-4 h-4" /></a>
+                                                    <button disabled title="Non implémenté" className="p-2 rounded-lg text-slate-700 cursor-not-allowed"><MoreVertical className="w-4 h-4" /></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -259,7 +261,7 @@ export default function SmartGEDPage() {
                                         <div className="p-3 bg-slate-800 rounded-2xl">
                                             <FileText className="w-6 h-6 text-indigo-400" />
                                         </div>
-                                        <button className="p-2 text-slate-500 hover:text-white transition-colors"><MoreVertical className="w-4 h-4" /></button>
+                                        <button disabled title="Non implémenté" className="p-2 text-slate-700 cursor-not-allowed"><MoreVertical className="w-4 h-4" /></button>
                                     </div>
                                     <h4 className="font-bold text-white text-sm mb-1 truncate">{file.name}</h4>
                                     <p className="text-[10px] text-slate-500 mb-4">{file.size} · {new Date(file.date).toLocaleDateString()}</p>
@@ -274,8 +276,8 @@ export default function SmartGEDPage() {
                                     </div>
 
                                     <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm rounded-[32px] flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"><Eye className="w-5 h-5" /></button>
-                                        <button className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"><Download className="w-5 h-5" /></button>
+                                        <a href={file.fileUrl} target="_blank" rel="noreferrer" title="Voir" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"><Eye className="w-5 h-5" /></a>
+                                        <a href={file.fileUrl} download={file.name} title="Télécharger" className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"><Download className="w-5 h-5" /></a>
                                     </div>
                                 </div>
                             ))}

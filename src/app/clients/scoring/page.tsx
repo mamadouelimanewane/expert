@@ -283,7 +283,7 @@ export default function ClientScoringPage() {
                                             <AlertTriangle className="w-4 h-4 text-rose-400" />
                                         </div>
                                         <span className="text-sm text-white flex-1">{alert}</span>
-                                        <button className="text-xs text-rose-400 hover:text-rose-300 font-bold">Traiter</button>
+                                        <button disabled title="Non implémenté : ces alertes sont recalculées à chaque score, pas de suivi individuel" className="text-xs text-rose-400/40 font-bold cursor-not-allowed">Traiter</button>
                                     </div>
                                 ))}
                             </div>
@@ -293,7 +293,7 @@ export default function ClientScoringPage() {
                     {/* AI Recommendation */}
                     <div className="p-6 bg-violet-500/5 border border-violet-500/20 rounded-[32px]">
                         <h4 className="font-bold text-violet-400 mb-4 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5" /> Recommandation IA
+                            <Sparkles className="w-5 h-5" /> Recommandation
                         </h4>
                         <p className="text-sm text-slate-300 leading-relaxed">
                             {selectedClient.score >= 80 ? (

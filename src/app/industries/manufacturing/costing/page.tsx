@@ -147,8 +147,13 @@ export default function IndustrialCostingPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/25 flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4" /> Actualiser Standards
+                    <button
+                        onClick={charger}
+                        disabled={chargement}
+                        title="Recharge l'analyse depuis les données réelles"
+                        className="px-6 py-3 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/25 flex items-center gap-2"
+                    >
+                        <RefreshCw className={cn("w-4 h-4", chargement && "animate-spin")} /> Actualiser
                     </button>
                 </div>
             </div>

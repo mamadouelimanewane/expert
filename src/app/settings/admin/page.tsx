@@ -122,7 +122,7 @@ export default function UsersSettingsPage() {
                             <Users className="w-5 h-5 text-indigo-400" />
                             Comptes Collaborateurs
                         </h3>
-                        <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium flex items-center gap-2 transition-all">
+                        <button disabled title="Non implémenté : aucun flux d'invitation n'existe encore" className="px-4 py-2 bg-slate-800/50 text-slate-500 rounded-lg font-medium flex items-center gap-2 cursor-not-allowed">
                             <UserPlus className="w-4 h-4" /> Inviter un membre
                         </button>
                     </div>
@@ -176,7 +176,7 @@ export default function UsersSettingsPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="p-2 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                                            <button disabled title="Non implémenté" className="p-2 rounded-lg text-muted-foreground/40 cursor-not-allowed">
                                                 <Settings className="w-4 h-4" />
                                             </button>
                                         </td>

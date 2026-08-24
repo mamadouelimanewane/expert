@@ -104,9 +104,6 @@ export default function ClauseBankPage() {
                             <span className="px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-amber-500/20">
                                 Bibliothèque de Clauses • OHADA
                             </span>
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
-                                NEXUS Premium
-                            </span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
                             Clause Bank <span className="text-amber-400">OHADA</span>
@@ -116,7 +113,7 @@ export default function ClauseBankPage() {
                         </p>
                     </div>
 
-                    <button className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-amber-600/30 active:scale-95">
+                    <button disabled title="Non implémenté" className="px-8 py-4 bg-white/5 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 cursor-not-allowed">
                         <Plus className="w-5 h-5" /> Nouvelle Clause
                     </button>
                 </div>
@@ -214,7 +211,21 @@ export default function ClauseBankPage() {
                                     <button onClick={() => navigator.clipboard.writeText(selectedClause.content)} className="p-3 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all border border-white/10">
                                         <Copy className="w-5 h-5" />
                                     </button>
-                                    <button className="p-3 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all border border-white/10">
+                                    <button
+                                        onClick={() => {
+                                            const blob = new Blob([selectedClause.content], { type: "text/plain;charset=utf-8;" });
+                                            const url = URL.createObjectURL(blob);
+                                            const a = document.createElement("a");
+                                            a.href = url;
+                                            a.download = `${selectedClause.title.replace(/[^a-z0-9]+/gi, "-")}.txt`;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                            URL.revokeObjectURL(url);
+                                        }}
+                                        title="Télécharger la clause (.txt)"
+                                        className="p-3 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all border border-white/10"
+                                    >
                                         <Download className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -259,10 +270,10 @@ export default function ClauseBankPage() {
                             </div>
 
                             <div className="mt-8 flex gap-4">
-                                <button className="flex-1 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">
+                                <button disabled title="Non implémenté : aucun document actif à cibler depuis cette page" className="flex-1 py-4 bg-amber-600/30 text-amber-200/40 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-not-allowed">
                                     Insérer dans le document
                                 </button>
-                                <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border border-white/10">
+                                <button disabled title="Non implémenté" className="px-8 py-4 bg-white/5 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/10 cursor-not-allowed">
                                     <Edit3 className="w-4 h-4" />
                                 </button>
                             </div>

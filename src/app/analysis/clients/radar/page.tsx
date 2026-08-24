@@ -59,6 +59,21 @@ export default function ClientSuccessRadar() {
 
     const filteredClients = data.clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
+    const handleExportReport = () => {
+        const header = ["Client", "Score Santé", "Niveau de Risque", "Dernière Interaction", "Prochaine Action", "Santé Facturation", "Factures en Retard"];
+        const rows = filteredClients.map((c) => [c.name, c.score ?? "—", c.riskLevel, c.lastInteraction, c.nextAction, c.billingHealth ?? "—", c.overdueInvoices]);
+        const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+        const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `sante-portefeuille-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header: Client Success Command Center */}
@@ -71,7 +86,7 @@ export default function ClientSuccessRadar() {
                     <div>
                         <div className="flex items-center gap-3 mb-4">
                             <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20">
-                                Client Success Engine v2.0
+                                Suivi Portefeuille Client
                             </span>
                         </div>
                         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
@@ -83,7 +98,7 @@ export default function ClientSuccessRadar() {
                     </div>
 
                     <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-emerald-600/30 active:scale-95">
+                        <button disabled title="Non implémenté" className="px-8 py-4 bg-white/5 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 cursor-not-allowed">
                             <Flame className="w-5 h-5" /> Sprint de Fidélisation
                         </button>
                     </div>
@@ -154,10 +169,10 @@ export default function ClientSuccessRadar() {
                                         </div>
 
                                         <div className="flex gap-2">
-                                            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 transition-all border border-white/5">
+                                            <button disabled title="Non implémenté : pas de fiche client détaillée" className="p-3 bg-white/5 rounded-xl text-slate-600 border border-white/5 cursor-not-allowed">
                                                 <Eye className="w-4 h-4" />
                                             </button>
-                                            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 transition-all border border-white/5">
+                                            <button disabled title="Non implémenté" className="p-3 bg-white/5 rounded-xl text-slate-600 border border-white/5 cursor-not-allowed">
                                                 <MessageSquare className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -172,8 +187,8 @@ export default function ClientSuccessRadar() {
                         ))}
                     </div>
 
-                    <button className="mt-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-all">
-                        Exporter le Rapport NPS & Santé Portfolio
+                    <button onClick={handleExportReport} className="mt-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-all">
+                        Exporter le Rapport de Santé Portefeuille (CSV)
                     </button>
                 </div>
 

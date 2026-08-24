@@ -46,6 +46,21 @@ export default function TierAnalysisPage() {
 
     const filtered = data.tiers.filter((t) => t.name.toLowerCase().includes(search.toLowerCase()));
 
+    const handleExportCSV = () => {
+        const header = ["Client", "Encours (FCFA)", "Retard (FCFA)", "Dernière Activité", "Risque", "Statut", "Factures"];
+        const rows = filtered.map((t) => [t.name, t.balance, t.overdue, t.lastActivity, t.riskScore, t.status, t.invoiceCount]);
+        const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+        const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `comptes-tiers-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="space-y-6 pb-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -111,8 +126,8 @@ export default function TierAnalysisPage() {
                             />
                         </div>
                         <div className="flex gap-2">
-                            <button className="p-2 hover:bg-slate-800 rounded-lg text-slate-400"><Filter className="w-5 h-5" /></button>
-                            <button className="p-2 hover:bg-slate-800 rounded-lg text-slate-400"><Download className="w-5 h-5" /></button>
+                            <button disabled title="Non implémenté" className="p-2 rounded-lg text-slate-700 cursor-not-allowed"><Filter className="w-5 h-5" /></button>
+                            <button onClick={handleExportCSV} title="Exporter en CSV" className="p-2 hover:bg-slate-800 rounded-lg text-slate-400"><Download className="w-5 h-5" /></button>
                         </div>
                     </div>
 
