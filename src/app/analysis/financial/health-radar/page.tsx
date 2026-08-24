@@ -97,34 +97,71 @@ export default function FinancialHealthRadarPage() {
                             </div>
 
                             <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-                                <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-18">
-                                    {[20, 40, 60, 80, 100].map((r, i) => (
-                                        <circle key={i} cx="50" cy="50" r={r / 2} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
-                                    ))}
-                                    {[0, 72, 144, 216, 288].map((angle, i) => (
-                                        <line
-                                            key={i}
-                                            x1="50" y1="50"
-                                            x2={50 + 50 * Math.cos((angle * Math.PI) / 180)}
-                                            y2={50 + 50 * Math.sin((angle * Math.PI) / 180)}
-                                            stroke="rgba(255,255,255,0.05)"
-                                            strokeWidth="0.5"
-                                        />
-                                    ))}
-                                    <polygon
-                                        points="50,15 85,40 65,80 30,75 15,45"
-                                        fill="rgba(99, 102, 241, 0.2)"
-                                        stroke="#6366f1"
-                                        strokeWidth="1"
-                                        className="animate-pulse"
-                                    />
-                                </svg>
+                                {/* Le polygone est calcule a partir des ratios reels du client
+                                    selectionne (selectedClient.ratios) : il affichait auparavant une
+                                    forme fixe identique quel que soit le client, alors meme que le
+                                    reste de l'ecran (score, notation, ratios) provient de donnees reelles. */}
+                                {(() => {
+                                    const ratios = selectedClient.ratios || [];
+                                    const n = ratios.length;
+                                    const angleFor = (i: number) => (360 / n) * i - 90;
+                                    const pointFor = (i: number, value: number) => {
+                                        const rad = (angleFor(i) * Math.PI) / 180;
+                                        const r = (Math.max(0, Math.min(100, value)) / 100) * 40;
+                                        return { x: 50 + r * Math.cos(rad), y: 50 + r * Math.sin(rad) };
+                                    };
+                                    const polygonPoints = ratios
+                                        .map((ratio: any, i: number) => {
+                                            const p = pointFor(i, ratio.value);
+                                            return `${p.x},${p.y}`;
+                                        })
+                                        .join(" ");
 
-                                <div className="absolute -top-4 font-black text-[10px] text-white uppercase tracking-widest">Liquidité</div>
-                                <div className="absolute -right-4 top-1/3 font-black text-[10px] text-white uppercase tracking-widest">Solvabilité</div>
-                                <div className="absolute -right-4 bottom-1/4 font-black text-[10px] text-white uppercase tracking-widest">Rentabilité</div>
-                                <div className="absolute left-0 bottom-1/4 font-black text-[10px] text-white uppercase tracking-widest">Fiscalité</div>
-                                <div className="absolute -left-6 top-1/3 font-black text-[10px] text-white uppercase tracking-widest">Social</div>
+                                    return (
+                                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                                            {[20, 40, 60, 80, 100].map((r, i) => (
+                                                <circle key={i} cx="50" cy="50" r={(r / 100) * 40} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+                                            ))}
+                                            {n > 0 && ratios.map((_: any, i: number) => {
+                                                const p = pointFor(i, 100);
+                                                return (
+                                                    <line
+                                                        key={i}
+                                                        x1="50" y1="50"
+                                                        x2={p.x} y2={p.y}
+                                                        stroke="rgba(255,255,255,0.05)"
+                                                        strokeWidth="0.5"
+                                                    />
+                                                );
+                                            })}
+                                            {n > 0 && (
+                                                <polygon
+                                                    points={polygonPoints}
+                                                    fill="rgba(99, 102, 241, 0.2)"
+                                                    stroke="#6366f1"
+                                                    strokeWidth="1"
+                                                    className="transition-all duration-700"
+                                                />
+                                            )}
+                                        </svg>
+                                    );
+                                })()}
+
+                                {(selectedClient.ratios || []).map((ratio: any, i: number, arr: any[]) => {
+                                    const angle = (360 / arr.length) * i - 90;
+                                    const rad = (angle * Math.PI) / 180;
+                                    const x = 50 + 50 * Math.cos(rad);
+                                    const y = 50 + 50 * Math.sin(rad);
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="absolute font-black text-[10px] text-white uppercase tracking-widest -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
+                                            style={{ left: `${x}%`, top: `${y}%` }}
+                                        >
+                                            {ratio.label}
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             <div className="mt-10 flex gap-4 sm:gap-6 lg:gap-10">

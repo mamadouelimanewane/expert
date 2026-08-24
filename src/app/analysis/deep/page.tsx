@@ -37,7 +37,6 @@ interface Node {
     y: number;
     metadata?: string;
     hidden?: boolean; // For nodes revealed by investigation
-    geo?: { lat: number, lng: number, city: string }; // For Geo View
 }
 
 interface Edge {
@@ -54,7 +53,6 @@ export default function NeuralForensicsPage() {
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [zoom, setZoom] = useState(1);
     const [isScanning, setIsScanning] = useState(false);
-    const [viewMode, setViewMode] = useState<"graph" | "geo">("graph");
 
     // Sherlock Mode States
     const [isInvestigating, setIsInvestigating] = useState(false);
@@ -147,21 +145,6 @@ export default function NeuralForensicsPage() {
                 </div>
 
                 <div className="pointer-events-auto flex items-center gap-3">
-                    <div className="bg-slate-900/50 p-1 rounded-lg border border-white/5 flex gap-1 backdrop-blur pointer-events-auto">
-                        <button
-                            onClick={() => setViewMode("graph")}
-                            className={cn("px-3 py-1.5 rounded-md text-xs font-bold transition-all", viewMode === "graph" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white")}
-                        >
-                            Graph
-                        </button>
-                        <button
-                            onClick={() => setViewMode("geo")}
-                            className={cn("px-3 py-1.5 rounded-md text-xs font-bold transition-all", viewMode === "geo" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white")}
-                        >
-                            Map (Geo)
-                        </button>
-                    </div>
-
                     <div className="glass-card px-4 py-2 rounded-lg border border-white/5 flex items-center gap-3 bg-slate-900/50 backdrop-blur">
                         <Globe className="w-4 h-4 text-indigo-400" />
                         <span className="text-xs text-indigo-300 font-bold uppercase tracking-wider">Données Cabinet (Prisma)</span>
@@ -187,8 +170,7 @@ export default function NeuralForensicsPage() {
                 />
 
                 {/* GRAPH MODE */}
-                {viewMode === "graph" && (
-                    <div className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out" style={{ transform: `scale(${zoom})` }}>
+                <div className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out" style={{ transform: `scale(${zoom})` }}>
                         <div className="relative w-[1000px] h-[800px]">
                             {/* Edges */}
                             <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
@@ -208,8 +190,12 @@ export default function NeuralForensicsPage() {
                                     const targetNode = nodes.find(n => n.id === edge.target);
                                     if (!sourceNode || !targetNode) return null;
 
-                                    const isDanger = edge.type === "RELATED" || (edge.source === "5" && edge.target === "6" && isScanning);
-                                    const isCritical = edge.target === "8" || edge.source === "8" || edge.source === "10";
+                                    // Le danger/la criticite d'une arete est derive du risque reel des
+                                    // noeuds qu'elle relie (sourceNode.risk / targetNode.risk), pas d'ID
+                                    // codes en dur : un ID "8" ou "10" pouvait auparavant correspondre a
+                                    // n'importe quelle entite reelle, la marquant a tort comme frauduleuse.
+                                    const isCritical = sourceNode.risk === "critical" || targetNode.risk === "critical";
+                                    const isDanger = !isCritical && (sourceNode.risk === "high" || targetNode.risk === "high");
 
                                     return (
                                         <g key={i}>
@@ -259,7 +245,7 @@ export default function NeuralForensicsPage() {
                                         {node.type === "invoice" && <Banknote className="w-6 h-6" />}
                                         {node.type === "account" && <Building2 className="w-6 h-6 opacity-50" />}
                                         {node.type === "offshore" && <Globe className="w-6 h-6 text-purple-400" />}
-                                        {node.id === "8" && <div className="absolute -top-3 -right-3 w-4 h-4 bg-purple-500 rounded-full animate-ping" />}
+                                        {node.risk === "critical" && <div className="absolute -top-3 -right-3 w-4 h-4 bg-purple-500 rounded-full animate-ping" />}
                                     </div>
                                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 px-3 py-1 rounded text-xs text-white font-bold border border-white/10 pointer-events-none z-50">
                                         {node.label}
@@ -271,44 +257,6 @@ export default function NeuralForensicsPage() {
                             ))}
                         </div>
                     </div>
-                )}
-
-                {/* GEO MODE (Simulated) */}
-                {viewMode === "geo" && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#050B14]">
-                        {/* Fake Map Background */}
-                        <div className="w-full h-full opacity-30 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center grayscale invert" />
-
-                        {/* Geo Nodes Mapped (Simplified Projection for Demo) */}
-                        <div className="absolute inset-0">
-                            {nodes.filter(n => !n.hidden && n.geo).map((node, i) => {
-                                // Simple mock projection centered roughly on West Africa / Dubai for demo visuals
-                                // This is hardcoded for visual flair in the demo
-                                const isDubai = node.geo?.city.includes("UAE") || node.geo?.city.includes("Dubai");
-                                const top = isDubai ? "40%" : "55%";
-                                const left = isDubai ? "65%" : "48%";
-
-                                return (
-                                    <div key={i} className="absolute group cursor-pointer" style={{ top, left }} onClick={() => handleNodeClick(node)}>
-                                        <div className={cn(
-                                            "w-3 h-3 rounded-full border-2 shadow-[0_0_15px_currentColor]",
-                                            node.risk === "critical" ? "bg-purple-500 border-purple-300 text-purple-500" : "bg-indigo-500 border-indigo-300 text-indigo-500"
-                                        )} />
-                                        {/* Connection Line Mockup */}
-                                        {isDubai && (
-                                            <svg className="absolute top-1.5 right-1.5 w-[300px] h-[100px] overflow-visible pointer-events-none -translate-x-full">
-                                                <path d="M 0 50 Q 150 -50 300 0" fill="none" stroke="#a855f7" strokeWidth="2" strokeDasharray="4,4" className="animate-[dash_10s_linear_infinite]" />
-                                            </svg>
-                                        )}
-                                        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 text-[10px] px-2 py-1 rounded text-white whitespace-nowrap border border-white/10">
-                                            {node.geo?.city}
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-                )}
 
                 {/* Scan Overlay Effect */}
                 {isScanning && (

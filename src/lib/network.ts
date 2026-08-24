@@ -48,11 +48,15 @@ export class NetworkService {
                 id: `client-${client.id}`,
                 type: "company",
                 label: client.companyName || `${client.firstName} ${client.lastName}`,
-                risk: client.healthScore && client.healthScore < 50 ? "high" : "low",
+                // "medium" quand le healthScore n'est pas evalue : ne pas presenter un
+                // client non evalue comme "faible risque" par defaut.
+                risk: client.healthScore == null ? "medium" : client.healthScore < 50 ? "high" : "low",
                 x: 400 + (i * 100),
                 y: 300 + (i * 50),
                 metadata: "Entité Principale",
-                geo: { lat: 5.341, lng: -4.018, city: client.city || "Abidjan" }
+                // Aucune geolocalisation reelle n'est disponible (pas de geocodage des
+                // adresses clients) : le champ geo n'est plus fabrique avec des
+                // coordonnees fixes (auparavant toujours Abidjan, 5.341/-4.018).
             });
         });
 
