@@ -6,12 +6,9 @@ import {
     ShieldCheck,
     Lock,
     UserPlus,
-    Key,
     Settings,
     ShieldAlert,
     Plus,
-    RefreshCw,
-    Save,
     AlertTriangle,
     Loader2
 } from "lucide-react";
@@ -30,7 +27,6 @@ interface RoleDefinition {
     id: string;
     name: string;
     description: string;
-    permissionsCount: number;
     color: string;
 }
 
@@ -52,16 +48,19 @@ const ROLE_LABELS: Record<string, string> = {
     ASSISTANT: "Assistant",
 };
 
+// Les compteurs "N permissions" étaient des chiffres fixes sans rapport avec
+// un vrai système de permissions granulaires — l'application distingue en
+// réalité 5 rôles Prisma (requireStaff/requireAdmin), pas un modèle de
+// permissions par action. Retirés plutôt qu'inventés.
 const ROLES: RoleDefinition[] = [
-    { id: "1", name: "Expert-Comptable", description: "Accès total, signature légale et validation finale.", permissionsCount: 42, color: "text-indigo-400" },
-    { id: "2", name: "Administrateur IT", description: "Gestion des utilisateurs, sécurité et sauvegardes.", permissionsCount: 15, color: "text-rose-400" },
-    { id: "3", name: "Collaborateur Senior", description: "Gestion complète des dossiers clients et révision.", permissionsCount: 28, color: "text-emerald-400" },
-    { id: "4", name: "Collaborateur Junior", description: "Saisie comptable et gestion documentaire de base.", permissionsCount: 12, color: "text-amber-400" },
+    { id: "1", name: "Expert-Comptable", description: "Accès total, signature légale et validation finale.", color: "text-indigo-400" },
+    { id: "2", name: "Administrateur IT", description: "Gestion des utilisateurs, sécurité et sauvegardes.", color: "text-rose-400" },
+    { id: "3", name: "Collaborateur Senior", description: "Gestion complète des dossiers clients et révision.", color: "text-emerald-400" },
+    { id: "4", name: "Collaborateur Junior", description: "Saisie comptable et gestion documentaire de base.", color: "text-amber-400" },
 ];
 
 export default function UsersSettingsPage() {
     const [activeTab, setActiveTab] = useState<"utilisateurs" | "roles" | "securite" | "sauvegarde">("utilisateurs");
-    const [isSaving, setIsSaving] = useState(false);
     const [users, setUsers] = useState<UserAccount[]>([]);
     const [usersLoading, setUsersLoading] = useState(true);
     const [usersError, setUsersError] = useState<string | null>(null);
@@ -87,11 +86,6 @@ export default function UsersSettingsPage() {
             .finally(() => setUsersLoading(false));
     }, []);
 
-    const handleSaveSettings = () => {
-        setIsSaving(true);
-        setTimeout(() => setIsSaving(false), 1500);
-    };
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -104,14 +98,6 @@ export default function UsersSettingsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 transition-all">
-                    <button
-                        onClick={handleSaveSettings}
-                        disabled={isSaving}
-                        className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
-                    >
-                        {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        {isSaving ? "Sauvegarde..." : "Enregistrer les modifications"}
-                    </button>
                     <div className="flex gap-2 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
                         {["utilisateurs", "roles", "securite", "sauvegarde"].map((tab) => (
                             <button
@@ -209,8 +195,8 @@ export default function UsersSettingsPage() {
                             <Lock className="w-5 h-5 text-rose-400" />
                             Structure des Droits & Permissions
                         </h3>
-                        <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-700 text-xs font-bold flex items-center gap-2 transition-all">
-                            <Plus className="w-3 h-3" /> Créer un rôle
+                        <button disabled title="Non implémenté : les rôles sont fixés par le code (voir enum Role)" className="px-4 py-2 bg-slate-800/50 text-slate-500 rounded-lg border border-slate-700 text-xs font-bold flex items-center gap-2 cursor-not-allowed">
+                            <Plus className="w-3 h-3" /> Créer un rôle (non disponible)
                         </button>
                     </div>
 
@@ -223,14 +209,7 @@ export default function UsersSettingsPage() {
                                         <Settings className="w-4 h-4 text-muted-foreground" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed mb-6 italic">"{role.description}"</p>
-                                <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                                    <div className="flex items-center gap-2">
-                                        <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                                        <span className="text-[10px] font-bold text-foreground">{role.permissionsCount} permissions</span>
-                                    </div>
-                                    <button className="text-[10px] text-indigo-400 font-bold uppercase hover:underline">Editer</button>
-                                </div>
+                                <p className="text-xs text-muted-foreground leading-relaxed italic">"{role.description}"</p>
                             </div>
                         ))}
                     </div>
@@ -251,13 +230,13 @@ export default function UsersSettingsPage() {
                         </div>
 
                         <div className="space-y-4">
-                            <SecurityToggle label="Double Authentification (2FA)" status="Obligatoire" enabled={true} />
-                            <SecurityToggle label="Expiration des Sessions (8h)" status="Actif" enabled={true} />
-                            <SecurityToggle label="Restriction par IP (Bureau)" status="Inactif" enabled={false} />
+                            <SecurityToggle label="Double Authentification (2FA)" status="Non implémenté" enabled={false} />
+                            <SecurityToggle label="Expiration des Sessions" status="Session NextAuth standard" enabled={false} />
+                            <SecurityToggle label="Restriction par IP (Bureau)" status="Non implémenté" enabled={false} />
 
-                            <button className="w-full py-3 bg-muted hover:bg-muted/80 text-foreground rounded-xl text-xs font-bold border border-border flex items-center justify-center gap-2">
-                                <Key className="w-4 h-4" /> Configurer les clés de sécurité
-                            </button>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                                Les routes internes sont protégées par une session authentifiée avec contrôle de rôle (staff / admin). L&apos;authentification à deux facteurs et la liste blanche d&apos;IP ne sont pas encore implémentées.
+                            </p>
                         </div>
                     </div>
 
@@ -272,21 +251,14 @@ export default function UsersSettingsPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-4 text-xs">
-                            <div className="flex justify-between items-center p-3 bg-muted/40 rounded-xl border border-border">
-                                <span className="text-muted-foreground">Longueur minimum</span>
-                                <span className="font-bold text-foreground">12 caractères</span>
-                            </div>
-                            <div className="flex justify-between items-center p-3 bg-muted/40 rounded-xl border border-border">
-                                <span className="text-muted-foreground">Rotation obligatoire</span>
-                                <span className="font-bold text-foreground">90 jours</span>
-                            </div>
-                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            Aucune politique de complexité ou de rotation n&apos;est appliquée par l&apos;application : la création de compte requiert un mot de passe, mais aucune longueur minimale ni expiration automatique ne sont configurées à ce jour.
+                        </p>
                     </div>
                 </div>
             )}
 
-            {activeTab === "sauvegarde" && <SauvegardeSection handleSaveSettings={handleSaveSettings} />}
+            {activeTab === "sauvegarde" && <SauvegardeSection />}
         </div>
     );
 }
@@ -311,7 +283,7 @@ function SecurityToggle({ label, status, enabled }: { label: string, status: str
     );
 }
 
-function SauvegardeSection({ handleSaveSettings }: any) {
+function SauvegardeSection() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
             <div className="glass-card rounded-2xl p-6 border border-amber-500/20 bg-amber-500/5">
@@ -328,19 +300,6 @@ function SauvegardeSection({ handleSaveSettings }: any) {
                             Aucun fournisseur de stockage cloud immuable (Amazon S3 WORM ou équivalent) n'est connecté à Cabinet 360. La fréquence de sauvegarde, la rétention, la taille des archives et l'horodatage du dernier point de sauvegarde ne peuvent pas être affichés tant que cette intégration n'est pas mise en place — configurez les identifiants du fournisseur choisi pour l'activer.
                         </p>
                     </div>
-                </div>
-            </div>
-
-            <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-4">
-                <h4 className="font-bold text-foreground text-sm">Actions Locales</h4>
-                <p className="text-xs text-muted-foreground">Ces actions s'appuient sur la base de données actuelle ; elles ne dépendent pas d'un fournisseur cloud tiers.</p>
-                <div className="flex flex-wrap gap-3">
-                    <button
-                        onClick={handleSaveSettings}
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-2"
-                    >
-                        <RefreshCw className="w-4 h-4" /> Enregistrer la configuration
-                    </button>
                 </div>
             </div>
         </div>

@@ -187,15 +187,19 @@ export default function NexusComplianceHubPage() {
                 </div>
             </div>
 
-            {/* Quick Access Modules */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Quick Access Modules — les descriptions promettaient un criblage
+                automatisé (biométrie, sanctions/PEP/AML, génération AUDCIF) que
+                les pages cibles elles-mêmes déclarent honnêtement ne pas avoir.
+                "Regulatory Vault" et "Elite Reporting" n'avaient aucune destination
+                réelle et sont retirées. */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Link href="/compliance/id-verify" className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                         <Fingerprint className="w-6 h-6" />
                     </div>
                     <div>
                         <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">ID Verify</h4>
-                        <p className="text-[10px] text-slate-500 leading-tight">Vérification d'identité & KYC Biométrique.</p>
+                        <p className="text-[10px] text-slate-500 leading-tight">Registre de vérification d&apos;identité (saisie manuelle, aucun criblage biométrique automatisé).</p>
                     </div>
                 </Link>
                 <Link href="/compliance/financial-crime" className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
@@ -204,27 +208,9 @@ export default function NexusComplianceHubPage() {
                     </div>
                     <div>
                         <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">Financial Crime</h4>
-                        <p className="text-[10px] text-slate-500 leading-tight">Screening sanctions, PEP & AML automatique.</p>
+                        <p className="text-[10px] text-slate-500 leading-tight">Registre sanctions/PEP à vérification manuelle (aucun screening automatisé connecté).</p>
                     </div>
                 </Link>
-                <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition-all">
-                        <Gavel className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">Regulatory Vault</h4>
-                        <p className="text-[10px] text-slate-500 leading-tight">Bibliothèque intelligente des textes légaux.</p>
-                    </div>
-                </div>
-                <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                        <CheckCircle2 className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">Elite Reporting</h4>
-                        <p className="text-[10px] text-slate-500 leading-tight">Génération automatisée des rapports AUDCIF.</p>
-                    </div>
-                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -383,20 +369,30 @@ export default function NexusComplianceHubPage() {
                     </div>
 
                     <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40 shadow-xl">
-                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Indice d'Intégrité Global</h4>
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">74.8<span className="text-xs text-slate-500 ml-1">%</span></span>
-                            <div className="flex flex-col items-end">
-                                <TrendingUp className="w-5 h-5 text-emerald-400" />
-                                <span className="text-[9px] font-black text-emerald-400">+1.2%</span>
-                            </div>
-                        </div>
-                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden mt-6">
-                            <div className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{ width: '74.8%' }} />
-                        </div>
-                        <p className="text-[10px] text-slate-500 mt-6 leading-relaxed italic">
-                            Analyse consolidée basée sur 124 points de contrôle règlementaires.
-                        </p>
+                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Indice d&apos;Intégrité</h4>
+                        {(() => {
+                            const evalues = obligations.filter((o) => o.etat !== "NON_EVALUE");
+                            const conformes = evalues.filter((o) => o.etat === "CONFORME");
+                            const indice = evalues.length > 0 ? Math.round((conformes.length / evalues.length) * 100) : null;
+                            return (
+                                <>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
+                                            {indice == null ? "—" : indice}
+                                            {indice != null && <span className="text-xs text-slate-500 ml-1">%</span>}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden mt-6">
+                                        <div className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{ width: `${indice ?? 0}%` }} />
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 mt-6 leading-relaxed italic">
+                                        {evalues.length > 0
+                                            ? `${conformes.length} conforme(s) sur ${evalues.length} point(s) évalué(s) (${obligations.length - evalues.length} non évalué(s)).`
+                                            : "Aucun point de contrôle évalué pour ce client."}
+                                    </p>
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>
