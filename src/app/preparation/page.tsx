@@ -173,9 +173,6 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
         setShowMissionReport(true);
     };
 
-    const regenerateMissionSection = (section: keyof typeof missionReport) => {
-        // Régénération IA non configurée — édition manuelle uniquement.
-    };
 
     const renderStandardMission = () => (
         <div className="h-full flex gap-6">
@@ -337,11 +334,15 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Stats Cards */}
+            {/* Calculees a partir des immobilisations reellement enregistrees
+                (fixedAssets, chargees via /api/audit/fixed-assets). L'amortissement
+                cumule n'est pas suivi par ce module (voir mapping ci-dessus, valeur
+                fixee a 0) : la VNC affichee est donc egale a la valeur d'acquisition. */}
             <div className="grid grid-cols-4 gap-4">
-                <StatCard icon={Boxes} label="Total Immobilisations" value="247" trend="+12" color="cyan" />
-                <StatCard icon={DollarSign} label="Valeur Brute" value="316.5M FCFA" trend="+5.2%" color="emerald" />
-                <StatCard icon={TrendingUp} label="Amortissements" value="40.1M FCFA" color="amber" />
-                <StatCard icon={Target} label="Valeur Nette Comptable" value="276.4M FCFA" color="indigo" />
+                <StatCard icon={Boxes} label="Total Immobilisations" value={String(fixedAssets.length)} color="cyan" />
+                <StatCard icon={DollarSign} label="Valeur Brute" value={`${(fixedAssets.reduce((s, a) => s + a.acquisitionValue, 0) / 1000000).toFixed(1)}M FCFA`} color="emerald" />
+                <StatCard icon={TrendingUp} label="Amortissements" value={`${(fixedAssets.reduce((s, a) => s + a.amortization, 0) / 1000000).toFixed(1)}M FCFA`} color="amber" />
+                <StatCard icon={Target} label="Valeur Nette Comptable" value={`${(fixedAssets.reduce((s, a) => s + a.netValue, 0) / 1000000).toFixed(1)}M FCFA`} color="indigo" />
             </div>
 
             {/* Filters & Search */}
@@ -477,12 +478,13 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Cards — calcules sur MOCK_PRODUCTS, vide tant que la saisie
+                manuelle de structure de coûts n'est pas disponible (voir note plus haut). */}
             <div className="grid grid-cols-4 gap-4">
-                <StatCard icon={Boxes} label="Produits Suivis" value="18" color="amber" />
-                <StatCard icon={DollarSign} label="Coût Moyen" value="2,933 FCFA" color="emerald" />
-                <StatCard icon={TrendingUp} label="Marge Moyenne" value="29.4%" trend="+2.1%" color="cyan" />
-                <StatCard icon={Target} label="Taux de Marge Cible" value="30%" color="indigo" />
+                <StatCard icon={Boxes} label="Produits Suivis" value={String(MOCK_PRODUCTS.length)} color="amber" />
+                <StatCard icon={DollarSign} label="Coût Moyen" value={MOCK_PRODUCTS.length > 0 ? `${Math.round(MOCK_PRODUCTS.reduce((s, p) => s + p.totalCost, 0) / MOCK_PRODUCTS.length).toLocaleString()} FCFA` : "—"} color="emerald" />
+                <StatCard icon={TrendingUp} label="Marge Moyenne" value={MOCK_PRODUCTS.length > 0 ? `${(MOCK_PRODUCTS.reduce((s, p) => s + p.margin, 0) / MOCK_PRODUCTS.length).toFixed(1)}%` : "—"} color="cyan" />
+                <StatCard icon={Target} label="Taux de Marge Cible" value="—" color="indigo" />
             </div>
 
             {/* Products Table */}
@@ -596,12 +598,13 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Cards — calcules sur MOCK_CENTERS, vide tant que la saisie
+                manuelle par centre analytique n'est pas disponible (voir note plus haut). */}
             <div className="grid grid-cols-4 gap-4">
-                <StatCard icon={Layers} label="Centres Actifs" value="12" color="indigo" />
-                <StatCard icon={DollarSign} label="Chiffre d'Affaires" value="450M FCFA" trend="+12%" color="emerald" />
-                <StatCard icon={TrendingUp} label="Charges Totales" value="255M FCFA" color="rose" />
-                <StatCard icon={Target} label="Résultat Global" value="195M FCFA" trend="+18%" color="cyan" />
+                <StatCard icon={Layers} label="Centres Actifs" value={String(MOCK_CENTERS.length)} color="indigo" />
+                <StatCard icon={DollarSign} label="Chiffre d'Affaires" value={MOCK_CENTERS.length > 0 ? `${(MOCK_CENTERS.reduce((s, c) => s + c.revenue, 0) / 1000000).toFixed(0)}M FCFA` : "—"} color="emerald" />
+                <StatCard icon={TrendingUp} label="Charges Totales" value={MOCK_CENTERS.length > 0 ? `${(MOCK_CENTERS.reduce((s, c) => s + c.costs, 0) / 1000000).toFixed(0)}M FCFA` : "—"} color="rose" />
+                <StatCard icon={Target} label="Résultat Global" value={MOCK_CENTERS.length > 0 ? `${(MOCK_CENTERS.reduce((s, c) => s + c.result, 0) / 1000000).toFixed(0)}M FCFA` : "—"} color="cyan" />
             </div>
 
             {/* Centers Table */}
@@ -807,35 +810,30 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                         content={missionReport.summary}
                                         editMode={isEditMode}
                                         onChange={(val) => setMissionReport(prev => ({ ...prev, summary: val }))}
-                                        onRegenerate={() => regenerateMissionSection('summary')}
                                     />
                                     <EditableMissionSection
                                         title="2. Méthodologie et cadre technique"
                                         content={missionReport.technical}
                                         editMode={isEditMode}
                                         onChange={(val) => setMissionReport(prev => ({ ...prev, technical: val }))}
-                                        onRegenerate={() => regenerateMissionSection('technical')}
                                     />
                                     <EditableMissionSection
                                         title="3. Constats et observations majeures"
                                         content={missionReport.findings}
                                         editMode={isEditMode}
                                         onChange={(val) => setMissionReport(prev => ({ ...prev, findings: val }))}
-                                        onRegenerate={() => regenerateMissionSection('findings')}
                                     />
                                     <EditableMissionSection
                                         title="4. Recommandations stratégiques"
                                         content={missionReport.recommendations}
                                         editMode={isEditMode}
                                         onChange={(val) => setMissionReport(prev => ({ ...prev, recommendations: val }))}
-                                        onRegenerate={() => regenerateMissionSection('recommendations')}
                                     />
                                     <EditableMissionSection
                                         title="5. Conclusion générale"
                                         content={missionReport.conclusion}
                                         editMode={isEditMode}
                                         onChange={(val) => setMissionReport(prev => ({ ...prev, conclusion: val }))}
-                                        onRegenerate={() => regenerateMissionSection('conclusion')}
                                     />
                                 </div>
                             </div>
@@ -844,13 +842,13 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                         {/* Footer Actions */}
                         <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
                             <p className="text-xs text-slate-500">
-                                Document généré par Neural Engine OHADA v2.4 • Signature numérique certifiée
+                                Brouillon rédigé manuellement — aucune signature numérique n&apos;a été appliquée.
                             </p>
                             <div className="flex gap-3">
                                 <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-100 transition-colors">
                                     Imprimer
                                 </button>
-                                <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-transform hover:scale-105">
+                                <button disabled title="Export PDF non implémenté" className="px-6 py-2 bg-slate-200 text-slate-400 rounded-lg text-sm font-bold flex items-center gap-2 cursor-not-allowed">
                                     <Download className="w-4 h-4" />
                                     Télécharger Rapport PDF
                                 </button>
@@ -863,26 +861,16 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
     );
 }
 
-function EditableMissionSection({ title, content, editMode, onChange, onRegenerate }: {
+function EditableMissionSection({ title, content, editMode, onChange }: {
     title: string;
     content: string;
     editMode: boolean;
     onChange: (val: string) => void;
-    onRegenerate: () => void;
 }) {
     return (
         <section className="space-y-4">
             <div className="flex justify-between items-center">
                 <h4 className="text-lg font-bold text-slate-900 border-l-4 border-indigo-500 pl-4">{title}</h4>
-                {editMode && (
-                    <button
-                        onClick={onRegenerate}
-                        className="px-2 py-1 bg-indigo-50 text-indigo-600 rounded text-xs font-bold hover:bg-indigo-100 transition-colors flex items-center gap-1"
-                    >
-                        <Zap className="w-3 h-3" />
-                        Améliorer l'IA
-                    </button>
-                )}
             </div>
             {editMode ? (
                 <textarea

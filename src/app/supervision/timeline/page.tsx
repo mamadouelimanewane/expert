@@ -23,33 +23,39 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
-const HEALTH_CHECK = [
-    { label: "Dossiers à Jour", count: 42, color: "text-emerald-400", trend: "+5%" },
-    { label: "En Retard (TVA)", count: 3, color: "text-rose-400", trend: "-2" },
-    { label: "Connexions Bancaires", count: "98%", color: "text-indigo-400", trend: "Stable" },
-];
-
 export default function SupervisionTimelinePage() {
-    const [filter, setFilter] = useState("all");
     const [logs, setLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [declStats, setDeclStats] = useState<{ aJour: number; enRetard: number } | null>(null);
+
+    const fetchLogs = async () => {
+        try {
+            const res = await fetch('/api/audit-logs?limit=30');
+            const data = await res.json();
+            if (data.logs) setLogs(data.logs);
+        } catch (error) {
+            console.error("Failed to fetch audit logs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchLogs = async () => {
-            try {
-                const res = await fetch('/api/audit-logs?limit=30');
-                const data = await res.json();
-                if (data.logs) setLogs(data.logs);
-            } catch (error) {
-                console.error("Failed to fetch audit logs:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchLogs();
         // Optionnel : Polling toutes les 30 secondes pour le côté "Live"
         const interval = setInterval(fetchLogs, 30000);
+
+        fetch('/api/declarations')
+            .then(res => res.json())
+            .then(data => {
+                const declarations = data.declarations || [];
+                setDeclStats({
+                    aJour: declarations.filter((d: any) => d.risk !== "élevé").length,
+                    enRetard: declarations.filter((d: any) => d.risk === "élevé").length,
+                });
+            })
+            .catch(() => setDeclStats(null));
+
         return () => clearInterval(interval);
     }, []);
 
@@ -92,10 +98,10 @@ export default function SupervisionTimelinePage() {
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto z-10">
-                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2">
+                    <button disabled title="Non implémenté" className="px-4 py-2 bg-white/5 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-widest border border-white/10 flex items-center justify-center gap-2 cursor-not-allowed">
                         <Filter className="w-4 h-4" /> Filtrer
                     </button>
-                    <button className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-sky-600/30 flex items-center justify-center gap-2 active:scale-95">
+                    <button onClick={() => { setLoading(true); fetchLogs(); }} className="px-6 py-3 bg-sky-600 hover:bg-sky-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-sky-600/30 flex items-center justify-center gap-2 active:scale-95">
                         <Zap className="w-4 h-4" /> Actualiser
                     </button>
                 </div>
@@ -172,45 +178,46 @@ export default function SupervisionTimelinePage() {
                         </div>
                     )}
 
-                    {!loading && logs.length > 0 && (
-                        <button className="w-full py-4 text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-white hover:bg-slate-900/50 rounded-xl transition-all border border-dashed border-slate-800 hover:border-slate-600">
-                            Charger plus d'activité
-                        </button>
-                    )}
                 </div>
 
                 {/* Right Column: Widgets */}
                 <div className="space-y-6">
 
-                    {/* Health Widget */}
+                    {/* Health Widget — derive des declarations fiscales reelles
+                        (risk "eleve" = echeance depassee, calcule dans /api/declarations).
+                        Aucune integration bancaire reelle n'existe (voir /banking) : ce
+                        widget affichait auparavant un "98% Connexions Bancaires" fixe,
+                        desormais retire. */}
                     <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
                         <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                             <Activity className="w-4 h-4 text-sky-400" />
                             Statistiques Cabinet
                         </h3>
                         <div className="space-y-4">
-                            {HEALTH_CHECK.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-white/5">
-                                    <span className="text-xs text-slate-400 font-bold">{item.label}</span>
-                                    <div className="text-right">
-                                        <div className={cn("font-black text-lg", item.color)}>{item.count}</div>
-                                        <div className="text-[10px] text-slate-600">{item.trend}</div>
+                            {declStats == null ? (
+                                <p className="text-[10px] text-slate-500 italic">Chargement...</p>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-white/5">
+                                        <span className="text-xs text-slate-400 font-bold">Déclarations à Jour</span>
+                                        <div className="font-black text-lg text-emerald-400">{declStats.aJour}</div>
                                     </div>
-                                </div>
-                            ))}
+                                    <div className="flex items-center justify-between p-3 bg-slate-950/50 rounded-xl border border-white/5">
+                                        <span className="text-xs text-slate-400 font-bold">Déclarations en Retard</span>
+                                        <div className="font-black text-lg text-rose-400">{declStats.enRetard}</div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    {/* Pending Validations */}
+                    {/* Traçabilité */}
                     <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-white">Alertes de Sécurité</h3>
-                            <span className="px-2 py-0.5 bg-rose-500 text-white rounded-full text-[10px] font-bold">Live</span>
-                        </div>
+                        <h3 className="text-sm font-bold text-white mb-4">Traçabilité</h3>
                         <div className="space-y-3">
-                            <div className="p-3 bg-slate-800/30 rounded-xl border-l-2 border-sky-500 hover:bg-slate-800/50 transition-colors cursor-pointer">
-                                <p className="text-xs font-bold text-white">Traçabilité Active</p>
-                                <p className="text-[10px] text-slate-500 mt-1">Tous les mouvements sont loggés</p>
+                            <div className="p-3 bg-slate-800/30 rounded-xl border-l-2 border-sky-500">
+                                <p className="text-xs font-bold text-white">Journal d&apos;audit actif</p>
+                                <p className="text-[10px] text-slate-500 mt-1">Tous les mouvements sont enregistrés dans le journal ci-contre.</p>
                             </div>
                         </div>
                     </div>

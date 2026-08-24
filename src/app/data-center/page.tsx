@@ -43,7 +43,6 @@ function formatBytes(bytes: number): string {
 }
 
 export default function DataCenterPage() {
-    const [isUploading, setIsUploading] = useState(false);
     const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [kpis, setKpis] = useState<Kpis | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -72,11 +71,6 @@ export default function DataCenterPage() {
         fetchDatasets();
     }, []);
 
-    const handleUpload = () => {
-        setIsUploading(true);
-        setTimeout(() => setIsUploading(false), 3000);
-    };
-
     return (
         <div className="space-y-8 animate-in fade-in duration-1000 pb-20">
             {/* Header Premium - Data Center */}
@@ -101,12 +95,8 @@ export default function DataCenterPage() {
                     </div>
 
                     <div className="flex gap-4">
-                        <button
-                            onClick={handleUpload}
-                            disabled={isUploading}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95 disabled:opacity-50"
-                        >
-                            {isUploading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5" />}
+                        <button disabled title="Non implémenté : utilisez le module Scan OCR pour importer une pièce" className="px-8 py-4 bg-white/5 text-white/40 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 cursor-not-allowed">
+                            <UploadCloud className="w-5 h-5" />
                             Importer un fichier
                         </button>
                     </div>

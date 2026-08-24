@@ -284,36 +284,15 @@ export default function OCRPage() {
                                     </div>
                                 </div>
 
-                                {/* SEPTEO INSPIRED: Compliance & Fraud Checks */}
-                                <div className="p-5 rounded-2xl bg-slate-800/80 border border-white/5 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Contrôles SEPTEO-Gouv</p>
-                                        <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] font-black uppercase rounded">IA Active</span>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between text-xs font-bold">
-                                            <div className="flex items-center gap-2 text-slate-300">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                Format Facture-X / FEC
-                                            </div>
-                                            <span className="text-emerald-400 font-black">CONFORME</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs font-bold">
-                                            <div className="flex items-center gap-2 text-slate-300">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                Vérification IBAN (Anti-fraude)
-                                            </div>
-                                            <span className="text-emerald-400 font-black">VALIDE</span>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs font-bold">
-                                            <div className="flex items-center gap-2 text-slate-300">
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                                Détection de Doublons
-                                            </div>
-                                            <span className="text-emerald-400 font-black">UNIQUE</span>
-                                        </div>
-                                    </div>
+                                {/* Aucun controle anti-fraude (format Facture-X/FEC, IBAN, doublons)
+                                    n'est effectue par l'application : ce bloc affichait auparavant
+                                    trois statuts "CONFORME/VALIDE/UNIQUE" fixes, quel que soit le
+                                    document scanne. Retire plutot que d'etre invente. */}
+                                <div className="p-5 rounded-2xl bg-slate-800/50 border border-amber-500/20 flex items-start gap-3">
+                                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                    <p className="text-xs text-amber-200/90 leading-relaxed">
+                                        Aucune vérification anti-fraude automatisée (format, IBAN, doublons) n&apos;est effectuée : vérifiez ce document manuellement avant de l&apos;enregistrer.
+                                    </p>
                                 </div>
 
                                 <div className="mt-4 p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
@@ -355,7 +334,7 @@ export default function OCRPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3 pt-2">
-                                    <button className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-3 active:scale-95">
+                                    <button disabled title="Non implémenté : le document est extrait mais aucune écriture comptable n'est encore générée automatiquement" className="flex-1 py-4 bg-slate-800/50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 cursor-not-allowed">
                                         <Save className="w-5 h-5" />
                                         Enregistrer l'écriture
                                     </button>
