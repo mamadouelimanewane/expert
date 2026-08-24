@@ -50,8 +50,9 @@ export default function CashFlowStressSimulatorPage() {
         const finalCash = projection[5].cash;
         const roi = ((finalCash - initialCash) / initialCash) * 100;
         const riskLevel = finalCash < 20000000 ? "CRITIQUE" : finalCash < 50000000 ? "MODÉRÉ" : "FAIBLE";
+        const critIdx = projection.findIndex((p) => p.cash < 20000000);
 
-        return { projection, finalCash, roi, riskLevel };
+        return { projection, finalCash, roi, riskLevel, critIdx };
     }, [investment, recruitment, revenueGrowth]);
 
     return (
@@ -73,12 +74,12 @@ export default function CashFlowStressSimulatorPage() {
                             Simulateur de <span className="text-cyan-400">Stress Trésorerie</span>
                         </h2>
                         <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
-                            Simulez l'impact de vos décisions stratégiques sur le cash-flow à 6 mois. Modélisation basée sur les taux réels de la BCEAO et conditions OHADA.
+                            Scénario illustratif à 6 mois à partir d'hypothèses de départ génériques (trésorerie et CA mensuel non liés à un client précis) — à titre indicatif, aucun taux BCEAO réel n'est appliqué.
                         </p>
                     </div>
 
                     <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-cyan-600/30 active:scale-95">
+                        <button disabled title="Non implémenté" className="px-8 py-4 bg-white/5 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 cursor-not-allowed">
                             <Sparkles className="w-5 h-5" /> Optimiser par l'IA
                         </button>
                     </div>
@@ -128,9 +129,11 @@ export default function CashFlowStressSimulatorPage() {
                         </div>
 
                         <div className="mt-12 p-6 bg-cyan-500/5 border border-cyan-500/20 rounded-3xl">
-                            <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest mb-2">Note de l'IA Nexus</p>
-                            <p className="text-xs text-slate-400 leading-relaxed font-medium italic">
-                                "À ce niveau d'embauche, votre seuil de rentabilité recule de 4 mois. Veillez à négocier des lignes de crédit de campagne."
+                            <p className="text-[10px] text-cyan-500 font-bold uppercase tracking-widest mb-2">Constat du scénario</p>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                                {results.critIdx === -1
+                                    ? "Le seuil de trésorerie critique (20M FCFA) n'est jamais atteint sur les 6 mois simulés avec ces hypothèses."
+                                    : `Le seuil de trésorerie critique (20M FCFA) serait atteint dès le mois ${results.critIdx + 1} avec ces hypothèses.`}
                             </p>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
     Receipt,
     Plus,
@@ -15,7 +16,6 @@ import {
     MoreVertical,
     Mail,
     Smartphone,
-    Repeat,
     Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -32,15 +32,12 @@ export default function BillingPage() {
         fetchInvoices();
     }, [filter]);
 
-    const [view, setView] = useState<"invoices" | "subscriptions">("invoices");
-
     const fetchInvoices = async () => {
         setLoading(true);
         try {
-            const endpoint = view === "invoices" ? `/api/invoices?status=${filter}` : `/api/subscriptions`;
-            const res = await fetch(endpoint);
+            const res = await fetch(`/api/invoices?status=${filter}`);
             const data = await res.json();
-            if (data.invoices || data.subscriptions) setInvoices(data.invoices || data.subscriptions);
+            if (data.invoices) setInvoices(data.invoices);
             if (data.kpis) setKpis(data.kpis);
         } catch (error) {
             console.error("Failed to fetch billing data:", error);
@@ -67,37 +64,17 @@ export default function BillingPage() {
                         <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
                         Facturation & Honoraires
                     </h2>
-                    <p className="text-slate-400 mt-1 text-sm">Gérez vos factures, abonnements récurrents et encaissements.</p>
+                    <p className="text-slate-400 mt-1 text-sm">Gérez vos factures et encaissements.</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                    <div className="p-1.5 bg-slate-900 border border-slate-700 rounded-2xl flex gap-1">
-                        <button
-                            onClick={() => setView("invoices")}
-                            className={cn(
-                                "px-4 py-2 rounded-xl text-xs font-bold transition-all",
-                                view === "invoices" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                            )}
-                        >
-                            Factures
-                        </button>
-                        <button
-                            onClick={() => setView("subscriptions")}
-                            className={cn(
-                                "px-4 py-2 rounded-xl text-xs font-bold transition-all",
-                                view === "subscriptions" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
-                            )}
-                        >
-                            <div className="flex items-center gap-2">
-                                <Repeat className="w-3.5 h-3.5" />
-                                Abonnements
-                            </div>
-                        </button>
-                    </div>
-                    <button className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-95">
+                    <Link
+                        href="/billing/new"
+                        className="flex-1 sm:flex-none px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all active:scale-95"
+                    >
                         <Plus className="w-5 h-5" />
                         Nouvelle Facture
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -183,11 +160,11 @@ export default function BillingPage() {
                         <table className="w-full text-left text-sm">
                             <thead className="bg-slate-900/30 text-slate-500 font-medium">
                                 <tr>
-                                    <th className="px-6 py-4">{view === "invoices" ? "Numéro / Date" : "Abonnement / Client"}</th>
-                                    <th className="px-6 py-4">{view === "invoices" ? "Client / Type" : "Fréquence"}</th>
+                                    <th className="px-6 py-4">Numéro / Date</th>
+                                    <th className="px-6 py-4">Client / Type</th>
                                     <th className="px-6 py-4 text-right">Montant</th>
                                     <th className="px-6 py-4">Statut</th>
-                                    <th className="px-6 py-4">{view === "invoices" ? "Échéance" : "Prochaine Facture"}</th>
+                                    <th className="px-6 py-4">Échéance</th>
                                     <th className="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -195,29 +172,14 @@ export default function BillingPage() {
                                 {invoices.map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-800/20 group transition-colors">
                                         <td className="px-6 py-4">
-                                            {view === "invoices" ? (
-                                                <>
-                                                    <p className="font-bold text-slate-200">{item.invoiceNumber}</p>
-                                                    <p className="text-[10px] text-slate-500 uppercase">{new Date(item.issueDate).toLocaleDateString()}</p>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <p className="font-bold text-indigo-400">{item.name || "Abonnement Saisonnier"}</p>
-                                                    <p className="text-[10px] text-slate-500 uppercase">{item.client?.companyName}</p>
-                                                </>
-                                            )}
+                                            <p className="font-bold text-slate-200">{item.invoiceNumber}</p>
+                                            <p className="text-[10px] text-slate-500 uppercase">{new Date(item.issueDate).toLocaleDateString()}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            {view === "invoices" ? (
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-medium text-white">{item.client?.companyName || "N/A"}</span>
-                                                    <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 border border-slate-700 w-fit uppercase">Honoraires</span>
-                                                </div>
-                                            ) : (
-                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-800 px-2 py-1 rounded-lg border border-slate-700">
-                                                    {item.frequency || "MENSUEL"}
-                                                </span>
-                                            )}
+                                            <div className="flex flex-col gap-1">
+                                                <span className="font-medium text-white">{item.client?.companyName || "N/A"}</span>
+                                                <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 border border-slate-700 w-fit uppercase">Honoraires</span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-right font-mono font-bold text-white">
                                             {(item.total || item.amount).toLocaleString()} FCFA
@@ -237,17 +199,17 @@ export default function BillingPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2 text-xs text-slate-400">
                                                 <Clock className="w-3 h-3" />
-                                                {new Date(item.dueDate || item.nextBillingDate).toLocaleDateString()}
+                                                {new Date(item.dueDate).toLocaleDateString()}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-1">
-                                                {view === "invoices" && item.status === "OVERDUE" && (
+                                                {item.status === "OVERDUE" && (
                                                     <button className="p-2 hover:bg-rose-500/10 text-rose-400 rounded-lg transition-colors" title="Relancer client">
                                                         <Mail className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                                {view === "invoices" && item.status !== "PAID" && item.status !== "DRAFT" && (
+                                                {item.status !== "PAID" && item.status !== "DRAFT" && (
                                                     <button
                                                         onClick={() => setSelectedInvoice({ id: item.id, amount: item.total.toLocaleString() })}
                                                         className="p-2 hover:bg-emerald-500/10 text-emerald-400 rounded-lg transition-colors" title="Lien de paiement Mobile Money"

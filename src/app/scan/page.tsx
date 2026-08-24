@@ -81,8 +81,8 @@ export default function OCRPage() {
                 throw new Error(result.error || "Une erreur est survenue lors de l'OCR");
             }
 
-            if (result.ocrResult?.success && result.ocrResult.data) {
-                const data = result.ocrResult.data;
+            if (result.ocrResult?.success && result.ocrResult.invoiceData) {
+                const data = result.ocrResult.invoiceData;
                 setExtractedData({
                     merchant: data.supplier || "Inconnu",
                     date: data.date || "",

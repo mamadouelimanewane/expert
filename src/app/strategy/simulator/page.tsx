@@ -8,7 +8,6 @@ import {
     AlertTriangle,
     ShieldCheck,
     ArrowRight,
-    Play,
     RefreshCw,
     Sliders,
     BrainCircuit,
@@ -37,6 +36,11 @@ export default function StrategySimulatorPage() {
     const resilienceScore = Math.max(0, 100 - (variables.costs * 1.5) + (variables.revenue * 1.2));
     const cashBurn = variables.costs > variables.revenue ? "Accéléré" : "Stable";
 
+    const resetVariables = () => {
+        setVariables({ revenue: 0, costs: 15, cash: -5, staff: 0 });
+        setSelectedScenario("inflation");
+    };
+
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
 
@@ -51,7 +55,7 @@ export default function StrategySimulatorPage() {
                         Simulateur de Stratégie IA
                     </h1>
                     <p className="text-slate-400 mt-2 max-w-2xl text-lg">
-                        Ne subissez plus l'avenir. Simulez l'impact des crises et opportunités sur votre trésorerie et votre rentabilité <span className="text-violet-400 font-bold">avant qu'elles n'arrivent</span>.
+                        Scénario illustratif à partir de variables génériques (non lié à un client précis) — les résultats se recalculent en direct lorsque vous ajustez les curseurs.
                     </p>
                 </div>
 
@@ -59,11 +63,8 @@ export default function StrategySimulatorPage() {
                 <div className="absolute top-0 right-0 w-[500px] h-[300px] sm:h-[400px] lg:h-[500px] bg-violet-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0" />
 
                 <div className="flex gap-3 z-10">
-                    <button className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4" /> Reset
-                    </button>
-                    <button className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-violet-600/25 flex items-center gap-2 group">
-                        <Play className="w-4 h-4 group-hover:fill-current" /> Lancer Simulation
+                    <button onClick={resetVariables} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4" /> Réinitialiser
                     </button>
                 </div>
             </div>
@@ -95,7 +96,6 @@ export default function StrategySimulatorPage() {
                                     </div>
                                     <div>
                                         <p className="font-bold text-white text-sm">{scenario.label}</p>
-                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">Modèle IA v2.4</p>
                                     </div>
                                     {selectedScenario === scenario.id && <div className="ml-auto w-2 h-2 rounded-full bg-violet-500 animate-pulse" />}
                                 </button>
@@ -140,15 +140,15 @@ export default function StrategySimulatorPage() {
                     <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/50 relative overflow-hidden min-h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
                         <div className="flex justify-between items-start mb-8 z-10">
                             <div>
-                                <h2 className="text-2xl font-black text-white">Projection Trésorerie N+1</h2>
-                                <p className="text-slate-400 text-sm mt-1">Comparaison : Trajectoire Actuelle vs Scénario Simulé</p>
+                                <h2 className="text-2xl font-black text-white">Trajectoire Illustrative sur 12 Mois</h2>
+                                <p className="text-slate-400 text-sm mt-1">Forme générique, non liée à un client réel — ajustée selon les curseurs</p>
                             </div>
                             <div className="flex gap-4">
                                 <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                                    <div className="w-3 h-3 rounded-full bg-slate-700" /> Actuel
+                                    <div className="w-3 h-3 rounded-full bg-slate-700" /> Référence (hypothèse)
                                 </div>
                                 <div className="flex items-center gap-2 text-xs font-bold text-violet-400">
-                                    <div className="w-3 h-3 rounded-full bg-violet-500" /> Simulé
+                                    <div className="w-3 h-3 rounded-full bg-violet-500" /> Avec variables
                                 </div>
                             </div>
                         </div>
@@ -163,7 +163,7 @@ export default function StrategySimulatorPage() {
                                         style={{ height: `${Math.max(10, h - (variables.costs * 0.5) + (variables.revenue * 0.5))}%` }}
                                     >
                                         <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/10 whitespace-nowrap z-20 pointer-events-none">
-                                            {(h - (variables.costs * 0.5) + (variables.revenue * 0.5)).toFixed(1)}M FCFA
+                                            Indice {(h - (variables.costs * 0.5) + (variables.revenue * 0.5)).toFixed(0)}
                                         </div>
                                     </div>
 
@@ -188,14 +188,14 @@ export default function StrategySimulatorPage() {
                                 <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                     <BrainCircuit className="w-5 h-5 text-emerald-400" />
                                 </div>
-                                <h4 className="font-bold text-white text-lg">Analyse IA</h4>
+                                <h4 className="font-bold text-white text-lg">Lecture du scénario</h4>
                             </div>
                             <div className="space-y-3">
                                 <p className="text-sm text-slate-300 leading-relaxed">
-                                    Avec <span className="font-bold text-white">+{variables.costs}%</span> de coûts, votre point mort augmente de <span className="text-rose-400 font-bold">12MF</span>.
+                                    Avec <span className="font-bold text-white">+{variables.costs}%</span> de coûts, le score de résilience recule à <span className="text-rose-400 font-bold">{resilienceScore.toFixed(0)}/100</span>.
                                 </p>
                                 <p className="text-sm text-slate-300 leading-relaxed">
-                                    <span className="text-emerald-400 font-bold">Recommandation :</span> Augmenter vos prix de vente de <span className="font-bold text-white">{(variables.costs * 0.6).toFixed(1)}%</span> pour maintenir votre EBITDA actuel.
+                                    <span className="text-emerald-400 font-bold">Piste (indicative) :</span> Augmenter les prix de vente d'environ <span className="font-bold text-white">{(variables.costs * 0.6).toFixed(1)}%</span> pour compenser mécaniquement la hausse de coûts saisie.
                                 </p>
                             </div>
                         </div>

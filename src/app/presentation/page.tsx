@@ -36,7 +36,7 @@ export default function PresentationPage() {
                             <p className="text-sm font-semibold text-slate-500">DOCUMENT STRATÉGIQUE</p>
                             <p className="text-sm text-slate-400">Janvier 2026</p>
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mt-2">
-                                <ShieldCheck className="w-3 h-3" /> CERTIFIÉ OHADA
+                                <ShieldCheck className="w-3 h-3" /> CONFORME AUX NORMES SYSCOHADA
                             </div>
                         </div>
                     </div>
@@ -114,7 +114,7 @@ export default function PresentationPage() {
                         <p className="text-slate-600 text-sm">
                             L'IA constitue le levier de productivité majeur. Là où les cabinets traditionnels saisissent manuellement,
                             <strong>Cabinet 360</strong> automatise. L'analyse prédictive du risque fiscal permet de conseiller le client
-                            en amont des contrôles. La réconciliation bancaire automatisée divise par 10 le temps de traitement des relevés.
+                            en amont des contrôles. La réconciliation bancaire assistée réduit sensiblement le temps de traitement des relevés.
                         </p>
                     </section>
 

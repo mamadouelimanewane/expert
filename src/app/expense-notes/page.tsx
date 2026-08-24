@@ -18,6 +18,18 @@ export default function ExpenseNotesPage() {
         totalTTC: string;
         tva: string;
     } | null>(null);
+    const [category, setCategory] = useState("RESTAURATION");
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [saved, setSaved] = useState(false);
+
+    const CATEGORIES = [
+        { value: "RESTAURATION", label: "Restauration & Réception" },
+        { value: "TRANSPORT", label: "Déplacement & Transport" },
+        { value: "FOURNITURES", label: "Fournitures de bureau" },
+        { value: "HEBERGEMENT", label: "Hébergement" },
+        { value: "AUTRE", label: "Autre" },
+    ];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -105,6 +117,37 @@ export default function ExpenseNotesPage() {
             setError("Erreur lors de l'analyse OCR. Assurez-vous que l'image est nette.");
             setIsScanning(false);
             setProgress(0);
+        }
+    };
+
+    const handleSaveExpense = async () => {
+        if (!extractedData) return;
+        setIsSaving(true);
+        setSaveError(null);
+        try {
+            const res = await fetch("/api/expenses", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    label: extractedData.merchant,
+                    category,
+                    amount: extractedData.totalTTC,
+                    expenseDate: extractedData.date,
+                    notes: extractedData.tva ? `TVA : ${extractedData.tva} FCFA (extraite par OCR, à vérifier)` : null,
+                }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || "Échec de l'enregistrement");
+            }
+            setSaved(true);
+            setImageSrc(null);
+            setExtractedData(null);
+        } catch (err) {
+            console.error(err);
+            setSaveError(err instanceof Error ? err.message : "Échec de l'enregistrement");
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -242,12 +285,13 @@ export default function ExpenseNotesPage() {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-400 ml-1">Catégorie</label>
                                     <select
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
                                         className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-blue-500 transition-all font-medium text-sm appearance-none"
                                     >
-                                        <option>Restauration & Réception</option>
-                                        <option>Déplacement & Transport</option>
-                                        <option>Fournitures de bureau</option>
-                                        <option>Hébergement</option>
+                                        {CATEGORIES.map((c) => (
+                                            <option key={c.value} value={c.value}>{c.label}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -290,18 +334,31 @@ export default function ExpenseNotesPage() {
                             </div>
                         </div>
 
-                        <div className="mt-10 pt-6 border-t border-white/5">
+                        <div className="mt-10 pt-6 border-t border-white/5 space-y-3">
+                            {saveError && (
+                                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-3">
+                                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                                    <p className="text-xs font-bold text-rose-200">{saveError}</p>
+                                </div>
+                            )}
+                            {saved && (
+                                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                    <p className="text-xs font-bold text-emerald-200">Note de frais enregistrée, en attente de validation.</p>
+                                </div>
+                            )}
                             <button
-                                disabled={!extractedData}
+                                onClick={handleSaveExpense}
+                                disabled={!extractedData || isSaving}
                                 className={cn(
                                     "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all",
-                                    !extractedData 
-                                        ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                                    !extractedData || isSaving
+                                        ? "bg-slate-800 text-slate-500 cursor-not-allowed"
                                         : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-600/30"
                                 )}
                             >
-                                <Save className="w-5 h-5" />
-                                Enregistrer la dépense
+                                {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                {isSaving ? "Enregistrement..." : "Enregistrer la dépense"}
                             </button>
                         </div>
 

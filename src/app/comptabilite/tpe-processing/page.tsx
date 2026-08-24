@@ -54,8 +54,19 @@ export default function TpeProcessing() {
     }
   };
 
-  const handleAction = (id: string, action: "APPROVED" | "REJECTED") => {
+  const handleAction = async (id: string, action: "APPROVED" | "REJECTED") => {
+    // La décision affichait auparavant un changement d'état purement local :
+    // elle était perdue au rechargement, sans jamais toucher l'écriture en base.
     setFlows(flows.map(f => f.id === id ? { ...f, status: action } : f));
+    try {
+      await fetch("/api/tpe/journals", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: action })
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const pendingFlows = flows.filter(f => f.status === "PENDING");

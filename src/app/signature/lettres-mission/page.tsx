@@ -67,6 +67,16 @@ export default function SignaturePage() {
 
       if (data.success) {
         setCertificate(data);
+        // L'appel ci-dessus ne fait que tracer l'empreinte d'intégrité (audit log) ;
+        // sans cette mise à jour, la lettre restait indéfiniment "en attente" dans
+        // /api/engagement-letters malgré la signature validée.
+        await fetch("/api/engagement-letters", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: selectedDoc.id, status: "SIGNEE" }),
+        });
+        setDocs(prev => prev.map(d => d.id === selectedDoc.id ? { ...d, status: "Signé" } : d));
+        setSelectedDoc(prev => prev ? { ...prev, status: "Signé" } : prev);
       }
     } catch (error) {
       console.error(error);
