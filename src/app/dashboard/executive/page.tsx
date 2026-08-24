@@ -34,7 +34,7 @@ export default function ExecutiveDashboardPage() {
             <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400"><TrendingUp className="w-4 h-4" /></div>
           </div>
           <p className="text-3xl font-black text-white">{data.kpis.recouvrement}%</p>
-          <p className="text-xs text-slate-400 mt-1">Objectif: 85%</p>
+          <p className="text-xs text-slate-400 mt-1">Factures payées / échues ou envoyées</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
@@ -52,7 +52,7 @@ export default function ExecutiveDashboardPage() {
             <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Briefcase className="w-4 h-4" /></div>
           </div>
           <p className="text-3xl font-black text-white">{data.kpis.missionsActives}</p>
-          <p className="text-xs text-slate-400 mt-1">Sur 45 clients</p>
+          <p className="text-xs text-slate-400 mt-1">Sur {data.kpis.totalClients} client{data.kpis.totalClients > 1 ? "s" : ""}</p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-slate-900/40 border border-red-500/20 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">

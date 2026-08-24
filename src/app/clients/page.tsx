@@ -144,14 +144,15 @@ export default function ClientsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredClients.map((client) => {
                         const name = client.companyName || `${client.firstName} ${client.lastName}`;
-                        // Derived health score for mock feel (in real app, this would be computed)
-                        const healthScore = client.isActive ? 85 : 45;
+                        // Score de santé réel (calculé et persisté via /api/clients/[id]/health-score),
+                        // remplace l'ancienne formule fictive "isActive ? 85 : 45" ("mock feel").
+                        const healthScore = (client as any).healthScore as number | null | undefined;
 
                         return (
                             <div key={client.id} className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/20 group hover:bg-slate-900/40 hover:scale-[1.02] transition-all relative overflow-hidden flex flex-col justify-between h-full min-h-[250px]">
                                 <div className={cn(
                                     "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-20 rounded-full pointer-events-none transition-all",
-                                    healthScore > 80 ? "bg-emerald-500 group-hover:bg-emerald-400" : "bg-rose-500 group-hover:bg-rose-400"
+                                    healthScore == null ? "bg-slate-500 group-hover:bg-slate-400" : healthScore > 80 ? "bg-emerald-500 group-hover:bg-emerald-400" : "bg-rose-500 group-hover:bg-rose-400"
                                 )} />
 
                                 <div className="relative z-10 mb-6">
@@ -179,18 +180,22 @@ export default function ClientsPage() {
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-white/5">
                                         <span className="text-[10px] text-slate-500 font-bold uppercase">Santé Client</span>
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-1.5 w-12 bg-slate-700 rounded-full overflow-hidden">
-                                                <div
-                                                    className={cn("h-full rounded-full", healthScore > 80 ? "bg-emerald-500" : "bg-rose-500")}
-                                                    style={{ width: `${healthScore}%` }}
-                                                />
+                                        {healthScore == null ? (
+                                            <span className="text-[10px] font-black text-slate-500">Non évalué</span>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-1.5 w-12 bg-slate-700 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={cn("h-full rounded-full", healthScore > 80 ? "bg-emerald-500" : "bg-rose-500")}
+                                                        style={{ width: `${healthScore}%` }}
+                                                    />
+                                                </div>
+                                                <span className={cn(
+                                                    "text-[10px] font-black",
+                                                    healthScore > 80 ? "text-emerald-400" : "text-rose-400"
+                                                )}>{healthScore}%</span>
                                             </div>
-                                            <span className={cn(
-                                                "text-[10px] font-black",
-                                                healthScore > 80 ? "text-emerald-400" : "text-rose-400"
-                                            )}>{healthScore}%</span>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -266,7 +271,7 @@ export default function ClientsPage() {
                                         <tr>
                                             <th className="px-8 py-6">Client / Secteur</th>
                                             <th className="px-6 py-6 font-black text-center">Pays</th>
-                                            <th className="px-6 py-6 font-black text-center">Santé (IA)</th>
+                                            <th className="px-6 py-6 font-black text-center">Santé</th>
                                             <th className="px-6 py-6 font-black text-right whitespace-nowrap">Missions</th>
                                             <th className="px-6 py-6 font-black text-center">Statut</th>
                                             <th className="px-8 py-6 font-black text-right">Actions</th>
@@ -275,7 +280,7 @@ export default function ClientsPage() {
                                     <tbody className="divide-y divide-white/5">
                                         {filteredClients.map((client) => {
                                             const name = client.companyName || `${client.firstName} ${client.lastName}`;
-                                            const healthScore = client.isActive ? 85 : 45;
+                                            const healthScore = (client as any).healthScore as number | null | undefined;
 
                                             return (
                                                 <tr key={client.id} className="hover:bg-white/[0.02] transition-colors group">
@@ -297,10 +302,14 @@ export default function ClientsPage() {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-6 text-center">
-                                                        <span className={cn(
-                                                            "font-black text-sm",
-                                                            healthScore > 80 ? "text-emerald-400" : "text-rose-400"
-                                                        )}>{healthScore}/100</span>
+                                                        {healthScore == null ? (
+                                                            <span className="font-black text-sm text-slate-500">—</span>
+                                                        ) : (
+                                                            <span className={cn(
+                                                                "font-black text-sm",
+                                                                healthScore > 80 ? "text-emerald-400" : "text-rose-400"
+                                                            )}>{healthScore}/100</span>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-6 text-right">
                                                         <span className="font-mono text-white font-bold">{client._count?.missions || 0}</span>
@@ -342,9 +351,8 @@ export default function ClientsPage() {
                     </div>
 
                     <div className="flex flex-wrap justify-center lg:justify-end gap-4 w-full lg:w-auto">
-                        <KPICard label="Revenus Récurrents" value="34.2M" trend="+12%" icon={TrendingUp} color="text-emerald-400" />
-                        <KPICard label="Clients Actifs" value="42" trend="+3" icon={Activity} color="text-indigo-400" />
-                        <KPICard label="Risque Churn" value="2" trend="stable" icon={AlertCircle} color="text-rose-400" />
+                        <KPICard label="Clients Actifs" value={String(clients.filter((c) => c.isActive).length)} icon={Activity} color="text-indigo-400" />
+                        <KPICard label="Portefeuille Total" value={String(clients.length)} icon={Users} color="text-emerald-400" />
                     </div>
                 </div>
             </div>
@@ -355,7 +363,7 @@ export default function ClientsPage() {
 interface KPICardProps {
     label: string;
     value: string;
-    trend: string;
+    trend?: string;
     icon: any; // Type generic for Lucide icons
     color: string;
 }
@@ -370,9 +378,11 @@ function KPICard({ label, value, trend, icon: Icon, color }: KPICardProps) {
                 <p className="text-[8px] sm:text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">{label}</p>
                 <div className="flex items-baseline gap-2">
                     <span className="text-lg sm:text-xl font-black text-white tracking-tight">{value}</span>
-                    <span className={cn("text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/5", color)}>
-                        {trend}
-                    </span>
+                    {trend && (
+                        <span className={cn("text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-white/5", color)}>
+                            {trend}
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

@@ -12,12 +12,12 @@ export async function GET() {
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-    const [invoicesThisMonth, invoicesPrevMonth, allInvoices, missions, upcomingDeclarations, staff] = await Promise.all([
+    const [invoicesThisMonth, invoicesPrevMonth, allInvoices, missions, upcomingDeclarations, staff, totalClients] = await Promise.all([
       prisma.invoice.findMany({ where: { issueDate: { gte: startOfMonth } } }),
       prisma.invoice.findMany({ where: { issueDate: { gte: startOfPrevMonth, lt: startOfMonth } } }),
       prisma.invoice.findMany(),
       prisma.mission.findMany({
-        include: { client: { select: { companyName: true, firstName: true, lastName: true } }, timeEntries: { select: { duration: true } } },
+        include: { client: { select: { companyName: true, firstName: true, lastName: true } }, timeEntries: { select: { duration: true, invoiceId: true } } },
       }),
       prisma.taxDeclaration.findMany({
         where: { status: "PENDING", dueDate: { lte: in3Days } },
@@ -25,6 +25,7 @@ export async function GET() {
         take: 5,
       }),
       prisma.user.findMany({ where: { role: { in: ["EXPERT", "COLLABORATOR", "ASSISTANT"] }, isActive: true } }),
+      prisma.client.count({ where: { isActive: true } }),
     ]);
 
     const caMois = invoicesThisMonth.reduce((s, i) => s + i.total, 0);
@@ -66,7 +67,11 @@ export async function GET() {
       const assignedMissions = missions.filter(m => m.assignedToId === u.id);
       const hours = assignedMissions.reduce((s, m) => s + m.timeEntries.reduce((s2, t) => s2 + t.duration, 0), 0);
       const totalEntries = assignedMissions.flatMap(m => m.timeEntries);
-      const billable = totalEntries.length > 0 ? 100 : 0; // TimeEntry n'a pas de flag facturable dédié ici
+      // Taux facturable réel : part des heures effectivement rattachées à une facture
+      // (TimeEntry.invoiceId). Remplace l'ancien binaire 100%/0% ("TimeEntry n'a pas de
+      // flag facturable dédié" — inexact : invoiceId est ce flag).
+      const heuresFacturees = totalEntries.filter(t => t.invoiceId).reduce((s, t) => s + t.duration, 0);
+      const billable = hours > 0 ? Math.round((heuresFacturees / hours) * 100) : 0;
       const ca = assignedMissions.reduce((s, m) => s + (m.fixedPrice || (m.hourlyRate ? m.hourlyRate * (m.estimatedHours || 0) : 0)), 0);
       return {
         id: u.id,
@@ -91,6 +96,7 @@ export async function GET() {
         croissance,
         missionsActives,
         alertes: alertes.length,
+        totalClients,
       },
       alertes,
       collaborateurs,
