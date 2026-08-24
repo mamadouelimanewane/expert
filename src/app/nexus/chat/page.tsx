@@ -12,19 +12,26 @@ interface ChatMessage {
   timestamp: string;
 }
 
+const WELCOME_MESSAGE: ChatMessage = {
+  id: "1",
+  role: 'assistant',
+  content: "Bonjour. Je suis NEXUS, votre assistant expert en normes OHADA/SYSCOHADA. Que puis-je analyser pour vous aujourd'hui ?",
+  // Pas d'horodatage au rendu initial : new Date() calculee ici differait entre le
+  // rendu serveur (SSR) et l'hydratation client, provoquant un mismatch React
+  // (erreur #418) qui desactivait tous les clics/saisies clavier de la page.
+  timestamp: ""
+};
+
 export default function NexusChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "1",
-      role: 'assistant',
-      content: "Bonjour. Je suis NEXUS, votre assistant expert en normes OHADA/SYSCOHADA. Que puis-je analyser pour vous aujourd'hui ?",
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState(["📊 KPIs du cabinet", "📅 Échéances semaine", "🔍 Analyser TVA", "📝 Journal de clôture"]);
   const [llmStatus, setLlmStatus] = useState<'unknown' | 'connected' | 'not-configured'>('unknown');
+
+  useEffect(() => {
+    setMessages(prev => prev.map(m => (m.id === "1" && m.timestamp === "" ? { ...m, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) } : m)));
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

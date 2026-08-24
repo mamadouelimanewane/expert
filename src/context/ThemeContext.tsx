@@ -12,10 +12,18 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setThemeState] = useState<Theme>(() => {
-        if (typeof window === 'undefined') return 'light';
-        return (localStorage.getItem('app-theme') as Theme) || 'light';
-    });
+    // Valeur initiale identique cote serveur et client ('light') pour eviter un
+    // mismatch d'hydratation React (erreur #418) : lire localStorage directement
+    // dans le useState initializer produisait un rendu client different du HTML
+    // genere par le serveur des qu'un theme non-'light' etait sauvegarde, ce qui
+    // cassait l'hydratation — et donc tous les clics/saisies clavier — sur
+    // l'ensemble de l'application (Sidebar est monte sur toutes les pages).
+    const [theme, setThemeState] = useState<Theme>('light');
+
+    useEffect(() => {
+        const stored = localStorage.getItem('app-theme') as Theme | null;
+        if (stored) setThemeState(stored);
+    }, []);
 
     useEffect(() => {
         document.documentElement.className = theme;
