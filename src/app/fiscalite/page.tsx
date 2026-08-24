@@ -30,6 +30,7 @@ type ObligationVue = {
   pays: string[];
   reference: string;
   echeance: string;
+  echeanceDate: Date;
   urgence: string;
   statut: string;
   montantEstime: number;
@@ -65,6 +66,11 @@ export default function FiscaliteOhada() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    return d;
+  });
 
   const charger = useCallback(async (pays: string) => {
     setChargement(true);
@@ -82,6 +88,7 @@ export default function FiscaliteOhada() {
         pays: (o.pays as string[]) ?? [],
         reference: String(o.reference ?? ""),
         echeance: new Date(String(o.echeance)).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }),
+        echeanceDate: new Date(String(o.echeance)),
         urgence: String(o.urgence),
         statut:
           o.statut === "VALIDE" ? "VALIDE" : o.statut === "EN_COURS" ? "EN_ATTENTE" : "BROUILLON",
@@ -368,48 +375,76 @@ export default function FiscaliteOhada() {
       )}
 
       {/* ===== CALENDRIER ===== */}
-      {activeTab === "calendrier" && (
-        <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="font-black text-white text-xl">Juin 2026</h3>
-            <div className="flex gap-2">
-              <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400"><ChevronLeft className="w-4 h-4" /></button>
-              <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400"><ChevronRight className="w-4 h-4" /></button>
+      {activeTab === "calendrier" && (() => {
+        const year = calendarMonth.getFullYear();
+        const month = calendarMonth.getMonth();
+        const today = new Date();
+        const firstOfMonth = new Date(year, month, 1);
+        // getDay() : 0=dimanche..6=samedi -> decalage pour une semaine commençant lundi
+        const leadingBlanks = (firstOfMonth.getDay() + 6) % 7;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        return (
+          <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="font-black text-white text-xl capitalize">
+                {calendarMonth.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCalendarMonth(new Date(year, month - 1, 1))}
+                  className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setCalendarMonth(new Date(year, month + 1, 1))}
+                  className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-7 gap-3 mb-4">
+              {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => (
+                <div key={d} className="text-center text-[10px] font-black text-slate-500 uppercase tracking-widest py-2">{d}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-3">
+              {Array.from({ length: leadingBlanks }, (_, i) => (
+                <div key={`blank-${i}`} />
+              ))}
+              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+                const evts = obligations.filter(o =>
+                  o.echeanceDate.getFullYear() === year &&
+                  o.echeanceDate.getMonth() === month &&
+                  o.echeanceDate.getDate() === day
+                );
+                const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                return (
+                  <div key={day} className={cn(
+                    "min-h-[80px] rounded-2xl border p-2 transition-all",
+                    isToday ? "bg-indigo-600/20 border-indigo-500/40" :
+                    evts.length > 0 ? "bg-slate-800/50 border-white/10" : "bg-slate-900/20 border-white/5"
+                  )}>
+                    <span className={cn("text-sm font-black", isToday ? "text-indigo-400" : evts.length > 0 ? "text-white" : "text-slate-600")}>{day}</span>
+                    <div className="mt-1 space-y-1">
+                      {evts.map((ev, idx) => (
+                        <div key={idx} className={cn(
+                          "text-[8px] px-1.5 py-1 rounded font-black truncate",
+                          ev.urgence === "IMMINENTE" ? "bg-rose-500/20 text-rose-300" : "bg-blue-500/20 text-blue-300"
+                        )}>
+                          {ev.type}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-3 mb-4">
-            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => (
-              <div key={d} className="text-center text-[10px] font-black text-slate-500 uppercase tracking-widest py-2">{d}</div>
-            ))}
-          </div>
-          <div className="grid grid-cols-7 gap-3">
-            {/* Décalage (Lundi = 1er Juin 2026) */}
-            {Array.from({ length: 30 }, (_, i) => i + 1).map(day => {
-              const evts = obligations.filter(o => parseInt(o.echeance, 10) === day);
-              const isToday = day === 3;
-              return (
-                <div key={day} className={cn(
-                  "min-h-[80px] rounded-2xl border p-2 transition-all",
-                  isToday ? "bg-indigo-600/20 border-indigo-500/40" :
-                  evts.length > 0 ? "bg-slate-800/50 border-white/10" : "bg-slate-900/20 border-white/5"
-                )}>
-                  <span className={cn("text-sm font-black", isToday ? "text-indigo-400" : evts.length > 0 ? "text-white" : "text-slate-600")}>{day}</span>
-                  <div className="mt-1 space-y-1">
-                    {evts.map((ev, idx) => (
-                      <div key={idx} className={cn(
-                        "text-[8px] px-1.5 py-1 rounded font-black truncate",
-                        ev.urgence === "IMMINENTE" ? "bg-rose-500/20 text-rose-300" : "bg-blue-500/20 text-blue-300"
-                      )}>
-                        {ev.type}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

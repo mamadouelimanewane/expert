@@ -18,7 +18,6 @@ import {
     Globe,
     FileSignature,
     PenTool,
-    Award,
     Briefcase,
     GraduationCap,
     Star,
@@ -73,7 +72,7 @@ const documents = [
             {
                 title: "Guide Plateforme Academy",
                 description: "Guide utilisateur pour naviguer dans l'espace de formation Cabinet Academy.",
-                href: "/documentation/academy-guide",
+                href: "/training/academy",
                 icon: LayoutDashboard,
                 type: "User Guide"
             },
@@ -83,13 +82,6 @@ const documents = [
                 href: "/documentation/training-manuals",
                 icon: GraduationCap,
                 type: "Premium Service"
-            },
-            {
-                title: "Référentiel Compétences CPF",
-                description: "Détail des crédits CPF pour chaque parcours de formation.",
-                href: "/documentation/cpf-ref",
-                icon: Award,
-                type: "Certification"
             }
         ]
     },
@@ -141,14 +133,12 @@ const documents = [
 ];
 
 export default function DocumentationHubPage() {
-    const [isDownloading, setIsDownloading] = React.useState(false);
-
     const handleDownloadAll = () => {
-        setIsDownloading(true);
-        setTimeout(() => {
-            setIsDownloading(false);
-            window.location.href = "/documentation/full";
-        }, 1500);
+        // Regroupe brochure, lettre, manuel et notes de version en une page
+        // imprimable (voir /documentation/full) ; le delai de "preparation"
+        // precedent etait artificiel, aucun travail n'avait lieu pendant ce
+        // temps.
+        window.location.href = "/documentation/full";
     };
 
     return (
@@ -170,24 +160,9 @@ export default function DocumentationHubPage() {
                     <div className="flex gap-3">
                         <button
                             onClick={handleDownloadAll}
-                            disabled={isDownloading}
-                            className={cn(
-                                "flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all border shadow-lg relative overflow-hidden",
-                                isDownloading
-                                    ? "bg-indigo-600/20 border-indigo-500/50 text-indigo-400 cursor-wait"
-                                    : "bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-indigo-500/50"
-                            )}
+                            className="flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all border shadow-lg bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-indigo-500/50"
                         >
-                            {isDownloading ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                                    Préparation du Pack...
-                                </>
-                            ) : (
-                                <>
-                                    <Download className="w-5 h-5" /> Tout Télécharger
-                                </>
-                            )}
+                            <Download className="w-5 h-5" /> Tout Télécharger
                         </button>
                     </div>
                 </div>

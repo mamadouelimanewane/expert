@@ -70,19 +70,28 @@ export default function GovernanceHeatmapPage() {
                     </div>
 
                     <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                        <button disabled title="Non implémenté" className="px-8 py-4 bg-white/5 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 cursor-not-allowed">
                             <Zap className="w-5 h-5" /> Relancer Tout le Portefeuille
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Strategic KPI Summary */}
+            {/* Strategic KPI Summary — l'indice de conformité (auparavant fixe a 84%/+2.4%)
+                est desormais calcule sur les cellules reellement "valid" de la matrice
+                ci-dessous. Les trois autres cartes n'affichent plus de tendance
+                (+1/-3/+5) inventee : aucune donnee de periode precedente n'est
+                disponible pour la calculer honnetement. */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <StatusStat label="Indice de Conformité" value="84" unit="%" trend="+2.4%" color="text-indigo-400" />
-                <StatusStat label="AG en Retard" value={clients.filter(c => c.status.ag === 'late').length} trend="+1" color="text-rose-400" />
-                <StatusStat label="Mandats Expirants" value={clients.filter(c => c.status.mandats === 'expiring').length} trend="-3" color="text-amber-400" />
-                <StatusStat label="Clients 100% Green" value={clients.filter(c => Object.values(c.status).every(v => v === 'valid')).length} trend="+5" color="text-emerald-400" />
+                <StatusStat
+                    label="Indice de Conformité"
+                    value={clients.length === 0 ? "—" : Math.round((clients.flatMap(c => Object.values(c.status)).filter(v => v === 'valid').length / (clients.length * COLUMNS.length)) * 100)}
+                    unit={clients.length === 0 ? "" : "%"}
+                    color="text-indigo-400"
+                />
+                <StatusStat label="AG en Retard" value={clients.filter(c => c.status.ag === 'late').length} color="text-rose-400" />
+                <StatusStat label="Mandats Expirants" value={clients.filter(c => c.status.mandats === 'expiring').length} color="text-amber-400" />
+                <StatusStat label="Clients 100% Green" value={clients.filter(c => Object.values(c.status).every(v => v === 'valid')).length} color="text-emerald-400" />
             </div>
 
             {/* Heatmap Grid */}
@@ -162,11 +171,11 @@ export default function GovernanceHeatmapPage() {
                     <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform">
                         <Gavel className="w-40 h-40 text-indigo-400" />
                     </div>
-                    <h3 className="text-xl font-black text-white mb-8">Intelligence OHADA</h3>
-                    <p className="text-sm text-slate-400 leading-relaxed font-medium italic mb-6">
-                        "Nexus analyse votre portefeuille en temps réel. {clients.filter(c => c.status.mandats === 'expiring').length} mandats arrivent à terme d'ici 30 jours."
+                    <h3 className="text-xl font-black text-white mb-8">Synthèse Mandats</h3>
+                    <p className="text-sm text-slate-400 leading-relaxed font-medium mb-6">
+                        {clients.filter(c => c.status.mandats === 'expiring').length} mandat{clients.filter(c => c.status.mandats === 'expiring').length > 1 ? "s" : ""} arrivant à terme d'ici 30 jours, calculé sur le portefeuille chargé ci-dessus.
                     </p>
-                    <button className="w-full py-4 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-indigo-400 border border-indigo-500/20 transition-all">
+                    <button disabled title="Non implémenté" className="w-full py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 border border-white/10 cursor-not-allowed">
                         Gérer les Mandats Stratégiques
                     </button>
                 </div>
@@ -192,13 +201,12 @@ function HeatmapCell({ status }: { status: "valid" | "expiring" | "late" | "inva
     );
 }
 
-function StatusStat({ label, value, unit, trend, color }: any) {
+function StatusStat({ label, value, unit, color }: any) {
     return (
         <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{label}</p>
             <div className="flex items-baseline gap-2">
                 <span className={cn("text-xl sm:text-2xl lg:text-3xl font-black", color)}>{value}{unit || ""}</span>
-                <span className="text-[10px] font-black text-slate-700 underline">{trend}</span>
             </div>
         </div>
     );

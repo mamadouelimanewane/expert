@@ -165,7 +165,7 @@ export default function ClientsPage() {
                                         )}>
                                             {client.type === "ENTREPRISE" ? <Building2 className="w-6 h-6" /> : <Users className="w-6 h-6" />}
                                         </div>
-                                        <button className="text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-xl">
+                                        <button disabled title="Non implémenté" onClick={(e) => e.preventDefault()} className="text-slate-700 cursor-not-allowed p-2 rounded-xl">
                                             <MoreHorizontal className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -215,9 +215,9 @@ export default function ClientsPage() {
 
                                 <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-2 relative z-10">
                                     <div className="flex gap-1">
-                                        <ActionButton icon={Phone} />
-                                        <ActionButton icon={MessageSquare} />
-                                        <ActionButton icon={FileText} />
+                                        <ActionButton icon={Phone} title={client.phone ? `Appeler ${client.phone}` : "Aucun téléphone renseigné"} href={client.phone ? `tel:${client.phone}` : undefined} />
+                                        <ActionButton icon={MessageSquare} title={client.phone ? "Ouvrir WhatsApp" : "Aucun téléphone renseigné"} href={client.phone ? `https://wa.me/${client.phone.replace(/\D/g, "")}` : undefined} />
+                                        <ActionButton icon={FileText} title="Non disponible : pas de fiche client détaillée" />
                                     </div>
                                     <span className={cn(
                                         "px-2.5 py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border",
@@ -323,7 +323,7 @@ export default function ClientsPage() {
                                                         </span>
                                                     </td>
                                                     <td className="px-8 py-6 text-right">
-                                                        <button className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all">
+                                                        <button disabled title="Non implémenté" onClick={(e) => e.preventDefault()} className="p-2 rounded-xl text-slate-700 cursor-not-allowed">
                                                             <MoreHorizontal className="w-5 h-5" />
                                                         </button>
                                                     </td>
@@ -389,11 +389,19 @@ function KPICard({ label, value, trend, icon: Icon, color }: KPICardProps) {
     );
 }
 
-function ActionButton({ icon: Icon }: { icon: any }) {
+function ActionButton({ icon: Icon, href, title }: { icon: any; href?: string; title?: string }) {
+    const className = "p-2.5 rounded-xl bg-slate-800/50 text-slate-400 hover:bg-indigo-600 hover:text-white transition-all hover:scale-110 hover:shadow-lg border border-white/5";
+    if (!href) {
+        return (
+            <button disabled title={title || "Non disponible"} onClick={(e) => e.preventDefault()} className={cn(className, "opacity-40 cursor-not-allowed hover:bg-slate-800/50 hover:text-slate-400 hover:scale-100")}>
+                <Icon className="w-3.5 h-3.5" />
+            </button>
+        );
+    }
     return (
-        <button className="p-2.5 rounded-xl bg-slate-800/50 text-slate-400 hover:bg-indigo-600 hover:text-white transition-all hover:scale-110 hover:shadow-lg border border-white/5">
+        <a href={href} target="_blank" rel="noreferrer" title={title} onClick={(e) => e.stopPropagation()} className={className}>
             <Icon className="w-3.5 h-3.5" />
-        </button>
+        </a>
     );
 }
 

@@ -82,9 +82,13 @@ interface AnalyticalCenter {
     result: number;
 }
 
+// Ces documents n'ont pas de backend de persistance : ils affichaient
+// auparavant des statuts ("Validé", "Brouillon") et des dates de
+// modification fictifs comme s'ils reflétaient un vrai travail déjà
+// effectué. Tous démarrent désormais "À faire", sans date inventée.
 const MISSION_TEMPLATES: PrepDocument[] = [
-    { id: "1", title: "Acceptation de Mandat & Risques (NEO)", type: "checklist", status: "validated", mandatory: true, lastModified: "20/05/2024" },
-    { id: "2", title: "Lettre de Mission (Modèle ONECCA)", type: "contract", status: "draft", mandatory: true, lastModified: "18:30" },
+    { id: "1", title: "Acceptation de Mandat & Risques (NEO)", type: "checklist", status: "pending", mandatory: true },
+    { id: "2", title: "Lettre de Mission (Modèle ONECCA)", type: "contract", status: "pending", mandatory: true },
     { id: "3", title: "Déclaration d'Indépendance", type: "checklist", status: "pending", mandatory: true },
     { id: "4", title: "Plan de Mission & Budget", type: "memo", status: "pending", mandatory: false },
 ];
@@ -256,11 +260,11 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                 <p className="text-xs text-slate-500">Modèle standard mis à jour le 01/01/2024 • ONECCA</p>
                             </div>
                             <div className="flex gap-2">
-                                <button className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-2">
+                                <button onClick={() => window.print()} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-2">
                                     <Printer className="w-4 h-4" />
                                     Imprimer
                                 </button>
-                                <button className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                                <button disabled title="Non implémenté : aucune sauvegarde n'existe pour ce document" className="px-3 py-1.5 bg-slate-800/50 text-slate-500 rounded-lg text-xs font-bold flex items-center gap-2 cursor-not-allowed">
                                     <Save className="w-4 h-4" />
                                     Enregistrer
                                 </button>

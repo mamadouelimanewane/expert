@@ -21,9 +21,11 @@ import { Mission, Client, User } from "@/types/prisma";
 
 type MissionWithRelations = Mission & { client: Client | null; assignedTo: User | null };
 
-export default async function MissionsPage() {
+export default async function MissionsPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
+    const q = (await searchParams)?.q?.trim() ?? "";
+
     // Récupération des missions de la DB
-    const missions = await prisma.mission.findMany({
+    const allMissions = await prisma.mission.findMany({
         include: {
             client: true,
             assignedTo: true
@@ -32,6 +34,14 @@ export default async function MissionsPage() {
             deadline: 'asc'
         }
     });
+
+    // La recherche était auparavant un champ sans onChange, purement decoratif.
+    const missions = q
+        ? allMissions.filter((m: MissionWithRelations) => {
+              const clientName = m.client?.companyName || `${m.client?.firstName ?? ""} ${m.client?.lastName ?? ""}`.trim();
+              return m.title.toLowerCase().includes(q.toLowerCase()) || clientName.toLowerCase().includes(q.toLowerCase());
+          })
+        : allMissions;
 
     // Organisation en colonnes pour le Kanban (statuts du schéma Prisma)
     const columns = [
@@ -58,14 +68,16 @@ export default async function MissionsPage() {
                 </div>
 
                 <div className="flex gap-4 w-full sm:w-auto">
-                    <div className="relative flex-1 sm:w-64">
+                    <form className="relative flex-1 sm:w-64">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
                             type="text"
-                            placeholder="Rechercher une mission..."
+                            name="q"
+                            defaultValue={q}
+                            placeholder="Rechercher une mission... (Entrée)"
                             className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-2xl text-sm text-white focus:border-indigo-500 outline-none transition-all shadow-inner"
                         />
-                    </div>
+                    </form>
                     <Link href="/missions/new" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 active:scale-95">
                         <Plus className="w-5 h-5" />
                         Nouvelle Mission
@@ -88,7 +100,7 @@ export default async function MissionsPage() {
                                         <h3 className="font-black text-slate-200 uppercase tracking-widest text-[11px]">{col.title}</h3>
                                         <span className="text-[10px] font-black text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-lg border border-white/5">{colMissions.length}</span>
                                     </div>
-                                    <button className="p-1.5 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
+                                    <button disabled title="Non implémenté" className="p-1.5 rounded-lg text-slate-700 cursor-not-allowed">
                                         <MoreVertical className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -106,7 +118,7 @@ export default async function MissionsPage() {
                                                         #{mission.id.slice(-4)}
                                                     </span>
                                                 </div>
-                                                <button className="text-slate-600 hover:text-white transition-colors">
+                                                <button disabled title="Non implémenté" className="text-slate-700 cursor-not-allowed">
                                                     <MoreVertical className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -144,9 +156,9 @@ export default async function MissionsPage() {
                                     )}
 
                                     {/* Quick Add Button at bottom of column */}
-                                    <button className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-400 hover:bg-white/5 transition-all">
-                                        + Ajouter une étape
-                                    </button>
+                                    <Link href="/missions/new" className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-400 hover:bg-white/5 transition-all flex items-center justify-center">
+                                        + Nouvelle Mission
+                                    </Link>
                                 </div>
                             </div>
                         );
