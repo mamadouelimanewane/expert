@@ -24,6 +24,7 @@ interface Client {
   firstName: string;
   lastName: string;
   rccm: string;
+  email: string;
 }
 
 const DOCUMENT_TYPES = [
@@ -113,7 +114,7 @@ export default function DocumentGenerationCenter() {
         </div>
         <div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Générateur de Livrables</h2>
-          <p className="text-slate-400 mt-1">Générez et propulsez instantanément les documents certifiés vers le portail de la PMI.</p>
+          <p className="text-slate-400 mt-1">Générez un document lié à un client réel — la publication automatique sur le portail n&apos;est pas encore disponible, le document est à transmettre manuellement.</p>
         </div>
       </div>
 
@@ -204,7 +205,7 @@ export default function DocumentGenerationCenter() {
           )}>
             <div>
               <h4 className="font-black text-white">Prêt à générer</h4>
-              <p className="text-xs text-slate-400 mt-1">Le document sera compilé, horodaté et poussé sur le portail de la PMI.</p>
+              <p className="text-xs text-slate-400 mt-1">Le document sera enregistré et lié au client — la diffusion sur le portail reste manuelle pour l&apos;instant.</p>
             </div>
             
             <button 

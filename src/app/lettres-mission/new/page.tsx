@@ -30,11 +30,13 @@ export default function NewLettreMissionPage() {
 
   // Le client est choisi dans le portefeuille reel : une lettre de mission
   // rattachee a un nom saisi librement ne pourrait pas etre enregistree.
-  const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+  const [clients, setClients] = useState<{ id: string; nom: string; email: string }[]>([]);
   const [chargementClients, setChargementClients] = useState(true);
   const [envoi, setEnvoi] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
+  const [envoiClient, setEnvoiClient] = useState(false);
+  const [envoiClientResultat, setEnvoiClientResultat] = useState<{ succes: boolean; message: string } | null>(null);
 
   const chargerClients = useCallback(async () => {
     setChargementClients(true);
@@ -49,6 +51,7 @@ export default function NewLettreMissionPage() {
             (c.companyName as string) ||
             [c.firstName, c.lastName].filter(Boolean).join(" ") ||
             String(c.email ?? "Client sans nom"),
+          email: String(c.email ?? ""),
         }))
       );
     } catch (e) {
@@ -92,6 +95,39 @@ export default function NewLettreMissionPage() {
       setErreur(e instanceof Error ? e.message : "Echec de l'enregistrement de la lettre.");
     } finally {
       setEnvoi(false);
+    }
+  };
+
+  const handleSendToClient = async () => {
+    const client = clients.find((c) => c.id === form.clientId);
+    if (!client?.email) {
+      setEnvoiClientResultat({ succes: false, message: "Aucune adresse e-mail pour ce client." });
+      return;
+    }
+    setEnvoiClient(true);
+    setEnvoiClientResultat(null);
+    try {
+      const res = await fetch("/api/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: client.email,
+          subject: `Lettre de mission ${reference ? `— ${reference}` : ""}`.trim(),
+          text: `Bonjour,\n\nVeuillez trouver ci-joint votre lettre de mission (réf. ${reference || "en cours"}) pour la mission "${MISSION_TYPES.find(m => m.value === form.missionType)?.label}".\n\nHonoraires : ${parseInt(form.honoraires || "0").toLocaleString("fr-FR")} FCFA HT (${form.periodicite.toLowerCase()}).\n\nNous restons à votre disposition.\n\nCordialement,\nCabinet 360`,
+          context: { entity: "ENGAGEMENT_LETTER" },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEnvoiClientResultat({ succes: false, message: data.error || "Échec de l'envoi." });
+        return;
+      }
+      setEnvoiClientResultat({ succes: true, message: `E-mail envoyé à ${client.email}.` });
+    } catch (e) {
+      console.error(e);
+      setEnvoiClientResultat({ succes: false, message: "Erreur de connexion au serveur." });
+    } finally {
+      setEnvoiClient(false);
     }
   };
 
@@ -379,12 +415,21 @@ export default function NewLettreMissionPage() {
           </div>
 
           {/* Actions */}
+          {envoiClientResultat && (
+            <p className={cn("text-xs text-right", envoiClientResultat.succes ? "text-emerald-400" : "text-amber-400")}>
+              {envoiClientResultat.message}
+            </p>
+          )}
           <div className="flex flex-wrap gap-3 justify-end">
             <button onClick={() => { setStep(1); setGenerated(false); }} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-white/5">
               Modifier
             </button>
-            <button className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">
-              <Send className="w-4 h-4" /> Envoyer au Client
+            <button
+              onClick={handleSendToClient}
+              disabled={envoiClient}
+              className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" /> {envoiClient ? "Envoi..." : "Envoyer au Client"}
             </button>
           </div>
         </div>

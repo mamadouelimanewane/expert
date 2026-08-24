@@ -49,7 +49,9 @@ const TEMPLATES: ReportTemplate[] = [
 type ChiffresCles = { chiffreAffaires: number; ebe: number; tresorerieNette: number };
 
 export default function ReportingAutomationPage() {
-    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clients, setClients] = useState<{ id: string; nom: string; email: string }[]>([]);
+    const [envoiEnCours, setEnvoiEnCours] = useState(false);
+    const [envoiResultat, setEnvoiResultat] = useState<{ succes: boolean; message: string } | null>(null);
     const [clientId, setClientId] = useState("");
     const [selectedPeriod, setSelectedPeriod] = useState(new Date().toISOString().substring(0, 7));
     const [selectedTemplate, setSelectedTemplate] = useState("t1");
@@ -74,6 +76,7 @@ export default function ReportingAutomationPage() {
                     (data.clients ?? []).map((c: Record<string, unknown>) => ({
                         id: String(c.id),
                         nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                        email: String(c.email ?? ""),
                     }))
                 );
             } catch (e) {
@@ -136,6 +139,40 @@ export default function ReportingAutomationPage() {
             setErreur(e instanceof Error ? e.message : "Échec de la génération.");
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const handleSendToClient = async () => {
+        if (!chiffres) return;
+        const client = clients.find((c) => c.id === clientId);
+        if (!client?.email) {
+            setEnvoiResultat({ succes: false, message: "Aucune adresse e-mail pour ce client." });
+            return;
+        }
+        setEnvoiEnCours(true);
+        setEnvoiResultat(null);
+        try {
+            const res = await fetch("/api/email/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    to: client.email,
+                    subject: `Rapport de gestion — ${selectedPeriod}`,
+                    text: `Bonjour,\n\nVoici votre rapport de gestion pour la période ${selectedPeriod} :\n\n- Chiffre d'affaires : ${chiffres.chiffreAffaires.toLocaleString("fr-FR")} FCFA\n- Excédent brut d'exploitation : ${chiffres.ebe.toLocaleString("fr-FR")} FCFA\n- Trésorerie nette : ${chiffres.tresorerieNette.toLocaleString("fr-FR")} FCFA\n\n${synthese ? `Résumé : ${synthese}\n\n` : ""}Cordialement,\nCabinet 360`,
+                    context: { entity: "REPORT" },
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setEnvoiResultat({ succes: false, message: data.error || "Échec de l'envoi." });
+                return;
+            }
+            setEnvoiResultat({ succes: true, message: `Rapport envoyé à ${client.email}.` });
+        } catch (e) {
+            console.error(e);
+            setEnvoiResultat({ succes: false, message: "Erreur de connexion au serveur." });
+        } finally {
+            setEnvoiEnCours(false);
         }
     };
 
@@ -256,11 +293,20 @@ export default function ReportingAutomationPage() {
                             <button disabled title="Export PDF non encore disponible" className="px-6 py-3 bg-white/50 text-indigo-950/50 rounded-xl font-bold text-xs flex items-center gap-2 cursor-not-allowed">
                                 <Download className="w-4 h-4" /> Télécharger PDF
                             </button>
-                            <button disabled title="Envoi au client non encore disponible" className="px-6 py-3 bg-indigo-600/50 text-white/50 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed">
-                                <Mail className="w-4 h-4" /> Envoyer au Client
+                            <button
+                                onClick={handleSendToClient}
+                                disabled={envoiEnCours}
+                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2"
+                            >
+                                <Mail className="w-4 h-4" /> {envoiEnCours ? "Envoi..." : "Envoyer au Client"}
                             </button>
                         </div>
                     </div>
+                    {envoiResultat && (
+                        <p className={cn("text-xs text-right -mt-4", envoiResultat.succes ? "text-emerald-400" : "text-amber-400")}>
+                            {envoiResultat.message}
+                        </p>
+                    )}
 
                     <div className="bg-white rounded-[40px] shadow-2xl p-8 sm:p-12 lg:p-20 text-slate-900 space-y-12">
                         <div className="flex justify-between items-end border-b-2 border-slate-950 pb-8">

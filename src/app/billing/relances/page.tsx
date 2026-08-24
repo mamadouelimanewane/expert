@@ -10,6 +10,7 @@ export default function RelancesPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [sendResult, setSendResult] = useState<{ id: string; emailSent: boolean; message: string } | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
   useEffect(() => {
@@ -23,13 +24,22 @@ export default function RelancesPage() {
 
   const handleSend = async (invoiceId: string) => {
     setSending(invoiceId);
+    setSendResult(null);
     try {
-      await fetch("/api/invoices/relances", {
+      const res = await fetch("/api/invoices/relances", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ invoiceId })
       });
+      const data = await res.json();
       setSuccess(invoiceId);
+      setSendResult({
+        id: invoiceId,
+        emailSent: Boolean(data.emailSent),
+        message: data.emailSent
+          ? "E-mail de relance envoyé au client."
+          : `Relance tracée, mais aucun e-mail envoyé (${data.emailError || "SMTP non configuré ou e-mail client manquant"}).`,
+      });
       setTimeout(() => setSuccess(null), 3000);
     } catch (error) {
       console.error(error);
@@ -116,11 +126,16 @@ export default function RelancesPage() {
                       {sending === inv.id ? (
                         <div className="w-4 h-4 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
                       ) : success === inv.id ? (
-                        <><CheckCircle2 className="w-4 h-4" /> Envoyé</>
+                        <><CheckCircle2 className="w-4 h-4" /> {sendResult != null && sendResult.id === inv.id && sendResult.emailSent ? "E-mail envoyé" : "Tracé"}</>
                       ) : (
                         <><Send className="w-3 h-3" /> Envoyer Relance</>
                       )}
                     </button>
+                    {sendResult != null && sendResult.id === inv.id && (
+                      <p className={cn("text-[10px] mt-2 leading-relaxed", sendResult.emailSent ? "text-emerald-400" : "text-amber-400")}>
+                        {sendResult.message}
+                      </p>
+                    )}
                   </motion.div>
                 ))}
                 {stageInvoices.length === 0 && (
