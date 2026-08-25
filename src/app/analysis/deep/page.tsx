@@ -47,6 +47,13 @@ interface Edge {
     hidden?: boolean;
 }
 
+type ResultatCriblage = {
+    source: "OFAC" | "OpenSanctions";
+    interroge: boolean;
+    erreur?: string;
+    correspondances: { nom: string; detail: string }[];
+};
+
 export default function NeuralForensicsPage() {
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
@@ -57,7 +64,7 @@ export default function NeuralForensicsPage() {
     // Sherlock Mode States
     const [isInvestigating, setIsInvestigating] = useState(false);
     const [osintLogs, setOsintLogs] = useState<string[]>([]);
-    const [webResults, setWebResults] = useState<any[]>([]);
+    const [resultatsCriblage, setResultatsCriblage] = useState<ResultatCriblage[]>([]);
 
     // Document Modal
     const [showDocModal, setShowDocModal] = useState(false);
@@ -66,7 +73,7 @@ export default function NeuralForensicsPage() {
         setSelectedNode(node);
         // Reset investigation view if clicking a new node
         if (selectedNode?.id !== node.id) {
-            setWebResults([]);
+            setResultatsCriblage([]);
             setOsintLogs([]);
         }
     };
@@ -112,18 +119,35 @@ export default function NeuralForensicsPage() {
         }
     };
 
-    // Aucune intégration OSINT réelle (registres publics, réseaux sociaux, listes de sanctions,
-    // bases type ICIJ/OpenCorporates) n'est connectée à ce jour. Ce module affichait auparavant des
-    // résultats entièrement fabriqués (ex: une société "SHELL HOLDING" fictive) présentés comme des
-    // preuves d'enquête réelles — ce qui pouvait induire de fausses accusations de fraude. Il indique
-    // maintenant honnêtement que l'intégration reste à configurer, sans générer de faux résultats.
-    const launchSherlockInvestigation = () => {
+    // Ce module affichait auparavant des résultats entièrement fabriqués (ex: une société
+    // "SHELL HOLDING" fictive) présentés comme des preuves d'enquête réelles — ce qui pouvait
+    // induire de fausses accusations de fraude. Il crible désormais réellement le nom contre la
+    // liste OFAC SDN (publique, gratuite) et, si une clé est configurée, contre OpenSanctions
+    // (consolide UE/ONU/PEP) — voir src/lib/sanctions-screening.ts. Les registres publics
+    // (RCCM/Greffe) et les bases type ICIJ/OpenCorporates ne sont pas encore intégrés.
+    const launchSherlockInvestigation = async () => {
         if (!selectedNode) return;
-        setOsintLogs([
-            `Aucune source OSINT connectée pour enquêter sur « ${selectedNode.label} ».`,
-            "Registres publics (RCCM/Greffe), réseaux sociaux, listes de sanctions (UN/OFAC) et bases type ICIJ/OpenCorporates : intégrations à configurer.",
-        ]);
-        setWebResults([]);
+        setIsInvestigating(true);
+        setOsintLogs([`Criblage de « ${selectedNode.label} » en cours…`]);
+        setResultatsCriblage([]);
+        try {
+            const res = await fetch("/api/analysis/sanctions-check", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nom: selectedNode.label }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || `Réponse ${res.status}`);
+            setResultatsCriblage(data.resultats ?? []);
+            setOsintLogs([
+                `Criblage terminé pour « ${selectedNode.label} ».`,
+                "Registres publics (RCCM/Greffe) et bases type ICIJ/OpenCorporates : intégrations non disponibles.",
+            ]);
+        } catch (e) {
+            setOsintLogs([`Échec du criblage : ${e instanceof Error ? e.message : "erreur inconnue"}.`]);
+        } finally {
+            setIsInvestigating(false);
+        }
     };
 
     return (
@@ -325,13 +349,14 @@ export default function NeuralForensicsPage() {
                                         <FileSearch className="w-8 h-8" />
                                     </div>
                                     <p className="text-sm text-slate-400">
-                                        Recherche profonde sur le web pour identifier des connexions (réseaux sociaux, registres, listes de sanctions). Nécessite une intégration OSINT tierce non encore configurée.
+                                        Crible ce nom contre la liste OFAC SDN (publique, gratuite) et, si configuré, contre OpenSanctions (UE/ONU/PEP). Les registres publics et bases type ICIJ/OpenCorporates ne sont pas encore intégrés.
                                     </p>
                                     <button
                                         onClick={launchSherlockInvestigation}
-                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-600/20"
+                                        disabled={isInvestigating}
+                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-600/20"
                                     >
-                                        Vérifier les intégrations disponibles
+                                        {isInvestigating ? "Criblage en cours…" : "Cribler les listes de sanctions"}
                                     </button>
                                 </div>
                             )}
@@ -347,20 +372,26 @@ export default function NeuralForensicsPage() {
                                 </div>
                             )}
 
-                            {webResults.length > 0 && (
+                            {resultatsCriblage.length > 0 && (
                                 <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg flex items-center gap-3">
-                                        <AlertTriangle className="w-5 h-5 text-purple-400" />
-                                        <p className="text-xs text-purple-300 font-bold">NOUVELLES ENTITÉS DÉCOUVERTES DANS LE GRAPHE</p>
-                                    </div>
-                                    {webResults.map((res, i) => (
-                                        <div key={i} className="p-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-xl group transition-colors cursor-pointer">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{res.source}</span>
-                                                <LinkIcon className="w-3 h-3 text-slate-600 group-hover:text-indigo-400" />
+                                    {resultatsCriblage.map((res) => (
+                                        <div key={res.source} className="space-y-2">
+                                            <div className={cn(
+                                                "p-3 border rounded-lg flex items-center gap-3",
+                                                !res.interroge ? "bg-slate-800/50 border-white/5" :
+                                                    res.correspondances.length > 0 ? "bg-rose-500/10 border-rose-500/30" : "bg-emerald-500/10 border-emerald-500/30"
+                                            )}>
+                                                {!res.interroge ? <Lock className="w-4 h-4 text-slate-500" /> : res.correspondances.length > 0 ? <AlertTriangle className="w-4 h-4 text-rose-400" /> : <Shield className="w-4 h-4 text-emerald-400" />}
+                                                <p className="text-xs font-bold">
+                                                    {res.source} — {!res.interroge ? (res.erreur || "non interrogé") : res.correspondances.length > 0 ? `${res.correspondances.length} correspondance(s)` : "aucune correspondance"}
+                                                </p>
                                             </div>
-                                            <h4 className="text-sm font-bold text-white mb-1">{res.title}</h4>
-                                            <p className="text-xs text-slate-400">{res.desc}</p>
+                                            {res.correspondances.map((c, i) => (
+                                                <div key={i} className="p-4 bg-slate-800/50 border border-white/5 rounded-xl ml-4">
+                                                    <h4 className="text-sm font-bold text-white mb-1">{c.nom}</h4>
+                                                    <p className="text-xs text-slate-400">{c.detail}</p>
+                                                </div>
+                                            ))}
                                         </div>
                                     ))}
                                 </div>

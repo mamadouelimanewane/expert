@@ -124,6 +124,14 @@ model Client {
   healthScore        Float? // 0-100
   rating             String? // AAA, AA, B, etc.
 
+  // Onboarding digital (Stripe Identity + prélèvement SEPA) : identifiants
+  // reels des sessions Stripe, pas des statuts inventes. kycStatus (ci-dessus)
+  // est mis a jour a partir du resultat reel de la Stripe Identity
+  // VerificationSession une fois traitee.
+  stripeIdentitySessionId String?
+  stripeCustomerId        String?
+  sepaMandateStatus       String? // pending, active, failed
+
   // Status
   subjectToTva Boolean @default(false) // Paramétrage flexible de la TVA
   isActive     Boolean @default(true)
