@@ -1194,11 +1194,30 @@ model ConsolidationEntity {
 
   buyerEliminations  ConsolidationElimination[] @relation("BuyerEntity")
   sellerEliminations ConsolidationElimination[] @relation("SellerEntity")
+  balanceLines       ConsolidationBalanceLine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("consolidation_entities")
+}
+
+// Ligne de balance comptable importee (CSV) pour une entite du perimetre de
+// consolidation. Un import remplace l'ensemble des lignes precedentes de
+// l'entite (pas de fusion ligne a ligne : la balance importee fait foi).
+model ConsolidationBalanceLine {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  compte  String
+  libelle String
+  debit   Float  @default(0)
+  credit  Float  @default(0)
+
+  entityId String              @db.ObjectId
+  entity   ConsolidationEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("consolidation_balance_lines")
 }
 
 model ConsolidationElimination {

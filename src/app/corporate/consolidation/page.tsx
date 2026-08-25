@@ -5,11 +5,36 @@ import { motion } from "framer-motion";
 import { Layers, FileSpreadsheet, Building2, Calculator, CheckCircle2, ChevronRight, Upload, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+interface BalanceLine {
+  id: string;
+  compte: string;
+  libelle: string;
+  debit: number;
+  credit: number;
+}
+
 interface Entity {
   id: string;
   name: string;
   rccm: string | null;
   country: string | null;
+  balanceLines: BalanceLine[];
+}
+
+// Parse un CSV de balance ("compte;libelle;debit;credit", en-tête optionnel).
+// Accepte ; ou , comme séparateur. Les lignes sans compte sont ignorées.
+function parseBalanceCSV(texte: string): { compte: string; libelle: string; debit: number; credit: number }[] {
+  const lignes = texte.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const sep = lignes[0]?.includes(";") ? ";" : ",";
+  return lignes
+    .map((ligne) => ligne.split(sep).map((c) => c.trim()))
+    .filter((cols) => cols.length >= 3 && cols[0] && !/^compte$/i.test(cols[0]))
+    .map((cols) => ({
+      compte: cols[0],
+      libelle: cols[1] ?? "",
+      debit: parseFloat((cols[2] ?? "0").replace(",", ".")) || 0,
+      credit: parseFloat((cols[3] ?? "0").replace(",", ".")) || 0,
+    }));
 }
 
 interface Elimination {
@@ -30,6 +55,8 @@ export default function ConsolidationPage() {
   const [entityForm, setEntityForm] = useState({ name: "", rccm: "", country: "" });
   const [showAddElimination, setShowAddElimination] = useState(false);
   const [elimForm, setElimForm] = useState({ type: "Ventes/Achats", buyerEntityId: "", sellerEntityId: "", debitAccount: "", creditAccount: "", amount: "" });
+  const [importEnCours, setImportEnCours] = useState<string | null>(null);
+  const [importErreur, setImportErreur] = useState<string | null>(null);
 
   const loadGroup = () => {
     fetch("/api/corporate/consolidation")
@@ -67,6 +94,35 @@ export default function ConsolidationPage() {
   const removeElimination = async (id: string) => {
     await fetch(`/api/corporate/consolidation/eliminations?id=${id}`, { method: "DELETE" });
     loadGroup();
+  };
+
+  const importerBalance = async (entityId: string, file: File) => {
+    setImportEnCours(entityId);
+    setImportErreur(null);
+    try {
+      const texte = await file.text();
+      const lignes = parseBalanceCSV(texte);
+      if (lignes.length === 0) {
+        setImportErreur("Aucune ligne exploitable dans ce fichier (format attendu : compte;libellé;débit;crédit).");
+        return;
+      }
+      const res = await fetch("/api/corporate/consolidation/balance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entityId, lines: lignes }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setImportErreur(data.error || "Échec de l'import.");
+        return;
+      }
+      loadGroup();
+    } catch (e) {
+      console.error("Import de balance :", e);
+      setImportErreur("Impossible de lire ce fichier.");
+    } finally {
+      setImportEnCours(null);
+    }
   };
 
   if (loading || !group) {
@@ -139,20 +195,44 @@ export default function ConsolidationPage() {
             <h3 className="text-xl font-black text-white mb-6">Importation des balances</h3>
             <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl mb-4">
               <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300">L'import de balance par entité (CSV/Excel) n'est pas encore implémenté. La synthèse à l'étape 4 se limite donc aux éliminations intra-groupe réellement saisies, pas à un bilan consolidé complet.</p>
+              <p className="text-sm text-amber-300">
+                Format attendu : CSV avec colonnes <code className="font-mono">compte;libellé;débit;crédit</code> (en-tête optionnel).
+                La synthèse à l&apos;étape 4 agrège les balances importées par compte et déduit les éliminations, mais ne produit pas
+                un bilan/compte de résultat consolidé mis en forme SYSCOHADA — c&apos;est une balance consolidée avant retraitements.
+              </p>
             </div>
+            {importErreur && <p className="text-sm text-red-400 mb-4">{importErreur}</p>}
             <div className="space-y-4">
               {group.entities.map(entity => (
                 <div key={entity.id} className="p-6 bg-slate-800/30 border border-white/5 rounded-2xl flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-white">{entity.name}</p>
-                    <p className="text-xs text-slate-400 mt-1">Balance N (SYSCOHADA)</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {entity.balanceLines.length > 0 ? `${entity.balanceLines.length} comptes importés` : "Balance N (SYSCOHADA) — aucun import"}
+                    </p>
                   </div>
-                  <button disabled title="Import CSV à venir" className="px-4 py-2 bg-slate-800 text-slate-500 rounded-xl text-xs font-bold flex items-center gap-2 cursor-not-allowed">
-                    <Upload className="w-4 h-4" /> Parcourir CSV
-                  </button>
+                  <label className={cn(
+                    "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors",
+                    importEnCours === entity.id ? "bg-slate-700 text-slate-400" : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                  )}>
+                    <Upload className="w-4 h-4" /> {importEnCours === entity.id ? "Import…" : "Parcourir CSV"}
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      className="hidden"
+                      disabled={importEnCours !== null}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) importerBalance(entity.id, file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
                 </div>
               ))}
+              {group.entities.length === 0 && (
+                <p className="text-sm text-slate-500">Ajoutez d&apos;abord des entités à l&apos;étape 1.</p>
+              )}
             </div>
           </motion.div>
         )}
@@ -197,37 +277,101 @@ export default function ConsolidationPage() {
           </motion.div>
         )}
 
-        {step === 4 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <h3 className="text-xl font-black text-white">Synthèse des éliminations</h3>
-            <p className="text-sm text-slate-400">Total réel des opérations intra-groupe éliminées (un bilan consolidé complet nécessite l'import des balances — voir étape 2).</p>
+        {step === 4 && (() => {
+          const toutesLignes = group.entities.flatMap((e) => e.balanceLines);
+          const parCompte = new Map<string, { libelle: string; debit: number; credit: number }>();
+          for (const l of toutesLignes) {
+            const entree = parCompte.get(l.compte) ?? { libelle: l.libelle, debit: 0, credit: 0 };
+            entree.debit += l.debit;
+            entree.credit += l.credit;
+            if (!entree.libelle) entree.libelle = l.libelle;
+            parCompte.set(l.compte, entree);
+          }
+          // Deduction des eliminations : chaque elimination retranche son montant
+          // du compte debit et du compte credit qu'elle vise, dans la balance agregee.
+          for (const e of group.eliminations) {
+            const d = parCompte.get(e.debitAccount);
+            if (d) d.debit = Math.max(0, d.debit - e.amount);
+            const c = parCompte.get(e.creditAccount);
+            if (c) c.credit = Math.max(0, c.credit - e.amount);
+          }
+          const comptesConsolides = Array.from(parCompte.entries())
+            .map(([compte, v]) => ({ compte, ...v }))
+            .sort((a, b) => a.compte.localeCompare(b.compte));
+          const totalDebit = comptesConsolides.reduce((s, c) => s + c.debit, 0);
+          const totalCredit = comptesConsolides.reduce((s, c) => s + c.credit, 0);
 
-            <div className="bg-slate-950/50 rounded-2xl border border-white/5 p-6 overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="pb-3 text-xs font-black text-white">Type</th>
-                    <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Comptes</th>
-                    <th className="pb-3 text-[10px] font-black text-red-400 uppercase tracking-widest text-right">Montant Éliminé</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {group.eliminations.map(e => (
-                    <tr key={e.id}>
-                      <td className="py-3 text-sm text-slate-300">{e.type}</td>
-                      <td className="py-3 text-xs font-mono text-indigo-400">{e.debitAccount} / {e.creditAccount}</td>
-                      <td className="py-3 text-sm text-right text-red-400">-{e.amount.toLocaleString()}</td>
+          return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <div>
+              <h3 className="text-xl font-black text-white">Balance consolidée (avant retraitements)</h3>
+              <p className="text-sm text-slate-400 mt-1">
+                {toutesLignes.length > 0
+                  ? "Agrégation par compte des balances importées, éliminations intra-groupe déduites. Ne constitue pas un bilan/compte de résultat SYSCOHADA mis en forme."
+                  : "Aucune balance importée (voir étape 2) : cette synthèse ne montre pour l'instant que les éliminations saisies."}
+              </p>
+            </div>
+
+            {comptesConsolides.length > 0 && (
+              <div className="bg-slate-950/50 rounded-2xl border border-white/5 p-6 overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Compte</th>
+                      <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Libellé</th>
+                      <th className="pb-3 text-[10px] font-black text-emerald-400 uppercase tracking-widest text-right">Débit</th>
+                      <th className="pb-3 text-[10px] font-black text-emerald-400 uppercase tracking-widest text-right">Crédit</th>
                     </tr>
-                  ))}
-                  <tr className="border-t-2 border-white/10">
-                    <td className="py-3 text-sm font-black text-white" colSpan={2}>TOTAL ÉLIMINÉ</td>
-                    <td className="py-3 text-sm text-right font-black text-red-400">-{totalEliminations.toLocaleString()}</td>
-                  </tr>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {comptesConsolides.map((c) => (
+                      <tr key={c.compte}>
+                        <td className="py-3 text-xs font-mono text-indigo-400">{c.compte}</td>
+                        <td className="py-3 text-sm text-slate-300">{c.libelle || "—"}</td>
+                        <td className="py-3 text-sm text-right font-mono text-white">{c.debit.toLocaleString()}</td>
+                        <td className="py-3 text-sm text-right font-mono text-white">{c.credit.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-white/10">
+                      <td className="py-3 text-sm font-black text-white" colSpan={2}>TOTAL</td>
+                      <td className="py-3 text-sm text-right font-black text-white">{totalDebit.toLocaleString()}</td>
+                      <td className="py-3 text-sm text-right font-black text-white">{totalCredit.toLocaleString()}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div>
+              <h4 className="text-sm font-black text-white uppercase tracking-widest mb-3">Éliminations intra-groupe</h4>
+              <div className="bg-slate-950/50 rounded-2xl border border-white/5 p-6 overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="pb-3 text-xs font-black text-white">Type</th>
+                      <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Comptes</th>
+                      <th className="pb-3 text-[10px] font-black text-red-400 uppercase tracking-widest text-right">Montant Éliminé</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {group.eliminations.map(e => (
+                      <tr key={e.id}>
+                        <td className="py-3 text-sm text-slate-300">{e.type}</td>
+                        <td className="py-3 text-xs font-mono text-indigo-400">{e.debitAccount} / {e.creditAccount}</td>
+                        <td className="py-3 text-sm text-right text-red-400">-{e.amount.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-white/10">
+                      <td className="py-3 text-sm font-black text-white" colSpan={2}>TOTAL ÉLIMINÉ</td>
+                      <td className="py-3 text-sm text-right font-black text-red-400">-{totalEliminations.toLocaleString()}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </motion.div>
-        )}
+          );
+        })()}
 
         <div className="mt-8 flex justify-end gap-4">
           {step > 1 && (

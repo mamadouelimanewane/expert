@@ -10,7 +10,7 @@ export async function GET() {
   try {
     let group = await prisma.consolidationGroup.findFirst({
       include: {
-        entities: true,
+        entities: { include: { balanceLines: true } },
         eliminations: { include: { buyerEntity: true, sellerEntity: true } },
       },
     });
@@ -18,7 +18,10 @@ export async function GET() {
     if (!group) {
       group = await prisma.consolidationGroup.create({
         data: { name: "Groupe Consolidé" },
-        include: { entities: true, eliminations: { include: { buyerEntity: true, sellerEntity: true } } },
+        include: {
+          entities: { include: { balanceLines: true } },
+          eliminations: { include: { buyerEntity: true, sellerEntity: true } },
+        },
       });
     }
 

@@ -28,12 +28,11 @@ import { cn } from "@/lib/utils";
 // Cette page n'identifiait aucun client (aucune lecture de token) et son
 // bouton « Enregistrer » n'écrivait nulle part — la sélection de widgets se
 // perdait à chaque rechargement. Les vignettes elles-mêmes n'affichaient
-// jamais de chiffre fabriqué (juste un espace réservé « Visualisation X »),
-// donc l'essentiel du correctif porte sur l'identification du client (même
-// schéma ?token= que /portal/dashboard) et une sauvegarde réelle : aucun
-// modèle Prisma ne stocke de préférences d'affichage, la sélection est donc
-// persistée dans le navigateur du client, par token, ce qui est honnête
-// (pas de fausse promesse de synchronisation multi-appareil).
+// jamais de chiffre fabriqué (juste un espace réservé « Visualisation X »).
+// La sélection est persistée côté serveur (modèle WorkPaper, type
+// PORTAL_DASHBOARD, authentifié par le token portail) pour survivre à un
+// changement d'appareil ; elle démarrait en localStorage seul, ce qui
+// perdait la préférence dès que le client changeait de terminal.
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Widget {
@@ -54,8 +53,12 @@ const DEFAULT_WIDGETS: Widget[] = [
     { id: "w6", title: "Documents à Signer", icon: FileText, color: "text-blue-400", size: "small", active: true },
 ];
 
-function storageKey(token: string) {
-    return `portal-dashboard-widgets:${token}`;
+function fusionnerAvecDefauts(sauvegarde: unknown): Widget[] {
+    if (!Array.isArray(sauvegarde)) return DEFAULT_WIDGETS;
+    return DEFAULT_WIDGETS.map((defaut) => {
+        const trouve = sauvegarde.find((w) => w && w.id === defaut.id);
+        return trouve ? { ...defaut, active: Boolean(trouve.active) } : defaut;
+    });
 }
 
 function CustomDashboardInner() {
@@ -68,28 +71,24 @@ function CustomDashboardInner() {
     const [widgets, setWidgets] = useState<Widget[]>(DEFAULT_WIDGETS);
     const [isPreview, setIsPreview] = useState(false);
     const [enregistre, setEnregistre] = useState(false);
+    const [sauvegardeEnCours, setSauvegardeEnCours] = useState(false);
 
     useEffect(() => {
         if (!token) {
             setLoading(false);
             return;
         }
-        fetch(`/api/portal/${token}`)
-            .then((r) => r.json())
-            .then((data) => {
+        Promise.all([
+            fetch(`/api/portal/${token}`).then((r) => r.json()),
+            fetch(`/api/portal/dashboard-preferences?token=${encodeURIComponent(token)}`).then((r) => r.json()),
+        ])
+            .then(([data, prefs]) => {
                 if (data.error) {
                     setError(data.error);
                     return;
                 }
                 setClientNom(data.client?.companyName || [data.client?.firstName, data.client?.lastName].filter(Boolean).join(" ") || null);
-                const saved = window.localStorage.getItem(storageKey(token));
-                if (saved) {
-                    try {
-                        setWidgets(JSON.parse(saved));
-                    } catch {
-                        // Préférence corrompue : on garde les valeurs par défaut.
-                    }
-                }
+                setWidgets(fusionnerAvecDefauts(prefs.widgets));
             })
             .catch(() => setError("Impossible de charger votre espace."))
             .finally(() => setLoading(false));
@@ -100,9 +99,18 @@ function CustomDashboardInner() {
         setEnregistre(false);
     };
 
-    const enregistrer = () => {
-        window.localStorage.setItem(storageKey(token), JSON.stringify(widgets));
-        setEnregistre(true);
+    const enregistrer = async () => {
+        setSauvegardeEnCours(true);
+        try {
+            await fetch("/api/portal/dashboard-preferences", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, widgets: widgets.map((w) => ({ id: w.id, active: w.active })) }),
+            });
+            setEnregistre(true);
+        } finally {
+            setSauvegardeEnCours(false);
+        }
     };
 
     if (loading) {
@@ -172,9 +180,10 @@ function CustomDashboardInner() {
                         </button>
                         <button
                             onClick={enregistrer}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30"
+                            disabled={sauvegardeEnCours}
+                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30"
                         >
-                            <Save className="w-4 h-4" /> {enregistre ? "Enregistré" : "Enregistrer"}
+                            <Save className="w-4 h-4" /> {sauvegardeEnCours ? "…" : enregistre ? "Enregistré" : "Enregistrer"}
                         </button>
                     </div>
                 </div>
