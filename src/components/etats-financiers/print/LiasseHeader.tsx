@@ -1,19 +1,43 @@
 import React from 'react';
 
-export function LiasseHeader({ title, systeme = "SYSTEME NORMAL", year = "2024" }: { title: string, systeme?: string, year?: string }) {
+export type LiasseClientInfo = {
+    companyName?: string | null;
+    ninea?: string | null;
+    rccm?: string | null;
+    address?: string | null;
+    city?: string | null;
+    country?: string | null;
+};
+
+const NA = "Non renseigné";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cet en-tête affichait auparavant une identité d'entreprise entièrement
+// fictive (NINEA "004512458 2R2", "SOCIETE TALL MAKY (STM)", "DAKAR SENEGAL")
+// sur TOUT document imprimé, quel que soit le client réel sélectionné en amont
+// — et un bandeau "RÉPUBLIQUE DU SÉNÉGAL / MINISTÈRE DES FINANCES / DIRECTION
+// GÉNÉRALE DES IMPÔTS" laissant croire à un document officiel émis par l'État,
+// y compris pour des clients d'autres pays OHADA. Il affiche désormais
+// l'identité réelle du client transmis en props, et se présente honnêtement
+// comme un document produit par le cabinet (pas par une administration).
+// ─────────────────────────────────────────────────────────────────────────────
+export function LiasseHeader({
+    title,
+    systeme = "SYSTEME NORMAL",
+    year = String(new Date().getFullYear()),
+    client,
+}: {
+    title: string;
+    systeme?: string;
+    year?: string;
+    client?: LiasseClientInfo | null;
+}) {
     return (
         <header className="mb-6 font-serif text-xs uppercase text-slate-900">
-            {/* Top Banner: REPUBLIQUE DU SENEGAL */}
             <div className="flex justify-between items-start border-b-2 border-black pb-2 mb-2">
                 <div className="text-center font-bold w-1/3">
-                    <p>REPUBLIQUE DU SENEGAL</p>
-                    <p className="text-[10px] font-normal">Un Peuple - Un But - Une Foi</p>
-                    <div className="my-1 h-[1px] w-12 bg-black mx-auto"></div>
-                    <p>MINISTERE DES FINANCES</p>
-                    <p>ET DU BUDGET</p>
-                    <div className="mt-2 text-[9px] font-bold border border-black p-1 inline-block">
-                        DIRECTION GENERALE DES<br />IMPOTS ET DOMAINES
-                    </div>
+                    <p>CABINET 360</p>
+                    <p className="text-[10px] font-normal normal-case">Document produit par le cabinet — non émis par une administration</p>
                 </div>
 
                 <div className="flex-1 px-4 text-center">
@@ -21,33 +45,35 @@ export function LiasseHeader({ title, systeme = "SYSTEME NORMAL", year = "2024" 
                         ETATS FINANCIERS
                     </h1>
                     <p className="mt-1 font-bold">EXERCICE CLOS LE 31/12/{year}</p>
-                    <p className="text-[10px]">(ART. 603 DU CODE GENERAL DES IMPOTS)</p>
+                    <p className="text-[10px]">SYSTEME COMPTABLE OHADA</p>
                 </div>
 
                 <div className="w-1/6 text-right">
                     <div className="border border-black p-2 text-center text-[10px]">
-                        <p>Timbre à date</p>
+                        <p>Cachet</p>
                         <div className="h-12"></div>
-                        <p>du Service</p>
+                        <p>Signature</p>
                     </div>
                 </div>
             </div>
 
-            {/* Entity Identification */}
+            {/* Entity Identification — donnees reelles du client */}
             <div className="border border-black p-2">
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold w-24">NINEA :</span>
-                            <div className="border border-black px-2 py-0.5 flex-1 font-mono tracking-widest bg-slate-50">004512458 2R2</div>
+                            <span className="font-bold w-24">NINEA/RCCM :</span>
+                            <div className="border border-black px-2 py-0.5 flex-1 font-mono tracking-widest bg-slate-50">{client?.ninea || client?.rccm || NA}</div>
                         </div>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="font-bold w-24">DENOMINATION :</span>
-                            <div className="border-b border-dotted border-black flex-1 font-bold">SOCIETE TALL MAKY (STM)</div>
+                            <div className="border-b border-dotted border-black flex-1 font-bold">{client?.companyName || NA}</div>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="font-bold w-24">ADRESSE :</span>
-                            <div className="border-b border-dotted border-black flex-1">DAKAR SENEGAL</div>
+                            <div className="border-b border-dotted border-black flex-1">
+                                {[client?.address, client?.city, client?.country].filter(Boolean).join(", ") || NA}
+                            </div>
                         </div>
                     </div>
 

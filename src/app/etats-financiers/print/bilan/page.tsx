@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { LiasseHeader } from '@/components/etats-financiers/print/LiasseHeader';
+import { LiasseHeader, LiasseClientInfo } from '@/components/etats-financiers/print/LiasseHeader';
 import { clsx } from 'clsx';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,6 +24,7 @@ function PrintBilanInner() {
     const periode = searchParams?.get('periode') || '';
 
     const [bilanActif, setBilanActif] = useState<any[]>([]);
+    const [client, setClient] = useState<LiasseClientInfo | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -31,9 +32,14 @@ function PrintBilanInner() {
             setLoading(false);
             return;
         }
-        fetch(`/api/comptabilite/etats-financiers/bilan?clientId=${clientId}&periode=${periode}`)
-            .then(res => res.json())
-            .then(data => setBilanActif(data.actif || []))
+        Promise.all([
+            fetch(`/api/comptabilite/etats-financiers/bilan?clientId=${clientId}&periode=${periode}`).then(res => res.json()),
+            fetch(`/api/clients/${clientId}`).then(res => res.json()),
+        ])
+            .then(([bilanData, clientData]) => {
+                setBilanActif(bilanData.actif || []);
+                setClient(clientData.client || null);
+            })
             .finally(() => setLoading(false));
     }, [clientId, periode]);
 
@@ -47,7 +53,7 @@ function PrintBilanInner() {
 
     return (
         <div className="font-serif text-[10px]">
-            <LiasseHeader title="BILAN - ACTIF" />
+            <LiasseHeader title="BILAN - ACTIF" client={client} year={periode.slice(0, 4)} />
 
             <table className="w-full border-collapse border border-black">
                 <thead>
