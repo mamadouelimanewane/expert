@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     Package,
     QrCode,
@@ -29,6 +30,10 @@ interface FixedAsset {
     location: string | null;
     status: "FOUND" | "MISSING" | "TO_VERIFY" | "DISPOSED";
     lastAuditDate: string | null;
+    depreciationMethod?: "LINEAIRE" | "DEGRESSIF" | "NON_AMORTISSABLE";
+    usefulLifeYears?: number | null;
+    residualValue?: number;
+    serviceDate?: string | null;
     client: { companyName: string | null; firstName: string | null; lastName: string | null };
 }
 
@@ -46,7 +51,7 @@ export default function FixedAssetsAuditPage() {
     const [loading, setLoading] = useState(true);
     const [clients, setClients] = useState<any[]>([]);
     const [showNewModal, setShowNewModal] = useState(false);
-    const [form, setForm] = useState({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "" });
+    const [form, setForm] = useState({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "", usefulLifeYears: "", residualValue: "", serviceDate: "", depreciationMethod: "LINEAIRE" });
     const [saving, setSaving] = useState(false);
 
     const loadAssets = () => {
@@ -71,7 +76,7 @@ export default function FixedAssetsAuditPage() {
                 body: JSON.stringify(form),
             });
             setShowNewModal(false);
-            setForm({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "" });
+            setForm({ code: "", label: "", category: "", purchaseDate: "", value: "", location: "", clientId: "", usefulLifeYears: "", residualValue: "", serviceDate: "", depreciationMethod: "LINEAIRE" });
             loadAssets();
         } finally {
             setSaving(false);
@@ -131,9 +136,9 @@ export default function FixedAssetsAuditPage() {
                             />
                         </div>
                         <div className="flex gap-2">
-                            <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center gap-2 text-sm transition-all">
+                            <Link href="/audit/fixed-assets/print-labels" target="_blank" className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 flex items-center gap-2 text-sm transition-all">
                                 <QrCode className="w-4 h-4" /> Imprimer Étiquettes
-                            </button>
+                            </Link>
                             <button onClick={() => setShowNewModal(true)} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold flex items-center gap-2 text-sm transition-all shadow-lg shadow-amber-500/20">
                                 <Plus className="w-4 h-4" /> Nouvelle Immo
                             </button>
@@ -248,9 +253,16 @@ export default function FixedAssetsAuditPage() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 space-y-8 bg-gradient-to-br from-slate-900 to-amber-900/10">
+                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 space-y-4 bg-gradient-to-br from-slate-900 to-amber-900/10">
                         <h3 className="font-bold text-white">Rapports d'inventaire</h3>
-                        <p className="text-xs text-slate-500">La génération de rapports PDF (tableau d'amortissement, écarts) n'est pas encore implémentée.</p>
+                        <p className="text-xs text-slate-500">Génère un rapport imprimable (inventaire, écarts, tableau d'amortissement linéaire pour les immobilisations dont la durée d'utilité est renseignée).</p>
+                        <Link
+                            href="/audit/fixed-assets/print"
+                            target="_blank"
+                            className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2"
+                        >
+                            <Download className="w-4 h-4" /> Générer le rapport
+                        </Link>
                     </div>
                 </div>
             )}
@@ -277,6 +289,24 @@ export default function FixedAssetsAuditPage() {
                                 <input type="number" placeholder="Valeur (FCFA)" value={form.value} onChange={e => setForm({ ...form, value: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                             </div>
                             <input placeholder="Localisation" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                            <div className="pt-2 border-t border-white/10 space-y-4">
+                                <p className="text-[10px] font-bold uppercase text-slate-500">Amortissement (optionnel)</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <select value={form.depreciationMethod} onChange={e => setForm({ ...form, depreciationMethod: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                                        <option value="LINEAIRE">Linéaire</option>
+                                        <option value="DEGRESSIF">Dégressif</option>
+                                        <option value="NON_AMORTISSABLE">Non amortissable</option>
+                                    </select>
+                                    <input type="number" min="1" placeholder="Durée d'utilité (années)" value={form.usefulLifeYears} onChange={e => setForm({ ...form, usefulLifeYears: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input type="number" min="0" placeholder="Valeur résiduelle (FCFA)" value={form.residualValue} onChange={e => setForm({ ...form, residualValue: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                                    <div>
+                                        <label className="text-[10px] text-slate-500 block mb-1">Date de mise en service</label>
+                                        <input type="date" value={form.serviceDate} onChange={e => setForm({ ...form, serviceDate: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+                                    </div>
+                                </div>
+                            </div>
                             <button onClick={handleCreate} disabled={saving} className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {saving ? "Enregistrement…" : "Créer l'immobilisation"}
                             </button>

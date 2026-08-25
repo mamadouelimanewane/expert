@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { code, label, category, purchaseDate, value, location, clientId } = body;
+    const { code, label, category, purchaseDate, value, location, clientId, depreciationMethod, usefulLifeYears, residualValue, serviceDate } = body;
 
     if (!code || !label || !purchaseDate || !value || !clientId) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
@@ -46,6 +46,10 @@ export async function POST(request: NextRequest) {
         location,
         clientId,
         status: "TO_VERIFY",
+        depreciationMethod: depreciationMethod || "LINEAIRE",
+        usefulLifeYears: usefulLifeYears ? parseInt(usefulLifeYears, 10) : null,
+        residualValue: residualValue ? parseFloat(residualValue) : 0,
+        serviceDate: serviceDate ? new Date(serviceDate) : null,
       },
     });
 
