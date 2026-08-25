@@ -66,9 +66,9 @@ export default function NexusEntityHubPage() {
                         </p>
                     </div>
 
-                    <button className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-amber-600/30 active:scale-95">
+                    <Link href="/clients/new" className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-amber-600/30 active:scale-95">
                         <Plus className="w-5 h-5" /> Ajouter une Filiale
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -155,14 +155,14 @@ export default function NexusEntityHubPage() {
 
                                 <div className="flex justify-between items-center pt-4 border-t border-white/5">
                                     <div className="flex gap-4">
-                                        <button className="flex items-center gap-2 text-[9px] font-black uppercase text-slate-500 hover:text-white transition-all">
+                                        <button disabled title="Le registre social (mandataires, organes de gouvernance) n'est pas encore disponible." className="flex items-center gap-2 text-[9px] font-black uppercase text-slate-600 cursor-not-allowed">
                                             <FileText className="w-3.5 h-3.5" /> Registre Social
                                         </button>
-                                        <button className="flex items-center gap-2 text-[9px] font-black uppercase text-slate-500 hover:text-white transition-all">
+                                        <button disabled title="Le suivi de l'actionnariat n'est pas encore disponible." className="flex items-center gap-2 text-[9px] font-black uppercase text-slate-600 cursor-not-allowed">
                                             <Users className="w-3.5 h-3.5" /> Actionnariat
                                         </button>
                                     </div>
-                                    <button className="flex items-center gap-2 px-6 py-2 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase text-white rounded-xl border border-white/10 transition-all">
+                                    <button disabled title="La fiche détaillée par entité n'est pas encore disponible." className="flex items-center gap-2 px-6 py-2 bg-white/5 text-[9px] font-black uppercase text-slate-600 rounded-xl border border-white/10 cursor-not-allowed">
                                         Gérer Entity <ArrowRight className="w-3.5 h-3.5 ml-1" />
                                     </button>
                                 </div>

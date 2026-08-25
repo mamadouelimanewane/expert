@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Anchor, TrendingUp, Calculator, CheckCircle2, AlertTriangle, Globe, Building2, Zap, ArrowRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,44 @@ export default function ZoneFranchePage() {
   const [tauxMarge, setTauxMarge] = useState("15");
   const [importations, setImportations] = useState("0");
   const [showSimulation, setShowSimulation] = useState(false);
+
+  const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [demande, setDemande] = useState<"idle" | "envoi" | "envoyee" | "erreur">("idle");
+
+  useEffect(() => {
+    fetch("/api/clients?limit=200&isActive=true")
+      .then((r) => r.json())
+      .then((d) =>
+        setClients(
+          (d.clients ?? []).map((c: Record<string, unknown>) => ({
+            id: String(c.id),
+            nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+          }))
+        )
+      )
+      .catch((e) => console.error("Chargement du portefeuille :", e));
+  }, []);
+
+  const demanderAudit = async () => {
+    if (!clientId) return;
+    setDemande("envoi");
+    try {
+      const res = await fetch("/api/missions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `Audit d'éligibilité — Zone franche ${selectedZone.nom}`,
+          clientId,
+          type: "AUDIT",
+          description: `Zone envisagée : ${selectedZone.nom} (${selectedZone.paysNom}). Simulation : CA ${chiffreAffaires} FCFA, marge nette ${tauxMarge}%, importations ${importations} FCFA.`,
+        }),
+      });
+      setDemande(res.ok ? "envoyee" : "erreur");
+    } catch {
+      setDemande("erreur");
+    }
+  };
 
   const simulation = simulerZoneFranche(selectedZone, {
     chiffreAffaires: parseInt(chiffreAffaires) || 0,
@@ -242,9 +281,31 @@ export default function ZoneFranchePage() {
                   </div>
                 </div>
 
-                <button className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center justify-center gap-2">
-                  <Globe className="w-4 h-4" /> Demander un Audit d'Éligibilité <ArrowRight className="w-4 h-4" />
-                </button>
+                {demande === "envoyee" ? (
+                  <div className="w-full py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4" /> Mission d&apos;audit créée —{" "}
+                    <Link href="/missions" className="underline">voir dans Missions</Link>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <select
+                      value={clientId}
+                      onChange={(e) => { setClientId(e.target.value); setDemande("idle"); }}
+                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
+                    >
+                      <option value="">Sélectionner le dossier client concerné…</option>
+                      {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+                    </select>
+                    <button
+                      onClick={demanderAudit}
+                      disabled={!clientId || demande === "envoi"}
+                      className="w-full py-3 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center justify-center gap-2"
+                    >
+                      <Globe className="w-4 h-4" /> {demande === "envoi" ? "Création…" : "Demander un Audit d'Éligibilité"} <ArrowRight className="w-4 h-4" />
+                    </button>
+                    {demande === "erreur" && <p className="text-xs text-red-400">Échec de la création de la mission. Réessayez.</p>}
+                  </div>
+                )}
               </div>
             )}
           </div>

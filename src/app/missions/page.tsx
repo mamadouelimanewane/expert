@@ -21,11 +21,18 @@ import { Mission, Client, User } from "@/types/prisma";
 
 type MissionWithRelations = Mission & { client: Client | null; assignedTo: User | null };
 
-export default async function MissionsPage({ searchParams }: { searchParams?: Promise<{ q?: string }> }) {
-    const q = (await searchParams)?.q?.trim() ?? "";
+export default async function MissionsPage({ searchParams }: { searchParams?: Promise<{ q?: string; type?: string; clientId?: string }> }) {
+    const params = (await searchParams) ?? {};
+    const q = params.q?.trim() ?? "";
+    const type = params.type?.trim() ?? "";
+    const filtreClientId = params.clientId?.trim() ?? "";
 
     // Récupération des missions de la DB
     const allMissions = await prisma.mission.findMany({
+        where: {
+            ...(type ? { type: type as Mission["type"] } : {}),
+            ...(filtreClientId ? { clientId: filtreClientId } : {}),
+        },
         include: {
             client: true,
             assignedTo: true

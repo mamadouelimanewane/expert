@@ -60,6 +60,17 @@ export default function NexusComplianceHubPage() {
     const [askingIA, setAskingIA] = useState(false);
     const [aiResponse, setAiResponse] = useState("");
     const [aiNonConfigure, setAiNonConfigure] = useState(false);
+    const [rapportCopie, setRapportCopie] = useState(false);
+
+    const inserterRapport = async () => {
+        try {
+            await navigator.clipboard.writeText(aiResponse);
+            setRapportCopie(true);
+            setTimeout(() => setRapportCopie(false), 2000);
+        } catch (e) {
+            console.error("Copie du rapport :", e);
+        }
+    };
 
     const selectedClient = clients.find(c => c.id === clientId) ?? null;
 
@@ -180,9 +191,12 @@ export default function NexusComplianceHubPage() {
                                 <option key={client.id} value={client.id} className="bg-slate-900">{client.nom}</option>
                             ))}
                         </select>
-                        <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-indigo-600/30">
+                        <Link
+                            href={clientId ? `/missions?type=AUDIT&clientId=${clientId}` : "/missions?type=AUDIT"}
+                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-indigo-600/30"
+                        >
                             <History className="w-5 h-5" /> Historique des Audits
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -360,8 +374,12 @@ export default function NexusComplianceHubPage() {
                                     {aiResponse}
                                 </p>
                                 <div className="mt-6 flex gap-3">
-                                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[9px] font-black uppercase rounded-lg border border-white/10 flex items-center gap-2">
-                                        <Download className="w-3.5 h-3.5" /> Insérer Rapport
+                                    <button
+                                        onClick={inserterRapport}
+                                        title="Copie le texte de la réponse dans le presse-papiers pour l'insérer dans un document."
+                                        className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-[9px] font-black uppercase rounded-lg border border-white/10 flex items-center gap-2"
+                                    >
+                                        <Download className="w-3.5 h-3.5" /> {rapportCopie ? "Copié !" : "Insérer Rapport"}
                                     </button>
                                 </div>
                             </div>

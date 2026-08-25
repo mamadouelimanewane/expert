@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, Download, CheckCircle2, AlertTriangle, XCircle, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+import { ShieldAlert, Download, Save, CheckCircle2, AlertTriangle, XCircle, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UEMOA_CHECKLIST, calculateComplianceScore } from "@/lib/compliance-engine";
 
@@ -13,7 +13,49 @@ export default function UemoaScorePage() {
   // qu'aucune évaluation n'ait eu lieu. Elle démarre désormais vide : le
   // score reflète uniquement les réponses effectivement cochées.
   const [answers, setAnswers] = useState<Record<string, 'conforme'|'attention'|'non_conforme'>>({});
-  
+
+  const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [chargement, setChargement] = useState(false);
+  const [sauvegarde, setSauvegarde] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/clients?limit=200&isActive=true")
+      .then((r) => r.json())
+      .then((d) =>
+        setClients(
+          (d.clients ?? []).map((c: Record<string, unknown>) => ({
+            id: String(c.id),
+            nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+          }))
+        )
+      )
+      .catch((e) => console.error("Chargement du portefeuille :", e));
+  }, []);
+
+  useEffect(() => {
+    if (!clientId) { setAnswers({}); return; }
+    setChargement(true);
+    fetch(`/api/audit/work-papers?clientId=${clientId}&type=UEMOA_SCORE`)
+      .then((r) => r.json())
+      .then((d) => setAnswers(d.data?.answers ?? {}))
+      .finally(() => setChargement(false));
+  }, [clientId]);
+
+  const enregistrer = async () => {
+    if (!clientId) return;
+    setSauvegarde(true);
+    try {
+      await fetch("/api/audit/work-papers", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, type: "UEMOA_SCORE", data: { answers } }),
+      });
+    } finally {
+      setSauvegarde(false);
+    }
+  };
+
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     "États Financiers": true
   });
@@ -42,11 +84,41 @@ export default function UemoaScorePage() {
           </h2>
           <p className="text-slate-400 text-sm font-medium mt-1">Évaluation des risques légaux, fiscaux et réglementaires</p>
         </div>
-        <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20">
-          <Download className="w-4 h-4" /> Rapport Conformité
-        </button>
+        <div className="flex gap-2">
+          <select
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
+          >
+            <option value="">Sélectionner un dossier client…</option>
+            {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+          </select>
+          <button
+            onClick={enregistrer}
+            disabled={!clientId || sauvegarde}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" /> {sauvegarde ? "…" : "Enregistrer"}
+          </button>
+          <button
+            disabled
+            title="La génération PDF de ce rapport n'est pas encore implémentée."
+            className="px-6 py-3 bg-indigo-600/40 text-white/50 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" /> Rapport Conformité
+          </button>
+        </div>
       </div>
 
+      {!clientId ? (
+        <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-10 text-center text-sm text-slate-500">
+          Sélectionnez un dossier client pour ouvrir (ou créer) son évaluation de conformité.
+        </div>
+      ) : chargement ? (
+        <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-10 text-center text-sm text-slate-500">
+          Chargement de l&apos;évaluation…
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left: Checklist */}
         <div className="lg:col-span-8 space-y-4">
@@ -177,6 +249,7 @@ export default function UemoaScorePage() {
           </motion.div>
         </div>
       </div>
+      )}
     </div>
   );
 }

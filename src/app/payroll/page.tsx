@@ -31,6 +31,34 @@ export default function PayrollDashboard() {
   }, []);
 
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+
+  const toggleDictation = () => {
+    const SpeechRecognitionCtor =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) {
+      setVoiceError("La reconnaissance vocale n'est pas prise en charge par ce navigateur (utilisez Chrome ou Edge).");
+      return;
+    }
+    if (isListening) return;
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => { setIsListening(true); setVoiceError(null); };
+    recognition.onerror = () => { setIsListening(false); setVoiceError("La dictée vocale a échoué. Réessayez ou saisissez le texte manuellement."); };
+    recognition.onend = () => setIsListening(false);
+    recognition.onresult = (event: any) => {
+      const texte = Array.from(event.results as ArrayLike<{ 0: { transcript: string } }>)
+        .map((r) => r[0].transcript)
+        .join(" ");
+      setVoiceTranscript((prev) => (prev ? `${prev} ${texte}` : texte));
+    };
+
+    recognition.start();
+  };
 
   const handleProcessVoice = async () => {
     if (!selectedClient || !voiceTranscript) return;
@@ -161,7 +189,14 @@ export default function PayrollDashboard() {
                 className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-white resize-none h-32 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
               <div className="absolute right-3 bottom-3 flex gap-2">
-                <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 transition-colors">
+                <button
+                  onClick={toggleDictation}
+                  title="Dictée vocale (Chrome/Edge)"
+                  className={cn(
+                    "p-2 rounded-xl transition-colors",
+                    isListening ? "bg-red-600 text-white animate-pulse" : "bg-slate-800 hover:bg-slate-700 text-slate-400"
+                  )}
+                >
                   <Mic className="w-4 h-4" />
                 </button>
               </div>

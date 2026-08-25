@@ -7,7 +7,7 @@ import { requireStaff } from "@/lib/api-auth";
 // stocke tel quel en JSON : la structure exacte differe par outil et reste
 // definie cote page, pas ici.
 
-const TYPES_AUTORISES = ["PREP_KIT", "CAC_SUITE"];
+const TYPES_AUTORISES = ["PREP_KIT", "CAC_SUITE", "UEMOA_SCORE"];
 
 export async function GET(request: NextRequest) {
   const { denied } = await requireStaff();
