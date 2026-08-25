@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     AlertCircle,
     BarChart,
     MailCheck,
     Microscope,
     Plus,
+    Save,
     Scale,
     ShieldCheck,
     Trash2,
@@ -51,7 +52,20 @@ type Circularisation = {
 
 const TYPES_TIERS = ["Banque", "Avocat", "Client", "Fournisseur"];
 
+type ContenuCAC = {
+    seuils: SeuilBase[];
+    seuilRetenu: number;
+    circularisations: Circularisation[];
+    population: number;
+    tauxSondage: number;
+};
+
 export default function CACSuitePage() {
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clientId, setClientId] = useState("");
+    const [chargement, setChargement] = useState(false);
+    const [sauvegarde, setSauvegarde] = useState(false);
+
     const [seuils, setSeuils] = useState<SeuilBase[]>(SEUILS_PAR_DEFAUT);
     const [seuilRetenu, setSeuilRetenu] = useState(0);
 
@@ -60,6 +74,51 @@ export default function CACSuitePage() {
 
     const [population, setPopulation] = useState(0);
     const [tauxSondage, setTauxSondage] = useState(10);
+
+    useEffect(() => {
+        fetch("/api/clients?limit=200&isActive=true")
+            .then((r) => r.json())
+            .then((d) =>
+                setClients(
+                    (d.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                )
+            )
+            .catch((e) => console.error("Chargement du portefeuille :", e));
+    }, []);
+
+    useEffect(() => {
+        if (!clientId) return;
+        setChargement(true);
+        fetch(`/api/audit/work-papers?clientId=${clientId}&type=CAC_SUITE`)
+            .then((r) => r.json())
+            .then((d) => {
+                const c: ContenuCAC | null = d.data;
+                setSeuils(c?.seuils ?? SEUILS_PAR_DEFAUT);
+                setSeuilRetenu(c?.seuilRetenu ?? 0);
+                setCircularisations(c?.circularisations ?? []);
+                setPopulation(c?.population ?? 0);
+                setTauxSondage(c?.tauxSondage ?? 10);
+            })
+            .finally(() => setChargement(false));
+    }, [clientId]);
+
+    const enregistrer = async () => {
+        if (!clientId) return;
+        setSauvegarde(true);
+        try {
+            const data: ContenuCAC = { seuils, seuilRetenu, circularisations, population, tauxSondage };
+            await fetch("/api/audit/work-papers", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId, type: "CAC_SUITE", data }),
+            });
+        } finally {
+            setSauvegarde(false);
+        }
+    };
 
     const ajouterCircularisation = () => {
         if (!nouveauTiers.tiers.trim()) return;
@@ -95,8 +154,34 @@ export default function CACSuitePage() {
                         partir des paramètres que vous saisissez.
                     </p>
                 </div>
+                <div className="flex gap-2">
+                    <select
+                        value={clientId}
+                        onChange={(e) => setClientId(e.target.value)}
+                        className="bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
+                    >
+                        <option value="">Sélectionner un dossier client…</option>
+                        {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+                    </select>
+                    <button
+                        onClick={enregistrer}
+                        disabled={!clientId || sauvegarde}
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2"
+                    >
+                        <Save className="w-4 h-4" /> {sauvegarde ? "…" : "Enregistrer"}
+                    </button>
+                </div>
             </div>
 
+            {!clientId ? (
+                <div className="glass-card p-10 rounded-[32px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                    Sélectionnez un dossier client pour ouvrir (ou créer) son cahier de travail CAC.
+                </div>
+            ) : chargement ? (
+                <div className="glass-card p-10 rounded-[32px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                    Chargement du cahier de travail…
+                </div>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left: Planning & Risk */}
                 <div className="lg:col-span-4 space-y-6">
@@ -320,6 +405,7 @@ export default function CACSuitePage() {
                     </div>
                 </div>
             </div>
+            )}
         </div>
     );
 }

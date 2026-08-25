@@ -165,6 +165,8 @@ model Client {
   workspaces            Workspace[]
   fraudAlerts           FraudAlert[]
   fiscalRisks           FiscalRisk[]
+  clientRequests        ClientRequest[]
+  workPapers            WorkPaper[]
 
   @@map("clients")
 }
@@ -871,6 +873,45 @@ model FixedAsset {
   updatedAt DateTime @updatedAt
 
   @@map("fixed_assets")
+}
+
+// Centre de requetes client (justificatifs, signatures, informations
+// manquantes) : demandes reellement adressees a un client, suivies jusqu'a
+// leur traitement.
+model ClientRequest {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  type     String // Justificatif manquant | Signature requise | Information manquante
+  details  String
+  priorite String // Haute | Moyenne | Basse
+  statut   String @default("A_ENVOYER") // A_ENVOYER | ENVOYEE | REPONSE_RECUE | TRAITEE
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("client_requests")
+}
+
+// Cahier de travail generique (seuil de signification, matrice des risques,
+// programme d'audit, circularisations, sondage...) persiste par client et
+// par type d'outil. Le contenu varie selon l'outil ; il est stocke tel quel,
+// sans reinterpretation, pour eviter de figer un schema different par outil
+// alors que la structure exacte de chaque cahier est encore amenee a evoluer.
+model WorkPaper {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  type String
+  data Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clientId, type])
+  @@map("work_papers")
 }
 
 // ── Comptabilite analytique de gestion ──────────────────────────────────────

@@ -7,7 +7,6 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     Search,
-    Filter,
     Table as TableIcon,
     BarChart3,
     History,
@@ -49,8 +48,13 @@ const LIBELLE_STATUT: Record<Flux["statut"], string> = {
     VALIDEE: "Validee",
 };
 
+const TAGS = ["Tous", "Ventes", "Achats"] as const;
+type Tag = typeof TAGS[number];
+
 export default function CollaborativeProductionPage() {
     const [activeView, setActiveView] = useState<"production" | "pilotage">("production");
+    const [activeTag, setActiveTag] = useState<Tag>("Tous");
+    const [searchTerm, setSearchTerm] = useState("");
 
     // Ecritures reelles en attente de revision, issues du journal.
     const [flux, setFlux] = useState<Flux[]>([]);
@@ -100,6 +104,20 @@ export default function CollaborativeProductionPage() {
             .sort((a, b) => b.total - a.total)
             .slice(0, 5);
     }, [flux]);
+
+    const fluxFiltre = useMemo(() => {
+        const terme = searchTerm.trim().toLowerCase();
+        return flux.filter((f) => {
+            if (activeTag === "Ventes" && f.sens !== "RECETTE") return false;
+            if (activeTag === "Achats" && f.sens !== "DEPENSE") return false;
+            if (!terme) return true;
+            return (
+                f.client.nom.toLowerCase().includes(terme) ||
+                f.libelle.toLowerCase().includes(terme) ||
+                String(f.montant).includes(terme)
+            );
+        });
+    }, [flux, activeTag, searchTerm]);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -165,8 +183,15 @@ export default function CollaborativeProductionPage() {
                             Flux Financiers Multi-Dossiers
                         </h3>
                         <div className="flex gap-2">
-                            {["Tous", "Ventes", "Achats", "Banque"].map(tag => (
-                                <button key={tag} className="px-4 py-1.5 bg-slate-800 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-white transition-all">
+                            {TAGS.map(tag => (
+                                <button
+                                    key={tag}
+                                    onClick={() => setActiveTag(tag)}
+                                    className={cn(
+                                        "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                        activeTag === tag ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-400 hover:text-white"
+                                    )}
+                                >
                                     {tag}
                                 </button>
                             ))}
@@ -178,10 +203,11 @@ export default function CollaborativeProductionPage() {
                             <input
                                 type="text"
                                 placeholder="Rechercher un client, un montant..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full bg-slate-950 border border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                             />
                         </div>
-                        <button className="p-3 bg-slate-950 rounded-xl text-slate-500 hover:text-white border border-white/5"><Filter className="w-4 h-4" /></button>
                     </div>
                 </div>
 
@@ -212,7 +238,13 @@ export default function CollaborativeProductionPage() {
                                             : "Aucune écriture à afficher.")}
                                     </td>
                                 </tr>
-                            ) : flux.map((flow) => (
+                            ) : fluxFiltre.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-8 py-10 text-center text-sm text-slate-500">
+                                        Aucune écriture ne correspond à ce filtre.
+                                    </td>
+                                </tr>
+                            ) : fluxFiltre.map((flow) => (
                                 <tr key={flow.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-mono font-bold text-slate-500">{flow.date}</span>

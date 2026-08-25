@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Activity,
     AlertTriangle,
@@ -8,6 +8,7 @@ import {
     CheckCircle2,
     FileCheck,
     Plus,
+    Save,
     Scale,
     Target,
     Trash2,
@@ -68,8 +69,21 @@ function RiskBadge({ level }: { level: NiveauRisque }) {
     );
 }
 
+type ContenuCahier = {
+    ca: number;
+    resultatNet: number;
+    materiality: number | null;
+    risques: Risque[];
+    procedures: ProcedureTravail[];
+};
+
 export default function CompleteAuditKitPage() {
     const [currentPhase, setCurrentPhase] = useState<"planning" | "risk" | "execution">("planning");
+
+    const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
+    const [clientId, setClientId] = useState("");
+    const [chargement, setChargement] = useState(false);
+    const [sauvegarde, setSauvegarde] = useState(false);
 
     const [ca, setCa] = useState(0);
     const [resultatNet, setResultatNet] = useState(0);
@@ -80,6 +94,51 @@ export default function CompleteAuditKitPage() {
 
     const [procedures, setProcedures] = useState<ProcedureTravail[]>([]);
     const [nouvelleProcedure, setNouvelleProcedure] = useState({ cycle: CYCLES[0], assertion: ASSERTIONS[0], procedure: "" });
+
+    useEffect(() => {
+        fetch("/api/clients?limit=200&isActive=true")
+            .then((r) => r.json())
+            .then((d) =>
+                setClients(
+                    (d.clients ?? []).map((c: Record<string, unknown>) => ({
+                        id: String(c.id),
+                        nom: (c.companyName as string) || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                    }))
+                )
+            )
+            .catch((e) => console.error("Chargement du portefeuille :", e));
+    }, []);
+
+    useEffect(() => {
+        if (!clientId) return;
+        setChargement(true);
+        fetch(`/api/audit/work-papers?clientId=${clientId}&type=PREP_KIT`)
+            .then((r) => r.json())
+            .then((d) => {
+                const c: ContenuCahier | null = d.data;
+                setCa(c?.ca ?? 0);
+                setResultatNet(c?.resultatNet ?? 0);
+                setMateriality(c?.materiality ?? null);
+                setRisques(c?.risques ?? []);
+                setProcedures(c?.procedures ?? []);
+            })
+            .finally(() => setChargement(false));
+    }, [clientId]);
+
+    const enregistrer = async () => {
+        if (!clientId) return;
+        setSauvegarde(true);
+        try {
+            const data: ContenuCahier = { ca, resultatNet, materiality, risques, procedures };
+            await fetch("/api/audit/work-papers", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId, type: "PREP_KIT", data }),
+            });
+        } finally {
+            setSauvegarde(false);
+        }
+    };
 
     const calculateMateriality = () => {
         // Heuristique usuelle : 0,75 % du chiffre d'affaires.
@@ -114,28 +173,57 @@ export default function CompleteAuditKitPage() {
                         <p className="text-slate-400 font-medium text-lg">Cahier de travail : seuil de signification, risques et programme.</p>
                     </div>
 
-                    <div className="flex gap-2 p-1 bg-slate-800/50 rounded-2xl border border-white/10">
-                        {[
-                            { phase: "planning" as const, label: "1. Planification", icon: Target },
-                            { phase: "risk" as const, label: "2. Risques", icon: AlertTriangle },
-                            { phase: "execution" as const, label: "3. Programme", icon: FileCheck },
-                        ].map((tab) => (
-                            <button
-                                key={tab.phase}
-                                onClick={() => setCurrentPhase(tab.phase)}
-                                className={cn(
-                                    "px-6 py-4 rounded-xl flex items-center gap-3 transition-all",
-                                    currentPhase === tab.phase ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"
-                                )}
+                    <div className="flex flex-col items-end gap-3">
+                        <div className="flex gap-2">
+                            <select
+                                value={clientId}
+                                onChange={(e) => setClientId(e.target.value)}
+                                className="bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
                             >
-                                <tab.icon className={cn("w-4 h-4", currentPhase === tab.phase ? "text-white" : "text-slate-500")} />
-                                <span className="text-xs font-black uppercase tracking-widest">{tab.label}</span>
+                                <option value="">Sélectionner un dossier client…</option>
+                                {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+                            </select>
+                            <button
+                                onClick={enregistrer}
+                                disabled={!clientId || sauvegarde}
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2"
+                            >
+                                <Save className="w-4 h-4" /> {sauvegarde ? "…" : "Enregistrer"}
                             </button>
-                        ))}
+                        </div>
+                        <div className="flex gap-2 p-1 bg-slate-800/50 rounded-2xl border border-white/10">
+                            {[
+                                { phase: "planning" as const, label: "1. Planification", icon: Target },
+                                { phase: "risk" as const, label: "2. Risques", icon: AlertTriangle },
+                                { phase: "execution" as const, label: "3. Programme", icon: FileCheck },
+                            ].map((tab) => (
+                                <button
+                                    key={tab.phase}
+                                    onClick={() => setCurrentPhase(tab.phase)}
+                                    className={cn(
+                                        "px-6 py-4 rounded-xl flex items-center gap-3 transition-all",
+                                        currentPhase === tab.phase ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"
+                                    )}
+                                >
+                                    <tab.icon className={cn("w-4 h-4", currentPhase === tab.phase ? "text-white" : "text-slate-500")} />
+                                    <span className="text-xs font-black uppercase tracking-widest">{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
 
+            {!clientId ? (
+                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                    Sélectionnez un dossier client pour ouvrir (ou créer) son cahier de travail.
+                </div>
+            ) : chargement ? (
+                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                    Chargement du cahier de travail…
+                </div>
+            ) : (
+            <>
             {currentPhase === "planning" && (
                 <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 max-w-xl">
                     <div className="flex items-center gap-3 mb-6">
@@ -304,11 +392,14 @@ export default function CompleteAuditKitPage() {
                     )}
                 </div>
             )}
+            </>
+            )}
 
             <p className="flex items-center gap-2 text-xs text-slate-500">
                 <Activity className="w-3.5 h-3.5" />
-                Ce cahier de travail est saisi manuellement. La génération automatique du rapport
-                d&apos;audit et de la lettre de contrôle interne n&apos;est pas encore disponible.
+                Ce cahier de travail est saisi manuellement et enregistré sur le dossier client sélectionné.
+                La génération automatique du rapport d&apos;audit et de la lettre de contrôle interne
+                n&apos;est pas encore disponible.
             </p>
         </div>
     );

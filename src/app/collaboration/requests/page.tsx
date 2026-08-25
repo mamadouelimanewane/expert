@@ -35,6 +35,7 @@ type Statut = "À envoyer" | "Envoyée" | "Réponse reçue" | "Traitée";
 
 type Requete = {
     id: string;
+    clientId: string;
     client: string;
     type: TypeRequete;
     details: string;
@@ -45,6 +46,19 @@ type Requete = {
 const TYPES: TypeRequete[] = ["Justificatif manquant", "Signature requise", "Information manquante"];
 const PRIORITES: Priorite[] = ["Haute", "Moyenne", "Basse"];
 const STATUTS: Statut[] = ["À envoyer", "Envoyée", "Réponse reçue", "Traitée"];
+
+const STATUT_VERS_CODE: Record<Statut, string> = {
+    "À envoyer": "A_ENVOYER",
+    "Envoyée": "ENVOYEE",
+    "Réponse reçue": "REPONSE_RECUE",
+    "Traitée": "TRAITEE",
+};
+const CODE_VERS_STATUT: Record<string, Statut> = {
+    A_ENVOYER: "À envoyer",
+    ENVOYEE: "Envoyée",
+    REPONSE_RECUE: "Réponse reçue",
+    TRAITEE: "Traitée",
+};
 
 const ICONE_TYPE: Record<TypeRequete, typeof FileQuestion> = {
     "Justificatif manquant": FileQuestion,
@@ -62,11 +76,32 @@ const STYLE_STATUT: Record<Statut, string> = {
 export default function CollaborationRequestsPage() {
     const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
     const [requetes, setRequetes] = useState<Requete[]>([]);
+    const [chargement, setChargement] = useState(true);
     const [filtre, setFiltre] = useState<Statut | "all">("all");
     const [formOuvert, setFormOuvert] = useState(false);
-    const [nouvelle, setNouvelle] = useState({ client: "", type: TYPES[0], details: "", priorite: "Moyenne" as Priorite });
+    const [nouvelle, setNouvelle] = useState({ clientId: "", type: TYPES[0], details: "", priorite: "Moyenne" as Priorite });
+
+    const chargerRequetes = () => {
+        fetch("/api/collaboration/requests")
+            .then((r) => r.json())
+            .then((d) =>
+                setRequetes(
+                    (d.requetes ?? []).map((r: Record<string, unknown>) => ({
+                        id: r.id,
+                        clientId: r.clientId,
+                        client: r.client,
+                        type: r.type,
+                        details: r.details,
+                        priorite: r.priorite,
+                        statut: CODE_VERS_STATUT[r.statut as string] ?? "À envoyer",
+                    }))
+                )
+            )
+            .finally(() => setChargement(false));
+    };
 
     useEffect(() => {
+        chargerRequetes();
         (async () => {
             try {
                 const res = await fetch("/api/clients?limit=200&isActive=true");
@@ -84,19 +119,30 @@ export default function CollaborationRequestsPage() {
         })();
     }, []);
 
-    const ajouter = () => {
-        if (!nouvelle.client || !nouvelle.details.trim()) return;
-        setRequetes((prev) => [...prev, { id: crypto.randomUUID(), ...nouvelle, statut: "À envoyer" }]);
-        setNouvelle({ client: "", type: TYPES[0], details: "", priorite: "Moyenne" });
+    const ajouter = async () => {
+        if (!nouvelle.clientId || !nouvelle.details.trim()) return;
+        await fetch("/api/collaboration/requests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(nouvelle),
+        });
+        setNouvelle({ clientId: "", type: TYPES[0], details: "", priorite: "Moyenne" });
         setFormOuvert(false);
+        chargerRequetes();
     };
 
-    const changerStatut = (id: string, statut: Statut) => {
+    const changerStatut = async (id: string, statut: Statut) => {
         setRequetes((prev) => prev.map((r) => (r.id === id ? { ...r, statut } : r)));
+        await fetch("/api/collaboration/requests", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, statut: STATUT_VERS_CODE[statut] }),
+        });
     };
 
-    const supprimer = (id: string) => {
+    const supprimer = async (id: string) => {
         setRequetes((prev) => prev.filter((r) => r.id !== id));
+        await fetch(`/api/collaboration/requests?id=${id}`, { method: "DELETE" });
     };
 
     const visibles = filtre === "all" ? requetes : requetes.filter((r) => r.statut === filtre);
@@ -134,9 +180,9 @@ export default function CollaborationRequestsPage() {
 
             {formOuvert && (
                 <div className="bg-slate-900/60 border border-indigo-500/20 rounded-3xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <select value={nouvelle.client} onChange={(e) => setNouvelle((f) => ({ ...f, client: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
+                    <select value={nouvelle.clientId} onChange={(e) => setNouvelle((f) => ({ ...f, clientId: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
                         <option value="">Sélectionner un client *</option>
-                        {clients.map((c) => <option key={c.id} value={c.nom}>{c.nom}</option>)}
+                        {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
                     </select>
                     <select value={nouvelle.type} onChange={(e) => setNouvelle((f) => ({ ...f, type: e.target.value as TypeRequete }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
                         {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -187,7 +233,9 @@ export default function CollaborationRequestsPage() {
             </div>
 
             <div className="glass-card rounded-3xl border border-white/5 bg-slate-900/40 overflow-hidden">
-                {visibles.length === 0 ? (
+                {chargement ? (
+                    <p className="p-8 text-sm text-slate-500">Chargement des requêtes…</p>
+                ) : visibles.length === 0 ? (
                     <p className="p-8 text-sm text-slate-500">Aucune requête enregistrée.</p>
                 ) : (
                     <div className="overflow-x-auto">
