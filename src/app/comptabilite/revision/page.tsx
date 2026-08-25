@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import {
     ClipboardCheck,
     CheckCircle2,
@@ -118,9 +119,9 @@ export default function RevisionPage() {
                     </div>
 
                     <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-3 transition-all">
+                        <Link href="/comptabilite/revision/print" target="_blank" className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-3 transition-all">
                             <Download className="w-4 h-4" /> Rapport de Révision
-                        </button>
+                        </Link>
                         <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
                             <ShieldCheck className="w-5 h-5" /> Certifier les Comptes
                         </button>

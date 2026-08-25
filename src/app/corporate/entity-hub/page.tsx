@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     Gavel,
     Building2,
@@ -21,7 +22,7 @@ import { cn } from "@/lib/utils";
 interface Entity {
     id: string;
     name: string;
-    legalForm: string;
+    legalForm: string | null;
     governance: string;
     lastAG: string | null;
     nextAG: string | null;
@@ -119,7 +120,7 @@ export default function NexusEntityHubPage() {
                                         </div>
                                         <div>
                                             <h4 className="text-lg font-black text-white">{entity.name}</h4>
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{entity.legalForm} • ID: {entity.id}</p>
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{entity.legalForm || "Forme juridique non renseignée"} • ID: {entity.id}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
@@ -184,9 +185,9 @@ export default function NexusEntityHubPage() {
                     </div>
 
                     {/* Share/Export */}
-                    <button className="w-full glass-card p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center gap-3 text-[10px] font-black uppercase text-white hover:bg-white/10 transition-all">
+                    <Link href="/corporate/entity-hub/print" target="_blank" className="w-full glass-card p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center gap-3 text-[10px] font-black uppercase text-white hover:bg-white/10 transition-all">
                         <Download className="w-4 h-4" /> Générer Registre Global PDF
-                    </button>
+                    </Link>
                 </div>
             </div>
             )}

@@ -16,7 +16,10 @@ export async function GET() {
     const entities = clients.map((c) => ({
       id: c.id,
       name: c.companyName || "—",
-      legalForm: c.fiscalRegime === "REEL_NORMAL" ? "Société Anonyme" : "SARL",
+      // Aucun champ "forme juridique" n'existe sur le client : le regime
+      // fiscal n'indique pas la forme juridique (SA/SARL/SAS/GIE...), donc
+      // on ne l'invente pas ici.
+      legalForm: null,
       governance: c.mandatStatus || null,
       lastAG: null,
       nextAG: c.agStatus === "expiring" ? "À planifier" : null,

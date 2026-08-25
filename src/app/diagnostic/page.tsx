@@ -548,10 +548,10 @@ export default function DiagnosticPage() {
 
             {/* PREMIUM AI REPORT MODAL - EDITABLE */}
             {showReport && diagData && (
-                <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="w-full max-w-6xl h-[95vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden">
+                <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300 print:static print:bg-white print:p-0 print:block">
+                    <div className="w-full max-w-6xl h-[95vh] bg-white rounded-2xl shadow-2xl flex overflow-hidden print:h-auto print:max-w-none print:rounded-none print:shadow-none print:block">
                         {/* Sidebar - Table of Contents */}
-                        <div className="w-64 bg-slate-900 p-6 flex flex-col border-r border-slate-700">
+                        <div className="w-64 bg-slate-900 p-6 flex flex-col border-r border-slate-700 print:hidden">
                             <div className="mb-6">
                                 <h3 className="text-white font-bold text-sm mb-2">TABLE DES MATIÈRES</h3>
                                 <div className="flex items-center gap-2 mb-4">
@@ -585,9 +585,9 @@ export default function DiagnosticPage() {
                         </div>
 
                         {/* Main Content */}
-                        <div className="flex-1 flex flex-col">
+                        <div className="flex-1 flex flex-col print:block">
                             {/* Header */}
-                            <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex justify-between items-center">
+                            <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex justify-between items-center print:hidden">
                                 <div>
                                     <h2 className="text-2xl font-black tracking-tight">RAPPORT DE DIAGNOSTIC FINANCIER</h2>
                                     <p className="text-sm text-indigo-200 mt-1">Généré par intelligence artificielle - {new Date().toLocaleDateString('fr-FR')}</p>
@@ -601,7 +601,7 @@ export default function DiagnosticPage() {
                             </div>
 
                             {/* Report Content - Scrollable */}
-                            <div className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 bg-white text-slate-900">
+                            <div className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 bg-white text-slate-900 print:overflow-visible print:p-0 print:block">
                                 <div className="max-w-4xl mx-auto space-y-10">
                                     {/* Metadata */}
                                     <div className="flex justify-between items-start pb-6 border-b-2 border-slate-200">
@@ -703,16 +703,16 @@ export default function DiagnosticPage() {
                             </div>
 
                             {/* Footer Actions */}
-                            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+                            <div className="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center print:hidden">
                                 <p className="text-xs text-slate-600 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-amber-500" />
                                     Rapport généré par intelligence artificielle (DeepSeek) — à relire avant diffusion
                                 </p>
                                 <div className="flex gap-3">
-                                    <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
+                                    <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
                                         Imprimer
                                     </button>
-                                    <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+                                    <button onClick={() => window.print()} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                                         <Download className="w-4 h-4" />
                                         Télécharger PDF
                                     </button>

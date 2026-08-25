@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 217 écrans sans devenir
+// La barre latérale ne peut pas exposer les 219 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -393,6 +393,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Revision"
             },
             {
+                "href": "/comptabilite/revision/print",
+                "label": "Revision › Print"
+            },
+            {
                 "href": "/comptabilite/revision-cycles",
                 "label": "Revision Cycles"
             },
@@ -461,6 +465,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/corporate/entity-hub",
                 "label": "Entity Hub"
+            },
+            {
+                "href": "/corporate/entity-hub/print",
+                "label": "Entity Hub › Print"
             },
             {
                 "href": "/corporate/legal-archive",
