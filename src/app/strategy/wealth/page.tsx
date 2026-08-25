@@ -15,6 +15,50 @@ import {
     X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { calculateSenegalPayroll } from "@/lib/payroll/engines/senegal";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Simulateur Rémunération vs Dividendes (Sénégal).
+//
+// Réutilise le moteur de paie sénégalais déjà réel et testé
+// (src/lib/payroll/engines/senegal.ts, barème IR/IPRES/CSS/TRIMF, CGI) pour
+// la voie « rémunération ». La voie « dividendes » applique les deux taux
+// vérifiés en août 2026 : IS de droit commun 30 % (porté de 25 % à 30 %,
+// cf. Sénégal Services / EuroCham Sénégal) et retenue à la source sur
+// dividendes distribués de 10 % (CGI). Ce sont des taux d'assiette réels,
+// pas des données inventées, mais un dirigeant réel doit vérifier le régime
+// exact applicable (taux réduit 15 % export/ZES, conventions fiscales...)
+// auprès d'un professionnel avant toute décision — comme le reste des
+// simulateurs indicatifs de l'application.
+const TAUX_IS_SENEGAL = 0.30;
+const TAUX_RETENUE_DIVIDENDES = 0.10;
+
+/** Recherche par dichotomie le salaire de base MENSUEL dont le coût total
+ * employeur mensuel (brut + charges patronales) égale le montant annuel
+ * disponible divisé par douze — le moteur de paie sénégalais raisonne en
+ * bulletin mensuel (les barèmes annuels y sont déjà annualisés en interne). */
+function resoudreSalaireBrutMensuel(montantAnnuelDisponible: number, maritalStatus: string, childrenCount: number, isCadre: boolean) {
+    const cibleMensuelle = montantAnnuelDisponible / 12;
+    let bas = 0;
+    let haut = cibleMensuelle;
+    for (let i = 0; i < 60; i++) {
+        const mid = (bas + haut) / 2;
+        const r = calculateSenegalPayroll({
+            baseSalary: mid,
+            absencesDays: 0,
+            overtimeHours: 0,
+            bonuses: 0,
+            transportAllowance: 0,
+            maritalStatus,
+            childrenCount,
+            isCadre,
+        });
+        const coutTotalMensuel = r.grossSalary + r.employerContributions;
+        if (coutTotalMensuel > cibleMensuelle) haut = mid;
+        else bas = mid;
+    }
+    return bas;
+}
 
 interface Client { id: string; companyName: string | null; firstName: string | null; lastName: string | null; }
 interface Asset { id: string; label: string; type: string; estimatedValue: number; notes: string | null; }
@@ -44,6 +88,32 @@ export default function WealthOptimizerPage() {
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState({ label: "", type: "AUTRE", estimatedValue: "" });
     const [saving, setSaving] = useState(false);
+
+    // Simulateur rémunération vs dividendes.
+    const [montantDisponible, setMontantDisponible] = useState("6000000");
+    const [maritalStatus, setMaritalStatus] = useState("MARIE");
+    const [childrenCount, setChildrenCount] = useState("2");
+    const [isCadreDirigeant, setIsCadreDirigeant] = useState(true);
+
+    const montant = parseFloat(montantDisponible) || 0;
+    const salaireBrutMensuel = montant > 0 ? resoudreSalaireBrutMensuel(montant, maritalStatus, parseInt(childrenCount) || 0, isCadreDirigeant) : 0;
+    const resultatSalaire = montant > 0
+        ? calculateSenegalPayroll({
+              baseSalary: salaireBrutMensuel,
+              absencesDays: 0,
+              overtimeHours: 0,
+              bonuses: 0,
+              transportAllowance: 0,
+              maritalStatus,
+              childrenCount: parseInt(childrenCount) || 0,
+              isCadre: isCadreDirigeant,
+          })
+        : null;
+
+    const isDividendes = montant * TAUX_IS_SENEGAL;
+    const distribuable = montant - isDividendes;
+    const retenueDividendes = distribuable * TAUX_RETENUE_DIVIDENDES;
+    const netDividendes = distribuable - retenueDividendes;
 
     useEffect(() => {
         fetch("/api/clients").then(r => r.json()).then(d => {
@@ -176,12 +246,82 @@ export default function WealthOptimizerPage() {
                         </button>
                     </div>
 
+                    {optimizationMode === "rem" ? (
+                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-950/50 space-y-8">
+                            <div>
+                                <h3 className="text-xl font-black text-white mb-1">Simulateur Rémunération vs Dividendes (Sénégal)</h3>
+                                <p className="text-xs text-slate-500">
+                                    IS 30 % et retenue à la source de 10 % sur dividendes ; barème IR, IPRES, CSS, TRIMF du moteur de paie sénégalais du cabinet.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Montant disponible pour l&apos;entreprise (FCFA/an)</label>
+                                    <input
+                                        type="number"
+                                        value={montantDisponible}
+                                        onChange={(e) => setMontantDisponible(e.target.value)}
+                                        className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-mono"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Situation du dirigeant</label>
+                                    <div className="flex gap-2">
+                                        <select value={maritalStatus} onChange={(e) => setMaritalStatus(e.target.value)} className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-3 py-3 text-sm text-white">
+                                            <option value="CELIBATAIRE">Célibataire</option>
+                                            <option value="MARIE">Marié(e)</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={childrenCount}
+                                            onChange={(e) => setChildrenCount(e.target.value)}
+                                            placeholder="Enfants"
+                                            className="w-24 bg-slate-900 border border-white/10 rounded-xl px-3 py-3 text-sm text-white"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <label className="flex items-center gap-2 text-xs text-slate-400">
+                                <input type="checkbox" checked={isCadreDirigeant} onChange={(e) => setIsCadreDirigeant(e.target.checked)} className="rounded" />
+                                Dirigeant cadre (cotise au régime complémentaire IPRES)
+                            </label>
+
+                            {montant > 0 && resultatSalaire && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div className="p-6 bg-slate-900/60 rounded-2xl border border-white/5">
+                                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-3">Voie Rémunération</p>
+                                        <p className="text-xs text-slate-500">Salaire brut mensuel</p>
+                                        <p className="text-lg font-bold text-white mb-3">{Math.round(salaireBrutMensuel).toLocaleString("fr-FR")} FCFA</p>
+                                        <p className="text-xs text-slate-500">Charges patronales (mensuelles)</p>
+                                        <p className="text-sm text-slate-300 mb-3">{resultatSalaire.employerContributions.toLocaleString("fr-FR")} FCFA/mois</p>
+                                        <p className="text-xs text-slate-500">Net perçu par le dirigeant</p>
+                                        <p className="text-2xl font-black text-emerald-400">{Math.round(resultatSalaire.netSalary * 12).toLocaleString("fr-FR")} FCFA/an</p>
+                                    </div>
+                                    <div className="p-6 bg-slate-900/60 rounded-2xl border border-white/5">
+                                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-3">Voie Dividendes</p>
+                                        <p className="text-xs text-slate-500">IS (30 %)</p>
+                                        <p className="text-lg font-bold text-white mb-3">-{Math.round(isDividendes).toLocaleString("fr-FR")} FCFA</p>
+                                        <p className="text-xs text-slate-500">Retenue à la source (10 %)</p>
+                                        <p className="text-sm text-slate-300 mb-3">-{Math.round(retenueDividendes).toLocaleString("fr-FR")} FCFA</p>
+                                        <p className="text-xs text-slate-500">Net perçu par l&apos;associé</p>
+                                        <p className="text-2xl font-black text-emerald-400">{Math.round(netDividendes).toLocaleString("fr-FR")} FCFA/an</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <p className="text-[10px] text-slate-600 leading-relaxed">
+                                Estimation indicative à partir des taux 2026 (IS de droit commun, retenue sur dividendes, barème IR/IPRES/CSS/TRIMF) : ne tient pas compte des régimes particuliers
+                                (taux IS réduit export/zone économique spéciale, conventions fiscales, autres charges du dirigeant) et ne constitue pas un avis fiscal opposable — à valider par un
+                                professionnel habilité avant toute décision.
+                            </p>
+                        </div>
+                    ) : (
                     <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-950/50 min-h-[280px] flex flex-col justify-between">
                         <div className="text-center py-10">
                             <Lock className="w-16 h-16 text-amber-500 mx-auto mb-6 opacity-50" />
-                            <h3 className="text-2xl font-black text-white mb-4">
-                                {optimizationMode === "rem" ? "Simulateur Rémunération vs Dividendes" : "Montage Holding & SCI"}
-                            </h3>
+                            <h3 className="text-2xl font-black text-white mb-4">Montage Holding & SCI</h3>
                             <p className="text-slate-400 max-w-md mx-auto mb-2">
                                 Ce simulateur d'optimisation fiscale n'est pas encore configuré — il nécessite un paramétrage précis du régime fiscal et social applicable à chaque dirigeant.
                             </p>
@@ -205,6 +345,7 @@ export default function WealthOptimizerPage() {
                             </button>
                         </div>
                     </div>
+                    )}
                 </div>
             </div>
             )}

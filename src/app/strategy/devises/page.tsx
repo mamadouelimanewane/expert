@@ -1,30 +1,47 @@
 ﻿"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Globe, ArrowRightLeft, RefreshCw, BarChart3, AlertTriangle } from 'lucide-react';
 
 // EUR/FCFA est un taux FIXE légal (parité UEMOA/CEMAC, traité de coopération monétaire) — c'est une
-// valeur réelle, pas une approximation. USD et GNF sont des taux de marché flottants : aucune API de
-// change en temps réel n'est connectée, ces valeurs sont donc indicatives et non actualisées.
-const RATES: Record<string, number> = {
+// valeur réelle, pas une approximation. USD et GNF sont des taux de marché flottants, récupérés en
+// temps réel via /api/fx/rates (source publique gratuite). En cas d'échec de la récupération, on
+// retombe sur les dernières valeurs connues, explicitement signalées comme non actualisées plutôt
+// que de faire comme si elles l'étaient.
+const FALLBACK_RATES: Record<string, number> = {
     'FCFA': 1,
     'EUR': 655.957, // Parité fixe légale — réelle
-    'USD': 605.50,  // Indicatif, non temps réel
-    'GNF': 0.070,   // Indicatif, non temps réel
+    'USD': 605.50,  // Dernière valeur connue, à défaut de flux temps réel
+    'GNF': 0.070,   // Dernière valeur connue, à défaut de flux temps réel
 };
-const LIVE_RATE_CURRENCIES = new Set(['FCFA', 'EUR']);
 
 export default function DevisesPage() {
     const [amount, setAmount] = useState<string>("10000");
     const [fromCurrency, setFromCurrency] = useState("USD");
     const [toCurrency, setToCurrency] = useState("FCFA");
+    const [rates, setRates] = useState<Record<string, number>>(FALLBACK_RATES);
+    const [liveDate, setLiveDate] = useState<string | null>(null);
+    const [liveCurrencies, setLiveCurrencies] = useState<Set<string>>(new Set(['FCFA', 'EUR']));
+    const [fxErreur, setFxErreur] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/fx/rates")
+            .then((r) => r.json())
+            .then((d) => {
+                if (d.error) { setFxErreur(true); return; }
+                setRates((prev) => ({ ...prev, USD: d.xofPerUsd, GNF: d.xofPerGnf }));
+                setLiveDate(d.date);
+                setLiveCurrencies(new Set(['FCFA', 'EUR', 'USD', 'GNF']));
+            })
+            .catch(() => setFxErreur(true));
+    }, []);
 
     // Calculation
     const numAmount = parseFloat(amount.replace(/,/g, '')) || 0;
-    
+
     // Convert to base FCFA first, then to target
-    const amountInFcfa = numAmount * (RATES[fromCurrency] || 1);
-    const finalAmount = amountInFcfa / (RATES[toCurrency] || 1);
+    const amountInFcfa = numAmount * (rates[fromCurrency] || 1);
+    const finalAmount = amountInFcfa / (rates[toCurrency] || 1);
 
     const formatNumber = (val: number, isFcfa: boolean) => {
         return new Intl.NumberFormat('fr-FR', {
@@ -54,14 +71,24 @@ export default function DevisesPage() {
                 <div className="text-right">
                     <p className="text-sm font-bold text-muted-foreground">Parité Officielle UEMOA/CEMAC (fixe)</p>
                     <p className="text-xs">1 EUR = 655.957 FCFA</p>
+                    {liveDate && <p className="text-[10px] text-emerald-500 mt-1">Taux USD/GNF actualisés le {liveDate}</p>}
                 </div>
             </header>
 
-            {(!LIVE_RATE_CURRENCIES.has(fromCurrency) || !LIVE_RATE_CURRENCIES.has(toCurrency)) && (
+            {fxErreur && (
+                <div className="flex items-start gap-3 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl">
+                    <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-500">
+                        Impossible de récupérer les taux de change en temps réel — les valeurs USD/GNF affichées sont les dernières connues, non actualisées.
+                    </p>
+                </div>
+            )}
+
+            {!fxErreur && (!liveCurrencies.has(fromCurrency) || !liveCurrencies.has(toCurrency)) && (
                 <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
                     <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                     <p className="text-xs text-amber-600 dark:text-amber-400">
-                        Le taux {fromCurrency}/{toCurrency} n'est pas un taux de marché en temps réel (aucune API de change connectée) — valeur indicative à vérifier avant toute écriture comptable.
+                        Récupération du taux {fromCurrency}/{toCurrency} en cours ou indisponible — valeur indicative à vérifier avant toute écriture comptable.
                     </p>
                 </div>
             )}
@@ -79,7 +106,7 @@ export default function DevisesPage() {
                                     value={fromCurrency}
                                     onChange={(e) => setFromCurrency(e.target.value)}
                                 >
-                                    {Object.keys(RATES).map(c => <option key={c} value={c}>{c}</option>)}
+                                    {Object.keys(FALLBACK_RATES).map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                                 <input 
                                     type="number" 
@@ -104,7 +131,7 @@ export default function DevisesPage() {
                                     value={toCurrency}
                                     onChange={(e) => setToCurrency(e.target.value)}
                                 >
-                                    {Object.keys(RATES).map(c => <option key={c} value={c}>{c}</option>)}
+                                    {Object.keys(FALLBACK_RATES).map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                                 <input 
                                     type="text" 
