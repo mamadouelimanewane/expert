@@ -31,6 +31,7 @@ export default function EtatsFinanciersLayout({
             <NavItem href="/etats-financiers/import" icon={<Upload size={18} />} label="Import Balance" />
             <NavItem href="/etats-financiers/bilan" icon={<FileSpreadsheet size={18} />} label="Bilan" />
             <NavItem href="/etats-financiers/resultat" icon={<FileSpreadsheet size={18} />} label="Résultat" />
+            <NavItem href="/etats-financiers/tft" icon={<FileSpreadsheet size={18} />} label="TFT" />
             <NavItem href="/etats-financiers/config" icon={<Settings size={18} />} label="Paramètres" />
           </nav>
         </div>
