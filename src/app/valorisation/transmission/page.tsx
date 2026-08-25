@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, TrendingUp, DollarSign, Building, Download, BarChart2, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -189,9 +190,24 @@ export default function ValorisationPage() {
             </div>
 
             <div className="flex justify-end">
-              <button className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+              <Link
+                href={`/valorisation/transmission/print?${new URLSearchParams({
+                  ca: String(dcfInputs.ca),
+                  croissance: String(dcfInputs.croissance),
+                  actualisation: String(dcfInputs.actualisation),
+                  annees: String(dcfInputs.annees),
+                  dcfComputed: dcfResult ? "1" : "0",
+                  ebitda: String(ebitdaInputs.ebitda),
+                  multiple: String(ebitdaInputs.multiple),
+                  actif: String(anrInputs.actif),
+                  dettes: String(anrInputs.dettes),
+                  ajustements: String(anrInputs.ajustements),
+                }).toString()}`}
+                target="_blank"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20"
+              >
                 <Download className="w-4 h-4" /> Générer Rapport d'Évaluation
-              </button>
+              </Link>
             </div>
           </motion.div>
         )}

@@ -40,8 +40,10 @@ export default function RootLayout({
             }} />
           </head>
           <body className={`antialiased text-foreground bg-background`}>
-            <OfflineIndicator />
-            <InstallBanner />
+            <div className="print:hidden">
+              <OfflineIndicator />
+              <InstallBanner />
+            </div>
             <AuthProvider>
               <ThemeProvider>
                 {/* Background ambient glow effect */}

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Ship, Anchor, Calculator, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function SimulateurDouanePage() {
@@ -113,9 +114,13 @@ export default function SimulateurDouanePage() {
                             <span className="text-sm font-bold uppercase text-muted-foreground">Total Taxes à Payer</span>
                             <span className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-500 transition-all">{formatFCFA(total)}</span>
                         </div>
-                        <button className="w-full mt-6 py-2 border border-blue-500/50 text-blue-500 font-bold rounded-xl hover:bg-blue-500/10 transition-colors">
+                        <Link
+                            href={`/douanes/simulateur/print?caf=${rawCaf}&category=${category}`}
+                            target="_blank"
+                            className="w-full mt-6 py-2 border border-blue-500/50 text-blue-500 font-bold rounded-xl hover:bg-blue-500/10 transition-colors flex items-center justify-center"
+                        >
                             Générer Rapport PDF
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
