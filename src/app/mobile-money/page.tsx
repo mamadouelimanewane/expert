@@ -126,13 +126,13 @@ export default function MobileMoneyPage() {
                     <Smartphone className="w-40 h-40 text-emerald-400" />
                 </div>
                 <div className="relative z-10">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="page-title flex items-center gap-4">
                         <div className="p-3 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-600/30">
                             <Smartphone className="w-8 h-8 text-white" />
                         </div>
                         Mobile Money
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
+                    <p className="page-subtitle">
                         Historique et synchronisation des flux Wave, Orange Money, MTN MoMo.
                     </p>
                 </div>

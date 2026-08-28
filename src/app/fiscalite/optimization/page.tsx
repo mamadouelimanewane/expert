@@ -140,10 +140,10 @@ export default function NexusTaxIntelligencePage() {
                                 Global Tax & Integrity
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title leading-tight">
                             Nexus <span className="text-rose-400">Tax Intelligence</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Suivi des risques fiscaux et cadrage des régimes d'imposition OHADA à partir des données réelles du client.
                         </p>
                     </div>

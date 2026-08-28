@@ -54,10 +54,10 @@ export default function SecuritySovereigntyPage() {
                 </div>
 
                 <div className="relative z-10 max-w-3xl">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                    <h2 className="page-title">
                         Sécurité & <span className="text-indigo-400">Journal d&apos;audit</span>
                     </h2>
-                    <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed">
+                    <p className="page-subtitle">
                         Traçabilité des actions effectuées dans l&apos;application.
                     </p>
                 </div>

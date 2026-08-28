@@ -93,10 +93,10 @@ export default function ProductionDashboard() {
                                 </span>
                             )}
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title leading-tight">
                             Dashboard <span className="text-emerald-400">Production Cabinet</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Vue consolidée en temps réel de l'avancement de toutes les missions par équipe et par client.
                         </p>
                     </div>

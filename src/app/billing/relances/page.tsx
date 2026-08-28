@@ -57,10 +57,10 @@ export default function RelancesPage() {
     <div className="space-y-8 animate-in fade-in duration-700 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <BellRing className="w-6 h-6 text-amber-500" /> Relance Automatique Impayés
           </h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Gérez vos créances clients et automatisez les rappels.</p>
+          <p className="page-subtitle">Gérez vos créances clients et automatisez les rappels.</p>
         </div>
         <div className="flex gap-4">
           <div className="px-4 py-2 bg-slate-900/50 border border-white/5 rounded-xl text-center">

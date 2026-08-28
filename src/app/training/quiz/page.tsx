@@ -122,10 +122,10 @@ function QuizInner() {
                             {passed ? <Trophy className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
                         </div>
 
-                        <h1 className="page-title mb-2">
+                        <h1 className="page-title-dark mb-2">
                             {passed ? "Félicitations !" : "Encore un effort !"}
                         </h1>
-                        <p className="page-subtitle mb-8">
+                        <p className="page-subtitle-dark mb-8">
                             {passed ? "Vous avez validé ce module avec succès." : `Vous n'avez pas atteint le score minimum de passage (${quiz.passingScore}%).`}
                         </p>
 
@@ -221,7 +221,7 @@ function QuizInner() {
                         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour au cours
                     </Link>
                     <h2 className="text-[10px] font-black text-teal-500 uppercase tracking-widest mb-1">{quiz.course}</h2>
-                    <h1 className="page-title">{quiz.title}</h1>
+                    <h1 className="page-title-dark">{quiz.title}</h1>
                 </div>
 
                 <div className="flex items-center gap-6 p-4 bg-slate-900 border border-white/5 rounded-3xl shrink-0">

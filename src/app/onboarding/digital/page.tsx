@@ -101,10 +101,10 @@ function DigitalOnboardingInner() {
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-full text-xs font-bold tracking-widest uppercase mb-6 shadow-lg shadow-rose-500/20">
                     <Sparkles className="w-3 h-3" /> Nouveau Client
                 </div>
-                <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight mb-4">
+                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                     Bienvenue chez <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-400">Cabinet 360</span>.
                 </h1>
-                <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-slate-400 text-lg mt-2">
                     Votre expertise comptable 100% en ligne démarre ici.
                 </p>
             </div>

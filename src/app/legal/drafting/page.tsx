@@ -142,10 +142,10 @@ export default function LegalDraftingPage() {
                             Rédaction d&apos;Actes Assistée par IA
                         </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                    <h2 className="page-title">
                         Nexus <span className="text-indigo-400">Legal Drafter</span>
                     </h2>
-                    <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                    <p className="page-subtitle">
                         Génère un projet d&apos;acte à partir des informations réellement enregistrées sur
                         la fiche du client. Toute information manquante est signalée, jamais inventée.
                     </p>

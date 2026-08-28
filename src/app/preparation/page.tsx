@@ -319,11 +319,11 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             {/* Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Package className="w-7 h-7 text-cyan-400" />
                         Mission Inventaire des Immobilisations
                     </h2>
-                    <p className="text-slate-400 mt-1">Recensement physique, rapprochement comptable et valorisation</p>
+                    <p className="page-subtitle">Recensement physique, rapprochement comptable et valorisation</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold border border-slate-700 flex items-center gap-2">
@@ -464,11 +464,11 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             {/* Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Calculator className="w-7 h-7 text-amber-400" />
                         Calcul des Coûts de Revient - Production
                     </h2>
-                    <p className="text-slate-400 mt-1">Méthode des coûts complets (Matières + MOD + Charges indirectes)</p>
+                    <p className="page-subtitle">Méthode des coûts complets (Matières + MOD + Charges indirectes)</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold border border-slate-700 flex items-center gap-2">
@@ -584,11 +584,11 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             {/* Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Layers className="w-7 h-7 text-indigo-400" />
                         Comptabilité Analytique par Centre
                     </h2>
-                    <p className="text-slate-400 mt-1">Analyse de rentabilité par centre de responsabilité</p>
+                    <p className="page-subtitle">Analyse de rentabilité par centre de responsabilité</p>
                 </div>
                 <div className="flex gap-3">
                     <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold border border-slate-700 flex items-center gap-2">

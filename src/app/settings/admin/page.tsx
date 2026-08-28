@@ -90,11 +90,11 @@ export default function UsersSettingsPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <ShieldCheck className="w-8 h-8 text-indigo-400" />
                         Administration Système
                     </h2>
-                    <p className="text-muted-foreground mt-1">Gestion des accès, des rôles et politiques de sauvegarde OHADA.</p>
+                    <p className="page-subtitle">Gestion des accès, des rôles et politiques de sauvegarde OHADA.</p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 transition-all">

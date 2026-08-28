@@ -209,10 +209,10 @@ export default function TimesheetsPage() {
                                 <CalendarDays className="w-4 h-4" /> {days[0].date.toLocaleDateString("fr-FR")} - {days[4].date.toLocaleDateString("fr-FR")}
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="page-title">
                             Suivi des Temps & <span className="text-indigo-400">Rentabilité</span>
                         </h2>
-                        <p className="text-slate-400 mt-2 font-medium max-w-xl">
+                        <p className="page-subtitle">
                             Saisissez vos heures pour analyser la rentabilité des missions et facturer le hors-forfait.
                         </p>
                     </div>

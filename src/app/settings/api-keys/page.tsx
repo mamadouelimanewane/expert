@@ -91,8 +91,8 @@ export default function ApiKeysPage() {
           <Code2 className="w-7 h-7 text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Developer Hub & API</h1>
-          <p className="text-slate-400 font-medium text-sm">Clés API et webhooks pour connecter vos outils à Cabinet 360.</p>
+          <h1 className="page-title">Developer Hub & API</h1>
+          <p className="page-subtitle">Clés API et webhooks pour connecter vos outils à Cabinet 360.</p>
         </div>
       </div>
 

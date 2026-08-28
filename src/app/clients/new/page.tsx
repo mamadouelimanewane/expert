@@ -150,8 +150,8 @@ export default function NewClientPage() {
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nouveau Dossier Client</h1>
-                    <p className="text-slate-400 font-medium">Ajoutez un nouveau client à votre portefeuille OHADA.</p>
+                    <h1 className="page-title mb-0">Nouveau Dossier Client</h1>
+                    <p className="page-subtitle mb-0">Ajoutez un nouveau client à votre portefeuille OHADA.</p>
                 </div>
             </div>
 

@@ -108,10 +108,10 @@ export default function TrainingCommunityPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-sky-500/20">
                         <MessageSquare className="w-3 h-3" /> Espace Collaboratif
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Communauté d'Experts
                     </h1>
-                    <p className="page-subtitle max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Échangez avec vos pairs, partagez vos connaissances et progressez ensemble.
                     </p>
                 </div>

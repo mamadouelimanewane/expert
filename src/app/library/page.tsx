@@ -143,10 +143,10 @@ export default function LibraryPage() {
                     <Library size={20} />
                 </span>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <h1 className="page-title">
                         Bibliothèque OHADA
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <p className="page-subtitle">
                         Textes, jurisprudence et clauses types du cabinet, avec leur statut de validité.
                     </p>
                 </div>

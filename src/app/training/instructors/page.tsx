@@ -49,10 +49,10 @@ export default function InstructorsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <Users className="w-3 h-3" /> Nos Formateurs
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Experts & Instructeurs
                     </h1>
-                    <p className="page-subtitle max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Les intervenants associés aux formations du catalogue.
                     </p>
                 </div>

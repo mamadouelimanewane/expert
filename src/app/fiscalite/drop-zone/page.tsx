@@ -133,10 +133,10 @@ export default function DropZoneFiscalePage() {
                             Analyse IA du document déposé
                         </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                    <h2 className="page-title leading-tight">
                         Drop Zone <span className="text-emerald-400">Fiscale</span>
                     </h2>
-                    <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                    <p className="page-subtitle">
                         Déposez un fichier Excel/CSV (déclaration, balance, liasse) : son contenu est envoyé à l'assistant IA pour identifier des pistes d'optimisation et de risque — jamais des résultats prédéfinis.
                     </p>
                 </div>

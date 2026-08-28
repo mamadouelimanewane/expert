@@ -66,9 +66,9 @@ export default function WhatsAppHubPage() {
                         <div className="p-2 bg-green-500/10 text-green-500 rounded-xl">
                             <MessageCircle className="w-6 h-6" />
                         </div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Hub WhatsApp & IA</h1>
+                        <h1 className="page-title mb-0">Hub WhatsApp & IA</h1>
                     </div>
-                    <p className="text-muted-foreground">Testez ici les réponses de Nexus IA telles qu'elles seraient envoyées sur WhatsApp.</p>
+                    <p className="page-subtitle mb-0">Testez ici les réponses de Nexus IA telles qu'elles seraient envoyées sur WhatsApp.</p>
                 </div>
                 <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm border ${isLLMConfigured ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
                     <div className={`w-2 h-2 rounded-full ${isLLMConfigured ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`}></div>

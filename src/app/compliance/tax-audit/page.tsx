@@ -204,10 +204,10 @@ Fait le ${date}`;
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 text-rose-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-rose-500/20">
                         <ShieldAlert className="w-3 h-3" /> Assistance Contrôle Fiscal
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Registre des contrôles fiscaux
                     </h1>
-                    <p className="page-subtitle">
+                    <p className="page-subtitle-dark">
                         Dossiers réellement enregistrés, simulateur de rappel, et modèles de courriers
                         à compléter avant envoi.
                     </p>

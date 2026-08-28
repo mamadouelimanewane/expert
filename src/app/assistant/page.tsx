@@ -94,7 +94,7 @@ export default function AssistantPage() {
                             <Brain className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-white tracking-widest uppercase">Assistant Expert IA</h2>
+                            <h2 className="page-title">Assistant Expert IA</h2>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">IA Spécialisée OHADA & SYSCOHADA</span>

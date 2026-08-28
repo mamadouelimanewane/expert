@@ -128,8 +128,8 @@ export default function NewInvoicePage() {
                         <Receipt className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nouvelle Facture</h1>
-                        <p className="text-slate-400 font-medium">Créez une facture conforme OHADA / TVA.</p>
+                        <h1 className="page-title mb-0">Nouvelle Facture</h1>
+                        <p className="page-subtitle mb-0">Créez une facture conforme OHADA / TVA.</p>
                     </div>
                 </div>
             </div>

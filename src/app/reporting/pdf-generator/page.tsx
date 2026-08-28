@@ -57,8 +57,8 @@ export default function PdfGeneratorPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Générateur de rapports</h2>
-                <p className="text-slate-400 text-sm font-medium mt-1">
+                <h2 className="page-title">Générateur de rapports</h2>
+                <p className="page-subtitle">
                     {clients.length} client{clients.length > 1 ? "s" : ""} dans le portefeuille
                 </p>
             </div>

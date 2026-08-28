@@ -146,10 +146,10 @@ export default function CACSuitePage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-indigo-500/20">
                         <Microscope className="w-3 h-3" /> Suite Commissariat aux Comptes (CAC)
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         CAC Workbench
                     </h1>
-                    <p className="page-subtitle">
+                    <p className="page-subtitle-dark">
                         Seuils de signification, circularisations et sondage statistique — calculés à
                         partir des paramètres que vous saisissez.
                     </p>

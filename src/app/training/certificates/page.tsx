@@ -67,10 +67,10 @@ export default function CertificatesPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-amber-500/20">
                         <Award className="w-3 h-3" /> Mes Certifications
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Centre de Certifications
                     </h1>
-                    <p className="page-subtitle max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Vos diplômes et attestations de formation.
                     </p>
                 </div>

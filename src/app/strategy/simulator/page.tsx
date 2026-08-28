@@ -51,10 +51,10 @@ export default function StrategySimulatorPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-violet-500/20">
                         <BrainCircuit className="w-3 h-3" /> Intelligence Prédictive
                     </div>
-                    <h1 className="page-title flex items-center gap-4">
+                    <h1 className="page-title-dark flex items-center gap-4">
                         Simulateur de Stratégie IA
                     </h1>
-                    <p className="page-subtitle max-w-2xl text-lg">
+                    <p className="page-subtitle-dark max-w-2xl text-lg">
                         Scénario illustratif à partir de variables génériques (non lié à un client précis) — les résultats se recalculent en direct lorsque vous ajustez les curseurs.
                     </p>
                 </div>

@@ -203,11 +203,11 @@ export default function WritingCenterPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <PenTool className="w-8 h-8 text-cyan-400" />
                         Rédaction & Gestion de Courrier
                     </h2>
-                    <p className="text-slate-400 mt-1">Modèles réels d'actes juridiques, PV et courriers, avec suivi des correspondances du cabinet.</p>
+                    <p className="page-subtitle">Modèles réels d'actes juridiques, PV et courriers, avec suivi des correspondances du cabinet.</p>
                 </div>
 
                 <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">

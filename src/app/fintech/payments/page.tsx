@@ -162,10 +162,10 @@ export default function PaymentsPage() {
             <Smartphone className="h-7 w-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            <h1 className="page-title-dark">
               Hub Paiements Mobile Money
             </h1>
-            <p className="mt-0.5 text-sm text-slate-400">
+            <p className="page-subtitle-dark">
               Initiez des paiements réels Wave, Orange Money et MTN via les API des fournisseurs.
             </p>
           </div>

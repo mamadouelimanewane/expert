@@ -94,8 +94,8 @@ export default function OnboardingPage() {
                             Nouveau Dossier
                         </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">Onboarding & <span className="text-indigo-400">KYC</span></h2>
-                    <p className="text-slate-400 mt-2 max-w-xl font-medium">
+                    <h2 className="page-title">Onboarding & <span className="text-indigo-400">KYC</span></h2>
+                    <p className="page-subtitle">
                         Créez un nouveau dossier client en 3 étapes.
                     </p>
                 </div>

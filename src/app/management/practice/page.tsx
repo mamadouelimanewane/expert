@@ -105,10 +105,10 @@ export default function PracticeManagementPage() {
                     <LayoutDashboard className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                    <h2 className="page-title">
                         Pilotage du cabinet
                     </h2>
-                    <p className="text-slate-400 text-sm mt-1">
+                    <p className="page-subtitle">
                         Chiffre d&apos;affaires, rentabilité et charge de l&apos;équipe.
                     </p>
                 </div>

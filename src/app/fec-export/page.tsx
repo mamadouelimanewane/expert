@@ -69,8 +69,8 @@ export default function FecExportPage() {
   return (
     <div className="max-w-2xl mx-auto p-8 space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tighter">Export FEC</h1>
-        <p className="text-slate-400 mt-2">
+        <h1 className="page-title">Export FEC</h1>
+        <p className="page-subtitle">
           Génère un Fichier des Écritures Comptables (norme française A47 A-1, 18 colonnes) à partir des écritures
           réellement enregistrées pour le client sur la période choisie.
         </p>

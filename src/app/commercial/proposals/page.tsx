@@ -118,10 +118,10 @@ export default function ProposalsHub() {
                                 Commercial & Contract Management
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title leading-tight uppercase">
                             Lettres de <span className="text-indigo-400">Mission & Devis</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle max-w-2xl">
                             Suivez vos propositions commerciales réelles et générez de nouvelles lettres de mission.
                         </p>
                     </div>

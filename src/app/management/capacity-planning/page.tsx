@@ -96,10 +96,10 @@ export default function CapacityPlanningPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-indigo-500/20">
                         <Users className="w-3 h-3" /> Planification RH
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                    <h1 className="page-title">
                         Plan de charge de l&apos;équipe
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-lg">
+                    <p className="page-subtitle max-w-2xl">
                         Charge de la semaine en cours, calculée sur les affectations enregistrées.
                     </p>
                 </div>

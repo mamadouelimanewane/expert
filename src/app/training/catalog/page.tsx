@@ -82,10 +82,10 @@ export default function TrainingCatalogPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <BookOpen className="w-3 h-3" /> Catalogue
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Toutes nos Formations
                     </h1>
-                    <p className="page-subtitle max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         <span className="text-teal-400 font-bold">{courses.length} formation{courses.length !== 1 ? "s" : ""}</span> pour les professionnels du chiffre en zone OHADA.
                     </p>
                 </div>

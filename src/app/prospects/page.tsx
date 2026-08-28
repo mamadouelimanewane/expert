@@ -112,13 +112,13 @@ export default function ProspectsPage() {
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="page-title flex items-center gap-5">
                             <div className="p-4 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl shadow-2xl shadow-emerald-600/30">
                                 <Target className="w-8 h-8 text-white" />
                             </div>
                             Gestion Commerciale (CRM)
                         </h2>
-                        <p className="text-slate-400 mt-2 max-w-2xl font-medium text-lg leading-relaxed">
+                        <p className="page-subtitle">
                             Suivez vos prospects, qualifiez les opportunités et développez votre portefeuille clients.
                         </p>
                     </div>

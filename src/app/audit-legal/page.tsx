@@ -141,8 +141,8 @@ export default function AuditLegalPage() {
                         <ShieldAlert className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Audit Légal IA (FEC Analyzer)</h1>
-                        <p className="text-slate-400 font-medium text-sm">Détection algorithmique des anomalies comptables (Caisse créditrice, fraudes).</p>
+                        <h1 className="page-title">Audit Légal IA (FEC Analyzer)</h1>
+                        <p className="page-subtitle">Détection algorithmique des anomalies comptables (Caisse créditrice, fraudes).</p>
                     </div>
                 </div>
             </div>

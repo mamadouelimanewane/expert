@@ -47,10 +47,10 @@ export default function NexusFiscalPage() {
     return (
         <div className="max-w-3xl mx-auto p-8 space-y-8 flex flex-col h-[calc(100vh-4rem)]">
             <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                <h2 className="page-title flex items-center gap-3">
                     <Landmark className="w-8 h-8 text-indigo-400" /> Nexus Fiscal
                 </h2>
-                <p className="text-slate-400 mt-1">
+                <p className="page-subtitle">
                     Assistant IA spécialisé fiscalité et obligations sociales OHADA/UEMOA, ancré sur le référentiel réel du cabinet.
                 </p>
             </div>

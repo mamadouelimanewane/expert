@@ -53,10 +53,10 @@ export default function RoadmapsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-violet-500/20">
                         <MapIcon className="w-3 h-3" /> Parcours de Carrière
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Roadmaps Apprentissage
                     </h1>
-                    <p className="page-subtitle max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Suivez des parcours structurés combinant plusieurs formations du catalogue.
                     </p>
                 </div>

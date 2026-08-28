@@ -83,10 +83,10 @@ export default function AnnuairePage() {
                         <Users2 size={20} />
                     </span>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        <h1 className="page-title">
                             Annuaire du cabinet
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        <p className="page-subtitle">
                             Collaborateurs actifs, leurs coordonnées et leur charge de missions.
                         </p>
                     </div>

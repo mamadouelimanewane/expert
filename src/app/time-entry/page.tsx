@@ -141,10 +141,10 @@ export default function TimeEntryPage() {
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                    <h2 className="page-title">
                         Saisie <span className="text-indigo-400">Rapide des Temps</span>
                     </h2>
-                    <p className="text-slate-400 mt-4 text-base md:text-lg font-medium leading-relaxed max-w-2xl">
+                    <p className="page-subtitle">
                         Timer en temps réel ou saisie manuelle, directement persisté sur la mission sélectionnée.
                     </p>
                 </div>

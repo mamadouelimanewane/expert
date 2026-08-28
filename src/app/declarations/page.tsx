@@ -73,9 +73,9 @@ export default function DeclarationsPage() {
                         <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg shadow-orange-500/20">
                             <Calculator className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Fiscalité & Déclarations</h2>
+                        <h2 className="page-title">Fiscalité & Déclarations</h2>
                     </div>
-                    <p className="text-slate-400 font-medium text-lg max-w-2xl">
+                    <p className="page-subtitle">
                         Pilotage des échéances fiscales (TVA, IS, IRVM) synchronisé avec la comptabilité.
                     </p>
                 </div>

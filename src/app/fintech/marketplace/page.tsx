@@ -32,10 +32,10 @@ export default function MarketplacePage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <Landmark className="w-6 h-6 text-indigo-500" /> Marketplace Financement
           </h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Connectez les données de vos clients à nos partenaires financiers</p>
+          <p className="page-subtitle">Connectez les données de vos clients à nos partenaires financiers</p>
         </div>
       </div>
 

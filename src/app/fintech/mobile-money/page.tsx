@@ -83,9 +83,9 @@ export default function MobileMoneyPage() {
                         <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-xl">
                             <Smartphone className="w-6 h-6" />
                         </div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Rapprochement Mobile Money</h1>
+                        <h1 className="page-title">Rapprochement Mobile Money</h1>
                     </div>
-                    <p className="text-muted-foreground">Synchronisation en temps réel avec Wave, Orange Money et MTN MoMo.</p>
+                    <p className="page-subtitle">Synchronisation en temps réel avec Wave, Orange Money et MTN MoMo.</p>
                 </div>
                 <div className="flex gap-3">
                     <button onClick={fetchTransactions} className="flex items-center gap-2 px-4 py-2 glass-card rounded-xl text-sm font-semibold hover:bg-white/5 transition-colors">

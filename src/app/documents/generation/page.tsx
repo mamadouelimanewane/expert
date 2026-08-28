@@ -113,8 +113,8 @@ export default function DocumentGenerationCenter() {
           <FileCheck className="w-8 h-8 text-indigo-400" />
         </div>
         <div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Générateur de Livrables</h2>
-          <p className="text-slate-400 mt-1">Générez un document lié à un client réel — la publication automatique sur le portail n&apos;est pas encore disponible, le document est à transmettre manuellement.</p>
+          <h2 className="page-title">Générateur de Livrables</h2>
+          <p className="page-subtitle">Générez un document lié à un client réel — la publication automatique sur le portail n&apos;est pas encore disponible, le document est à transmettre manuellement.</p>
         </div>
       </div>
 

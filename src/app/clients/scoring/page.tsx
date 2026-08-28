@@ -124,10 +124,10 @@ export default function ClientScoringPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-500/10 text-violet-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-violet-500/20">
                         <Gauge className="w-3 h-3" /> Scoring & Risque Client
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="page-title-dark flex items-center gap-4">
                         Client Intelligence
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-lg">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Notation automatique basée sur les comportements de paiement, la complexité du dossier et la rentabilité.
                         <span className="text-violet-400 font-bold ml-2">Identifiez les risques avant qu'ils ne surviennent.</span>
                     </p>

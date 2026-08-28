@@ -206,7 +206,7 @@ export default function AgendaPage() {
         <div className="space-y-4 sm:space-y-6">
             {/* Mobile Header */}
             <div className="lg:hidden">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h2 className="page-title flex items-center gap-3">
                     <CalendarIcon className="w-6 h-6 text-indigo-400" />
                     Agenda Partagé
                 </h2>

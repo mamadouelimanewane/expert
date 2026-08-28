@@ -147,13 +147,13 @@ export default function LettresMissionPage() {
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="page-title flex items-center gap-5">
                             <div className="p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
                                 <FileSignature className="w-8 h-8 text-white" />
                             </div>
                             Lettres de Mission
                         </h2>
-                        <p className="text-slate-400 mt-2 max-w-2xl font-medium text-lg leading-relaxed">
+                        <p className="page-subtitle">
                             Créez, envoyez et faites signer vos lettres de mission.
                         </p>
                     </div>

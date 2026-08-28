@@ -140,8 +140,8 @@ export default function NewLettreMissionPage() {
           <ChevronLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nouvelle Lettre de Mission</h2>
-          <p className="text-slate-400 text-sm mt-1">Générez une lettre conforme aux normes OHADA en quelques clics</p>
+          <h2 className="page-title">Nouvelle Lettre de Mission</h2>
+          <p className="page-subtitle">Générez une lettre conforme aux normes OHADA en quelques clics</p>
         </div>
       </div>
 

@@ -64,9 +64,9 @@ export default function CreditScoringPage() {
                         <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl">
                             <Coins className="w-6 h-6" />
                         </div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Score Solvabilité IA</h1>
+                        <h1 className="page-title">Score Solvabilité IA</h1>
                     </div>
-                    <p className="text-muted-foreground">Évaluation automatique de la santé financière pour faciliter l'accès au crédit bancaire.</p>
+                    <p className="page-subtitle">Évaluation automatique de la santé financière pour faciliter l'accès au crédit bancaire.</p>
                 </div>
                 <div className="flex gap-2">
                     <button onClick={evaluateScore} disabled={evaluating} className="flex items-center gap-2 px-4 py-2 border border-border/50 hover:bg-muted/50 rounded-xl text-sm font-bold transition-colors disabled:opacity-50">

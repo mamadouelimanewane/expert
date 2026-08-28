@@ -48,10 +48,10 @@ export default function PlanPage() {
                         <LayoutGrid size={20} />
                     </span>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        <h1 className="page-title">
                             Plan de l&apos;application
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        <p className="page-subtitle">
                             {TOUS_LES_ECRANS.length} écrans répartis en {SECTIONS_NAVIGATION.length}{" "}
                             sections. La barre latérale n&apos;en présente qu&apos;une sélection.
                         </p>

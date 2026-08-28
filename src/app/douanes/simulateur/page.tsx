@@ -38,9 +38,9 @@ export default function SimulateurDouanePage() {
                     <div className="p-2 bg-blue-500/10 text-blue-500 rounded-xl">
                         <Ship className="w-6 h-6" />
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Simulateur de Droits de Douane</h1>
+                    <h1 className="page-title">Simulateur de Droits de Douane</h1>
                 </div>
-                <p className="text-muted-foreground">Estimez les frais d'importation (TEC CEDEAO/CEMAC) en temps réel.</p>
+                <p className="page-subtitle">Estimez les frais d'importation (TEC CEDEAO/CEMAC) en temps réel.</p>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

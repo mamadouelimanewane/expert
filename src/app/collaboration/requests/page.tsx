@@ -161,11 +161,11 @@ export default function CollaborationRequestsPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Collaboration Client
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="page-title-dark flex items-center gap-4">
                         <MessageSquare className="w-10 h-10 text-emerald-500" />
                         Centre de Requêtes
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Suivi manuel des demandes de justificatifs, signatures et informations
                         manquantes.
                     </p>

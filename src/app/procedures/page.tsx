@@ -132,11 +132,11 @@ export default function ProceduresPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <BookOpen className="w-8 h-8 text-emerald-400" />
                         Manuels de Procédures
                     </h2>
-                    <p className="text-slate-400 mt-1">Bibliothèque des procédures internes du cabinet pour structurer le contrôle interne.</p>
+                    <p className="page-subtitle">Bibliothèque des procédures internes du cabinet pour structurer le contrôle interne.</p>
                 </div>
 
                 <button onClick={() => setShowNewModal(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all">

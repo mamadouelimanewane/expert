@@ -163,10 +163,10 @@ export default function WealthOptimizerPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-amber-500/20">
                         <Gem className="w-3 h-3" /> Stratégie Patrimoniale & Dirigeant
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Wealth Optimizer
                     </h1>
-                    <p className="page-subtitle max-w-2xl text-lg leading-relaxed">
+                    <p className="page-subtitle-dark max-w-2xl text-lg leading-relaxed">
                         Suivi du patrimoine personnel du dirigeant : immobilier, parts sociales et placements.
                     </p>
                 </div>

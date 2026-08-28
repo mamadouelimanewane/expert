@@ -38,8 +38,8 @@ export default function AILlmSettings() {
                     <BrainCircuit className="w-8 h-8 text-indigo-400" />
                 </div>
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Moteur IA</h2>
-                    <p className="text-slate-400 mt-1">Assistant utilisé pour les fonctionnalités « Nexus » (rédaction, synthèses).</p>
+                    <h2 className="page-title">Moteur IA</h2>
+                    <p className="page-subtitle">Assistant utilisé pour les fonctionnalités « Nexus » (rédaction, synthèses).</p>
                 </div>
             </div>
 

@@ -116,13 +116,13 @@ export default function BankingPage() {
                     <Activity className="w-40 h-40 text-cyan-400" />
                 </div>
                 <div className="relative z-10">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="page-title flex items-center gap-4">
                         <div className="p-3 bg-cyan-600 rounded-2xl shadow-xl shadow-cyan-600/30">
                             <ArrowRightLeft className="w-8 h-8 text-white" />
                         </div>
                         Banque & Lettrage IA
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
+                    <p className="page-subtitle max-w-2xl">
                         Synchronisation bancaire et rapprochement intelligent.
                     </p>
                 </div>

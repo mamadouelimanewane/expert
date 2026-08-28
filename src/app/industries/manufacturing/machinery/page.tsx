@@ -137,11 +137,11 @@ export default function MachineryPage() {
                     >
                         <ArrowLeft className="w-3 h-3" /> Retour industrie
                     </Link>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="page-title-dark flex items-center gap-4">
                         <Cog className="w-10 h-10 text-amber-500" />
                         Parc immobilisé
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-lg">
+                    <p className="page-subtitle-dark max-w-2xl">
                         Valeur d&apos;origine, plan d&apos;amortissement, dotation de
                         l&apos;exercice et valeur nette comptable.
                     </p>

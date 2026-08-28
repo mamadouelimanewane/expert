@@ -89,10 +89,10 @@ export default function SupervisionTimelinePage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-500/10 text-sky-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-sky-500/20">
                         <Activity className="w-3 h-3" /> Supervision Temps Réel
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h1 className="page-title-dark">
                         Flux d'Activité Live
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base font-medium">
+                    <p className="page-subtitle-dark">
                         Surveillez en temps réel les actions effectuées dans votre cabinet.
                         Traçabilité complète des dossiers, factures et saisies.
                     </p>

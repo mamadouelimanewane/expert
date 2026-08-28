@@ -67,9 +67,9 @@ export default function EntreprenantPage() {
                     <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
                         <FolderPlus className="w-6 h-6" />
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Statut de l&apos;Entreprenant OHADA</h1>
+                    <h1 className="page-title">Statut de l&apos;Entreprenant OHADA</h1>
                 </div>
-                <p className="text-muted-foreground">Accompagnez les acteurs de l&apos;informel vers la formalisation.</p>
+                <p className="page-subtitle">Accompagnez les acteurs de l&apos;informel vers la formalisation.</p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

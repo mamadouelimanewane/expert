@@ -185,13 +185,13 @@ export default function ExpensesPage() {
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
+                    <h2 className="page-title flex items-center gap-4">
                         <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/20">
                             <Plane className="w-8 h-8 text-white" />
                         </div>
                         Frais & Missions
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
+                    <p className="page-subtitle max-w-2xl">
                         Centralisation des notes de frais, ordres de mission et remboursements d'équipe.
                     </p>
                 </div>

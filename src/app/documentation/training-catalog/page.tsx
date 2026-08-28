@@ -53,10 +53,10 @@ export default async function CatalogMarketingPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-xs font-bold tracking-widest uppercase border border-teal-500/20">
                         Formation Continue
                     </div>
-                    <h1 className="page-title">
+                    <h1 className="page-title-dark">
                         Élevez vos Compétences vers l'<span className="text-teal-400">Excellence</span>
                     </h1>
-                    <p className="page-subtitle">
+                    <p className="page-subtitle-dark">
                         Le catalogue de formations pour les professionnels du chiffre et du droit dans l'espace OHADA.
                     </p>
                     <div className="flex gap-4 pt-4">

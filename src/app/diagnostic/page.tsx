@@ -190,11 +190,11 @@ export default function DiagnosticPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Stethoscope className="w-8 h-8 text-rose-400" />
                         Diagnostic IA États Financiers
                     </h2>
-                    <p className="text-slate-400 mt-1">Analyse médicale complète avec évolution pluriannuelle N-1, N, N+1.</p>
+                    <p className="page-subtitle">Analyse médicale complète avec évolution pluriannuelle N-1, N, N+1.</p>
                 </div>
 
                 <div className="flex gap-3">

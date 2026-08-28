@@ -146,11 +146,11 @@ export default function IngestPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Database className="w-8 h-8 text-emerald-400" />
                         Import & Saisie Automatisée
                     </h2>
-                    <p className="text-slate-400 mt-1">Saisissez les recettes/dépenses transmises par le client (WhatsApp, dictée) avec imputation OHADA automatique.</p>
+                    <p className="page-subtitle">Saisissez les recettes/dépenses transmises par le client (WhatsApp, dictée) avec imputation OHADA automatique.</p>
                 </div>
             </div>
 

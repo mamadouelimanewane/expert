@@ -39,8 +39,8 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tracking-tight">Paramètres</h2>
-                    <p className="text-muted-foreground mt-1">Configurez votre environnement de travail et les préférences du cabinet.</p>
+                    <h2 className="page-title">Paramètres</h2>
+                    <p className="page-subtitle">Configurez votre environnement de travail et les préférences du cabinet.</p>
                 </div>
                 <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
                     <Save className="w-4 h-4" /> Sauvegarder

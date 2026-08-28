@@ -94,14 +94,14 @@ export default function DossierCreditAuto() {
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-1">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Dossier Crédit</h2>
+            <h2 className="page-title">Dossier Crédit</h2>
             {creditScore?.isEligible && (
               <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
                 <Award className="w-3 h-3" /> Éligible
               </span>
             )}
           </div>
-          <p className="text-slate-400">Constitution d'un dossier de financement à partir des données comptables réelles de {client.name}.</p>
+          <p className="page-subtitle">Constitution d'un dossier de financement à partir des données comptables réelles de {client.name}.</p>
         </div>
       </div>
 

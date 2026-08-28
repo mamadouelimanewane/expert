@@ -126,8 +126,8 @@ function CustomDashboardInner() {
             <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
                 <div className="max-w-md w-full bg-slate-900/60 border border-white/5 rounded-[28px] p-10 text-center space-y-4">
                     <LayoutDashboard className="w-14 h-14 text-slate-600 mx-auto" />
-                    <h2 className="page-title mb-0">Accès requis</h2>
-                    <p className="page-subtitle mb-0">
+                    <h2 className="page-title-dark mb-0">Accès requis</h2>
+                    <p className="page-subtitle-dark mb-0">
                         Cet espace s&apos;ouvre uniquement via le lien personnel fourni par votre cabinet comptable.
                     </p>
                 </div>
@@ -140,8 +140,8 @@ function CustomDashboardInner() {
             <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
                 <div className="max-w-md w-full bg-slate-900/60 border border-rose-500/20 rounded-[28px] p-10 text-center space-y-4">
                     <XCircle className="w-14 h-14 text-rose-500 mx-auto" />
-                    <h2 className="page-title mb-0">Espace inaccessible</h2>
-                    <p className="page-subtitle mb-0">{error}</p>
+                    <h2 className="page-title-dark mb-0">Espace inaccessible</h2>
+                    <p className="page-subtitle-dark mb-0">{error}</p>
                 </div>
             </div>
         );
@@ -162,10 +162,10 @@ function CustomDashboardInner() {
                                 {clientNom || "Votre espace"}
                             </span>
                         </div>
-                        <h2 className="page-title">
+                        <h2 className="page-title-dark">
                             Personnalisez votre <span className="text-indigo-400">Espace Pilotage</span>
                         </h2>
-                        <p className="page-subtitle max-w-2xl">
+                        <p className="page-subtitle-dark max-w-2xl">
                             Sélectionnez les indicateurs clés les plus pertinents pour votre activité.
                         </p>
                     </div>

@@ -112,11 +112,11 @@ export default function KycScreeningPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-emerald-500/20">
                         Conformité LCB-FT
                     </div>
-                    <h1 className="page-title flex items-center gap-4">
+                    <h1 className="page-title-dark flex items-center gap-4">
                         <UserCheck className="w-10 h-10 text-emerald-500" />
                         Registre KYC
                     </h1>
-                    <p className="page-subtitle">
+                    <p className="page-subtitle-dark">
                         Identifiants OHADA enregistrés et statut de vérification saisi par le cabinet
                         sur chaque fiche client.
                     </p>

@@ -86,10 +86,10 @@ export default function DataCenterPage() {
                                 Nexus Data Engine
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title leading-tight uppercase">
                             Centre de <span className="text-indigo-400">Données & Ingestion</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle max-w-2xl">
                             Importez vos écritures comptables, FEC et balances. Historique et statistiques basés sur les documents réellement enregistrés au cabinet.
                         </p>
                     </div>

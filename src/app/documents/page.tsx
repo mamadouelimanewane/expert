@@ -106,8 +106,8 @@ export default function SmartGEDPage() {
                             <Sparkles className="w-3 h-3" /> OCR Actif
                         </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">GED <span className="text-indigo-400">Intelligente</span></h2>
-                    <p className="text-slate-400 mt-2 max-w-xl font-medium">
+                    <h2 className="page-title">GED <span className="text-indigo-400">Intelligente</span></h2>
+                    <p className="page-subtitle">
                         Déposez vos documents : l'OCR les lit et en extrait les données automatiquement. L'alerte de pièces manquantes n'est pas encore implémentée.
                     </p>
                 </div>

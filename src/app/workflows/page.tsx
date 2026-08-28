@@ -73,11 +73,11 @@ export default function AutomationPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-slate-900/40 p-8 rounded-3xl border border-white/5">
                 <div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight flex items-center gap-4">
+                    <h2 className="page-title flex items-center gap-4">
                         <Layers className="w-10 h-10 text-cyan-400" />
                         Pipeline de Mission
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl">
+                    <p className="page-subtitle">
                         Suivi en temps réel de la production comptable. Gérez les cycles de validation
                         du collaborateur à l'expert-comptable signataire.
                     </p>

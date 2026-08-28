@@ -60,11 +60,11 @@ export default function BillingPage() {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
                         Facturation & Honoraires
                     </h2>
-                    <p className="text-slate-400 mt-1 text-sm">Gérez vos factures et encaissements.</p>
+                    <p className="page-subtitle">Gérez vos factures et encaissements.</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">

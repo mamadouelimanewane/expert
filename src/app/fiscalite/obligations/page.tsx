@@ -101,13 +101,13 @@ export default function FiscalObligationsPage() {
                     <CalendarDays className="w-40 h-40 text-amber-400" />
                 </div>
                 <div className="relative z-10">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-4">
+                    <h2 className="page-title flex items-center gap-4">
                         <div className="p-3 bg-amber-600 rounded-2xl shadow-xl shadow-amber-600/30">
                             <CalendarDays className="w-8 h-8 text-white" />
                         </div>
                         Échéancier Fiscal OHADA
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium">
+                    <p className="page-subtitle">
                         Obligations réglementaires du mois, croisées avec les déclarations réellement saisies pour ce portefeuille.
                     </p>
                 </div>
