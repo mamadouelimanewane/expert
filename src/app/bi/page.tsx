@@ -181,14 +181,19 @@ export default async function BusinessIntelligencePage() {
               </p>
             </div>
 
-            {/* Grid container */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
-              gap: '1.2rem'
-            }}>
-              {category.items.map((mod, index) => {
+            {/* Grid container — 4 colonnes fixes en desktop (pas d'auto-fill responsive) :
+                sur 10 catégories, 9 comptent exactement 4 modules et remplissent une ligne
+                complète. Pour celle qui n'en a pas un multiple de 4, les derniers modules de
+                la ligne incomplète s'étalent pour la compléter plutôt que de laisser un trou. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: '1.2rem' }}>
+              {(() => {
+                const COLS = 4;
+                const total = category.items.length;
+                const remainder = total % COLS;
+                const spanCount = remainder > 0 && COLS % remainder === 0 ? COLS / remainder : 1;
+                return category.items.map((mod, index) => {
                 const IconComponent = mod.icon;
+                const isInLastPartialRow = remainder > 0 && index >= total - remainder;
                 return (
                   <Link
                     key={index}
@@ -197,7 +202,8 @@ export default async function BusinessIntelligencePage() {
                     style={{
                       ['--hover-color' as any]: mod.color,
                       ['--hover-color-30' as any]: `${mod.color}30`,
-                      ['--hover-color-40' as any]: `${mod.color}40`
+                      ['--hover-color-40' as any]: `${mod.color}40`,
+                      ...(isInLastPartialRow && spanCount > 1 ? { gridColumn: `span ${spanCount}` } : {}),
                     }}
                   >
                     {mod.badge && (
@@ -241,7 +247,8 @@ export default async function BusinessIntelligencePage() {
                     </div>
                   </Link>
                 );
-              })}
+                });
+              })()}
             </div>
           </div>
         ))}
