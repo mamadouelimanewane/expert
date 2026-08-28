@@ -288,16 +288,26 @@ body {
   color: #475569 !important;
 }
 
-/* Ensure headings are always dark in light themes */
-.light h1,
-.light h2,
-.light h3,
-.light h4,
-.corporate h1,
-.corporate h2,
-.corporate h3,
-.corporate h4 {
-  color: var(--foreground) !important;
+/* Couleur de titre par défaut en thème clair — UNIQUEMENT si aucune couleur
+   n'est précisée sur le titre. Deux garde-fous étaient nécessaires, pas un
+   seul : avant, ce bloc utilisait `!important` sur un sélecteur .light h1,
+   ce qui écrasait TOUTE couleur explicite sur les titres partout dans
+   l'app — texte blanc sur bandeau coloré rendu illisible (couleur sombre
+   forcée), logos en dégradé (bg-clip-text + text-transparent) rendus en
+   aplat uni. Passer juste `!important` → rien (:where(), spécificité 0) ne
+   suffisait pas : Tailwind v4 place ses utilitaires (.text-white,
+   .text-transparent...) dans son propre @layer utilities, et un layer
+   l'emporte toujours sur du CSS hors layer quelle que soit la spécificité —
+   donc une règle globals.css hors layer continuait à gagner. En la plaçant
+   dans @layer base (déclaré par Tailwind avant `utilities`), n'importe
+   quelle classe Tailwind (text-white, text-transparent, la future
+   .page-title verte façon apix-pap...) reprend la main normalement, et les
+   titres qui ne précisent rien gardent le même rendu sombre qu'avant. */
+@layer base {
+  :where(.light h1, .light h2, .light h3, .light h4,
+         .corporate h1, .corporate h2, .corporate h3, .corporate h4) {
+    color: var(--foreground);
+  }
 }
 
 /* Custom Scrollbar */
@@ -514,4 +524,149 @@ body {
   background: #1e293b;
   border-color: var(--hover-color) !important;
   box-shadow: 0 8px 0 var(--hover-color), 0 15px 20px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* =============================================
+   PARITÉ DE THÈME AVEC apix-pap.vercel.app
+   Ces classes reprennent, propriété pour propriété, celles de
+   src/index.css et src/pages/RegistrePAP.jsx du dépôt apix-pap
+   (github.com/mamadouelimanewane/apix-pap) : mêmes titres de page,
+   mêmes cards, mêmes boutons, mêmes badges, mêmes tableaux, même
+   grille de filtres. Les couleurs (--primary #006B3F, --accent
+   #F29400, radius, ombres) étaient déjà alignées sur ce dépôt ;
+   il manquait ces primitives réutilisables pour que chaque page
+   les applique de façon cohérente au lieu de styles ad hoc.
+   Utilise les variables CSS existantes (donc compatible .dark). */
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.page-subtitle {
+  color: var(--muted-foreground);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+/* Card apix-pap : radius-lg (20px), padding 1.5rem, ombre légère */
+.apix-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border);
+}
+
+/* Boutons */
+.apix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.apix-btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.apix-btn-primary:hover {
+  background: var(--primary-light, #009639);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.apix-btn-secondary {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.apix-btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.apix-btn-danger {
+  background: #E31B23;
+  color: white;
+}
+
+.apix-btn-danger:hover {
+  background: #c8151c;
+}
+
+/* Badges de statut */
+.apix-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.apix-badge-new { background: #e3f2fd; color: #1976d2; }
+.apix-badge-reviewed { background: #f3e5f5; color: #7b1fa2; }
+.apix-badge-verified { background: #e8f5e9; color: #388e3c; }
+.apix-badge-paid { background: #c8e6c9; color: #1b5e20; }
+.apix-badge-anomaly { background: #ffebee; color: #c62828; }
+.apix-badge-warning { background: #fff8e1; color: #f57f17; }
+
+/* Tableaux */
+.apix-table-wrapper {
+  overflow-x: auto;
+}
+
+.apix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.apix-table th {
+  background: var(--muted);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+}
+
+.apix-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Formulaires (inputs déjà stylés ailleurs dans l'app — focus ring aligné apix-pap) */
+.apix-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 1rem;
+  background: var(--input);
+  color: var(--foreground);
+}
+
+.apix-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 107, 63, 0.1);
+}
+
+/* Grilles de filtres, façon apix-pap (auto-fit responsive) */
+.apix-grid-2 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.apix-grid-3 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
