@@ -21,8 +21,8 @@ export default function ExecutiveDashboardPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Dashboard Dirigeant</h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Vue stratégique en temps réel de votre cabinet</p>
+          <h2 className="page-title">Dashboard Dirigeant</h2>
+          <p className="page-subtitle">Vue stratégique en temps réel de votre cabinet</p>
         </div>
       </div>
 

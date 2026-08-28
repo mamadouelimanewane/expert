@@ -153,10 +153,10 @@ export default function SustainabilityHubPage() {
     <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title-dark flex items-center gap-3">
             <Leaf className="w-8 h-8 text-emerald-500" /> Reporting RSE / ESG
           </h2>
-          <p className="text-slate-400 mt-1">Indicateurs environnementaux, sociaux et de gouvernance saisis manuellement, par client et par année.</p>
+          <p className="page-subtitle-dark">Indicateurs environnementaux, sociaux et de gouvernance saisis manuellement, par client et par année.</p>
         </div>
         <div className="flex gap-2">
           <select value={clientId} onChange={(e) => setClientId(e.target.value)} className="bg-slate-900 border border-white/10 rounded-xl px-4 py-2 text-sm text-white">

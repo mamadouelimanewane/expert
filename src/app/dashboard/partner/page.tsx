@@ -77,13 +77,13 @@ export default function PartnerDashboard() {
                 </div>
 
                 <div className="relative z-10">
-                    <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tighter flex items-center gap-5">
+                    <h2 className="page-title flex items-center gap-5">
                         <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/40">
                             <Target className="w-10 h-10 text-white" />
                         </div>
                         Pilotage Associé
                     </h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl font-medium text-lg italic">
+                    <p className="page-subtitle max-w-2xl italic">
                         Pilotage du cabinet à partir des feuilles de temps, missions et factures réelles.
                     </p>
                 </div>

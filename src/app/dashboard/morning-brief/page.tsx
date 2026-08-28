@@ -63,10 +63,10 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-5xl font-black text-white tracking-tighter leading-none mb-4 uppercase">
+                    <h1 className="page-title mb-4 uppercase">
                         Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborateur</span>
                     </h1>
-                    <p className="text-base sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
+                    <p className="page-subtitle max-w-2xl leading-relaxed">
                         Voici votre synthèse du <span className="text-white font-bold">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> : briefings enregistrés et rentabilité de l'équipe.
                     </p>
                 </div>

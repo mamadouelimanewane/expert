@@ -64,8 +64,8 @@ export default async function ConfidentielStats() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Statistiques Confidentielles</h2>
-          <p className="text-slate-400 mt-1 text-sm sm:text-base font-medium">Accès restreint aux données sensibles du cabinet.</p>
+          <h2 className="page-title">Statistiques Confidentielles</h2>
+          <p className="page-subtitle">Accès restreint aux données sensibles du cabinet.</p>
         </div>
         <div className="flex gap-3">
           <a href="/dashboard" className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg border border-white/5">

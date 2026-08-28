@@ -114,8 +114,8 @@ export default function WhatsAppBotHub() {
             <MessageCircle className="w-8 h-8 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Hub WhatsApp Bot PMI</h2>
-            <p className="text-slate-400 mt-1">Conversations client synchronisées via WhatsApp Business API.</p>
+            <h2 className="page-title">Hub WhatsApp Bot PMI</h2>
+            <p className="page-subtitle">Conversations client synchronisées via WhatsApp Business API.</p>
           </div>
         </div>
         <div className="flex gap-3">
