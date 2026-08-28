@@ -63,11 +63,11 @@ export default function FundraisingPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <TrendingUp className="w-8 h-8 text-emerald-400" />
                         Pôle Levée de Fonds & Financement
                     </h2>
-                    <p className="text-slate-400 mt-1 italic">Répertoire d'investisseurs et suivi de due diligence.</p>
+                    <p className="page-subtitle italic">Répertoire d'investisseurs et suivi de due diligence.</p>
                 </div>
             </div>
 

@@ -58,10 +58,10 @@ export default function NexusEntityHubPage() {
                                 Legal Entity Management
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Nexus <span className="text-amber-400">Entity Hub</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Pilotez vos filiales, gérez vos organes de gouvernance et automatisez vos Assemblées Générales conformément à l'Acte Uniforme OHADA.
                         </p>
                     </div>

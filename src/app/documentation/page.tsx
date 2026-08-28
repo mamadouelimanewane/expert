@@ -151,8 +151,8 @@ export default function DocumentationHubPage() {
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase">
                             Centre de Ressources Elite
                         </div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight">Documentation & <span className="text-indigo-500">Marketing</span></h1>
-                        <p className="text-slate-400 text-lg max-w-2xl">
+                        <h1 className="page-title">Documentation & <span className="text-indigo-500">Marketing</span></h1>
+                        <p className="page-subtitle">
                             Accédez à tous les supports officiels, guides d'utilisation et matériels marketing
                             conçus pour l'excellence de votre cabinet.
                         </p>

@@ -160,10 +160,10 @@ export default function NeuralForensicsPage() {
                             <Network className="w-6 h-6 text-indigo-400" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                            <h1 className="page-title flex items-center gap-2">
                                 SHERLOCK <span className="text-indigo-500">HOLMES</span> AI
                             </h1>
-                            <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Enquête Numérique & Intelligence Open Source (OSINT)</p>
+                            <p className="page-subtitle">Enquête Numérique & Intelligence Open Source (OSINT)</p>
                         </div>
                     </div>
                 </div>

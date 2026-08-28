@@ -179,10 +179,10 @@ export default function LiasseFiscalePage() {
                         <FileSpreadsheet size={20} />
                     </span>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        <h1 className="page-title">
                             Liasse fiscale SYSCOHADA
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400">
+                        <p className="page-subtitle">
                             États financiers du système normal, produits à partir des écritures
                             exportées.
                             {source ? ` ${source.ecritures} écriture${source.ecritures > 1 ? "s" : ""}, ${source.comptes} compte${source.comptes > 1 ? "s" : ""}.` : ""}

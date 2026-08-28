@@ -72,10 +72,10 @@ export default function ReleaseNotesPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase">
                         Journal des Mises à Jour
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter italic">
+                    <h1 className="page-title">
                         Release <span className="text-indigo-500">Notes</span>
                     </h1>
-                    <p className="text-slate-500 max-w-xl text-lg mx-auto md:mx-0">
+                    <p className="page-subtitle">
                         Suivez l'évolution constante de Cabinet 360. Chaque mise à jour nous rapproche
                         de la perfection opérationnelle.
                     </p>

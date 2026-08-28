@@ -124,10 +124,10 @@ export default function BoniMaliPage() {
                                 Gestion interne &amp; boni-mali
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="page-title">
                             Analyse de <span className="text-indigo-400">rentabilité dossier</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle max-w-2xl">
                             Coût interne réel (temps saisi × coût horaire) comparé au budget
                             d&apos;honoraires de chaque mission budgétée.
                         </p>

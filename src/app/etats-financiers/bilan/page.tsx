@@ -67,8 +67,8 @@ export default function BilanPage() {
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Bilan (SYSCOHADA)</h2>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <h2 className="page-title">Bilan (SYSCOHADA)</h2>
+                    <p className="page-subtitle">
                         Comparatif Net N vs Net N-1 généré depuis la base de données
                     </p>
                 </div>

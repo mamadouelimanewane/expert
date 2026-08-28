@@ -83,7 +83,7 @@ export default function AuditDossierPage() {
       {/* Header */}
       <div className="flex justify-between items-center shrink-0">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <FolderCheck className="w-6 h-6 text-indigo-500" /> Dossier de Travail Numérique
           </h2>
           <div className="flex items-center gap-4 text-slate-400 text-sm font-medium mt-2">

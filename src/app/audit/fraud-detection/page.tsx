@@ -161,10 +161,10 @@ export default function FraudDetectionPage() {
                                 NEXUS Shield
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Fraud <span className="text-rose-400">Detection</span> Hub
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Détection algorithmique d'anomalies sur les transactions bancaires : écritures dominicales, montants ronds, montants atypiques.
                         </p>
                     </div>

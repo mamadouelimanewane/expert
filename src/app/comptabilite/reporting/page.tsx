@@ -188,8 +188,8 @@ export default function ReportingAutomationPage() {
                     <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
                         Rapport de gestion
                     </span>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-4">Génération de rapport</h2>
-                    <p className="text-slate-400 mt-2 max-w-2xl">
+                    <h2 className="page-title">Génération de rapport</h2>
+                    <p className="page-subtitle">
                         Chiffres réellement calculés à partir du bilan et du compte de résultat du
                         client sélectionné.
                     </p>

@@ -133,10 +133,10 @@ export default function CollaborativeProductionPage() {
                                 All-in-One Production
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                        <h2 className="page-title leading-tight">
                             Production Comptable <span className="text-indigo-400">Collaborative</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Accédez aux flux financiers de vos clients en temps réel. Pennylane synchronise la gestion client et la production cabinet dans un outil unique.
                         </p>
                     </div>

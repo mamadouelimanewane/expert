@@ -99,10 +99,10 @@ export default function FinancialCrimePage() {
                     <ShieldAlert size={20} />
                 </span>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <h1 className="page-title">
                         Criblage LCB-FT
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <p className="page-subtitle">
                         Portefeuille à cribler et registres officiels de référence.
                     </p>
                 </div>

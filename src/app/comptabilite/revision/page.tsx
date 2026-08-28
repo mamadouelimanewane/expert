@@ -107,13 +107,13 @@ export default function RevisionPage() {
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-5">
+                        <h2 className="page-title flex items-center gap-5">
                             <div className="p-4 bg-indigo-600 rounded-[24px] shadow-2xl shadow-indigo-600/30">
                                 <ClipboardCheck className="w-8 h-8 text-white" />
                             </div>
                             Révision & Certification
                         </h2>
-                        <p className="text-slate-400 mt-3 max-w-2xl font-medium text-lg leading-relaxed">
+                        <p className="page-subtitle">
                             Processus de vérification automatisé et manuel pour la clôture des comptes conforme aux normes OHADA.
                         </p>
                     </div>

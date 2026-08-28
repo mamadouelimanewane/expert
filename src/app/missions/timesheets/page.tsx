@@ -135,11 +135,11 @@ export default function MissionTimesheetsPage() {
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10">
                     <div className="text-center lg:text-left">
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center justify-center lg:justify-start gap-4">
+                        <h2 className="page-title flex items-center justify-center lg:justify-start gap-4">
                             <Clock className="w-10 h-10 text-indigo-500" />
                             Gestion des Temps
                         </h2>
-                        <p className="text-slate-400 mt-3 max-w-xl font-medium text-lg leading-relaxed">
+                        <p className="page-subtitle max-w-xl text-lg leading-relaxed">
                             Suivez vos heures passées par client et optimisez la rentabilité de vos missions.
                         </p>
                     </div>

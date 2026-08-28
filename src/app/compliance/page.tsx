@@ -173,10 +173,10 @@ export default function NexusComplianceHubPage() {
                                 Global Risk & Integrity
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase text-balance">
+                        <h2 className="page-title">
                             Nexus <span className="text-indigo-400">Legal & Risk Integrity</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Pilotage de la conformité multi-textes : OHADA, CGI, UEMOA & Réglementations sectorielles par Intelligence Artificielle.
                         </p>
                     </div>

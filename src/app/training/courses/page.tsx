@@ -135,8 +135,8 @@ function CoursePlayerInner() {
                 <div className="p-8 space-y-8">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                         <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{course.title}</h1>
-                            <p className="text-slate-400 mt-2">{course.subtitle}</p>
+                            <h1 className="page-title">{course.title}</h1>
+                            <p className="page-subtitle">{course.subtitle}</p>
                         </div>
                         <div className="flex gap-3 flex-wrap">
                             <button

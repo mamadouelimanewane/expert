@@ -87,8 +87,8 @@ export default function TFTPage() {
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Tableau des Flux de Trésorerie</h2>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <h2 className="page-title">Tableau des Flux de Trésorerie</h2>
+                    <p className="page-subtitle">
                         Méthode indirecte simplifiée, calculée depuis la variation du bilan entre N et N-1
                     </p>
                 </div>

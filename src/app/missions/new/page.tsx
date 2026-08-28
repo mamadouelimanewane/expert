@@ -90,8 +90,8 @@ export default function NewMissionPage() {
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Nouvelle Mission</h1>
-                    <p className="text-slate-400 font-medium">Définissez les paramètres de la mission pour un client existant.</p>
+                    <h1 className="page-title mb-0">Nouvelle Mission</h1>
+                    <p className="page-subtitle mb-0">Définissez les paramètres de la mission pour un client existant.</p>
                 </div>
             </div>
 

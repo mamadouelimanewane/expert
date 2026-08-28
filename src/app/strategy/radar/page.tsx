@@ -54,10 +54,10 @@ export default function RadarImpactPage() {
     return (
         <div className="p-8 max-w-3xl mx-auto space-y-8">
             <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                <h2 className="page-title flex items-center gap-3">
                     <Radar className="w-8 h-8 text-rose-500" /> Veille réglementaire
                 </h2>
-                <p className="text-slate-400 mt-1">
+                <p className="page-subtitle">
                     Aucune détection automatique de nouvelles lois n&apos;est disponible. Collez le texte d&apos;une loi, d&apos;un décret ou d&apos;une
                     circulaire que vous avez repéré : l&apos;IA en résume l&apos;impact potentiel sur le portefeuille réel du cabinet.
                 </p>

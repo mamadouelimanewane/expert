@@ -98,11 +98,11 @@ export default function FixedAssetsAuditPage() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Package className="w-8 h-8 text-amber-500" />
                         Audit & Inventaire des Immob.
                     </h2>
-                    <p className="text-slate-400 mt-1">Préparation des missions d'inventaire physique et rapprochement comptable.</p>
+                    <p className="page-subtitle">Préparation des missions d'inventaire physique et rapprochement comptable.</p>
                 </div>
 
                 <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">

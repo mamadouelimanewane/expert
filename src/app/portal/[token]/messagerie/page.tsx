@@ -94,8 +94,8 @@ export default function ClientPortalMessagesPage() {
                     <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
-                    <h2 className="text-lg font-black text-slate-800">Votre cabinet comptable</h2>
-                    <p className="text-slate-500 text-xs font-medium">Vos échanges avec le cabinet</p>
+                    <h2 className="page-title mb-0">Votre cabinet comptable</h2>
+                    <p className="page-subtitle mb-0">Vos échanges avec le cabinet</p>
                 </div>
             </div>
 

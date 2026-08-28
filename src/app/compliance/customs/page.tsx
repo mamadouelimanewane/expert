@@ -219,10 +219,10 @@ Fait à ${pays.city}, le ${date}`;
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-blue-500/20">
                         <Anchor className="w-3 h-3" /> Contentieux Douanier (UEMOA)
                     </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
+                    <h1 className="page-title">
                         Registre des contentieux douaniers
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-sm sm:text-lg">
+                    <p className="page-subtitle">
                         Dossiers réellement enregistrés, simulateur de droits compromis, et modèle de
                         recours à compléter avant envoi.
                     </p>

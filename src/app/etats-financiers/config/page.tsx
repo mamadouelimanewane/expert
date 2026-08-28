@@ -28,8 +28,8 @@ export default function ConfigPage() {
     return (
         <div className="max-w-2xl space-y-8">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Paramétrage du Dossier</h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <h2 className="page-title">Paramétrage du Dossier</h2>
+                <p className="page-subtitle">
                     Informations générales de l'entité pour l'entête des états financiers, issues de la fiche client.
                 </p>
             </div>

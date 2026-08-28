@@ -72,10 +72,10 @@ export default function LegalArchivePage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <Database className="w-6 h-6 text-indigo-500" /> Archivage Légal (Empreinte d'Intégrité)
           </h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Hash SHA-256 réel + horodatage, tracé dans le journal d'audit du cabinet</p>
+          <p className="page-subtitle">Hash SHA-256 réel + horodatage, tracé dans le journal d'audit du cabinet</p>
         </div>
       </div>
 

@@ -137,10 +137,10 @@ export default function TrainingManualsPage() {
                             </span>
                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                         </div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight leading-tight uppercase mb-6">
+                        <h1 className="page-title">
                             Mastering <span className="text-indigo-400">Nexus Elite</span>
                         </h1>
-                        <p className="text-slate-400 text-lg font-medium leading-relaxed">
+                        <p className="page-subtitle">
                             Accédez à nos manuels de formation premium. Des guides étape par étape conçus pour transformer vos équipes en experts de la donnée comptable et juridique.
                         </p>
                     </div>

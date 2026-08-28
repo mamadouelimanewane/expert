@@ -100,10 +100,10 @@ export default function PartnerWarRoom() {
                                 Command Center (Associés)
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             War Room <span className="text-rose-500">Stratégique</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Dossiers en retard, alertes de fraude ouvertes et conformité KYC sur le portefeuille réel.
                         </p>
                     </div>

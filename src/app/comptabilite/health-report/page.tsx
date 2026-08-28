@@ -248,11 +248,11 @@ export default function HealthReportPage() {
         <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <FileText className="w-8 h-8 text-indigo-500" />
                         Rapport de Santé Financière
                     </h2>
-                    <p className="text-slate-400 mt-1">Score calculé à partir des données réellement enregistrées</p>
+                    <p className="page-subtitle">Score calculé à partir des données réellement enregistrées</p>
                 </div>
             </div>
 

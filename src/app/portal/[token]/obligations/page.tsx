@@ -64,10 +64,10 @@ export default function ClientPortalObligationsPage() {
         <div className="space-y-8 animate-in fade-in duration-700 p-6 max-w-5xl mx-auto">
             <div className="flex justify-between items-center bg-white p-8 rounded-[32px] shadow-sm border border-slate-200">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+                    <h2 className="page-title mb-0 flex items-center gap-3">
                         <Calendar className="w-6 h-6 text-indigo-500" /> Calendrier des Obligations
                     </h2>
-                    <p className="text-slate-500 text-sm font-medium mt-1">Vos échéances fiscales et sociales</p>
+                    <p className="page-subtitle mb-0">Vos échéances fiscales et sociales</p>
                 </div>
                 <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-sm">
                     Contacter l&apos;Expert

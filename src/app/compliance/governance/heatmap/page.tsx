@@ -61,10 +61,10 @@ export default function GovernanceHeatmapPage() {
                                 Supervision Gouvernance OHADA
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Heatmap de <span className="text-indigo-400">Conformité Juridique</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Surveillance temps réel de l'hygiène juridique de votre portefeuille. Identifiez instantanément les risques de sanctions ou de nullité d'actes.
                         </p>
                     </div>

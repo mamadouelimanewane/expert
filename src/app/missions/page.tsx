@@ -67,11 +67,11 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
             {/* Header Premium */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <Briefcase className="w-10 h-10 text-indigo-500" />
                         Management des Missions
                     </h2>
-                    <p className="text-slate-400 mt-1 font-medium">Pilotage de la production comptable et suivi des échéances légales.</p>
+                    <p className="page-subtitle">Pilotage de la production comptable et suivi des échéances légales.</p>
                 </div>
 
                 <div className="flex gap-4 w-full sm:w-auto">

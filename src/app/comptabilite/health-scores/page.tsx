@@ -101,11 +101,11 @@ export default function HealthScoreDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-indigo-500" />
             Scores de Santé Financière
           </h2>
-          <p className="text-slate-400 mt-1">Vue globale · Évolution · Éligibilité Crédit</p>
+          <p className="page-subtitle">Vue globale · Évolution · Éligibilité Crédit</p>
         </div>
         <div className="flex gap-3">
           {alerts > 0 && (

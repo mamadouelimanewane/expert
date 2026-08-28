@@ -87,10 +87,10 @@ export default function NexusPerformancePage() {
                                 Corporate Performance Management
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Nexus <span className="text-emerald-400">Performance</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             {data.groupName ? `Périmètre "${data.groupName}" — ${data.entityCount} entité(s) consolidée(s).` : "Aucun groupe de consolidation configuré."}
                             {data.usingFallbackScope && " Aucune entité rattachée à des clients : les agrégats ci-dessous couvrent l'ensemble du portefeuille clients actifs."}
                         </p>

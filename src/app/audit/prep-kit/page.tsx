@@ -168,9 +168,9 @@ export default function CompleteAuditKitPage() {
                             <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
                                 <Briefcase className="w-8 h-8 text-white" />
                             </div>
-                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tighter">Kit de préparation d&apos;audit</h2>
+                            <h2 className="page-title">Kit de préparation d&apos;audit</h2>
                         </div>
-                        <p className="text-slate-400 font-medium text-lg">Cahier de travail : seuil de signification, risques et programme.</p>
+                        <p className="page-subtitle">Cahier de travail : seuil de signification, risques et programme.</p>
                     </div>
 
                     <div className="flex flex-col items-end gap-3">

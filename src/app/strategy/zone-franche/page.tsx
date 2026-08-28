@@ -84,10 +84,10 @@ export default function ZoneFranchePage() {
               OHADA Zone Économique
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+          <h2 className="page-title">
             Simulateur Zone Franche <span className="text-indigo-400">UEMOA/CEMAC</span>
           </h2>
-          <p className="text-slate-400 mt-3 text-sm sm:text-base font-medium max-w-2xl">
+          <p className="page-subtitle max-w-2xl">
             Calculez les avantages fiscaux et douaniers liés à l'implantation de votre entreprise dans les zones franches d'Afrique de l'Ouest et Centrale.
           </p>
         </div>

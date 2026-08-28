@@ -269,8 +269,8 @@ export default function InformelPage() {
                             <FileDigit className="w-6 h-6" />
                         </div>
                         <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Cahier de Caisse TPE</h1>
-                            <p className="text-sm text-muted-foreground">Saisie simplifiée par le client → Moteur OHADA → Comptabilité SYSCOHADA au cabinet</p>
+                            <h1 className="page-title">Cahier de Caisse TPE</h1>
+                            <p className="page-subtitle">Saisie simplifiée par le client → Moteur OHADA → Comptabilité SYSCOHADA au cabinet</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">

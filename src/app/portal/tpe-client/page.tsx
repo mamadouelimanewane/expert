@@ -375,10 +375,10 @@ export default function TPEClientPortalPage() {
               <span className="text-white font-black text-lg tracking-wide">MT</span>
             </div>
             <div>
-              <h1 className="text-white text-2xl font-black leading-tight">
+              <h1 className="page-title mb-0 leading-tight">
                 Bonjour, M. Traoré 👋
               </h1>
-              <p className="text-slate-400 text-sm mt-1 leading-snug">
+              <p className="page-subtitle mb-0 leading-snug">
                 Voici la santé financière de votre entreprise aujourd&apos;hui.
               </p>
             </div>

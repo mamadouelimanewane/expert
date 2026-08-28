@@ -97,8 +97,8 @@ function SaisieSimplifieeInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
         <div className="max-w-md w-full bg-slate-900/60 border border-white/5 rounded-[28px] p-10 text-center space-y-4">
           <Upload className="w-14 h-14 text-slate-600 mx-auto" />
-          <h2 className="text-xl font-black text-white">Accès requis</h2>
-          <p className="text-slate-400 text-sm">
+          <h2 className="page-title mb-0">Accès requis</h2>
+          <p className="page-subtitle mb-0">
             Cet espace de saisie s'ouvre uniquement via le lien personnel fourni par votre cabinet comptable.
           </p>
         </div>
@@ -111,8 +111,8 @@ function SaisieSimplifieeInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
         <div className="max-w-md w-full bg-slate-900/60 border border-rose-500/20 rounded-[28px] p-10 text-center space-y-4">
           <XCircle className="w-14 h-14 text-rose-500 mx-auto" />
-          <h2 className="text-xl font-black text-white">Espace inaccessible</h2>
-          <p className="text-slate-400 text-sm">{error || "Lien invalide."}</p>
+          <h2 className="page-title mb-0">Espace inaccessible</h2>
+          <p className="page-subtitle mb-0">{error || "Lien invalide."}</p>
         </div>
       </div>
     );
@@ -128,9 +128,9 @@ function SaisieSimplifieeInner() {
         <div className="lg:col-span-2 flex flex-col justify-center space-y-3">
           <div>
             <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Portail Client — Cabinet 360</p>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">Votre Cahier<br />de Caisse Digital</h2>
+            <h2 className="page-title mb-0">Votre Cahier<br />de Caisse Digital</h2>
           </div>
-          <p className="text-slate-400 text-sm max-w-md">
+          <p className="page-subtitle mb-0 max-w-md">
             Transmettez vos dépenses et recettes simplement. Pas de numéros de compte, pas de jargon comptable.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">

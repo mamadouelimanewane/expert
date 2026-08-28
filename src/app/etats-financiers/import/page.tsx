@@ -16,8 +16,8 @@ export default function ImportPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Import des Données</h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <h2 className="page-title">Import des Données</h2>
+                <p className="page-subtitle">
                     Chargez vos balances générales pour l'exercice N et N-1.
                 </p>
             </div>

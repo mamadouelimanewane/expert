@@ -87,10 +87,10 @@ export default function NexusAuditPage() {
                                 Audit & Assurance Hub
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Nexus <span className="text-blue-400">Audit Management</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Gestion collaborative du cycle d'audit complet : de la planification basée sur les risques au suivi des recommandations.
                         </p>
                     </div>

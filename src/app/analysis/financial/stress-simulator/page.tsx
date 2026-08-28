@@ -70,10 +70,10 @@ export default function CashFlowStressSimulatorPage() {
                                 Analyse de Scénarios "What-If"
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Simulateur de <span className="text-cyan-400">Stress Trésorerie</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Scénario illustratif à 6 mois à partir d'hypothèses de départ génériques (trésorerie et CA mensuel non liés à un client précis) — à titre indicatif, aucun taux BCEAO réel n'est appliqué.
                         </p>
                     </div>

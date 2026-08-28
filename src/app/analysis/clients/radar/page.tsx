@@ -89,10 +89,10 @@ export default function ClientSuccessRadar() {
                                 Suivi Portefeuille Client
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Radar de <span className="text-emerald-400">Réussite Client</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Intelligence prédictive sur la santé de votre portefeuille. Anticipez les départs, détectez les opportunités d'upsell et mesurez le NPS en temps réel.
                         </p>
                     </div>

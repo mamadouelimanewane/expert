@@ -157,10 +157,10 @@ export default function NexusAuditAssurancePage() {
                                 Global Audit & Assurance
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             Nexus <span className="text-emerald-400">Audit & Assurance</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Dossier de travail numérique conforme aux normes ISA et Acte Uniforme OHADA. Audit légal assisté par IA.
                         </p>
                     </div>

@@ -79,10 +79,10 @@ export default function UemoaScorePage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+          <h2 className="page-title flex items-center gap-3">
             <ShieldAlert className="w-6 h-6 text-indigo-500" /> Score de Conformité (UEMOA/BCEAO)
           </h2>
-          <p className="text-slate-400 text-sm font-medium mt-1">Évaluation des risques légaux, fiscaux et réglementaires</p>
+          <p className="page-subtitle">Évaluation des risques légaux, fiscaux et réglementaires</p>
         </div>
         <div className="flex gap-2">
           <select

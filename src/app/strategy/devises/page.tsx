@@ -64,9 +64,9 @@ export default function DevisesPage() {
                         <div className="p-2 bg-purple-500/10 text-purple-500 rounded-xl">
                             <Globe className="w-6 h-6" />
                         </div>
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight">Hub Multi-Devises</h1>
+                        <h1 className="page-title mb-0">Hub Multi-Devises</h1>
                     </div>
-                    <p className="text-muted-foreground">Gestion du risque de change et conversion en temps réel.</p>
+                    <p className="page-subtitle mb-0">Gestion du risque de change et conversion en temps réel.</p>
                 </div>
                 <div className="text-right">
                     <p className="text-sm font-bold text-muted-foreground">Parité Officielle UEMOA/CEMAC (fixe)</p>

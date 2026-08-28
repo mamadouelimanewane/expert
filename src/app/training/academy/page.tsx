@@ -65,10 +65,10 @@ export default function TrainingAcademyPage() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 text-teal-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-teal-500/20">
                         <GraduationCap className="w-3 h-3" /> Formation & Veille
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                    <h1 className="page-title">
                         Cabinet Academy
                     </h1>
-                    <p className="text-slate-400 mt-2 max-w-2xl text-lg">
+                    <p className="page-subtitle max-w-2xl text-lg">
                         Formations certifiantes et suivi des heures de formation continue.
                     </p>
                 </div>

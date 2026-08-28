@@ -80,8 +80,8 @@ function PortalDashboardInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
         <div className="max-w-md w-full bg-slate-900/60 border border-white/5 rounded-[28px] p-10 text-center space-y-4">
           <LayoutGrid className="w-14 h-14 text-slate-600 mx-auto" />
-          <h2 className="text-xl font-black text-white">Accès requis</h2>
-          <p className="text-slate-400 text-sm">
+          <h2 className="page-title mb-0">Accès requis</h2>
+          <p className="page-subtitle mb-0">
             Cet espace client s'ouvre uniquement via le lien personnel fourni par votre cabinet comptable.
           </p>
         </div>
@@ -94,8 +94,8 @@ function PortalDashboardInner() {
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10] p-8">
         <div className="max-w-md w-full bg-slate-900/60 border border-rose-500/20 rounded-[28px] p-10 text-center space-y-4">
           <XCircle className="w-14 h-14 text-rose-500 mx-auto" />
-          <h2 className="text-xl font-black text-white">Espace inaccessible</h2>
-          <p className="text-slate-400 text-sm">{error || "Lien invalide."}</p>
+          <h2 className="page-title mb-0">Espace inaccessible</h2>
+          <p className="page-subtitle mb-0">{error || "Lien invalide."}</p>
         </div>
       </div>
     );
@@ -127,8 +127,8 @@ function PortalDashboardInner() {
             {name.charAt(0)}
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">{name}</h2>
-            <p className="text-slate-400 mt-1 text-sm flex items-center gap-2">
+            <h2 className="page-title mb-0">{name}</h2>
+            <p className="page-subtitle mb-0 flex items-center gap-2">
               <Globe className="w-3.5 h-3.5" /> {client.country}
               {client.sector && <> · {client.sector}</>}
               {client.rccm && <> · RCCM: {client.rccm}</>}

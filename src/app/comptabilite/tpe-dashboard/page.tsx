@@ -158,8 +158,8 @@ export default function TpeDashboard() {
             <BarChart3 className="w-8 h-8 text-violet-400" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Dashboard BPO TPE</h2>
-            <p className="text-slate-400 mt-1">Pilotez vos abonnés du secteur informel. Flux WhatsApp, scores de crédit et attestations en temps réel.</p>
+            <h2 className="page-title">Dashboard BPO TPE</h2>
+            <p className="page-subtitle">Pilotez vos abonnés du secteur informel. Flux WhatsApp, scores de crédit et attestations en temps réel.</p>
           </div>
         </div>
         <Link href="/clients/new" className="px-5 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2">

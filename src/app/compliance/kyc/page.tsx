@@ -84,10 +84,10 @@ export default function KycIntelligenceHub() {
                                 Standard CENTIF / GAFI
                             </span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight uppercase">
+                        <h2 className="page-title">
                             KYC <span className="text-indigo-400">Intelligence Hub</span>
                         </h2>
-                        <p className="text-slate-400 mt-4 text-lg font-medium leading-relaxed max-w-2xl">
+                        <p className="page-subtitle">
                             Registre de conformité client basé sur les dossiers réels du cabinet (statut KYC, identifiants réglementaires).
                         </p>
                     </div>

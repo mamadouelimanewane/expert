@@ -96,11 +96,11 @@ export default function FinancialAnalysisPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <h2 className="page-title flex items-center gap-3">
                         <FilePieChart className="w-8 h-8 text-purple-400" />
                         Analyse Financière Avancée
                     </h2>
-                    <p className="text-slate-400 mt-1">Diagnostic à partir des données réelles (FinancialData) : Bilan, Cash Flow, DuPont & Z-Score approché.</p>
+                    <p className="page-subtitle">Diagnostic à partir des données réelles (FinancialData) : Bilan, Cash Flow, DuPont & Z-Score approché.</p>
                 </div>
 
                 <div className="flex gap-2 items-center">

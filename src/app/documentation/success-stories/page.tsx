@@ -56,10 +56,10 @@ export default function SuccessStoriesPage() {
                         </span>
                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-tight underline decoration-indigo-500/50 decoration-8 underline-offset-12 mb-8 uppercase">
+                    <h1 className="page-title">
                         Scénarios <span className="text-indigo-400">Illustratifs</span>
                     </h1>
-                    <p className="text-slate-400 text-lg font-medium leading-relaxed max-w-2xl">
+                    <p className="page-subtitle">
                         Exemples types d&apos;usage de la plateforme par secteur — pas des témoignages de clients réels.
                     </p>
                 </div>

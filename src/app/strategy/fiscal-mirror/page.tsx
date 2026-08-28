@@ -86,10 +86,10 @@ export default function FiscalMirrorPage() {
                         </div>
                     </div>
 
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
+                    <h1 className="page-title">
                         Comparateur <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Fiscal</span>
                     </h1>
-                    <p className="text-lg sm:text-xl text-slate-400 font-medium max-w-2xl leading-relaxed">
+                    <p className="page-subtitle max-w-2xl">
                         Comparez les cadres fiscaux de référence par pays pour éclairer vos choix d&apos;implantation.
                     </p>
                 </div>

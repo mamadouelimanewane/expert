@@ -82,8 +82,8 @@ export default function TpeProcessing() {
             <Smartphone className="w-8 h-8 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Usine BPO (TPE / Informel)</h2>
-            <p className="text-slate-400 mt-1">Transformez les notes vocales WhatsApp de vos TPE en écritures comptables OHADA (Zéro Saisie).</p>
+            <h2 className="page-title">Usine BPO (TPE / Informel)</h2>
+            <p className="page-subtitle">Transformez les notes vocales WhatsApp de vos TPE en écritures comptables OHADA (Zéro Saisie).</p>
           </div>
         </div>
         <div className="flex gap-2">
