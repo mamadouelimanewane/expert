@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import React from "react";
 import Link from "next/link";
 import {
-  Scan, Lock, ArrowRight,
+  ArrowRight,
   LayoutDashboard, Users, Briefcase, Clock, Receipt, FileText,
   RefreshCw, FileSpreadsheet, CalendarDays, Calculator, FolderPlus, ArrowRightLeft,
   ShieldAlert, ShieldCheck, UserCheck, Gavel,
@@ -145,40 +145,7 @@ export default async function BusinessIntelligencePage() {
   ]);
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-[1400px] mx-auto">
-
-      {/* Header Banner - Matching APIX Linear Gradient & Circles */}
-      <div
-        style={{
-          marginBottom: '3rem',
-          background: 'linear-gradient(135deg, #006B3F 0%, #004b2c 100%)',
-          padding: '3.5rem 3rem',
-          borderRadius: '20px',
-          color: 'white',
-          boxShadow: '0 10px 25px rgba(0, 107, 63, 0.2)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '150px', height: '150px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
-        <div style={{ position: 'absolute', bottom: '-40px', right: '50px', width: '100px', height: '100px', background: 'rgba(242, 148, 0, 0.1)', borderRadius: '50%' }}></div>
-
-        <h1 style={{ fontSize: '2.8rem', fontWeight: '800', margin: 0, position: 'relative', zIndex: 10, lineHeight: 1.1 }} className="tracking-tight">
-          Bienvenue sur le Hub Cabinet
-        </h1>
-        <p style={{ fontSize: '1.3rem', color: '#e2e8f0', marginTop: '0.5rem', position: 'relative', zIndex: 10 }}>
-          Gérez votre production, pilotez vos missions et automatisez vos flux avec l'écosystème Cabinet 360.
-        </p>
-
-        <div className="flex items-center gap-3 pt-6 relative z-10 flex-wrap">
-          <a href="/dashboard/confidentiel" className="px-5 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-full font-bold text-xs transition-all border border-amber-500/30 flex items-center justify-center gap-2 shadow-lg">
-            <Lock className="w-4 h-4" /> Stats Confidentielles
-          </a>
-          <a href="/scan" className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold text-xs transition-all border border-white/20 flex items-center justify-center gap-2 shadow-lg">
-            <Scan className="w-4 h-4" /> Scanner Pièce OCR
-          </a>
-        </div>
-      </div>
+    <div className="p-8 space-y-12 animate-in fade-in duration-700 max-w-[1400px] mx-auto">
 
       {/* HUB DES MODULES - EXACT COPIED STYLE FROM APIX */}
       <div className="space-y-12">

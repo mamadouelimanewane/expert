@@ -8,8 +8,10 @@ import { NexusCopilot } from "@/components/nexus/NexusCopilot";
 export function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    // Routes that should NOT have the sidebar (Marketing, Login, Landing, Client Portal)
-    const isPublicRoute = pathname === "/" || pathname === "/login" || pathname === "/public" || pathname === "/v2-home" || pathname.startsWith("/portal");
+    // Routes that should NOT have the sidebar (Marketing, Login, Landing, Client Portal, Hub)
+    // /bi reprend la presentation du hub de reference (apix-pap.vercel.app),
+    // qui n'a pas de barre laterale sur cette vue.
+    const isPublicRoute = pathname === "/" || pathname === "/login" || pathname === "/public" || pathname === "/v2-home" || pathname === "/bi" || pathname.startsWith("/portal");
 
     // If we're on a public route, just render children
     if (isPublicRoute) {
