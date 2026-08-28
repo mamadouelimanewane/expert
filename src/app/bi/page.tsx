@@ -2,20 +2,29 @@ export const dynamic = 'force-dynamic';
 
 import React from "react";
 import Link from "next/link";
-import { 
-  Plus, Scan, Lock, ArrowRight,
+import {
+  Scan, Lock, ArrowRight,
   LayoutDashboard, Users, Briefcase, Clock, Receipt, FileText,
   RefreshCw, FileSpreadsheet, CalendarDays, Calculator, FolderPlus, ArrowRightLeft,
   ShieldAlert, ShieldCheck, UserCheck, Gavel,
   Rocket, Radar, Scale, Activity, Globe,
-  Smartphone, CreditCard, Landmark, Coins,
-  BrainCircuit, Sparkles
+  CreditCard, Landmark, Coins,
+  TrendingUp, Download, Ship, Network, Leaf, UserPlus,
+  BookOpen, GraduationCap, MessageCircle, Building2,
+  Layers, Wallet, FileCheck, PenTool
 } from "lucide-react";
 import prisma from "@/lib/prisma";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { TaxDeclaration, Client } from "@prisma/client";
 import { AuditService } from "@/lib/audit";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Hub principal du cabinet — c'est la page réelle vers laquelle /login
+// redirige après connexion (voir router.push("/bi") dans src/app/login/
+// page.tsx). Reprend le même contenu que /dashboard, qui devient un simple
+// redirect ici pour éviter de maintenir deux copies du même Hub.
+// ─────────────────────────────────────────────────────────────────────────────
 
 type TaxDeclarationWithClient = TaxDeclaration & { client: Client | null };
 type AuditLogWithUser = any;
@@ -61,6 +70,66 @@ const HUB_CATEGORIES = [
       { href: "/fintech/payments", icon: CreditCard, label: "Paiements Mobile Money", desc: "Génération de QR codes Wave, Orange, MTN", color: "#60a5fa" },
       { href: "/fintech/scoring", icon: Coins, label: "Score Solvabilité IA", desc: "Modélisation du risque crédit client", color: "#f87171" },
     ]
+  },
+  {
+    title: "États Financiers & Reporting",
+    color: "#2563eb", // Bleu
+    items: [
+      { href: "/etats-financiers/bilan", icon: FileSpreadsheet, label: "Bilan SYSCOHADA", desc: "Actif/Passif comparatif N vs N-1, calculé depuis la balance", color: "#3b82f6" },
+      { href: "/etats-financiers/resultat", icon: TrendingUp, label: "Compte de Résultat", desc: "Soldes intermédiaires de gestion réels par client", color: "#60a5fa" },
+      { href: "/etats-financiers/tft", icon: ArrowRightLeft, label: "Flux de Trésorerie", desc: "Méthode indirecte, équilibre garanti par construction", color: "#93c5fd" },
+      { href: "/fec-export", icon: Download, label: "Export FEC", desc: "Fichier des Écritures Comptables au format normé", color: "#bfdbfe" },
+    ]
+  },
+  {
+    title: "Fiscalité Internationale",
+    color: "#0891b2", // Cyan
+    items: [
+      { href: "/douanes/simulateur", icon: Ship, label: "Simulateur Douanes", desc: "Droits de douane TEC CEDEAO/CEMAC en temps réel", color: "#06b6d4" },
+      { href: "/strategy/zone-franche", icon: Globe, label: "Zones Franches", desc: "Avantages fiscaux UEMOA/CEMAC et demande d'audit", color: "#22d3ee" },
+      { href: "/strategy/devises", icon: Coins, label: "Hub Multi-Devises", desc: "Conversion en temps réel USD/EUR/GNF/FCFA", color: "#67e8f9" },
+      { href: "/nexus-fiscal", icon: Landmark, label: "Nexus Fiscal", desc: "Assistant IA spécialisé fiscalité OHADA/UEMOA", color: "#a5f3fc", badge: "IA" },
+    ]
+  },
+  {
+    title: "Conformité & Risques",
+    color: "#dc2626", // Rouge
+    items: [
+      { href: "/compliance", icon: Scale, label: "Hub Conformité", desc: "Revue légale multi-textes OHADA / CGI / UEMOA", color: "#ef4444" },
+      { href: "/compliance/uemoa-score", icon: FileCheck, label: "Score UEMOA/BCEAO", desc: "Checklist de conformité, persistée par dossier client", color: "#f87171" },
+      { href: "/analysis/deep", icon: Network, label: "Investigation OSINT", desc: "Criblage sanctions OFAC / OpenSanctions en temps réel", color: "#fca5a5" },
+      { href: "/strategy/radar", icon: Radar, label: "Veille Réglementaire", desc: "Analyse d'impact assistée par IA sur le portefeuille", color: "#fed7aa" },
+    ]
+  },
+  {
+    title: "Groupe & Patrimoine",
+    color: "#6366f1", // Indigo
+    items: [
+      { href: "/corporate/consolidation", icon: Layers, label: "Consolidation Groupe", desc: "Périmètre multi-sociétés, import de balances et éliminations", color: "#818cf8" },
+      { href: "/corporate/entity-hub", icon: Building2, label: "Entity Hub", desc: "Pilotage des filiales et gouvernance juridique", color: "#a5b4fc" },
+      { href: "/strategy/wealth", icon: Wallet, label: "Wealth Optimizer", desc: "Patrimoine dirigeant et simulateur rémunération/dividendes", color: "#c7d2fe" },
+      { href: "/bi/sustainability", icon: Leaf, label: "Reporting RSE/ESG", desc: "Indicateurs environnement, social et gouvernance", color: "#e0e7ff" },
+    ]
+  },
+  {
+    title: "Portail Client & Onboarding",
+    color: "#db2777", // Rose
+    items: [
+      { href: "/portal/dashboard", icon: LayoutDashboard, label: "Espace Client", desc: "Tableau de bord dédié, accès par lien personnel", color: "#ec4899" },
+      { href: "/onboarding/digital", icon: UserPlus, label: "Onboarding Digital", desc: "Vérification d'identité et mandat SEPA (Stripe)", color: "#f472b6" },
+      { href: "/portal/custom-dashboard", icon: PenTool, label: "Personnalisation Portail", desc: "Widgets configurables par le client, synchronisés serveur", color: "#f9a8d4" },
+      { href: "/collaboration/requests", icon: MessageCircle, label: "Centre de Requêtes", desc: "Suivi des demandes de justificatifs et signatures", color: "#fbcfe8" },
+    ]
+  },
+  {
+    title: "Bibliothèque & Formation",
+    color: "#d97706", // Amber
+    items: [
+      { href: "/library/ohada-cite", icon: BookOpen, label: "Bibliothèque OHADA", desc: "Actes uniformes et jurisprudence CCJA référencés", color: "#f59e0b" },
+      { href: "/library/clause-bank", icon: FileText, label: "Banque de Clauses", desc: "Modèles de clauses juridiques téléchargeables", color: "#fbbf24" },
+      { href: "/training/academy", icon: GraduationCap, label: "Academy", desc: "Formation continue des collaborateurs du cabinet", color: "#fcd34d" },
+      { href: "/signature/lettres-mission", icon: PenTool, label: "Signature Électronique", desc: "Validation par hash des lettres de mission", color: "#fde68a" },
+    ]
   }
 ];
 
@@ -77,11 +146,11 @@ export default async function BusinessIntelligencePage() {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700 max-w-[1400px] mx-auto">
-      
+
       {/* Header Banner - Matching APIX Linear Gradient & Circles */}
-      <div 
-        style={{ 
-          marginBottom: '3rem', 
+      <div
+        style={{
+          marginBottom: '3rem',
           background: 'linear-gradient(135deg, #006B3F 0%, #004b2c 100%)',
           padding: '3.5rem 3rem',
           borderRadius: '20px',
@@ -95,12 +164,12 @@ export default async function BusinessIntelligencePage() {
         <div style={{ position: 'absolute', bottom: '-40px', right: '50px', width: '100px', height: '100px', background: 'rgba(242, 148, 0, 0.1)', borderRadius: '50%' }}></div>
 
         <h1 style={{ fontSize: '2.8rem', fontWeight: '800', margin: 0, position: 'relative', zIndex: 10, lineHeight: 1.1 }} className="tracking-tight">
-          Hub de Business Intelligence
+          Bienvenue sur le Hub Cabinet
         </h1>
         <p style={{ fontSize: '1.3rem', color: '#e2e8f0', marginTop: '0.5rem', position: 'relative', zIndex: 10 }}>
-          Sélectionnez un domaine analytique ou accédez aux modules d'analyse prédictive et de reporting financier du cabinet.
+          Gérez votre production, pilotez vos missions et automatisez vos flux avec l'écosystème Cabinet 360.
         </p>
-        
+
         <div className="flex items-center gap-3 pt-6 relative z-10 flex-wrap">
           <a href="/dashboard/confidentiel" className="px-5 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded-full font-bold text-xs transition-all border border-amber-500/30 flex items-center justify-center gap-2 shadow-lg">
             <Lock className="w-4 h-4" /> Stats Confidentielles
@@ -115,25 +184,26 @@ export default async function BusinessIntelligencePage() {
       <div className="space-y-12">
         {HUB_CATEGORIES.map((category, catIdx) => (
           <div key={catIdx} className="space-y-6">
-            
-            {/* Category header with bottom line border */}
+
+            {/* Category header with colored bar + bottom line border */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '10px' }} className="dark:border-white/10">
+              <div style={{ width: '8px', height: '30px', background: category.color, borderRadius: '4px', flexShrink: 0 }}></div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: category.color, margin: 0 }}>
                 {category.title}
               </h2>
             </div>
-            
+
             {/* Grid container */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
+              gap: '1.2rem'
             }}>
               {category.items.map((mod, index) => {
                 const IconComponent = mod.icon;
                 return (
-                  <Link 
-                    key={index} 
+                  <Link
+                    key={index}
                     href={mod.href}
                     className="apix-hub-card"
                     style={{
@@ -149,29 +219,29 @@ export default async function BusinessIntelligencePage() {
                     )}
 
                     <div style={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '12px',
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '10px',
                       background: `${mod.color}15`,
                       color: mod.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      marginBottom: '1.5rem'
+                      marginBottom: '1rem'
                     }}>
-                      <IconComponent size={32} />
+                      <IconComponent size={28} />
                     </div>
-                    
-                    <h3 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.5rem' }} className="text-slate-900 dark:text-white">
+
+                    <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '0.4rem' }} className="text-slate-900 dark:text-white">
                       {mod.label}
                     </h3>
-                    
-                    <p style={{ fontSize: '1.05rem', lineHeight: '1.5', flex: 1 }} className="text-slate-500 dark:text-slate-400">
+
+                    <p style={{ fontSize: '0.85rem', lineHeight: '1.4', flex: 1 }} className="text-slate-500 dark:text-slate-400">
                       {mod.desc}
                     </p>
 
                     <div style={{
-                      marginTop: '1.5rem',
+                      marginTop: '1rem',
                       display: 'flex',
                       alignItems: 'center',
                       color: mod.color,
