@@ -31,16 +31,6 @@ type AuditLogWithUser = any;
 
 const HUB_CATEGORIES = [
   {
-    title: "Pilotage & Cabinet",
-    color: "#006B3F", // Vert principal APIX
-    items: [
-      { href: "/clients", icon: Users, label: "Portefeuille Clients", desc: "CRM 360° avec identifiants locaux NIF / NINEA", color: "#10b981", badge: "Live" },
-      { href: "/missions", icon: Briefcase, label: "Missions & Tâches", desc: "Gestion opérationnelle, statuts et workflows", color: "#4ade80" },
-      { href: "/timesheets", icon: Clock, label: "Suivi des Temps", desc: "Rentabilité collaborative par dossier client", color: "#2dd4bf" },
-      { href: "/billing", icon: Receipt, label: "Facturation & Honoraires", desc: "Suivi des encaissements et taxes localisées", color: "#fcd34d" },
-    ]
-  },
-  {
     title: "Expertise & Production",
     color: "#F29400", // Orange principal APIX
     items: [
@@ -49,26 +39,6 @@ const HUB_CATEGORIES = [
       { href: "/fiscalite", icon: CalendarDays, label: "Fiscalité & Simulateur", desc: "Calcul des taxes et calendrier des échéances", color: "#818cf8" },
       { href: "/payroll", icon: Calculator, label: "Paie & Social (SN)", desc: "Gestion des bulletins adaptés zone UEMOA", color: "#a78bfa" },
       { href: "/documents", icon: FolderPlus, label: "GED Intelligente OCR", desc: "Scanner intelligent avec reconnaissance locale", color: "#fb923c", badge: "IA" },
-    ]
-  },
-  {
-    title: "Audit & Gouvernance",
-    color: "#8b5cf6", // Violet principal APIX
-    items: [
-      { href: "/audit", icon: ShieldAlert, label: "Audit FEC (Forensic)", desc: "Détection des anomalies et fraudes caisse", color: "#8b5cf6", badge: "IA" },
-      { href: "/audit/ai-assisted", icon: ShieldCheck, label: "Audit Légal (CAC)", desc: "Planification et notes de synthèse des commissaires", color: "#ec4899" },
-      { href: "/compliance/kyc-screening", icon: UserCheck, label: "Conformité KYC / LCB-FT", desc: "Règles anti-blanchiment BCEAO intégrées", color: "#22c55e" },
-      { href: "/governance", icon: Gavel, label: "Gouvernance & AG", desc: "Secrétariat juridique, tenues de PV et assemblées", color: "#fb7185" },
-    ]
-  },
-  {
-    title: "Stratégie & Fintech",
-    color: "#475569", // Slate principal APIX
-    items: [
-      { href: "/investment", icon: Activity, label: "Valorisation & M&A", desc: "Simulateur de fusion-acquisition et due diligence", color: "#94a3b8" },
-      { href: "/strategy/business-plan", icon: Rocket, label: "Business Plan", desc: "Génération de BP et radars fiscaux prédictifs", color: "#facc15" },
-      { href: "/fintech/payments", icon: CreditCard, label: "Paiements Mobile Money", desc: "Génération de QR codes Wave, Orange, MTN", color: "#60a5fa" },
-      { href: "/fintech/scoring", icon: Coins, label: "Score Solvabilité IA", desc: "Modélisation du risque crédit client", color: "#f87171" },
     ]
   },
   {
@@ -92,6 +62,16 @@ const HUB_CATEGORIES = [
     ]
   },
   {
+    title: "Audit & Gouvernance",
+    color: "#8b5cf6", // Violet principal APIX
+    items: [
+      { href: "/audit", icon: ShieldAlert, label: "Audit FEC (Forensic)", desc: "Détection des anomalies et fraudes caisse", color: "#8b5cf6", badge: "IA" },
+      { href: "/audit/ai-assisted", icon: ShieldCheck, label: "Audit Légal (CAC)", desc: "Planification et notes de synthèse des commissaires", color: "#ec4899" },
+      { href: "/compliance/kyc-screening", icon: UserCheck, label: "Conformité KYC / LCB-FT", desc: "Règles anti-blanchiment BCEAO intégrées", color: "#22c55e" },
+      { href: "/governance", icon: Gavel, label: "Gouvernance & AG", desc: "Secrétariat juridique, tenues de PV et assemblées", color: "#fb7185" },
+    ]
+  },
+  {
     title: "Conformité & Risques",
     color: "#dc2626", // Rouge
     items: [
@@ -99,6 +79,26 @@ const HUB_CATEGORIES = [
       { href: "/compliance/uemoa-score", icon: FileCheck, label: "Score UEMOA/BCEAO", desc: "Checklist de conformité, persistée par dossier client", color: "#f87171" },
       { href: "/analysis/deep", icon: Network, label: "Investigation OSINT", desc: "Criblage sanctions OFAC / OpenSanctions en temps réel", color: "#fca5a5" },
       { href: "/strategy/radar", icon: Radar, label: "Veille Réglementaire", desc: "Analyse d'impact assistée par IA sur le portefeuille", color: "#fed7aa" },
+    ]
+  },
+  {
+    title: "Pilotage & Cabinet",
+    color: "#006B3F", // Vert principal APIX
+    items: [
+      { href: "/clients", icon: Users, label: "Portefeuille Clients", desc: "CRM 360° avec identifiants locaux NIF / NINEA", color: "#10b981", badge: "Live" },
+      { href: "/missions", icon: Briefcase, label: "Missions & Tâches", desc: "Gestion opérationnelle, statuts et workflows", color: "#4ade80" },
+      { href: "/timesheets", icon: Clock, label: "Suivi des Temps", desc: "Rentabilité collaborative par dossier client", color: "#2dd4bf" },
+      { href: "/billing", icon: Receipt, label: "Facturation & Honoraires", desc: "Suivi des encaissements et taxes localisées", color: "#fcd34d" },
+    ]
+  },
+  {
+    title: "Stratégie & Fintech",
+    color: "#475569", // Slate principal APIX
+    items: [
+      { href: "/investment", icon: Activity, label: "Valorisation & M&A", desc: "Simulateur de fusion-acquisition et due diligence", color: "#94a3b8" },
+      { href: "/strategy/business-plan", icon: Rocket, label: "Business Plan", desc: "Génération de BP et radars fiscaux prédictifs", color: "#facc15" },
+      { href: "/fintech/payments", icon: CreditCard, label: "Paiements Mobile Money", desc: "Génération de QR codes Wave, Orange, MTN", color: "#60a5fa" },
+      { href: "/fintech/scoring", icon: Coins, label: "Score Solvabilité IA", desc: "Modélisation du risque crédit client", color: "#f87171" },
     ]
   },
   {
@@ -147,17 +147,38 @@ export default async function BusinessIntelligencePage() {
   return (
     <div className="p-8 space-y-12 animate-in fade-in duration-700 max-w-[1400px] mx-auto">
 
+      {/* Bandeau d'identité — même esprit que la référence (titre de marque + tagline, fond dégradé de la couleur du cabinet) */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #006B3F 0%, #009639 100%)',
+          padding: '2rem 3rem',
+          borderRadius: '20px',
+          color: 'white',
+        }}
+      >
+        {/* role="heading" plutôt que <h1> : une règle globale (.light h1 { color: var(--foreground) !important })
+            écraserait sinon la couleur inline — voir le même contournement sur /login. */}
+        <p role="heading" aria-level={1} style={{ fontSize: '2rem', fontWeight: 800, margin: 0, lineHeight: 1.2 }}>
+          CABINET<span style={{ color: '#F29400' }}>360</span>
+        </p>
+        <p style={{ fontSize: '1.1rem', color: '#e0f2ea', marginTop: '0.5rem' }}>
+          Plateforme complète de gestion pour cabinets d&apos;expertise comptable en zone OHADA.
+        </p>
+      </div>
+
       {/* HUB DES MODULES - EXACT COPIED STYLE FROM APIX */}
       <div className="space-y-12">
         {HUB_CATEGORIES.map((category, catIdx) => (
           <div key={catIdx} className="space-y-6">
 
-            {/* Category header with colored bar + bottom line border */}
+            {/* Category header with colored bar + bottom line border.
+                role="heading" plutôt que <h2> : une règle globale (.light h2 { color: var(--foreground) !important })
+                écraserait sinon la couleur propre à chaque catégorie — voir le même contournement sur /login. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '10px' }} className="dark:border-white/10">
               <div style={{ width: '8px', height: '30px', background: category.color, borderRadius: '4px', flexShrink: 0 }}></div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: category.color, margin: 0 }}>
+              <p role="heading" aria-level={2} style={{ fontSize: '1.5rem', fontWeight: 800, color: category.color, margin: 0 }}>
                 {category.title}
-              </h2>
+              </p>
             </div>
 
             {/* Grid container */}
