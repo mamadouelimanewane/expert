@@ -52,6 +52,16 @@ const HUB_CATEGORIES = [
     ]
   },
   {
+    title: "Portail Client & Onboarding",
+    color: "#db2777", // Rose
+    items: [
+      { href: "/portal/dashboard", icon: LayoutDashboard, label: "Espace Client", desc: "Tableau de bord dédié, accès par lien personnel", color: "#ec4899" },
+      { href: "/onboarding/digital", icon: UserPlus, label: "Onboarding Digital", desc: "Vérification d'identité et mandat SEPA (Stripe)", color: "#f472b6" },
+      { href: "/portal/custom-dashboard", icon: PenTool, label: "Personnalisation Portail", desc: "Widgets configurables par le client, synchronisés serveur", color: "#f9a8d4" },
+      { href: "/collaboration/requests", icon: MessageCircle, label: "Centre de Requêtes", desc: "Suivi des demandes de justificatifs et signatures", color: "#fbcfe8" },
+    ]
+  },
+  {
     title: "États Financiers & Reporting",
     color: "#2563eb", // Bleu
     items: [
@@ -109,16 +119,6 @@ const HUB_CATEGORIES = [
       { href: "/corporate/entity-hub", icon: Building2, label: "Entity Hub", desc: "Pilotage des filiales et gouvernance juridique", color: "#a5b4fc" },
       { href: "/strategy/wealth", icon: Wallet, label: "Wealth Optimizer", desc: "Patrimoine dirigeant et simulateur rémunération/dividendes", color: "#c7d2fe" },
       { href: "/bi/sustainability", icon: Leaf, label: "Reporting RSE/ESG", desc: "Indicateurs environnement, social et gouvernance", color: "#e0e7ff" },
-    ]
-  },
-  {
-    title: "Portail Client & Onboarding",
-    color: "#db2777", // Rose
-    items: [
-      { href: "/portal/dashboard", icon: LayoutDashboard, label: "Espace Client", desc: "Tableau de bord dédié, accès par lien personnel", color: "#ec4899" },
-      { href: "/onboarding/digital", icon: UserPlus, label: "Onboarding Digital", desc: "Vérification d'identité et mandat SEPA (Stripe)", color: "#f472b6" },
-      { href: "/portal/custom-dashboard", icon: PenTool, label: "Personnalisation Portail", desc: "Widgets configurables par le client, synchronisés serveur", color: "#f9a8d4" },
-      { href: "/collaboration/requests", icon: MessageCircle, label: "Centre de Requêtes", desc: "Suivi des demandes de justificatifs et signatures", color: "#fbcfe8" },
     ]
   },
   {
