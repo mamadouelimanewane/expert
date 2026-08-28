@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, ArrowRight, ShieldCheck, Fingerprint, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Lock, Mail, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -45,107 +44,116 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
-
-            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 relative z-10 rounded-[40px] border border-white/10 bg-slate-900/60 shadow-2xl overflow-hidden backdrop-blur-xl">
-                
-                {/* Left Side - Branding */}
-                <div className="p-4 sm:p-8 lg:p-16 hidden lg:flex flex-col justify-between bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border-r border-white/5 relative">
-                    <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
-                    
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-3 mb-12">
-                            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
-                                <Fingerprint className="w-6 h-6 text-white" />
-                            </div>
-                            <span className="text-2xl font-black tracking-tighter text-white">GANTIC360 EXPERT</span>
-                        </div>
-                        <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white leading-tight mb-6">
-                            L'ERP Nouvelle Génération pour Experts-Comptables.
-                        </h1>
-                        <p className="text-indigo-200 text-lg font-medium leading-relaxed max-w-md">
-                            Connectez-vous pour accéder à vos dossiers d'audit, piloter votre rentabilité et superviser vos collaborateurs via NEXUS IA.
-                        </p>
-                    </div>
-
-                    <div className="relative z-10 p-6 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md flex items-center gap-4">
-                        <ShieldCheck className="w-10 h-10 text-emerald-400" />
-                        <div>
-                            <p className="font-bold text-white text-sm">Sécurité Bancaire (256-bit)</p>
-                            <p className="text-xs text-indigo-200 mt-1">Vos données comptables sont chiffrées de bout en bout.</p>
-                        </div>
-                    </div>
+        <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #006B3F 0%, #009639 100%)',
+        }}>
+            <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '3rem',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                width: '100%',
+                maxWidth: '400px',
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                    {/* Un <h1> serait écrasé par la règle globale .light h1 { color: var(--foreground) !important } —
+                        cette page a son propre fond et sa propre identité de marque, hors thème de l'app. */}
+                    <p role="heading" aria-level={1} style={{ fontSize: '2rem', fontWeight: 700, color: '#006B3F', marginBottom: '0.5rem', lineHeight: 1.2 }}>
+                        CABINET<span style={{ color: '#F29400' }}>360</span>
+                    </p>
+                    <p style={{ color: '#94a3b8' }}>Gestion Expert-Comptable OHADA</p>
                 </div>
 
-                {/* Right Side - Login Form */}
-                <div className="p-8 sm:p-16 flex flex-col justify-center">
-                    <div className="max-w-md w-full mx-auto">
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-2">Bienvenue</h2>
-                        <p className="text-slate-400 font-medium mb-8">Saisissez vos identifiants pour accéder à votre espace sécurisé.</p>
-
-                        <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
-                            {/* Honeypot — invisible pour les humains, attrayant pour les bots */}
-                            <div aria-hidden="true" style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0, overflow: "hidden" }}>
-                                <label htmlFor="phone_number">Téléphone</label>
-                                <input
-                                    id="phone_number"
-                                    name="phone_number"
-                                    type="text"
-                                    tabIndex={-1}
-                                    autoComplete="off"
-                                    value={honeypot}
-                                    onChange={(e) => setHoneypot(e.target.value)}
-                                />
-                            </div>
-                            {error && (
-                                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm font-bold text-center">
-                                    {error}
-                                </div>
-                            )}
-
-                            <div>
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Email Professionnel</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                                    <input 
-                                        type="email" 
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        placeholder="vous@cabinet.sn" 
-                                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Mot de passe</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                                    <input 
-                                        type="password" 
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                        placeholder="••••••••" 
-                                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                                    />
-                                </div>
-                            </div>
-
-                            <button 
-                                type="submit" 
-                                disabled={isLoading}
-                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/30"
-                            >
-                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Se Connecter"} 
-                                {!isLoading && <ArrowRight className="w-4 h-4" />}
-                            </button>
-                        </form>
+                {error && (
+                    <div style={{
+                        background: '#ffebee',
+                        color: '#c62828',
+                        padding: '1rem',
+                        borderRadius: '8px',
+                        marginBottom: '1.5rem',
+                        fontSize: '0.9rem',
+                        textAlign: 'center',
+                    }}>
+                        {error}
                     </div>
+                )}
+
+                <form onSubmit={handleLogin} autoComplete="off">
+                    {/* Honeypot — invisible pour les humains, attrayant pour les bots */}
+                    <div aria-hidden="true" style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0, overflow: "hidden" }}>
+                        <label htmlFor="phone_number">Téléphone</label>
+                        <input
+                            id="phone_number"
+                            name="phone_number"
+                            type="text"
+                            tabIndex={-1}
+                            autoComplete="off"
+                            value={honeypot}
+                            onChange={(e) => setHoneypot(e.target.value)}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', fontWeight: 500 }}>
+                            <Mail size={18} style={{ color: '#006B3F' }} />
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="vous@cabinet.sn"
+                            required
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #cbd5e1', borderRadius: '8px' }}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: '2rem' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', fontWeight: 500 }}>
+                            <Lock size={18} style={{ color: '#006B3F' }} />
+                            Mot de passe
+                        </label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                            style={{ width: '100%', padding: '0.75rem', border: '1px solid #cbd5e1', borderRadius: '8px' }}
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            background: '#006B3F',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                            opacity: isLoading ? 0.6 : 1,
+                            transition: 'all 0.3s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                        }}
+                    >
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                        {isLoading ? 'Connexion...' : 'Se connecter'}
+                    </button>
+                </form>
+
+                <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>
+                    <p>Chiffrement bancaire (256-bit) — vos données sont protégées de bout en bout.</p>
                 </div>
             </div>
         </div>
