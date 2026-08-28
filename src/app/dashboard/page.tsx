@@ -178,8 +178,9 @@ export default async function Home() {
         {HUB_CATEGORIES.map((category, catIdx) => (
           <div key={catIdx} className="space-y-6">
             
-            {/* Category header with bottom line border */}
+            {/* Category header with colored bar + bottom line border */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', borderBottom: '2px solid rgba(0,0,0,0.05)', paddingBottom: '10px' }} className="dark:border-white/10">
+              <div style={{ width: '8px', height: '30px', background: category.color, borderRadius: '4px', flexShrink: 0 }}></div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: category.color, margin: 0 }}>
                 {category.title}
               </h2>
@@ -188,8 +189,8 @@ export default async function Home() {
             {/* Grid container */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
+              gap: '1.2rem'
             }}>
               {category.items.map((mod, index) => {
                 const IconComponent = mod.icon;
@@ -211,29 +212,29 @@ export default async function Home() {
                     )}
 
                     <div style={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '12px',
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '10px',
                       background: `${mod.color}15`,
                       color: mod.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      marginBottom: '1.5rem'
+                      marginBottom: '1rem'
                     }}>
-                      <IconComponent size={32} />
+                      <IconComponent size={28} />
                     </div>
-                    
-                    <h3 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.5rem' }} className="text-slate-900 dark:text-white">
+
+                    <h3 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '0.4rem' }} className="text-slate-900 dark:text-white">
                       {mod.label}
                     </h3>
-                    
-                    <p style={{ fontSize: '1.05rem', lineHeight: '1.5', flex: 1 }} className="text-slate-500 dark:text-slate-400">
+
+                    <p style={{ fontSize: '0.85rem', lineHeight: '1.4', flex: 1 }} className="text-slate-500 dark:text-slate-400">
                       {mod.desc}
                     </p>
 
                     <div style={{
-                      marginTop: '1.5rem',
+                      marginTop: '1rem',
                       display: 'flex',
                       alignItems: 'center',
                       color: mod.color,

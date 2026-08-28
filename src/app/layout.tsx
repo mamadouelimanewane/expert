@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { OnboardingGuide } from "@/components/onboarding/OnboardingGuide";
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
   title: "Cabinet 360 - Gestion Expert OHADA",
   description: "Logiciel de gestion pour cabinets d'expertise comptable (Zone OHADA)",
 };
+
+// Même police que la référence de présentation (apix-pap.vercel.app : Inter).
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export default function RootLayout({
   children,
@@ -39,7 +43,7 @@ export default function RootLayout({
               `
             }} />
           </head>
-          <body className={`antialiased text-foreground bg-background`}>
+          <body className={`${inter.variable} font-sans antialiased text-foreground bg-background`}>
             <div className="print:hidden">
               <OfflineIndicator />
               <InstallBanner />
