@@ -244,7 +244,7 @@ export default function NexusChatPage() {
                 }
               }}
               placeholder="Posez une question sur vos dossiers, la comptabilité, ou les normes OHADA..."
-              className="w-full bg-slate-950 border border-white/10 rounded-2xl pl-16 pr-16 py-4 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none min-h-[56px] max-h-[120px]"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl pl-16 pr-16 py-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 resize-none min-h-[56px] max-h-[120px]"
               rows={1}
             />
             

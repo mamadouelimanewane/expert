@@ -162,7 +162,7 @@ export default function LegalDraftingPage() {
                         <select
                             value={clientId}
                             onChange={(e) => setClientId(e.target.value)}
-                            className="w-full mb-8 bg-slate-950 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white"
+                            className="w-full mb-8 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-3 text-sm text-slate-900 dark:text-white"
                         >
                             <option value="">Aucun client (générique)</option>
                             {clients.map((c) => (
@@ -232,7 +232,7 @@ export default function LegalDraftingPage() {
                 {/* 2. Éditeur & Aperçu */}
                 <div className="lg:col-span-8 space-y-6">
                     <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl min-h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col overflow-hidden">
-                        <div className="p-8 border-b border-white/5 bg-slate-950/40 flex justify-between items-center">
+                        <div className="p-8 border-b border-white/5 bg-muted flex justify-between items-center">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
                                     <PenTool className="w-5 h-5 text-indigo-400" />

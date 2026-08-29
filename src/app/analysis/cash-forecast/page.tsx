@@ -78,7 +78,7 @@ export default function CashForecastPage() {
                 </div>
               </div>
 
-              <div className="flex bg-slate-950 rounded-xl p-1 border border-white/5">
+              <div className="flex bg-muted rounded-xl p-1 border border-border">
                 <button 
                   onClick={() => setActiveScenario('optimiste')}
                   className={cn("px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all", activeScenario === 'optimiste' ? "bg-emerald-500/20 text-emerald-400" : "text-slate-500 hover:text-slate-300")}

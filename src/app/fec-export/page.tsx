@@ -91,7 +91,7 @@ export default function FecExportPage() {
           <select
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
-            className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white"
           >
             <option value="">Sélectionner un client…</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -100,11 +100,11 @@ export default function FecExportPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Début de période</label>
-            <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+            <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white" />
           </div>
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Fin de période</label>
-            <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
+            <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white" />
           </div>
         </div>
 

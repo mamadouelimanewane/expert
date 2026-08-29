@@ -164,14 +164,14 @@ export default function SignaturePage() {
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     placeholder="Rechercher par titre..."
-                                    className="w-full bg-slate-950 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                                 />
                             </div>
                         </div>
 
                         <div className="overflow-x-auto">
                             <table className="w-full text-left apix-table">
-                                <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                                <thead className="bg-muted text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
                                     <tr>
                                         <th className="px-8 py-6">Document</th>
                                         <th className="px-6 py-6 font-black">Statut</th>

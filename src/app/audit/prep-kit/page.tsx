@@ -178,7 +178,7 @@ export default function CompleteAuditKitPage() {
                             <select
                                 value={clientId}
                                 onChange={(e) => setClientId(e.target.value)}
-                                className="bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white"
                             >
                                 <option value="">Sélectionner un dossier client…</option>
                                 {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -238,7 +238,7 @@ export default function CompleteAuditKitPage() {
                                 type="number"
                                 value={ca || ""}
                                 onChange={(e) => setCa(Number(e.target.value))}
-                                className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white font-mono outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-mono outline-none"
                             />
                         </div>
                         <div>
@@ -247,7 +247,7 @@ export default function CompleteAuditKitPage() {
                                 type="number"
                                 value={resultatNet || ""}
                                 onChange={(e) => setResultatNet(Number(e.target.value))}
-                                className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white font-mono outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-mono outline-none"
                             />
                         </div>
                         <button
@@ -277,19 +277,19 @@ export default function CompleteAuditKitPage() {
                             Matrice des risques
                         </h3>
                         <div className="flex flex-wrap gap-2">
-                            <select value={nouveauRisque.cycle} onChange={(e) => setNouveauRisque((f) => ({ ...f, cycle: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                            <select value={nouveauRisque.cycle} onChange={(e) => setNouveauRisque((f) => ({ ...f, cycle: e.target.value }))} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                                 {CYCLES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </select>
                             <input
                                 value={nouveauRisque.description}
                                 onChange={(e) => setNouveauRisque((f) => ({ ...f, description: e.target.value }))}
                                 placeholder="Description du risque"
-                                className="flex-1 min-w-[200px] bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                                className="flex-1 min-w-[200px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white"
                             />
-                            <select value={nouveauRisque.risqueInherent} onChange={(e) => setNouveauRisque((f) => ({ ...f, risqueInherent: e.target.value as NiveauRisque }))} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                            <select value={nouveauRisque.risqueInherent} onChange={(e) => setNouveauRisque((f) => ({ ...f, risqueInherent: e.target.value as NiveauRisque }))} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                                 {NIVEAUX.map((n) => <option key={n} value={n}>RI : {n}</option>)}
                             </select>
-                            <select value={nouveauRisque.risqueControle} onChange={(e) => setNouveauRisque((f) => ({ ...f, risqueControle: e.target.value as NiveauRisque }))} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                            <select value={nouveauRisque.risqueControle} onChange={(e) => setNouveauRisque((f) => ({ ...f, risqueControle: e.target.value as NiveauRisque }))} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                                 {NIVEAUX.map((n) => <option key={n} value={n}>RC : {n}</option>)}
                             </select>
                             <button onClick={ajouterRisque} className="px-4 py-2 bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 border border-rose-600/50 rounded-xl text-xs font-black uppercase flex items-center gap-2">
@@ -341,22 +341,22 @@ export default function CompleteAuditKitPage() {
                                 <FileCheck className="w-6 h-6 text-emerald-400" />
                                 Programme de travail
                             </h3>
-                            <div className="text-xs font-black text-slate-500 uppercase tracking-widest bg-slate-950 px-3 py-1 rounded-lg">
+                            <div className="text-xs font-black text-slate-500 uppercase tracking-widest bg-muted px-3 py-1 rounded-lg">
                                 Progression : {progression}%
                             </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <select value={nouvelleProcedure.cycle} onChange={(e) => setNouvelleProcedure((f) => ({ ...f, cycle: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                            <select value={nouvelleProcedure.cycle} onChange={(e) => setNouvelleProcedure((f) => ({ ...f, cycle: e.target.value }))} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                                 {CYCLES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </select>
-                            <select value={nouvelleProcedure.assertion} onChange={(e) => setNouvelleProcedure((f) => ({ ...f, assertion: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                            <select value={nouvelleProcedure.assertion} onChange={(e) => setNouvelleProcedure((f) => ({ ...f, assertion: e.target.value }))} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                                 {ASSERTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
                             </select>
                             <input
                                 value={nouvelleProcedure.procedure}
                                 onChange={(e) => setNouvelleProcedure((f) => ({ ...f, procedure: e.target.value }))}
                                 placeholder="Procédure d'audit"
-                                className="flex-1 min-w-[200px] bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                                className="flex-1 min-w-[200px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white"
                             />
                             <button onClick={ajouterProcedure} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
                                 <Plus className="w-4 h-4" /> Ajouter

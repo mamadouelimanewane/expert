@@ -66,7 +66,7 @@ export default function RadarImpactPage() {
             <div className="apix-card space-y-4">
                 <div className="flex justify-between items-center gap-4">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Texte à analyser</label>
-                    <select value={pays} onChange={(e) => setPays(e.target.value)} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
+                    <select value={pays} onChange={(e) => setPays(e.target.value)} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white">
                         <option value="">Pays (optionnel)</option>
                         {PAYS.filter(Boolean).map((p) => <option key={p} value={p}>{p}</option>)}
                     </select>
@@ -75,7 +75,7 @@ export default function RadarImpactPage() {
                     value={texteLoi}
                     onChange={(e) => setTexteLoi(e.target.value)}
                     placeholder="Collez ici le texte de la loi de finances, du décret ou de la circulaire…"
-                    className="w-full h-48 bg-slate-950 border border-white/10 rounded-2xl p-4 text-sm text-white resize-none focus:outline-none focus:border-rose-500"
+                    className="w-full h-48 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm text-slate-900 dark:text-white resize-none focus:outline-none focus:border-rose-500"
                 />
                 {erreur && <p className="text-sm text-red-400">{erreur}</p>}
                 <button

@@ -122,47 +122,45 @@ export default function CollaborativeProductionPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
 
-            {/* Pennylane Style Hero */}
-            <div className="bg-slate-950 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                    <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
-                                All-in-One Production
-                            </span>
-                        </div>
-                        <h2 className="page-title leading-tight">
-                            Production Comptable <span className="text-indigo-400">Collaborative</span>
-                        </h2>
-                        <p className="page-subtitle">
-                            Accédez aux flux financiers de vos clients en temps réel. Pennylane synchronise la gestion client et la production cabinet dans un outil unique.
-                        </p>
+            {/* En-tête façon apix-pap : titre + sous-titre directement sur la page,
+                sans carte décorative surdimensionnée (l'ancien bandeau bg-slate-950
+                pleine opacité n'était en outre jamais éclairci par le thème clair —
+                seules les variantes bg-slate-900/bg-slate-950\/20 le sont — d'où le
+                fond noir signalé). */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            All-in-One Production
+                        </span>
                     </div>
+                    <h2 className="page-title leading-tight">
+                        Production Comptable <span className="text-indigo-400">Collaborative</span>
+                    </h2>
+                    <p className="page-subtitle">
+                        Accédez aux flux financiers de vos clients en temps réel. Pennylane synchronise la gestion client et la production cabinet dans un outil unique.
+                    </p>
+                </div>
 
-                    <div className="flex gap-4">
-                        <div className="bg-white/5 p-1.5 rounded-2xl border border-white/10 flex">
-                            <button
-                                onClick={() => setActiveView("production")}
-                                className={cn(
-                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                                    activeView === "production" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-white"
-                                )}
-                            >
-                                Production
-                            </button>
-                            <button
-                                onClick={() => setActiveView("pilotage")}
-                                className={cn(
-                                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                                    activeView === "pilotage" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-white"
-                                )}
-                            >
-                                Pilotage
-                            </button>
-                        </div>
-                    </div>
+                <div className="bg-muted p-1.5 rounded-2xl border border-border flex">
+                    <button
+                        onClick={() => setActiveView("production")}
+                        className={cn(
+                            "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                            activeView === "production" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-foreground"
+                        )}
+                    >
+                        Production
+                    </button>
+                    <button
+                        onClick={() => setActiveView("pilotage")}
+                        className={cn(
+                            "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                            activeView === "pilotage" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-foreground"
+                        )}
+                    >
+                        Pilotage
+                    </button>
                 </div>
             </div>
 
@@ -205,7 +203,7 @@ export default function CollaborativeProductionPage() {
                                 placeholder="Rechercher un client, un montant..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-slate-950 border border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                             />
                         </div>
                     </div>
@@ -213,7 +211,7 @@ export default function CollaborativeProductionPage() {
 
                 <div className="overflow-x-auto">
                     <table className="apix-table w-full text-left">
-                        <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                        <thead className="bg-muted text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                             <tr>
                                 <th className="px-8 py-6">Date</th>
                                 <th className="px-6 py-6">Client / Dossier</th>
@@ -378,7 +376,7 @@ function PortfolioProgress({ client, progress, status, color = "bg-indigo-500" }
                 <span className="text-white">{client}</span>
                 <span className="text-slate-500 uppercase tracking-widest text-[9px]">{status}</span>
             </div>
-            <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-white/5">
+            <div className="w-full h-2 bg-muted rounded-full overflow-hidden border border-border">
                 <div className={cn("h-full transition-all duration-1000", color)} style={{ width: `${progress}%` }} />
             </div>
         </div>

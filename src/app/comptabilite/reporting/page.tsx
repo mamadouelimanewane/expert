@@ -206,7 +206,7 @@ export default function ReportingAutomationPage() {
                             <select
                                 value={clientId}
                                 onChange={(e) => setClientId(e.target.value)}
-                                className="w-full max-w-md bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                                className="w-full max-w-md bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white"
                             >
                                 <option value="">Sélectionner un client</option>
                                 {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -264,7 +264,7 @@ export default function ReportingAutomationPage() {
                                 type="month"
                                 value={selectedPeriod}
                                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                                className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white mb-8"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white mb-8"
                             />
 
                             <button

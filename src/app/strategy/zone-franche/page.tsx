@@ -291,7 +291,7 @@ export default function ZoneFranchePage() {
                     <select
                       value={clientId}
                       onChange={(e) => { setClientId(e.target.value); setDemande("idle"); }}
-                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-sm text-white"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white"
                     >
                       <option value="">Sélectionner le dossier client concerné…</option>
                       {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}

@@ -134,7 +134,7 @@ export default function BoniMaliPage() {
                     </div>
 
                     {synthese && synthese.nbEvaluees > 0 && (
-                        <div className="p-6 bg-slate-950/80 rounded-3xl border border-white/10 shadow-xl backdrop-blur-xl">
+                        <div className="p-6 bg-white dark:bg-slate-950/80 rounded-3xl border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-xl">
                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                                 Boni/mali cumulé ({synthese.nbEvaluees} mission
                                 {synthese.nbEvaluees > 1 ? "s" : ""} évaluée
@@ -239,14 +239,14 @@ export default function BoniMaliPage() {
                             value={recherche}
                             onChange={(e) => setRecherche(e.target.value)}
                             placeholder="Filtrer par client ou mission…"
-                            className="w-full bg-slate-950 border border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
                         />
                     </div>
                 </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left apix-table">
-                        <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                        <thead className="bg-muted text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                             <tr>
                                 <th className="px-8 py-6">Client / mission</th>
                                 <th className="px-6 py-6 text-center">Budget temps</th>

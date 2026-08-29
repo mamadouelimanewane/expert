@@ -151,7 +151,7 @@ export default function NeuralForensicsPage() {
     };
 
     return (
-        <div className="h-[calc(100vh-100px)] flex flex-col bg-slate-950 overflow-hidden relative selection:bg-rose-500/30 font-sans">
+        <div className="h-[calc(100vh-100px)] flex flex-col bg-[#020617] overflow-hidden relative selection:bg-rose-500/30 font-sans">
             {/* Header / HUD */}
             <div className="absolute top-0 left-0 right-0 z-20 p-6 pointer-events-none flex justify-between items-start">
                 <div className="pointer-events-auto">
@@ -160,10 +160,10 @@ export default function NeuralForensicsPage() {
                             <Network className="w-6 h-6 text-indigo-400" />
                         </div>
                         <div>
-                            <h1 className="page-title flex items-center gap-2">
+                            <h1 className="page-title-dark flex items-center gap-2">
                                 SHERLOCK <span className="text-indigo-500">HOLMES</span> AI
                             </h1>
-                            <p className="page-subtitle">Enquête Numérique & Intelligence Open Source (OSINT)</p>
+                            <p className="page-subtitle-dark">Enquête Numérique & Intelligence Open Source (OSINT)</p>
                         </div>
                     </div>
                 </div>

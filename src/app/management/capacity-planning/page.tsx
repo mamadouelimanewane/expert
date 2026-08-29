@@ -186,7 +186,7 @@ export default function CapacityPlanningPage() {
                                     </div>
                                 </div>
 
-                                <div className="relative h-8 bg-slate-950 rounded-lg overflow-hidden flex border border-white/5">
+                                <div className="relative h-8 bg-muted rounded-lg overflow-hidden flex border border-border">
                                     <div
                                         className={cn(
                                             "h-full flex items-center px-3 text-[10px] font-bold text-white/80 transition-all duration-1000",
