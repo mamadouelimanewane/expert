@@ -84,7 +84,7 @@ export default function BillingPage() {
                 à l'unité via Wave/Orange/MTN est réel (voir PaymentModal ci-dessous),
                 mais aucun prélèvement récurrent automatisé n'est implémenté. */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="glass-card p-6 rounded-2xl border border-slate-700/50 relative overflow-hidden">
+                <div className="apix-card relative overflow-hidden">
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Encaissé</p>
@@ -96,7 +96,7 @@ export default function BillingPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-6 rounded-2xl border border-slate-700/50 relative overflow-hidden">
+                <div className="apix-card relative overflow-hidden">
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">En attente / Retard</p>
@@ -113,7 +113,7 @@ export default function BillingPage() {
                 </div>
             </div>
 
-            <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 flex items-start gap-6">
+            <div className="apix-card flex items-start gap-6">
                 <div className="p-4 bg-emerald-500/10 rounded-2xl">
                     <CreditCard className="w-6 h-6 text-emerald-400" />
                 </div>
