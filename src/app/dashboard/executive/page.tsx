@@ -121,7 +121,7 @@ export default function ExecutiveDashboardPage() {
               <Users className="w-5 h-5 text-indigo-400" /> Rentabilité Collaborateurs
             </h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="apix-table w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/5">
                     <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Collaborateur</th>

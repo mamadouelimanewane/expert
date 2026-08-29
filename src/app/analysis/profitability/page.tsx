@@ -106,7 +106,7 @@ export default function ClientProfitabilityPage() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="apix-table text-left">
                             <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
                                 <tr>
                                     <th className="px-8 py-6">Client</th>

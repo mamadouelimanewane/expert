@@ -220,7 +220,7 @@ export default function HealthScoreDashboard() {
       {viewMode === "table" && (
         <div className="bg-slate-900/40 border border-white/5 rounded-[28px] overflow-hidden">
           <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="apix-table text-left">
             <thead>
               <tr className="border-b border-white/10 bg-slate-800/50">
                 {["Client", "Score", "Rating", "Tendance", "Pays", "Crédit", "Action"].map(h => (

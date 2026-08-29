@@ -377,7 +377,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             {/* Assets Table */}
             <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full apix-table">
                         <thead>
                             <tr className="border-b border-slate-700/50 bg-slate-900/50">
                                 <th className="text-left p-4 text-xs font-bold text-slate-500 uppercase">Code</th>
@@ -500,7 +500,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     </h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full apix-table">
                         <thead>
                             <tr className="border-b border-slate-700/50 bg-slate-900/50">
                                 <th className="text-left p-4 text-xs font-bold text-slate-500 uppercase">Code</th>
@@ -620,7 +620,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     </h3>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full apix-table">
                         <thead>
                             <tr className="border-b border-slate-700/50 bg-slate-900/50">
                                 <th className="text-left p-4 text-xs font-bold text-slate-500 uppercase">Code</th>

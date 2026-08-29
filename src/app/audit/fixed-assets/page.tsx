@@ -184,7 +184,7 @@ export default function FixedAssetsAuditPage() {
                     {/* Main List */}
                     <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
                         <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="apix-table text-left text-sm">
                             <thead className="bg-slate-900/50 text-slate-500 font-medium">
                                 <tr>
                                     <th className="px-6 py-4">Immobilisation</th>

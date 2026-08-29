@@ -239,7 +239,7 @@ export default function CollaborationRequestsPage() {
                     <p className="p-8 text-sm text-slate-500">Aucune requête enregistrée.</p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="apix-table-dark text-left">
                             <thead className="bg-slate-950/50 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">
                                 <tr>
                                     <th className="p-6">Client</th>

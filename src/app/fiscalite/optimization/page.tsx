@@ -311,7 +311,7 @@ export default function NexusTaxIntelligencePage() {
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
+                                    <table className="apix-table w-full text-left">
                                         <thead className="border-b border-white/5">
                                             <tr>
                                                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Régime</th>

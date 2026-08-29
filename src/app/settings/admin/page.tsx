@@ -129,7 +129,7 @@ export default function UsersSettingsPage() {
 
                     <div className="glass-card rounded-2xl border border-border/50 overflow-hidden">
                         <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full text-left text-sm apix-table">
                             <thead className="bg-background/50 text-muted-foreground font-medium border-b border-border/50">
                                 <tr>
                                     <th className="px-6 py-4">Utilisateur</th>

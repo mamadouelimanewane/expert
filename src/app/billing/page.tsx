@@ -157,7 +157,7 @@ export default function BillingPage() {
                             <p className="text-slate-500 font-medium">Chargement des données financières...</p>
                         </div>
                     ) : (
-                        <table className="w-full text-left text-sm">
+                        <table className="apix-table text-left text-sm">
                             <thead className="bg-slate-900/30 text-slate-500 font-medium">
                                 <tr>
                                     <th className="px-6 py-4">Numéro / Date</th>

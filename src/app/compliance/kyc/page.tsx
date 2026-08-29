@@ -137,7 +137,7 @@ export default function KycIntelligenceHub() {
                             <div className="py-24 text-center text-slate-500 text-sm">Aucun client ne correspond.</div>
                         ) : (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left">
+                                <table className="apix-table text-left">
                                     <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                         <tr>
                                             <th className="px-8 py-6">Entité</th>

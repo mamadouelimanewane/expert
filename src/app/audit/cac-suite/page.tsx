@@ -310,7 +310,7 @@ export default function CACSuitePage() {
                             <p className="text-sm text-slate-500">Aucune circularisation ajoutée pour ce dossier.</p>
                         ) : (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left">
+                                <table className="apix-table-dark text-left">
                                     <thead className="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                         <tr>
                                             <th className="pb-4 px-4">Type</th>

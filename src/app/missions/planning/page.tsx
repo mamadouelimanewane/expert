@@ -275,7 +275,7 @@ export default function ResourcePlanningPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                    <table className="w-full border-collapse apix-table">
                         <thead>
                             <tr className="bg-slate-900/60">
                                 <th className="sticky left-0 z-20 bg-slate-900 p-6 text-left border-r border-white/5 min-w-[250px]">

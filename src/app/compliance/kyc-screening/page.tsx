@@ -187,7 +187,7 @@ export default function KycScreeningPage() {
 
                 {!erreur && (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="apix-table-dark text-left">
                             <thead className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-950/50">
                                 <tr>
                                     <th className="px-8 py-5">Entité</th>

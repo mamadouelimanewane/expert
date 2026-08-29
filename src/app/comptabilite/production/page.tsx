@@ -212,7 +212,7 @@ export default function CollaborativeProductionPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="apix-table w-full text-left">
                         <thead className="bg-slate-950/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                             <tr>
                                 <th className="px-8 py-6">Date</th>

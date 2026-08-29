@@ -251,7 +251,7 @@ export default function IngestPage() {
                         </div>
 
                         <div className="flex-1 overflow-x-auto">
-                            <table className="w-full text-left text-sm border-collapse">
+                            <table className="w-full text-left text-sm border-collapse apix-table">
                                 <thead>
                                     <tr className="border-b border-slate-700 text-slate-500">
                                         <th className="p-3 font-medium">Date</th>

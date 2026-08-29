@@ -158,13 +158,15 @@ export default function TFTPage() {
                     </div>
 
                     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                        <table className="w-full text-sm">
+                        <div className="apix-table-wrapper">
+                        <table className="apix-table w-full text-sm">
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 <TFTRow label="Trésorerie nette à l'ouverture" montant={tft.tresorerieOuverture} />
                                 <TFTRow label="Variation de la trésorerie nette" montant={tft.variationTresorerie} />
                                 <TFTRow label="Trésorerie nette à la clôture" montant={tft.tresorerieClotureCalculee} bold />
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </>
             )}
@@ -178,7 +180,8 @@ function TFTSection({ title, lignes, color }: { title: string; lignes: LigneTFT[
             <div className={`px-6 py-3 ${color} text-white`}>
                 <h3 className="font-bold tracking-wide">{title}</h3>
             </div>
-            <table className="w-full text-sm">
+            <div className="apix-table-wrapper">
+            <table className="apix-table w-full text-sm">
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {lignes.map((l) => (
                         <tr key={l.code} className={l.isTotal ? "bg-slate-50 dark:bg-slate-900 font-bold" : ""}>
@@ -188,6 +191,7 @@ function TFTSection({ title, lignes, color }: { title: string; lignes: LigneTFT[
                     ))}
                 </tbody>
             </table>
+            </div>
         </div>
     );
 }

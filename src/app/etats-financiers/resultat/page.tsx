@@ -113,7 +113,7 @@ export default function ResultatPage() {
 
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
                 <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="apix-table w-full text-sm">
                     <thead className="bg-slate-50 dark:bg-slate-900">
                         <tr>
                             <th className="px-6 py-4 text-left font-medium text-slate-500 dark:text-slate-400">Réf</th>

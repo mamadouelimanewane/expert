@@ -132,7 +132,7 @@ export default function TierAnalysisPage() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="apix-table text-left text-sm">
                             <thead className="text-slate-500 font-bold bg-slate-900/50 border-b border-slate-800 uppercase text-[10px]">
                                 <tr>
                                     <th className="px-6 py-4">Compte / Tiers</th>

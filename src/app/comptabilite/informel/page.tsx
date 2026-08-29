@@ -437,7 +437,7 @@ export default function InformelPage() {
                         {/* Onglet 0 : Cahier Client */}
                         {activeTab === 0 && (
                             <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
+                                <table className="apix-table text-sm">
                                     <thead className="text-xs text-muted-foreground uppercase bg-muted/10 border-b border-border/50">
                                         <tr>
                                             <th className="px-6 py-3 text-left">Date</th>
@@ -473,7 +473,7 @@ export default function InformelPage() {
                                 <div className="px-6 py-2 bg-indigo-500/5 border-b border-indigo-500/20 flex items-center gap-2 text-xs text-indigo-500 font-bold">
                                     <Sparkles className="w-3 h-3" /> Généré par le Moteur OHADA — Référentiel SYSCOHADA / UEMOA
                                 </div>
-                                <table className="w-full text-sm">
+                                <table className="apix-table text-sm">
                                     <thead className="text-xs text-muted-foreground uppercase bg-muted/10 border-b border-border/50">
                                         <tr>
                                             <th className="px-4 py-3 text-left">Date</th>
@@ -518,7 +518,7 @@ export default function InformelPage() {
                                 <div className="px-6 py-2 bg-purple-500/5 border-b border-purple-500/20 flex items-center gap-2 text-xs text-purple-500 font-bold">
                                     <BarChart2 className="w-3 h-3" /> Balance Provisoire — Totalisation par Compte SYSCOHADA
                                 </div>
-                                <table className="w-full text-sm">
+                                <table className="apix-table text-sm">
                                     <thead className="text-xs text-muted-foreground uppercase bg-muted/10 border-b border-border/50">
                                         <tr>
                                             <th className="px-6 py-3 text-left">N° Compte</th>

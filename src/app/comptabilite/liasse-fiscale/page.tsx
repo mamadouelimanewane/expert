@@ -376,7 +376,7 @@ export default function LiasseFiscalePage() {
                             </p>
                         ) : (
                             <div className="overflow-x-auto">
-                                <table className="w-full min-w-[640px] text-sm">
+                                <table className="apix-table w-full min-w-[640px] text-sm">
                                     <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                                         <tr>
                                             <th className="px-4 py-3 text-left font-medium">Réf</th>

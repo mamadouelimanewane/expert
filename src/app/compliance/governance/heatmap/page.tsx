@@ -113,7 +113,7 @@ export default function GovernanceHeatmapPage() {
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
                         </div>
                     ) : (
-                        <table className="w-full text-left border-separate border-spacing-2">
+                        <table className="apix-table text-left border-separate border-spacing-2">
                             <thead>
                                 <tr>
                                     <th className="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Client / Société</th>

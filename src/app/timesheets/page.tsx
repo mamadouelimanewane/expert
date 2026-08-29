@@ -286,7 +286,7 @@ export default function TimesheetsPage() {
                 </div>
 
                 <div className="overflow-x-auto p-6">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
+                    <table className="w-full text-left border-collapse min-w-[800px] apix-table">
                         <thead>
                             <tr>
                                 <th className="pb-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-1/4">Client & Mission</th>

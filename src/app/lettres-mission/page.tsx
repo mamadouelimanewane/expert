@@ -233,7 +233,7 @@ export default function LettresMissionPage() {
                     <div className="p-20 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>
                 ) : (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left apix-table">
                         <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-[0.15em] border-b border-white/5">
                             <tr>
                                 <th className="px-8 py-6">Référence / Client</th>

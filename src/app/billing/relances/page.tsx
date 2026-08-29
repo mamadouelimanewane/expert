@@ -153,7 +153,7 @@ export default function RelancesPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
         <h3 className="text-lg font-black text-white mb-6">Historique des relances</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="apix-table text-left">
             <thead>
               <tr className="border-b border-white/5">
                 <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>

@@ -238,7 +238,7 @@ export default function PayrollDashboard() {
             {variables ? (
               <div className="space-y-6">
                 <div className="overflow-x-auto custom-scrollbar">
-                  <table className="w-full text-left border-collapse min-w-[800px]">
+                  <table className="w-full text-left border-collapse min-w-[800px] apix-table">
                     <thead>
                       <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-800/30">
                         <th className="p-3 rounded-tl-xl">Employé</th>

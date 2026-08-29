@@ -237,7 +237,7 @@ export default function MobileMoneyPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left apix-table">
                         <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                             <tr>
                                 <th className="px-8 py-5">Opérateur</th>

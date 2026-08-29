@@ -188,7 +188,7 @@ function SaisieSimplifieeInner() {
       {activeTab === "form" && (
         <div className="glass-card rounded-[32px] p-8 border border-white/5 bg-slate-900/40">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse apix-table">
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="p-4 text-xs font-black text-slate-400 uppercase tracking-widest">Date</th>

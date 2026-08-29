@@ -197,7 +197,7 @@ export default function SmartGEDPage() {
                 <div className="p-6">
                     {view === "list" ? (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left text-sm">
+                            <table className="apix-table w-full text-left text-sm">
                                 <thead className="bg-slate-900/80 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
                                     <tr>
                                         <th className="px-6 py-4">Nom du Fichier</th>

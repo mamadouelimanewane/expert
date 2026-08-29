@@ -339,7 +339,7 @@ function FinanceSection({ projections, setProjections }: any) {
                     </div>
 
                     <div className="mt-8 overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left apix-table">
                             <thead>
                                 <tr className="text-[10px] text-slate-500 uppercase tracking-wider">
                                     <th className="pb-4 font-bold">Indicateur (k$)</th>

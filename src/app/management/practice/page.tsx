@@ -163,7 +163,7 @@ export default function PracticeManagementPage() {
                     </div>
 
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left apix-table">
                             <thead className="text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5">
                                 <tr>
                                     <th className="pb-4 pl-4">Client / mission</th>

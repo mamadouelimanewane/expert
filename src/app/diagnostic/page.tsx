@@ -417,7 +417,7 @@ export default function DiagnosticPage() {
                                                     </h4>
                                                 </div>
                                                 <div className="overflow-x-auto">
-                                                    <table className="w-full text-sm">
+                                                    <table className="apix-table w-full text-sm">
                                                         <thead>
                                                             <tr className="border-b border-slate-700/30">
                                                                 <th className="text-left p-3 text-xs font-bold text-slate-500 uppercase">Indicateur</th>

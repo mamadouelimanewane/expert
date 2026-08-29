@@ -152,7 +152,7 @@ export default function CashForecastPage() {
               <p className="text-sm text-slate-500 text-center py-8">Aucune facture à échoir dans les 90 prochains jours.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="apix-table text-left">
                   <thead>
                     <tr className="border-b border-white/5">
                       <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>

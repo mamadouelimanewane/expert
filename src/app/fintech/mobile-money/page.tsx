@@ -166,7 +166,7 @@ export default function MobileMoneyPage() {
                             Aucune transaction trouvée.{canSimulate ? ' Cliquez sur "Générer transaction test" pour tester le flux de rapprochement.' : ''}
                         </div>
                     ) : (
-                        <div className="overflow-x-auto"><table className="w-full text-sm text-left">
+                        <div className="overflow-x-auto"><table className="apix-table w-full text-sm text-left">
                             <thead className="text-xs text-muted-foreground uppercase bg-muted/10">
                                 <tr>
                                     <th className="px-6 py-4 font-bold">Opérateur</th>

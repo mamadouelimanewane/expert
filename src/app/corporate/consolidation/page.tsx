@@ -244,7 +244,7 @@ export default function ConsolidationPage() {
               <button onClick={() => setShowAddElimination(true)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold">+ Ajouter Élimination</button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="apix-table w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/5">
                     <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Type</th>
@@ -314,7 +314,7 @@ export default function ConsolidationPage() {
 
             {comptesConsolides.length > 0 && (
               <div className="bg-slate-950/50 rounded-2xl border border-white/5 p-6 overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="apix-table w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/10">
                       <th className="pb-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Compte</th>
@@ -345,7 +345,7 @@ export default function ConsolidationPage() {
             <div>
               <h4 className="text-sm font-black text-white uppercase tracking-widest mb-3">Éliminations intra-groupe</h4>
               <div className="bg-slate-950/50 rounded-2xl border border-white/5 p-6 overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="apix-table w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/10">
                       <th className="pb-3 text-xs font-black text-white">Type</th>
