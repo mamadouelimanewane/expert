@@ -148,7 +148,7 @@ export default function PracticeManagementPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Rentabilité par mission */}
-                <div className="lg:col-span-2 glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="lg:col-span-2 apix-card">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
                             <Target className="w-5 h-5 text-indigo-400" />
@@ -235,7 +235,7 @@ export default function PracticeManagementPage() {
                 </div>
 
                 {/* Charge d'équipe */}
-                <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-950/40">
+                <div className="apix-card">
                     <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                         <Users className="w-5 h-5 text-sky-400" />
                         Charge de l&apos;équipe
@@ -297,7 +297,7 @@ function MetricCard({
     color: string;
 }) {
     return (
-        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+        <div className="apix-card">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{label}</p>
             <div className="flex justify-between items-end">
                 <h3 className={cn("text-2xl font-black", color)}>{value}</h3>

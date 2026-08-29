@@ -116,15 +116,15 @@ export default function CollaborationWorkspacesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-8 rounded-[40px] bg-cyan-500/5 border border-cyan-500/20">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Projets Actifs</p>
                     <span className="text-xl sm:text-2xl lg:text-3xl font-black text-cyan-400">{activeCount}</span>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Collaborateurs Impliqués</p>
                     <span className="text-xl sm:text-2xl lg:text-3xl font-black text-white">{totalMembers}</span>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-emerald-500/5 border border-emerald-500/20">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Total Workspaces</p>
                     <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400">{workspaces.length}</span>
                 </div>
@@ -154,10 +154,7 @@ export default function CollaborationWorkspacesPage() {
                             {filteredWorkspaces.map(workspace => (
                                 <div
                                     key={workspace.id}
-                                    className={cn(
-                                        "glass-card rounded-3xl border p-6 transition-all",
-                                        workspace.status === "ACTIF" ? "border-cyan-500/20 bg-cyan-500/5" : "border-white/5 bg-slate-900/40"
-                                    )}
+                                    className="apix-card transition-all"
                                 >
                                     <div className="flex justify-between items-start mb-4">
                                         <span className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase border", TYPE_COLOR[workspace.type])}>
@@ -189,7 +186,7 @@ export default function CollaborationWorkspacesPage() {
                 </div>
 
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6">
+                    <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest flex items-center gap-2">
                             <Bell className="w-4 h-4 text-cyan-400" /> Activité Récente
                         </h3>

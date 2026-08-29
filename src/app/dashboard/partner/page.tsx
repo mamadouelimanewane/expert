@@ -190,7 +190,7 @@ export default function PartnerDashboard() {
 
                 {/* Répartition Portefeuille */}
                 <div className="space-y-6">
-                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-white font-bold mb-2 flex items-center gap-3 uppercase text-xs tracking-widest">
                             <PieChart className="w-4 h-4 text-cyan-400" />
                             Mix par Type de Mission
@@ -206,7 +206,7 @@ export default function PartnerDashboard() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h4 className="text-white font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Clock className="w-4 h-4 text-indigo-400" /> Résumé Cabinet
                         </h4>
@@ -224,7 +224,7 @@ export default function PartnerDashboard() {
 
 function StrategicCard({ title, value, subtext, icon: Icon, color, bgColor }: { title: string; value: string; subtext: string; icon: React.ElementType; color: string; bgColor: string }) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all shadow-xl">
+        <div className="apix-card group transition-all">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-2xl shadow-xl transition-transform group-hover:scale-110", bgColor, color)}>
                     <Icon className="w-6 h-6" />

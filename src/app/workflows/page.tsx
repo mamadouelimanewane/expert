@@ -136,7 +136,7 @@ function PipelineColumn({ title, count, icon: Icon, children, className }: any) 
 
 function MissionCard({ mission }: { mission: WorkflowMission }) {
     return (
-        <div className="glass-card p-5 rounded-2xl border border-white/5 bg-slate-900/40 hover:scale-[1.02] transition-all group shadow-xl">
+        <div className="apix-card hover:scale-[1.02] transition-all group">
             <div className="flex justify-between items-start mb-3">
                 <span className={cn(
                     "text-[8px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter",

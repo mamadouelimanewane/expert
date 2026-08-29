@@ -213,7 +213,7 @@ export default function ApiKeysPage() {
         )}
       </div>
 
-      <div className="glass-card rounded-[32px] p-8 border border-white/5 bg-slate-900/40">
+      <div className="apix-card">
         <h2 className="text-lg font-black text-white flex items-center gap-2 mb-6">
           <Webhook className="w-5 h-5 text-violet-400" /> Webhooks
         </h2>

@@ -141,7 +141,7 @@ export default function CapacityPlanningPage() {
             </div>
 
             {/* Répartition */}
-            <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8 space-y-6">
+            <div className="apix-card space-y-6">
                 <h3 className="font-bold text-white text-xl flex items-center gap-3">
                     <BarChart3 className="w-5 h-5 text-indigo-400" />
                     Répartition par collaborateur
@@ -239,7 +239,7 @@ function CapacityKpi({
     subtitle: string;
 }) {
     return (
-        <div className="glass-card p-6 rounded-2xl border border-white/5 bg-slate-900/40">
+        <div className="apix-card">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{title}</p>
             <h3
                 className={cn(

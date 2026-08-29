@@ -229,7 +229,7 @@ export default function ProceduresPage() {
                                 </div>
 
                                 {/* RACI Matrix Pre-view */}
-                                <div className="glass-card rounded-2xl p-6 border border-slate-700/50">
+                                <div className="apix-card">
                                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                                         <Users className="w-4 h-4" /> Matrice des Responsabilités (RACI) — repère visuel
                                     </h4>

@@ -119,7 +119,7 @@ export default function CoCounselPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 flex-1 overflow-auto">
+                <div className="apix-card flex-1 overflow-auto">
                     <h4 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Actions Rapides</h4>
                     <div className="space-y-2">
                         {QUICK_ACTIONS.map(action => (

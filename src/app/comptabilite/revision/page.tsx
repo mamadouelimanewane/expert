@@ -131,7 +131,7 @@ export default function RevisionPage() {
 
             {/* Progress Analysis */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4">Avancement Global</p>
                     <div className="flex items-center gap-6">
                         <div className="relative w-20 h-20">
@@ -167,7 +167,7 @@ export default function RevisionPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4">Anomalies Détectées</p>
                     <div className="flex items-center gap-6">
                         <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
@@ -180,7 +180,7 @@ export default function RevisionPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col justify-center overflow-hidden relative">
+                <div className="apix-card flex flex-col justify-center overflow-hidden relative">
                     <div className="absolute top-0 right-0 p-6 opacity-10">
                         <Lock className="w-16 h-16 text-slate-500" />
                     </div>

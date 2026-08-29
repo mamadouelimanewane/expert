@@ -197,7 +197,7 @@ export default function OCRPage() {
                 </div>
 
                 {/* Results Area */}
-                <div className="glass-card rounded-[32px] p-8 border border-slate-700/30 bg-slate-900/40 flex flex-col shadow-2xl relative overflow-hidden">
+                <div className="apix-card flex flex-col relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] pointer-events-none rounded-full" />
 
                     <div className="flex items-center justify-between mb-8 relative z-10">

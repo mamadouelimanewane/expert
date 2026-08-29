@@ -330,7 +330,7 @@ export default function InformelPage() {
 
             {/* Animation de traitement */}
             {processing && (
-                <div className="glass-card rounded-3xl border border-indigo-500/20 p-4 sm:p-8 lg:p-16 flex flex-col items-center justify-center text-center space-y-6">
+                <div className="apix-card flex flex-col items-center justify-center text-center space-y-6">
                     <div className="relative">
                         <div className="w-20 h-20 rounded-full border-4 border-indigo-500/20 animate-spin border-t-indigo-500"></div>
                         <Sparkles className="w-8 h-8 text-indigo-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -347,7 +347,7 @@ export default function InformelPage() {
                 <>
                     {/* Métadonnées */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="glass-card p-4 rounded-2xl border border-indigo-500/20 col-span-2 md:col-span-1 flex flex-col gap-2">
+                        <div className="apix-card col-span-2 md:col-span-1 flex flex-col gap-2">
                             <p className="text-xs font-bold text-muted-foreground">Client / TPE *</p>
                             <select
                                 className="font-bold text-sm bg-transparent focus:outline-none border-b border-border/30 pb-1"
@@ -363,7 +363,7 @@ export default function InformelPage() {
                                 ))}
                             </select>
                         </div>
-                        <div className="glass-card p-4 rounded-2xl border border-indigo-500/20 flex flex-col gap-2">
+                        <div className="apix-card flex flex-col gap-2">
                             <p className="text-xs font-bold text-muted-foreground">Période</p>
                             <input
                                 className="font-bold text-sm bg-transparent focus:outline-none border-b border-border/30 pb-1"
@@ -371,11 +371,11 @@ export default function InformelPage() {
                                 onChange={e => setPeriode(e.target.value)}
                             />
                         </div>
-                        <div className="glass-card p-4 rounded-2xl border border-emerald-500/20">
+                        <div className="apix-card">
                             <p className="text-xs font-bold text-muted-foreground mb-1">Entrées</p>
                             <p className="text-lg font-black text-emerald-500">+{f(totalEntrees)} FCFA</p>
                         </div>
-                        <div className="glass-card p-4 rounded-2xl border border-rose-500/20">
+                        <div className="apix-card">
                             <p className="text-xs font-bold text-muted-foreground mb-1">Sorties</p>
                             <p className="text-lg font-black text-rose-500">-{f(totalSorties)} FCFA</p>
                         </div>

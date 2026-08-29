@@ -129,21 +129,21 @@ export default function FiscalObligationsPage() {
                 <>
                     {/* Alert Summary */}
                     <div className="grid grid-cols-3 gap-6">
-                        <div className="glass-card p-6 rounded-[32px] border border-rose-500/20 bg-rose-500/5">
+                        <div className="apix-card">
                             <div className="flex items-center gap-3 mb-3">
                                 <AlertTriangle className="w-5 h-5 text-rose-400" />
                                 <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Dépassées</p>
                             </div>
                             <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-rose-400">{depassees}</p>
                         </div>
-                        <div className="glass-card p-6 rounded-[32px] border border-amber-500/20 bg-amber-500/5">
+                        <div className="apix-card">
                             <div className="flex items-center gap-3 mb-3">
                                 <Zap className="w-5 h-5 text-amber-400" />
                                 <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Imminentes ≤7j</p>
                             </div>
                             <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-400">{imminentes}</p>
                         </div>
-                        <div className="glass-card p-6 rounded-[32px] border border-sky-500/20 bg-sky-500/5">
+                        <div className="apix-card">
                             <div className="flex items-center gap-3 mb-3">
                                 <Clock className="w-5 h-5 text-sky-400" />
                                 <p className="text-[10px] font-black text-sky-400 uppercase tracking-widest">Proches ≤21j</p>

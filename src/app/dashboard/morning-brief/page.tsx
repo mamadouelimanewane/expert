@@ -84,7 +84,7 @@ export default function MorningBriefPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Priorités Stratégiques IA */}
                 <div className="lg:col-span-8 space-y-6 sm:space-y-8">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="apix-card">
                         <h3 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-6 sm:mb-8 flex items-center gap-3">
                             <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" /> Priorités du Cabinet (Réel)
                         </h3>
@@ -131,7 +131,7 @@ export default function MorningBriefPage() {
                         </div>
                     </div>
 
-                    <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6 flex items-center gap-2">
                             <Users className="w-4 h-4" /> Rentabilité Collaborateurs
                         </h4>

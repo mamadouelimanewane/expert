@@ -128,7 +128,7 @@ export default function SmartGEDPage() {
 
             {/* Statistiques réelles de la GED */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden">
+                <div className="lg:col-span-2 apix-card relative overflow-hidden">
                     <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3">
                         <FileText className="w-5 h-5 text-indigo-400" />
                         Répartition par catégorie
@@ -149,7 +149,7 @@ export default function SmartGEDPage() {
                     </div>
                 </div>
 
-                <div className="lg:col-span-1 glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 flex flex-col justify-center text-center relative overflow-hidden group">
+                <div className="lg:col-span-1 apix-card flex flex-col justify-center text-center relative overflow-hidden group">
                     <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6 border border-emerald-500/20 group-hover:scale-110 transition-transform">
                         <ShieldCheck className="w-10 h-10 text-emerald-400" />
                     </div>

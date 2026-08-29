@@ -155,7 +155,7 @@ export default function LegalDraftingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Sélection & Configuration */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="apix-card">
                         <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
                             Client
                         </label>

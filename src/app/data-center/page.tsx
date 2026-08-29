@@ -199,7 +199,7 @@ export default function DataCenterPage() {
 
                 {/* Automation & Connectors */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                             <RefreshCw className="w-6 h-6 text-indigo-400" />
                             Connecteurs Directs
@@ -231,7 +231,7 @@ export default function DataCenterPage() {
 
 function DataKpiCard({ title, value, unit, trend, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card group transition-all">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110", color)}>
                     <Icon className="w-6 h-6" />

@@ -119,7 +119,7 @@ export default function FinancialAnalysisPage() {
             </div>
 
             {!ratios ? (
-                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-16 text-center">
+                <div className="apix-card text-center">
                     <Info className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                     <p className="text-slate-400 text-sm max-w-xl mx-auto whitespace-pre-line">{narrative}</p>
                 </div>
@@ -153,7 +153,7 @@ export default function FinancialAnalysisPage() {
                         {/* === TAB 1: BILAN === */}
                         {activeTab === "bilan" && (
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                <div className="lg:col-span-2 glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-slate-700/50 bg-slate-900/40">
+                                <div className="apix-card lg:col-span-2">
                                     <div className="flex justify-between items-center mb-10">
                                         <h3 className="font-bold text-white text-lg flex items-center gap-3">Structure Actif / Passif — Exercice {ratios.year}{ratios.isProjected ? " (projeté)" : ""}</h3>
                                         <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-3 py-1 rounded-full border border-white/5">TOTAL BILAN {fmt(ratios.totalBilan)} FCFA</span>
@@ -209,7 +209,7 @@ export default function FinancialAnalysisPage() {
                                         </div>
                                     </div>
 
-                                    <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/40">
+                                    <div className="apix-card">
                                         <h4 className="flex items-center gap-2 text-xs font-black text-slate-500 uppercase mb-4">
                                             <Target className="w-4 h-4 text-emerald-400" /> Constats
                                         </h4>
@@ -234,7 +234,7 @@ export default function FinancialAnalysisPage() {
 
                         {/* === TAB 2: CASH FLOW === */}
                         {activeTab === "cashflow" && (
-                            <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
+                            <div className="apix-card">
                                 {!cashflow ? (
                                     <div className="text-center py-16">
                                         <Info className="w-10 h-10 text-slate-500 mx-auto mb-4" />
@@ -279,7 +279,7 @@ export default function FinancialAnalysisPage() {
                         {/* === TAB 3: DUPONT & ALTMAN === */}
                         {activeTab === "advanced" && (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
+                                <div className="apix-card">
                                     <div className="flex items-center gap-3 mb-8">
                                         <Divide className="w-6 h-6 text-indigo-400" />
                                         <h3 className="text-xl font-bold text-white">Décomposition DuPont (ROE)</h3>
@@ -307,7 +307,7 @@ export default function FinancialAnalysisPage() {
                                     )}
                                 </div>
 
-                                <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 relative overflow-hidden">
+                                <div className="apix-card relative overflow-hidden">
                                     <div className="flex items-center gap-3 mb-8">
                                         <Scale className="w-6 h-6 text-emerald-400" />
                                         <h3 className="text-xl font-bold text-white">Z-Score Approché (Défaillance)</h3>
@@ -350,7 +350,7 @@ export default function FinancialAnalysisPage() {
 
                         {/* === TAB 4: REPORT === */}
                         {activeTab === "rapport" && (
-                            <div className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
+                            <div className="apix-card h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="font-bold text-white flex items-center gap-2 text-sm uppercase tracking-widest">
                                         <FileText className="w-5 h-5 text-purple-400" />
@@ -373,7 +373,7 @@ export default function FinancialAnalysisPage() {
 
 function RatioCard({ label, value, unit, desc }: { label: string; value: number | null; unit: string; desc: string }) {
     return (
-        <div className="glass-card p-5 rounded-3xl border border-slate-700/50 bg-slate-900/30">
+        <div className="apix-card">
             <div className="flex justify-between items-start mb-2">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{label}</span>
             </div>

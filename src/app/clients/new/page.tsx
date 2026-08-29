@@ -86,7 +86,7 @@ export default function NewClientPage() {
     if (portalUrl) {
         return (
             <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-700">
-                <div className="glass-card rounded-[32px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 shadow-2xl text-center space-y-8">
+                <div className="apix-card text-center space-y-8">
                     <div className="w-20 h-20 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center animate-in zoom-in duration-500">
                         <PartyPopper className="w-10 h-10 text-emerald-400" />
                     </div>
@@ -156,7 +156,7 @@ export default function NewClientPage() {
             </div>
 
             {/* Form Card */}
-            <div className="glass-card rounded-[32px] p-8 sm:p-10 border border-white/5 bg-slate-900/40 shadow-2xl">
+            <div className="apix-card">
                 <form onSubmit={handleSubmit} className="space-y-8">
 
                     {error && (

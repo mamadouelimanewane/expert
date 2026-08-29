@@ -112,26 +112,26 @@ export default function CreditInsightsPage() {
 
             {/* KPI strip */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Score Moyen</p>
                     <p className="text-2xl font-black text-white">{data.kpis.avgScore ?? "—"}</p>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Dossiers Scorés</p>
                     <p className="text-2xl font-black text-white">{data.kpis.totalScored}</p>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Éligibles Crédit</p>
                     <p className="text-2xl font-black text-emerald-400">{data.kpis.eligibleCount}</p>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Haut Risque</p>
                     <p className="text-2xl font-black text-rose-400">{data.kpis.highRiskCount}</p>
                 </div>
             </div>
 
             {!selectedScore ? (
-                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-16 text-center">
+                <div className="apix-card text-center">
                     <Info className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                     <p className="text-slate-400 text-sm">Aucun score de crédit enregistré pour le moment. Les scores sont générés depuis le module TPE / Scoring Fintech.</p>
                 </div>
@@ -139,7 +139,7 @@ export default function CreditInsightsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Score Overview */}
                     <div className="lg:col-span-8 flex flex-col gap-6">
-                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
+                        <div className="apix-card">
                             <div className="flex justify-between items-start mb-12">
                                 <div className="flex items-center gap-6">
                                     <div className="w-24 h-24 rounded-[32px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
@@ -205,7 +205,7 @@ export default function CreditInsightsPage() {
 
                         {/* Contributing Factors */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-8">
+                            <div className="apix-card">
                                 <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                                     <BarChart3 className="w-4 h-4 text-emerald-400" /> Facteurs Positifs
                                 </h4>
@@ -227,7 +227,7 @@ export default function CreditInsightsPage() {
                                 </div>
                             </div>
 
-                            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-8">
+                            <div className="apix-card">
                                 <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                                     <AlertCircle className="w-4 h-4 text-rose-400" /> Points d'Attention
                                 </h4>
@@ -253,7 +253,7 @@ export default function CreditInsightsPage() {
 
                     {/* Sidebar */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                        <div className="apix-card">
                             <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                                 <Search className="w-4 h-4 text-indigo-400" /> Rechercher un dossier
                             </h4>
@@ -266,7 +266,7 @@ export default function CreditInsightsPage() {
                             />
                         </div>
 
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                        <div className="apix-card">
                             <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest">Dossiers Scorés</h4>
                             <div className="space-y-4 max-h-[400px] overflow-y-auto">
                                 {filteredScores.length === 0 && (
@@ -292,7 +292,7 @@ export default function CreditInsightsPage() {
                         </div>
 
                         {/* Info Card - honest note */}
-                        <div className="glass-card rounded-[32px] border border-indigo-500/20 bg-indigo-500/5 p-8">
+                        <div className="apix-card">
                             <div className="flex items-start gap-4">
                                 <Info className="w-6 h-6 text-indigo-400 shrink-0" />
                                 <p className="text-xs text-slate-400 leading-relaxed">

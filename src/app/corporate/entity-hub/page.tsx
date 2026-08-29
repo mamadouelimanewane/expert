@@ -74,21 +74,21 @@ export default function NexusEntityHubPage() {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                <div className="apix-card">
                     <div className="flex justify-between items-center mb-4">
                         <Building2 className="w-6 h-6 text-amber-400" />
                     </div>
                     <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{entities.length}</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Entités sous Gestion</div>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                <div className="apix-card">
                     <div className="flex justify-between items-center mb-4">
                         <Scale className="w-6 h-6 text-amber-400" />
                     </div>
                     <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-1">{entities.filter(e => e.nextAG).length}</div>
                     <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest">AG à Planifier</div>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                <div className="apix-card">
                     <div className="flex justify-between items-center mb-4">
                         <ShieldCheck className="w-6 h-6 text-emerald-400" />
                     </div>
@@ -112,7 +112,7 @@ export default function NexusEntityHubPage() {
                     ) : (
                     <div className="space-y-4">
                         {entities.map(entity => (
-                            <div key={entity.id} className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 group hover:border-amber-500/20 transition-all">
+                            <div key={entity.id} className="apix-card group hover:border-amber-500/20 transition-all">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-amber-500/10 group-hover:border-amber-500/20 transition-all">
@@ -175,7 +175,7 @@ export default function NexusEntityHubPage() {
                 {/* Right Panel: Calendar & Alerts */}
                 <div className="lg:col-span-4 space-y-6">
                     {/* Event Calendar Mini */}
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                    <div className="apix-card">
                         <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-amber-400" /> Échéancier Juridique
                         </h4>

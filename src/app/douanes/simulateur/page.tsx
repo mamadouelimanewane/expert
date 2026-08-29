@@ -44,7 +44,7 @@ export default function SimulateurDouanePage() {
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card rounded-3xl p-8 border border-border/50">
+                <div className="apix-card">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><Anchor className="w-5 h-5 text-blue-500" /> Paramètres d'Importation</h2>
                     <div className="space-y-5">
                         <div className="grid grid-cols-2 gap-4">
@@ -84,7 +84,7 @@ export default function SimulateurDouanePage() {
                     </div>
                 </div>
 
-                <div className="glass-card rounded-3xl p-8 border border-blue-500/30 bg-blue-500/5 relative overflow-hidden">
+                <div className="apix-card relative overflow-hidden">
                     <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none">
                         <Calculator className="w-64 h-64 text-blue-500" />
                     </div>

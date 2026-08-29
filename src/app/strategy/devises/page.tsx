@@ -95,7 +95,7 @@ export default function DevisesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Convertisseur rapide */}
-                <div className="glass-card rounded-3xl p-6 border border-border/50 bg-gradient-to-br from-background to-muted/20">
+                <div className="apix-card">
                     <h3 className="font-bold mb-4 flex items-center gap-2"><ArrowRightLeft className="w-4 h-4 text-purple-500" /> Conversion Instantanée</h3>
                     <div className="space-y-4">
                         <div>
@@ -149,7 +149,7 @@ export default function DevisesPage() {
                 </div>
 
                 {/* Impact Trésorerie */}
-                <div className="lg:col-span-2 glass-card rounded-3xl p-6 border border-purple-500/20">
+                <div className="lg:col-span-2 apix-card">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="font-bold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-purple-500" /> Exposition au Risque de Change</h3>
                     </div>

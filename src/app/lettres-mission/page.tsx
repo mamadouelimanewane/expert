@@ -178,7 +178,7 @@ export default function LettresMissionPage() {
             </div>
 
             {/* Templates Quick Access */}
-            <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/20">
+            <div className="apix-card">
                 <h3 className="text-white font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-indigo-400" /> Modèles Pré-définis (OHADA)
                 </h3>
@@ -339,7 +339,7 @@ export default function LettresMissionPage() {
 
 function StatCard({ label, value, trend, unit, color }: any) {
     return (
-        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+        <div className="apix-card">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">{label}</p>
             <div className="flex items-baseline gap-1">
                 <h4 className={cn("text-xl sm:text-2xl lg:text-3xl font-black", color)}>{value}</h4>

@@ -85,7 +85,7 @@ export default function FecExportPage() {
         </p>
       </div>
 
-      <div className="glass-card p-8 rounded-[32px] border border-white/5 bg-slate-900/40 space-y-6">
+      <div className="apix-card space-y-6">
         <div>
           <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Client</label>
           <select

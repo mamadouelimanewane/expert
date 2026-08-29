@@ -215,17 +215,17 @@ export default function CompleteAuditKitPage() {
             </div>
 
             {!clientId ? (
-                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                <div className="apix-card text-center text-sm text-slate-500">
                     Sélectionnez un dossier client pour ouvrir (ou créer) son cahier de travail.
                 </div>
             ) : chargement ? (
-                <div className="glass-card p-10 rounded-[40px] border border-white/5 bg-slate-900/40 text-center text-sm text-slate-500">
+                <div className="apix-card text-center text-sm text-slate-500">
                     Chargement du cahier de travail…
                 </div>
             ) : (
             <>
             {currentPhase === "planning" && (
-                <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 max-w-xl">
+                <div className="apix-card max-w-xl">
                     <div className="flex items-center gap-3 mb-6">
                         <Scale className="w-6 h-6 text-indigo-400" />
                         <h3 className="text-xl font-bold text-white">Calculateur de seuil de signification</h3>

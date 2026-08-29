@@ -183,28 +183,28 @@ export default function FraudDetectionPage() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="glass-card p-8 rounded-[40px] bg-rose-500/5 border border-rose-500/20">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Alertes Critiques</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-xl sm:text-2xl lg:text-3xl font-black text-rose-400">{criticalCount}</span>
                         <AlertOctagon className="w-5 h-5 text-rose-500" />
                     </div>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-amber-500/5 border border-amber-500/20">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Risque Élevé</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-400">{highCount}</span>
                         <AlertTriangle className="w-5 h-5 text-amber-500" />
                     </div>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-indigo-500/5 border border-indigo-500/20">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Nouvelles Alertes</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">{newCount}</span>
                         <Zap className="w-5 h-5 text-indigo-500" />
                     </div>
                 </div>
-                <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Montant Exposé</p>
                     <div className="flex items-baseline gap-2">
                         <span className="text-2xl font-black text-white">{(totalAmount / 1000000).toFixed(1)}M</span>
@@ -217,7 +217,7 @@ export default function FraudDetectionPage() {
                 {/* Filters Sidebar */}
                 <div className="lg:col-span-3 space-y-6">
                     {/* Rule Filter — comptages réels */}
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6">
+                    <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Règle Déclenchée</h3>
                         <div className="space-y-2">
                             <button
@@ -250,7 +250,7 @@ export default function FraudDetectionPage() {
                     </div>
 
                     {/* Severity Filter */}
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6">
+                    <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Sévérité</h3>
                         <div className="space-y-2">
                             {["all", "CRITIQUE", "ELEVEE", "MOYENNE", "FAIBLE"].map(sev => (
@@ -283,11 +283,11 @@ export default function FraudDetectionPage() {
                 {/* Alerts List */}
                 <div className="lg:col-span-9 space-y-4">
                     {loading ? (
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-20 flex items-center justify-center">
+                        <div className="apix-card flex items-center justify-center">
                             <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
                         </div>
                     ) : filteredAlerts.length === 0 ? (
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-20 text-center">
+                        <div className="apix-card text-center">
                             <ShieldAlert className="w-16 h-16 text-slate-700 mx-auto mb-4" />
                             <p className="text-white font-bold">Aucune anomalie détectée</p>
                             <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">Lancez un scan pour analyser les transactions bancaires existantes, ou ajustez vos filtres.</p>

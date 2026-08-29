@@ -201,7 +201,7 @@ export default function ReportingAutomationPage() {
             {step === "setup" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <h3 className="text-xl font-black text-white mb-6">Client</h3>
                             <select
                                 value={clientId}
@@ -213,7 +213,7 @@ export default function ReportingAutomationPage() {
                             </select>
                         </div>
 
-                        <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                                 <Palette className="w-6 h-6 text-indigo-400" />
                                 Style du rapport
@@ -256,7 +256,7 @@ export default function ReportingAutomationPage() {
                     </div>
 
                     <div className="lg:col-span-4 space-y-8">
-                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/60 shadow-2xl">
+                        <div className="apix-card">
                             <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
                                 <Calendar className="w-4 h-4" /> Période
                             </h3>

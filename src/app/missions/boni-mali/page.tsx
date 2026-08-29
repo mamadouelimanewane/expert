@@ -386,7 +386,7 @@ function KpiCard({
     color: string;
 }) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card group">
             <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform shadow-xl w-fit mb-6", color)}>
                 <Icon className="w-6 h-6" />
             </div>

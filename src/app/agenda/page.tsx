@@ -216,7 +216,7 @@ export default function AgendaPage() {
                 {/* Sidebar: Calendar & List */}
                 <div className="w-full lg:w-96 flex flex-col gap-4 sm:gap-6">
                     {/* Calendar Widget (mois courant, réel) */}
-                    <div className="glass-card rounded-2xl p-4 sm:p-6 border border-slate-700/50">
+                    <div className="apix-card">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="font-bold text-white capitalize">{monthLabel}</h3>
                         </div>
@@ -288,7 +288,7 @@ export default function AgendaPage() {
                     {selectedMeeting ? (
                         <>
                             {/* Header Card */}
-                            <div className="glass-card rounded-2xl p-4 sm:p-6 border border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
+                            <div className="apix-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
                                 <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
                                 <div className="flex-1">

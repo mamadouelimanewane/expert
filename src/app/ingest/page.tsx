@@ -179,7 +179,7 @@ export default function IngestPage() {
                 })}
             </div>
 
-            <div className="glass-card rounded-2xl border border-slate-700/50 p-6 min-h-[300px] sm:min-h-[400px] flex flex-col">
+            <div className="apix-card min-h-[300px] sm:min-h-[400px] flex flex-col">
 
                 {/* STEP 1: INPUT */}
                 {step === "input" && (

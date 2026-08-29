@@ -161,7 +161,7 @@ export default function TimeEntryPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* LEFT: Timer & Quick Entry */}
                 <div className="lg:col-span-5 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 text-center shadow-2xl">
+                    <div className="apix-card text-center">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8">Chronomètre en Temps Réel</h3>
 
                         <div className="mb-10">
@@ -211,7 +211,7 @@ export default function TimeEntryPage() {
                     </div>
 
                     {/* Manual Entry Card */}
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20">
+                    <div className="apix-card">
                         <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
                             <Zap className="w-4 h-4 text-amber-400" /> Saisie Manuelle Express
                         </h3>
@@ -260,7 +260,7 @@ export default function TimeEntryPage() {
 
                 {/* RIGHT: Client/Mission Selection & Recent Entries */}
                 <div className="lg:col-span-7 space-y-8">
-                    <div className="glass-card p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter">Sélectionner une Mission</h3>
                             <div className="relative">
@@ -361,7 +361,7 @@ export default function TimeEntryPage() {
 
 function QuickStat({ icon: Icon, label, value, color }: any) {
     return (
-        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all">
+        <div className="apix-card hover:bg-slate-900/60 transition-all">
             <div className="flex items-center gap-4">
                 <div className={cn("p-3 bg-white/5 rounded-2xl", color)}>
                     <Icon className="w-5 h-5" />

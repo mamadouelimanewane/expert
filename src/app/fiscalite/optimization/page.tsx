@@ -210,7 +210,7 @@ export default function NexusTaxIntelligencePage() {
 
                         <div className="space-y-4">
                             {risks.map((risk) => (
-                                <div key={risk.id} className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 group hover:border-rose-500/20 transition-all">
+                                <div key={risk.id} className="apix-card group hover:border-rose-500/20 transition-all">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="flex items-center gap-4">
                                             <div className={cn(
@@ -263,7 +263,7 @@ export default function NexusTaxIntelligencePage() {
                                 </div>
                             ))}
                             {risks.length === 0 && (
-                                <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-16 text-center">
+                                <div className="apix-card text-center">
                                     <ShieldCheck className="w-14 h-14 text-slate-700 mx-auto mb-4" />
                                     <p className="text-white font-bold">Aucun risque fiscal identifié</p>
                                     <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">Lancez « Analyser les Risques » pour vérifier les déclarations et le CA de ce client.</p>
@@ -274,7 +274,7 @@ export default function NexusTaxIntelligencePage() {
 
                     {/* Sidebar */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                        <div className="apix-card">
                             <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest">Calendrier des Obligations</h4>
                             <div className="space-y-4">
                                 {upcomingDeclarations.length === 0 && (
@@ -299,7 +299,7 @@ export default function NexusTaxIntelligencePage() {
             ) : activeTab === "optimisation" ? (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Comparatif des Régimes Fiscaux</h3>
                             <p className="text-xs text-slate-500 mb-8">
                                 Estimation appliquant des taux de référence OHADA/UEMOA au CA et résultat net réels du dernier exercice de {client?.name || "ce client"}. Taux indicatifs — à confirmer selon la législation exacte du pays d'immatriculation ({client?.country || "—"}).
@@ -337,7 +337,7 @@ export default function NexusTaxIntelligencePage() {
                             )}
                         </div>
 
-                        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <p className="text-xs text-slate-500 leading-relaxed">
                                 L'identification automatisée de pistes d'optimisation fiscale spécifiques (crédit R&D, régime de faveur fusion-acquisition, amortissements dégressifs...) n'est pas encore implémentée dans ce module. Le comparatif ci-dessus se limite à une estimation de la charge d'impôt selon chaque régime, à partir des données réelles du client.
                             </p>
@@ -353,7 +353,7 @@ export default function NexusTaxIntelligencePage() {
                             <p className="text-sm text-slate-600 max-w-sm mt-2">La consolidation fiscale multi-filiales UEMOA/CEMAC n'est pas encore disponible dans ce module.</p>
                         </div>
                     </div>
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8 self-start">
+                    <div className="apix-card self-start">
                         <div className="flex items-center gap-3 mb-4">
                             <Lock className="w-5 h-5 text-slate-500" />
                             <h4 className="text-sm font-black text-white uppercase tracking-widest">Intégrité des Données</h4>

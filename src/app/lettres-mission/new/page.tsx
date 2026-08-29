@@ -170,7 +170,7 @@ export default function NewLettreMissionPage() {
 
       {/* Step 1: Informations */}
       {step === 1 && (
-        <div className="glass-card p-4 sm:p-8 rounded-[32px] border border-white/5 bg-slate-900/20 space-y-6">
+        <div className="apix-card space-y-6">
           <h3 className="text-lg font-black text-white flex items-center gap-3"><Building2 className="w-5 h-5 text-indigo-400" /> Informations Client & Mission</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -266,7 +266,7 @@ export default function NewLettreMissionPage() {
 
       {/* Step 2: Honoraires */}
       {step === 2 && (
-        <div className="glass-card p-4 sm:p-8 rounded-[32px] border border-white/5 bg-slate-900/20 space-y-6">
+        <div className="apix-card space-y-6">
           <h3 className="text-lg font-black text-white flex items-center gap-3"><Calendar className="w-5 h-5 text-emerald-400" /> Honoraires & Périodicité</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -362,7 +362,7 @@ export default function NewLettreMissionPage() {
           </div>
 
           {/* Aperçu du document */}
-          <div className="glass-card p-4 sm:p-8 rounded-[32px] border border-white/5 bg-white/5">
+          <div className="apix-card">
             <div className="max-w-2xl mx-auto bg-white text-slate-900 rounded-2xl p-8 sm:p-12 shadow-2xl text-sm leading-relaxed">
               <div className="text-center border-b border-slate-200 pb-6 mb-8">
                 <h1 className="text-xl font-black uppercase tracking-widest text-indigo-700">CABINET 360</h1>

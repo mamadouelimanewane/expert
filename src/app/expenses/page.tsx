@@ -224,7 +224,7 @@ export default function ExpensesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Advanced Validation Workflow */}
-                <div className="lg:col-span-2 glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 shadow-2xl relative overflow-hidden">
+                <div className="lg:col-span-2 apix-card relative overflow-hidden">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <CheckCircle2 className="w-6 h-6 text-indigo-400" />
                         Circuit de Validation de Frais
@@ -267,7 +267,7 @@ export default function ExpensesPage() {
                 </div>
 
                 {/* Expense Analytics Brief — réel */}
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <h3 className="text-xl font-black text-white mb-8">Répartition Analytique</h3>
                     {categoryEntries.length === 0 ? (
                         <p className="text-xs text-slate-500">Aucune note de frais enregistrée pour le moment.</p>
@@ -311,7 +311,7 @@ export default function ExpensesPage() {
 
             {/* Content Area */}
             {loading ? (
-                <div className="glass-card rounded-[40px] p-32 flex items-center justify-center">
+                <div className="apix-card flex items-center justify-center">
                     <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
                 </div>
             ) : activeTab === "notes" ? (
@@ -439,7 +439,7 @@ export default function ExpensesPage() {
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {missionOrders.map(om => (
-                        <div key={om.id} className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/20 hover:bg-slate-900/40 transition-all group relative overflow-hidden">
+                        <div key={om.id} className="apix-card hover:bg-slate-900/40 transition-all group relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-8 opacity-[0.02]">
                                 <Plane className="w-32 h-32" />
                             </div>
@@ -583,7 +583,7 @@ export default function ExpensesPage() {
 
 function KpiCard({ title, value, currency, trend, subtext, icon: Icon, color, bgColor }: any) {
     return (
-        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 relative overflow-hidden group hover:bg-slate-900/60 transition-all shadow-xl">
+        <div className="apix-card relative overflow-hidden group hover:bg-slate-900/60 transition-all">
             <div className="flex justify-between items-start mb-4">
                 <div className={cn("p-3 rounded-2xl shadow-lg transition-transform group-hover:scale-110", bgColor, color)}>
                     <Icon className="w-6 h-6" />

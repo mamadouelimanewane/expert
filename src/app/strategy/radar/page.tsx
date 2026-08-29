@@ -63,7 +63,7 @@ export default function RadarImpactPage() {
                 </p>
             </div>
 
-            <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 space-y-4">
+            <div className="apix-card space-y-4">
                 <div className="flex justify-between items-center gap-4">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Texte à analyser</label>
                     <select value={pays} onChange={(e) => setPays(e.target.value)} className="bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
@@ -89,7 +89,7 @@ export default function RadarImpactPage() {
             </div>
 
             {analyse && (
-                <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 space-y-3">
+                <div className="apix-card space-y-3">
                     {nonConfigure && (
                         <div className="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
                             <AlertTriangle className="w-3.5 h-3.5" /> Non configuré

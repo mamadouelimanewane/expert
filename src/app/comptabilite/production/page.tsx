@@ -299,7 +299,7 @@ export default function CollaborativeProductionPage() {
 
             {/* 360 Client View Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/60 relative overflow-hidden group">
+                <div className="apix-card relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                         <PieChart className="w-32 h-32 text-indigo-400" />
                     </div>
@@ -324,7 +324,7 @@ export default function CollaborativeProductionPage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-950/40">
+                <div className="apix-card">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-amber-400" />
                         Écritures à qualifier
@@ -350,7 +350,7 @@ export default function CollaborativeProductionPage() {
 
 function KpiCard({ title, value, trend, subtext, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card group transition-all">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform shadow-xl", color)}>
                     <Icon className="w-6 h-6" />

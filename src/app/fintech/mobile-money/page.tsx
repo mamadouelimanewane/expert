@@ -123,7 +123,7 @@ export default function MobileMoneyPage() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-6 rounded-3xl border border-emerald-500/20 relative overflow-hidden group">
+                <div className="apix-card relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Smartphone className="w-24 h-24 text-emerald-500" />
                     </div>
@@ -134,14 +134,14 @@ export default function MobileMoneyPage() {
                         {testCount > 0 && <span className="text-violet-400">(+{testCount} test)</span>}
                     </div>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-border/50 relative overflow-hidden">
+                <div className="apix-card relative overflow-hidden">
                     <h3 className="text-sm font-bold text-muted-foreground mb-4">Transactions Rapprochées</h3>
                     <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground">{reconciledCount}</p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-emerald-500 font-medium">
                         <CheckCircle2 className="w-4 h-4" /> {aiSuccessRate}% de taux de succès IA
                     </div>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-orange-500/20 relative overflow-hidden">
+                <div className="apix-card relative overflow-hidden">
                     <h3 className="text-sm font-bold text-muted-foreground mb-4">En Attente de Lettrage</h3>
                     <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground">{pendingCount}</p>
                     <div className={`mt-4 flex items-center gap-2 text-sm font-medium ${pendingCount > 0 ? 'text-orange-500' : 'text-muted-foreground'}`}>

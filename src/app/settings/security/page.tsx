@@ -82,7 +82,7 @@ export default function SecuritySovereigntyPage() {
                         />
                     </div>
 
-                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                             <History className="w-6 h-6 text-indigo-400" />
                             Journal d&apos;Audit
@@ -110,7 +110,7 @@ export default function SecuritySovereigntyPage() {
                 </div>
 
                 <div className="space-y-8">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-lg font-black text-white mb-4">Contrôles d&apos;Accès</h3>
                         <p className="text-xs text-slate-400 leading-relaxed">
                             Les routes internes sont protégées par une session authentifiée avec contrôle de rôle
@@ -126,7 +126,7 @@ export default function SecuritySovereigntyPage() {
 
 function StatusCard({ icon: Icon, label, title, desc, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden group">
+        <div className="apix-card relative overflow-hidden group">
             <div className="p-3 bg-white/5 rounded-2xl w-fit mb-6">
                 <Icon className={cn("w-6 h-6", color)} />
             </div>

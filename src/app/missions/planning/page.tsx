@@ -409,7 +409,7 @@ export default function ResourcePlanningPage() {
 
             {/* Alertes et tâches non affectées */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <h3 className="text-white font-black text-lg mb-6 flex items-center gap-3">
                         <AlertCircle className="w-6 h-6 text-amber-500" />
                         Alertes de surcharge
@@ -451,7 +451,7 @@ export default function ResourcePlanningPage() {
                     )}
                 </div>
 
-                <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <h3 className="text-white font-black text-lg mb-6 flex items-center gap-3">
                         <CheckCircle2 className="w-6 h-6 text-emerald-500" />
                         Tâches non affectées
@@ -499,7 +499,7 @@ function StatBox({
     color: string;
 }) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 flex items-center gap-6">
+        <div className="apix-card flex items-center gap-6">
             <div className="p-4 bg-white/5 rounded-2xl">
                 <Icon className={cn("w-6 h-6", color)} />
             </div>

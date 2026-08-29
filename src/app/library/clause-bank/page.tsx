@@ -135,7 +135,7 @@ export default function ClauseBankPage() {
                     </div>
 
                     {/* Categories */}
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6">
+                    <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Catégories</h3>
                         <div className="space-y-2">
                             <button
@@ -184,7 +184,7 @@ export default function ClauseBankPage() {
                 <div className="lg:col-span-9">
                     {selectedClause ? (
                         /* Clause Detail View */
-                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl animate-in fade-in duration-500">
+                        <div className="apix-card animate-in fade-in duration-500">
                             <button
                                 onClick={() => setSelectedClause(null)}
                                 className="text-sm text-slate-500 hover:text-white mb-6 flex items-center gap-2 transition-colors"
@@ -285,7 +285,7 @@ export default function ClauseBankPage() {
                                 <div
                                     key={clause.id}
                                     onClick={() => openClause(clause)}
-                                    className="glass-card rounded-3xl border border-white/5 bg-slate-900/40 p-6 hover:border-amber-500/30 transition-all cursor-pointer hover:scale-[1.01]"
+                                    className="apix-card hover:border-amber-500/30 transition-all cursor-pointer hover:scale-[1.01]"
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">

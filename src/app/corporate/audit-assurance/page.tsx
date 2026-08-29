@@ -109,7 +109,7 @@ export default function NexusAuditPage() {
                     { label: "Audit-Days Utilisés", value: kpis ? kpis.auditDays : "—", icon: Clock, color: "text-amber-400" },
                     { label: "Taux de Clôture Checklist", value: kpis && kpis.closureRate !== null ? `${kpis.closureRate}%` : "—", icon: CheckCircle2, color: "text-emerald-400" },
                 ].map((stat, i) => (
-                    <div key={i} className="glass-card p-6 rounded-3xl bg-slate-900/40 border border-white/5">
+                    <div key={i} className="apix-card">
                         <div className="flex justify-between items-start mb-4">
                             <div className={cn("p-2 rounded-xl bg-white/5", stat.color)}>
                                 <stat.icon className="w-5 h-5" />
@@ -169,7 +169,7 @@ export default function NexusAuditPage() {
                             {filteredAudits.map(audit => (
                                 <div
                                     key={audit.id}
-                                    className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-6 group hover:border-blue-500/20 transition-all"
+                                    className="apix-card group hover:border-blue-500/20 transition-all"
                                 >
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="flex items-center gap-3">

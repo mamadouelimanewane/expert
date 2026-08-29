@@ -70,7 +70,7 @@ export default function SettingsPage() {
 
                 {/* Content Area */}
                 <div className="lg:col-span-3 space-y-6">
-                    <div className="glass-card rounded-2xl border border-border/50 p-8 min-h-[300px] sm:h-[400px] lg:h-[500px]">
+                    <div className="apix-card min-h-[300px] sm:h-[400px] lg:h-[500px]">
                         {activeTab === "général" && (
                             <div className="space-y-8">
                                 <h3 className="text-xl font-bold text-foreground border-b border-border/50 pb-4">Préférences Générales</h3>

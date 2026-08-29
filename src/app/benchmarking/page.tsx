@@ -127,7 +127,7 @@ export default function NexusMarketIntelligencePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Main Ratios Table */}
                 <div className="lg:col-span-8 flex flex-col gap-6">
-                    <div className="glass-card rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="apix-card">
                         <div className="flex justify-between items-center mb-10">
                             <div>
                                 <h3 className="text-xl font-black text-white uppercase tracking-tight">Ratios Financiers Réels</h3>
@@ -187,7 +187,7 @@ export default function NexusMarketIntelligencePage() {
 
                 {/* Sidebar */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <div className="flex items-center gap-3 mb-6">
                             <Compass className="w-5 h-5 text-cyan-400" />
                             <h3 className="text-sm font-black text-white uppercase tracking-tight">Profil Client</h3>
@@ -208,7 +208,7 @@ export default function NexusMarketIntelligencePage() {
                         )}
                     </div>
 
-                    <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-8 flex items-start gap-4">
+                    <div className="apix-card flex items-start gap-4">
                         <Target className="w-6 h-6 text-slate-600 shrink-0" />
                         <p className="text-xs text-slate-500 leading-relaxed">
                             Le score radar global et les recommandations stratégiques par IA nécessitent des données sectorielles de comparaison — non disponibles pour le moment (voir bandeau ci-dessus).

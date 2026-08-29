@@ -110,7 +110,7 @@ export default function IARiskAuditPage() {
 
                 {/* Risk Matrix Visualization */}
                 <div className="lg:col-span-2 space-y-6 text-white">
-                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 bg-slate-900/50 relative overflow-hidden">
+                    <div className="apix-card relative overflow-hidden">
                         <h3 className="font-bold mb-6 flex items-center gap-2">
                             <Target className="w-5 h-5 text-rose-500" />
                             Matrice d'Évaluation des Risques
@@ -235,7 +235,7 @@ export default function IARiskAuditPage() {
                         </p>
                     </div>
 
-                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50">
+                    <div className="apix-card">
                         <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             Couverture d'Audit

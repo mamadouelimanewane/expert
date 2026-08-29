@@ -208,7 +208,7 @@ export default function DropZoneFiscalePage() {
                     )}
 
                     {!notConfigured && analysisText && (
-                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
+                        <div className="apix-card">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                                     <Lightbulb className="w-6 h-6 text-amber-400" />

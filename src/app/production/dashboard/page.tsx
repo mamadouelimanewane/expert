@@ -113,7 +113,7 @@ export default function ProductionDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Team Performance Matrix */}
-                <div className="lg:col-span-7 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 shadow-2xl">
+                <div className="lg:col-span-7 apix-card">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                             <Users className="w-6 h-6 text-emerald-400" />
@@ -261,7 +261,7 @@ export default function ProductionDashboard() {
 
 function KpiCard({ icon: Icon, label, value, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
+        <div className="apix-card group">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110 shadow-xl", color)}>
                     <Icon className="w-6 h-6" />

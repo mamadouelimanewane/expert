@@ -298,7 +298,7 @@ export default function ProspectsPage() {
 
 function StatCard({ icon: Icon, label, value, unit, color }: any) {
     return (
-        <div className="glass-card p-5 rounded-2xl border border-white/5 bg-slate-900/40 flex items-center gap-4">
+        <div className="apix-card flex items-center gap-4">
             <div className="p-3 bg-white/5 rounded-xl">
                 <Icon className={cn("w-5 h-5", color)} />
             </div>

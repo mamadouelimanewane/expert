@@ -170,8 +170,8 @@ export default function ExpenseNotesPage() {
                 
                 {/* Upload & Preview Section */}
                 <div className="space-y-6">
-                    <div className="glass-card rounded-[32px] p-6 border border-white/5 bg-slate-900/40">
-                        <input 
+                    <div className="apix-card">
+                        <input
                             type="file" 
                             accept="image/*" 
                             className="hidden" 
@@ -245,7 +245,7 @@ export default function ExpenseNotesPage() {
 
                 {/* Form Section */}
                 <div className="space-y-6">
-                    <div className="glass-card rounded-[32px] p-8 border border-white/5 bg-slate-900/40 h-full">
+                    <div className="apix-card h-full">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-lg font-black text-white flex items-center gap-2">
                                 <Receipt className="w-5 h-5 text-blue-400" /> Validation de la dépense

@@ -82,7 +82,7 @@ export default function FinancialHealthRadarPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Radar Chart Section (Left) */}
-                <div className="lg:col-span-7 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center shadow-2xl relative">
+                <div className="apix-card lg:col-span-7 flex flex-col items-center justify-center relative">
                     {loading ? (
                         <div className="animate-pulse flex flex-col items-center">
                             <div className="w-48 h-48 bg-white/5 rounded-full mb-8" />
@@ -180,7 +180,7 @@ export default function FinancialHealthRadarPage() {
 
                 {/* 2. Insights & Risks (Right) */}
                 <div className="lg:col-span-5 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
                             <BarChart3 className="w-6 h-6 text-indigo-400" />
                             Ratios Calculés (DB)

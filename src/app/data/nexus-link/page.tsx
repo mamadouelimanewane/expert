@@ -51,7 +51,7 @@ export default function DataLinkPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Engine Controls (chrome only — non fonctionnel) */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5">
+                    <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                             <Cpu className="w-5 h-5 text-indigo-400" /> Configuration du Moteur
                         </h3>
@@ -100,7 +100,7 @@ export default function DataLinkPage() {
 
                 {/* Empty state area */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="h-[350px] sm:h-[450px] lg:h-[600px] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-20 flex flex-col items-center justify-center text-center">
+                    <div className="apix-card h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col items-center justify-center text-center">
                         <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/10">
                             <Share2 className="w-12 h-12 text-slate-600" />
                         </div>

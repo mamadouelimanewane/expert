@@ -96,7 +96,7 @@ export default function HandbookPage() {
                         />
                     </div>
 
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-4 space-y-1">
+                    <div className="apix-card space-y-1">
                         {SECTIONS.map((section) => (
                             <button
                                 key={section.id}
@@ -125,7 +125,7 @@ export default function HandbookPage() {
 
                 {/* Content Viewer */}
                 <div className="lg:col-span-9">
-                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 bg-slate-900/40 p-4 sm:p-8 lg:p-12 min-h-[800px] shadow-2xl relative overflow-hidden">
+                    <div className="apix-card min-h-[800px] relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                             <CurrentIcon className="w-64 h-64 text-white" />
                         </div>

@@ -89,7 +89,7 @@ export default function CashFlowStressSimulatorPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Control Panel (Left) */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-10 flex items-center gap-3 uppercase tracking-tighter">
                             <SlidersHorizontal className="w-6 h-6 text-cyan-400" />
                             Variables Stratégiques
@@ -147,7 +147,7 @@ export default function CashFlowStressSimulatorPage() {
                         <ResultCard label="Niveau de Risque" value={results.riskLevel} unit="Stress Test" icon={Activity} color={results.riskLevel === "CRITIQUE" ? "text-rose-400" : results.riskLevel === "MODÉRÉ" ? "text-amber-400" : "text-emerald-400"} />
                     </div>
 
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
+                    <div className="apix-card h-[280px] sm:h-[350px] lg:h-[400px] flex flex-col">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter">Évolution Projective du Cash-Flow</h3>
                             <div className="flex gap-2">
@@ -223,7 +223,7 @@ function SliderControl({ label, value, min, max, step, unit, onChange, color }: 
 
 function ResultCard({ label, value, unit, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
+        <div className="apix-card group">
             <Icon className="w-6 h-6 text-slate-500 group-hover:text-cyan-400 transition-colors mb-4" />
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{label}</p>
             <div className="flex items-baseline gap-2">

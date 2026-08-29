@@ -188,7 +188,7 @@ export default function KycIntelligenceHub() {
 
                 {/* Honest state: AI screening not connected */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-amber-500/20 bg-amber-500/5 text-center">
+                    <div className="apix-card text-center">
                         <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Sparkles className="w-10 h-10 text-amber-500" />
                         </div>
@@ -215,7 +215,7 @@ export default function KycIntelligenceHub() {
 
 function KycStatCard({ title, value, unit, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card group transition-all">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110", color)}>
                     <Icon className="w-6 h-6" />

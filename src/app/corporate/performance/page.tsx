@@ -125,7 +125,7 @@ export default function NexusPerformancePage() {
                         {/* KPI Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             {data.kpis.map((kpi, i) => (
-                                <div key={i} className="glass-card p-6 rounded-3xl bg-slate-900/40 border border-white/5 group hover:border-emerald-500/20 transition-all">
+                                <div key={i} className="apix-card group hover:border-emerald-500/20 transition-all">
                                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">{kpi.label}</p>
                                     <div className="flex items-baseline gap-2 mb-2">
                                         <span className="text-2xl font-black text-white">{kpi.value}</span>
@@ -140,7 +140,7 @@ export default function NexusPerformancePage() {
                         </div>
 
                         {/* Main Chart Card */}
-                        <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10">
+                        <div className="apix-card">
                             <div className="flex justify-between items-center mb-10">
                                 <div>
                                     <h3 className="text-xl font-black text-white uppercase tracking-tight">CA Facturé Mensuel (12 derniers mois)</h3>
@@ -172,7 +172,7 @@ export default function NexusPerformancePage() {
 
                     {/* Right: Insights & Documents */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="glass-card rounded-[32px] border border-emerald-500/20 bg-emerald-500/5 p-8">
+                        <div className="apix-card">
                             <div className="flex items-center gap-3 mb-6">
                                 <Target className="w-6 h-6 text-emerald-400" />
                                 <h4 className="text-sm font-black text-white uppercase tracking-widest">Constats Réels</h4>
@@ -191,7 +191,7 @@ export default function NexusPerformancePage() {
                         </div>
 
                         {/* Documents List */}
-                        <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8">
+                        <div className="apix-card">
                             <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest">Rapports Statutaires</h4>
                             <div className="space-y-2">
                                 {data.documents.length === 0 && (
@@ -216,7 +216,7 @@ export default function NexusPerformancePage() {
             )}
 
             {view === "esg" && (
-                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-16 text-center max-w-2xl mx-auto">
+                <div className="apix-card text-center max-w-2xl mx-auto">
                     <Globe className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                     <h4 className="text-white font-black uppercase text-sm tracking-widest mb-2">Reporting ESG non disponible</h4>
                     <p className="text-slate-500 text-sm leading-relaxed">
@@ -226,7 +226,7 @@ export default function NexusPerformancePage() {
             )}
 
             {view === "tax" && (
-                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 p-16 text-center max-w-2xl mx-auto">
+                <div className="apix-card text-center max-w-2xl mx-auto">
                     <Scale className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                     <h4 className="text-white font-black uppercase text-sm tracking-widest mb-2">Global Tax Integrity non disponible</h4>
                     <p className="text-slate-500 text-sm leading-relaxed">

@@ -143,7 +143,7 @@ export default function NewInvoicePage() {
                 )}
 
                 {/* Client + Date + Statut */}
-                <div className="glass-card rounded-[24px] p-6 border border-white/5 bg-slate-900/40 space-y-5">
+                <div className="apix-card space-y-5">
                     <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <Building2 className="w-4 h-4" /> Informations Générales
                     </h2>
@@ -205,7 +205,7 @@ export default function NewInvoicePage() {
                 </div>
 
                 {/* Lignes de facturation */}
-                <div className="glass-card rounded-[24px] p-6 border border-white/5 bg-slate-900/40 space-y-5">
+                <div className="apix-card space-y-5">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                             <FileText className="w-4 h-4" /> Lignes de Prestation
@@ -280,7 +280,7 @@ export default function NewInvoicePage() {
                 {/* Totaux + Notes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Notes */}
-                    <div className="glass-card rounded-[24px] p-6 border border-white/5 bg-slate-900/40 space-y-3">
+                    <div className="apix-card space-y-3">
                         <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest">Notes internes</h2>
                         <textarea
                             value={formData.notes}
@@ -292,7 +292,7 @@ export default function NewInvoicePage() {
                     </div>
 
                     {/* Récapitulatif */}
-                    <div className="glass-card rounded-[24px] p-6 border border-white/5 bg-slate-900/40 space-y-4">
+                    <div className="apix-card space-y-4">
                         <h2 className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                             <DollarSign className="w-4 h-4" /> Récapitulatif
                         </h2>

@@ -223,7 +223,7 @@ export default function NexusGoPage() {
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-0">
                 {/* Quick Actions Sidebar */}
                 <div className="hidden lg:flex lg:col-span-1 flex-col gap-4">
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-5 flex-1">
+                    <div className="apix-card flex-1">
                         <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-5 flex items-center gap-2">
                             <Zap className="w-3.5 h-3.5 text-yellow-400" /> Raccourcis Rapides
                         </h3>
@@ -246,7 +246,7 @@ export default function NexusGoPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-5">
+                    <div className="apix-card">
                         <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Activity className="w-3.5 h-3.5 text-cyan-400" /> Session
                         </h3>

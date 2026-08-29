@@ -68,7 +68,7 @@ export default function SuccessStoriesPage() {
             {/* Scenarios Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {SCENARIOS_ILLUSTRATIFS.map((scenario) => (
-                    <div key={scenario.id} className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 bg-slate-900/40 relative group overflow-hidden transition-all hover:border-indigo-500/30">
+                    <div key={scenario.id} className="apix-card relative group overflow-hidden transition-all hover:border-indigo-500/30">
                         <div className="flex justify-between items-start mb-8 relative z-10">
                             <div>
                                 <span className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest", scenario.bg, scenario.color)}>

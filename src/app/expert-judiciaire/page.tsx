@@ -203,7 +203,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
                         ))}
                         {cases.length === 0 && (
-                            <div className="glass-card rounded-[32px] border border-white/5 bg-slate-900/40 p-8 text-center">
+                            <div className="apix-card text-center">
                                 <p className="text-sm text-slate-500">Aucune affaire judiciaire enregistrée. Créez-en une avec « Enregistrer une Ordonnance ».</p>
                             </div>
                         )}
@@ -216,7 +216,7 @@ export default function NexusJudicialCommandPage() {
                         <>
                             {/* Upper Stats Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5">
+                                <div className="apix-card">
                                     <div className="flex justify-between items-center mb-4">
                                         <ScaleIcon className="w-6 h-6 text-amber-400" />
                                         <span className="text-[9px] text-emerald-400 font-black uppercase">Juge en Charge</span>
@@ -224,7 +224,7 @@ export default function NexusJudicialCommandPage() {
                                     <div className="text-lg font-black text-white">{selectedCase.judge || "Non renseigné"}</div>
                                     <div className="text-[10px] text-slate-500 font-black uppercase mt-1">Titulaire du Siège</div>
                                 </div>
-                                <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5">
+                                <div className="apix-card">
                                     <div className="flex justify-between items-center mb-4">
                                         <Clock className="w-6 h-6 text-rose-500" />
                                         <span className="text-[9px] text-rose-500 font-black uppercase">Délai Légal</span>
@@ -239,7 +239,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
 
                             {/* Case detail */}
-                            <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5">
+                            <div className="apix-card">
                                 <h4 className="text-sm font-black text-white uppercase tracking-widest mb-4">Détails de l'affaire</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                                     <div><span className="text-slate-500 uppercase font-bold">Client : </span><span className="text-slate-200">{selectedCase.client ? (selectedCase.client.companyName || `${selectedCase.client.firstName ?? ""} ${selectedCase.client.lastName ?? ""}`.trim()) : "Non lié à un client"}</span></div>
@@ -250,7 +250,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
 
                             {/* Progress Stepper Elite */}
-                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40">
+                            <div className="apix-card">
                                 <div className="flex justify-between items-center mb-12">
                                     {steps.map((step, idx) => (
                                         <div key={idx} className="flex flex-col items-center gap-3 relative flex-1">
@@ -327,7 +327,7 @@ export default function NexusJudicialCommandPage() {
                             </div>
                         </>
                     ) : (
-                        <div className="h-[350px] sm:h-[450px] lg:h-[600px] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 bg-slate-900/40 flex flex-col items-center justify-center text-center p-20">
+                        <div className="h-[350px] sm:h-[450px] lg:h-[600px] apix-card flex flex-col items-center justify-center text-center">
                             <ScaleIcon className="w-20 h-20 text-slate-800 mb-6" />
                             <h3 className="text-2xl font-black text-slate-600 uppercase tracking-widest">Nexus Command Center</h3>
                             <p className="text-slate-700 mt-2 max-w-sm">Sélectionnez une affaire judiciaire dans le portfolio pour piloter votre mission d'expertise.</p>

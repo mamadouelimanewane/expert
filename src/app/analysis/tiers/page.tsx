@@ -75,18 +75,18 @@ export default function TierAnalysisPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
+                <div className="apix-card">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Encours Clients Global</p>
                     <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{data.kpis.totalOutstanding.toLocaleString("fr-FR")} <span className="text-xs text-slate-600">FCFA</span></div>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
+                <div className="apix-card">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Total Retards Clients</p>
                     <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-400 mb-2">{data.kpis.totalOverdue.toLocaleString("fr-FR")} <span className="text-xs text-slate-600">FCFA</span></div>
                     <div className="flex items-center gap-2 text-slate-500 text-xs">
                         <AlertTriangle className="w-4 h-4 text-amber-500" /> {data.kpis.highRiskCount} client(s) à risque élevé
                     </div>
                 </div>
-                <div className="glass-card p-6 rounded-3xl border border-slate-700/50 bg-slate-900/30">
+                <div className="apix-card">
                     <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Délai Moyen (DSO)</p>
                     <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">{data.kpis.dso ?? "—"} <span className="text-xs text-slate-600">jours</span></div>
                     {data.kpis.dso !== null && (

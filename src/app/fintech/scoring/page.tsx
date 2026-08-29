@@ -80,7 +80,7 @@ export default function CreditScoringPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Score Principal */}
-                <div className="glass-card p-8 rounded-3xl border border-amber-500/30 bg-amber-500/5 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div className="apix-card flex flex-col items-center justify-center text-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <ShieldCheck className="w-32 h-32 text-amber-500" />
                     </div>
@@ -116,7 +116,7 @@ export default function CreditScoringPage() {
                 </div>
 
                 {/* Facteurs d'analyse */}
-                <div className="lg:col-span-2 glass-card rounded-3xl p-8 border border-border/50">
+                <div className="lg:col-span-2 apix-card">
                     <h3 className="text-lg font-bold mb-6">Détails de l'Analyse IA</h3>
                     
                     {loading || evaluating ? (

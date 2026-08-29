@@ -182,7 +182,7 @@ export default function ClientProfitabilityPage() {
 
                 {/* Side Panels */}
                 <div className="space-y-8">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-800/30">
+                    <div className="apix-card">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                             <Users className="w-4 h-4" /> Heures par Collaborateur
                         </h4>
@@ -218,7 +218,7 @@ export default function ClientProfitabilityPage() {
 
 function GlobalKPICard({ title, value, unit, icon: Icon, color }: { title: string; value: string; unit: string; icon: React.ElementType; color: string }) {
     return (
-        <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5 hover:bg-slate-900/60 transition-all group">
+        <div className="apix-card group">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform", color)}>
                     <Icon className="w-6 h-6" />

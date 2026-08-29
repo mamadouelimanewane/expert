@@ -124,7 +124,7 @@ export default function FiscalMirrorPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Metrics Table */}
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl">
+                    <div className="apix-card">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-10 flex items-center gap-3">
                             <Scale className="w-6 h-6 text-indigo-400" /> Profil Fiscal Comparatif
                         </h3>
@@ -172,7 +172,7 @@ export default function FiscalMirrorPage() {
                         </button>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                          <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6 underline">Directives CCJA / OHADA</h4>
                          <div className="space-y-4">
                             <JurisItem title="Stabilité Fiscale" desc="Garantie de 5 ans sur les codes d'investissement locaux." />
@@ -227,7 +227,7 @@ function MetricsRow({ label, a, b }: any) {
 
 function IncentiveCard({ country, advantages }: any) {
     return (
-        <div className="glass-card p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-white/5 bg-slate-900/30">
+        <div className="apix-card">
             <h4 className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-6">Leviers {country}</h4>
             <div className="space-y-3">
                 {advantages.map((adv: string, i: number) => (

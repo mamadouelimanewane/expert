@@ -126,7 +126,7 @@ export default function PartnerWarRoom() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                         {/* Production Bottlenecks */}
-                        <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl relative overflow-hidden">
+                        <div className="apix-card lg:col-span-8 flex flex-col relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5">
                                 <Briefcase className="w-48 h-48 text-white" />
                             </div>
@@ -153,7 +153,7 @@ export default function PartnerWarRoom() {
 
                         {/* Risk Panel */}
                         <div className="lg:col-span-4 space-y-8">
-                            <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40">
+                            <div className="apix-card">
                                 <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
                                     <ShieldAlert className="w-6 h-6 text-rose-500" />
                                     Cartographie des Risques
@@ -181,7 +181,7 @@ export default function PartnerWarRoom() {
 
 function WarStatCard({ title, value, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
+        <div className="apix-card group">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110 shadow-xl", color)}>
                     <Icon className="w-6 h-6" />

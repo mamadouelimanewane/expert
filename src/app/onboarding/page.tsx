@@ -125,7 +125,7 @@ export default function OnboardingPage() {
                 ))}
             </div>
 
-            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl p-4 sm:p-6 lg:p-10">
+            <div className="apix-card overflow-hidden">
                 {step === 1 && (
                     <div className="max-w-3xl mx-auto space-y-8 animate-in slide-in-from-right-8 duration-500">
                         <div className="text-center mb-10">

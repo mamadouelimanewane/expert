@@ -128,7 +128,7 @@ export default function ClientsPage() {
                     <p className="text-slate-500 font-medium">Chargement de votre portefeuille...</p>
                 </div>
             ) : filteredClients.length === 0 ? (
-                <div className="glass-card p-4 sm:p-8 lg:p-12 rounded-[32px] border border-white/5 bg-slate-900/10 flex flex-col items-center justify-center text-center gap-4">
+                <div className="apix-card flex flex-col items-center justify-center text-center gap-4">
                     <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center shadow-inner">
                         <Users className="w-10 h-10 text-slate-600" />
                     </div>
@@ -149,7 +149,7 @@ export default function ClientsPage() {
                         const healthScore = (client as any).healthScore as number | null | undefined;
 
                         return (
-                            <div key={client.id} className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/20 group hover:bg-slate-900/40 hover:scale-[1.02] transition-all relative overflow-hidden flex flex-col justify-between h-full min-h-[250px]">
+                            <div key={client.id} className="apix-card group hover:scale-[1.02] transition-all relative overflow-hidden flex flex-col justify-between h-full min-h-[250px]">
                                 <div className={cn(
                                     "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-20 rounded-full pointer-events-none transition-all",
                                     healthScore == null ? "bg-slate-500 group-hover:bg-slate-400" : healthScore > 80 ? "bg-emerald-500 group-hover:bg-emerald-400" : "bg-rose-500 group-hover:bg-rose-400"

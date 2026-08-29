@@ -86,7 +86,7 @@ export default function EntreprenantPage() {
                 ))}
             </div>
 
-            <div className="glass-card rounded-3xl p-8 border border-border/50">
+            <div className="apix-card">
                 <h2 className="text-xl font-bold mb-6">Nouveau Dossier Client</h2>
 
                 {erreur && <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-4 max-w-lg">{erreur}</p>}

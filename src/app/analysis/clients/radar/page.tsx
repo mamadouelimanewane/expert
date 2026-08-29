@@ -115,7 +115,7 @@ export default function ClientSuccessRadar() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* 1. Client Health Registry (Left) */}
-                <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
+                <div className="apix-card lg:col-span-8 flex flex-col overflow-hidden">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Registre de Santé Client</h3>
                         <div className="flex gap-2">
@@ -195,7 +195,7 @@ export default function ClientSuccessRadar() {
                 {/* 2. AI Intelligence (Right) */}
                 <div className="lg:col-span-4 space-y-8">
                     {/* Churn Alert Card */}
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-rose-500/20 bg-rose-500/5 relative overflow-hidden group shadow-2xl">
+                    <div className="apix-card relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-10 group-hover:scale-110 transition-transform">
                             <ShieldAlert className="w-32 h-32 text-rose-400" />
                         </div>
@@ -216,7 +216,7 @@ export default function ClientSuccessRadar() {
                     </div>
 
                     {/* Analyse de sentiment — non disponible */}
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 text-center">
+                    <div className="apix-card text-center">
                         <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
                             <MessageSquare className="w-10 h-10 text-slate-500" />
                         </div>
@@ -233,7 +233,7 @@ export default function ClientSuccessRadar() {
 
 function HealthStat({ icon: Icon, label, value, unit, trend, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
+        <div className="apix-card group">
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-3xl bg-white/5 transition-transform group-hover:scale-110 shadow-xl", color)}>
                     <Icon className="w-6 h-6" />

@@ -96,7 +96,7 @@ export default function NewMissionPage() {
             </div>
 
             {/* Form Card */}
-            <div className="glass-card rounded-[32px] p-8 sm:p-10 border border-white/5 bg-slate-900/40 shadow-2xl">
+            <div className="apix-card">
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {error && (
                         <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 flex items-center gap-3">

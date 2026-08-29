@@ -195,7 +195,7 @@ export default function NexusAuditAssurancePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Panel: Audit KPI & Metadata */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 shadow-xl">
+                    <div className="apix-card">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Statut de la Mission</h3>
                             <Activity className="w-4 h-4 text-emerald-400" />
@@ -238,7 +238,7 @@ export default function NexusAuditAssurancePage() {
                         </div>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Seuils de Significativité</h3>
                         <p className="text-xs text-slate-500 leading-relaxed">
                             Non calculés automatiquement : le chiffre d&apos;affaires du client n&apos;est pas encore relié à ce
@@ -246,7 +246,7 @@ export default function NexusAuditAssurancePage() {
                         </p>
                     </div>
 
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden group">
+                    <div className="apix-card relative overflow-hidden group">
                         <Fingerprint className="w-24 h-24 text-slate-700/20 absolute -bottom-4 -right-4 group-hover:scale-110 transition-transform" />
                         <h4 className="text-[10px] font-black text-slate-400 uppercase mb-4">Traçabilité</h4>
                         <p className="text-xs text-slate-400 leading-relaxed font-medium">
@@ -285,7 +285,7 @@ export default function NexusAuditAssurancePage() {
                         ) : sections.map((section) => {
                             const etat = section.progress === 100 ? "done" : section.progress > 0 ? "doing" : "todo";
                             return (
-                            <div key={section.id} className="glass-card rounded-[40px] p-8 border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all cursor-pointer group flex gap-8 items-center relative overflow-hidden">
+                            <div key={section.id} className="apix-card transition-all cursor-pointer group flex gap-8 items-center relative overflow-hidden">
                                 {etat === "doing" && (
                                     <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
                                 )}

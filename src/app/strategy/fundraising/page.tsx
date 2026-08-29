@@ -159,7 +159,7 @@ function InvestorSearchSection() {
             </div>
 
             {/* Filter Bar */}
-            <div className="glass-card p-4 rounded-2xl border border-slate-700/50 flex flex-wrap gap-4 items-center">
+            <div className="apix-card flex flex-wrap gap-4 items-center">
                 <div className="flex-1 relative min-w-[300px]">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
@@ -175,7 +175,7 @@ function InvestorSearchSection() {
             {/* Investor Cards grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {filtres.map((inv, idx) => (
-                    <div key={idx} className="glass-card rounded-2xl border border-slate-700/50 p-6 transition-all group">
+                    <div key={idx} className="apix-card transition-all group">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-white text-xl">
                                 {inv.name[0]}
@@ -225,7 +225,7 @@ function ResearchDossierSection() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Checklist Column */}
             <div className="lg:col-span-2 space-y-6">
-                <div className="glass-card rounded-2xl border border-slate-700/50 p-6">
+                <div className="apix-card">
                     <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-3">
                         <ShieldCheck className="w-5 h-5 text-indigo-400" />
                         Checklist Due Diligence
@@ -270,7 +270,7 @@ function ResearchDossierSection() {
 
             {/* Sidebar Column */}
             <div className="space-y-6">
-                <div className="glass-card rounded-2xl border border-slate-700/50 p-6">
+                <div className="apix-card">
                     <h4 className="font-bold text-white mb-4">Progression</h4>
                     <p className="text-xs text-slate-500 leading-relaxed">
                         Cliquez sur le badge de chaque catégorie pour faire évoluer son statut. Aucune analyse
@@ -316,7 +316,7 @@ function FinanceDocsSection() {
 
 function DocTemplateCard({ title, desc, tags }: any) {
     return (
-        <div className="glass-card p-6 rounded-2xl border border-slate-700/50 hover:border-emerald-500/50 transition-all flex flex-col justify-between">
+        <div className="apix-card hover:border-emerald-500/50 transition-all flex flex-col justify-between">
             <div>
                 <h4 className="font-bold text-white mb-2">{title}</h4>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4 italic">"{desc}"</p>

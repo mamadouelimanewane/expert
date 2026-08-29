@@ -90,7 +90,7 @@ export default function GovernancePage() {
 
             {/* Quick Actions / KPI */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-rose-500/10 rounded-2xl text-rose-400">
                             <Clock className="w-6 h-6" />
@@ -103,7 +103,7 @@ export default function GovernancePage() {
                     <p className="text-xs text-rose-400/80 font-bold uppercase tracking-widest">AG, mandats, dépôt de comptes ou KYC en retard</p>
                 </div>
 
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-400">
                             <ShieldCheck className="w-6 h-6" />
@@ -157,7 +157,7 @@ export default function GovernancePage() {
 
             {/* Content Section */}
             {selectedTab !== "entities" ? (
-                <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 p-16 text-center shadow-2xl">
+                <div className="apix-card text-center">
                     <p className="text-sm text-slate-500">
                         {selectedTab === "meetings"
                             ? "La gestion des Assemblées Générales et Conseils d'Administration n'est pas encore implémentée."
@@ -259,7 +259,7 @@ export default function GovernancePage() {
 
 function TemplateCard({ title, desc }: { title: string, desc: string }) {
     return (
-        <div className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/30 opacity-60">
+        <div className="apix-card opacity-60">
             <div className="p-3 bg-white/5 rounded-2xl text-slate-500 w-fit mb-4">
                 <FileText className="w-5 h-5" />
             </div>

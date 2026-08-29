@@ -167,7 +167,7 @@ export default function MobileMoneyPage() {
                     icon={<TrendingUp className="w-5 h-5 text-cyan-400" />}
                     color={netFlow >= 0 ? "cyan" : "rose"}
                 />
-                <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <div className="flex justify-between items-start mb-4">
                         <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">En Attente</p>
                         <div className="p-2 rounded-xl bg-amber-500/10">
@@ -342,7 +342,7 @@ function StatCard({ label, value, icon, color }: {
         cyan: "text-cyan-400",
     };
     return (
-        <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40">
+        <div className="apix-card">
             <div className="flex justify-between items-start mb-4">
                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">{label}</p>
                 <div className="p-2 rounded-xl bg-white/5">{icon}</div>

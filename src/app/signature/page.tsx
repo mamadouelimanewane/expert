@@ -130,7 +130,7 @@ export default function SignaturePage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Stats Sidebar */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h4 className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-6">Statistiques Signature (réelles)</h4>
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
@@ -223,7 +223,7 @@ export default function SignaturePage() {
                     </div>
 
                     {/* Documents signés (empreinte réelle) */}
-                    <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/10 bg-slate-900/60 p-4 sm:p-6 lg:p-10 overflow-hidden relative shadow-[0_0_50px_rgba(99,102,241,0.1)]">
+                    <div className="apix-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
                             <Lock className="w-48 h-48 text-indigo-400" />
                         </div>
@@ -270,7 +270,7 @@ export default function SignaturePage() {
 
 function TrustCard({ icon: Icon, title, desc, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5 flex items-start gap-6 group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card flex items-start gap-6 group hover:bg-slate-900/60 transition-all">
             <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform", color)}>
                 <Icon className="w-6 h-6" />
             </div>

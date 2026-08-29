@@ -202,7 +202,7 @@ export default function UsersSettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {ROLES.map((role) => (
-                            <div key={role.id} className="glass-card p-6 rounded-2xl border border-border/50 hover:border-indigo-500/50 transition-all group">
+                            <div key={role.id} className="apix-card hover:border-indigo-500/50 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
                                     <h4 className={cn("font-bold uppercase tracking-widest text-xs", role.color)}>{role.name}</h4>
                                     <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -218,7 +218,7 @@ export default function UsersSettingsPage() {
 
             {activeTab === "securite" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-2">
-                    <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-6">
+                    <div className="apix-card space-y-6">
                         <div className="flex items-center gap-3">
                             <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
                                 <Lock className="w-6 h-6" />
@@ -240,7 +240,7 @@ export default function UsersSettingsPage() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-2xl p-6 border border-border/50 space-y-6">
+                    <div className="apix-card space-y-6">
                         <div className="flex items-center gap-3">
                             <div className="p-3 bg-rose-500/10 rounded-xl text-rose-400">
                                 <ShieldAlert className="w-6 h-6" />
@@ -286,7 +286,7 @@ function SecurityToggle({ label, status, enabled }: { label: string, status: str
 function SauvegardeSection() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-            <div className="glass-card rounded-2xl p-6 border border-amber-500/20 bg-amber-500/5">
+            <div className="apix-card">
                 <div className="flex items-start gap-4">
                     <div className="shrink-0 w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
                         <AlertTriangle className="w-6 h-6 text-amber-500" />

@@ -381,21 +381,21 @@ export default function WritingCenterPage() {
                 <div className="space-y-6">
                     {/* Mail Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="glass-card p-4 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                        <div className="apix-card flex justify-between items-center">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase">Total Courriers</p>
                                 <h4 className="text-2xl font-bold text-white">{correspondences.length}</h4>
                             </div>
                             <Inbox className="w-8 h-8 text-indigo-500 opacity-20" />
                         </div>
-                        <div className="glass-card p-4 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                        <div className="apix-card flex justify-between items-center">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase">7 Derniers Jours</p>
                                 <h4 className="text-2xl font-bold text-white">{receivedWeek}</h4>
                             </div>
                             <History className="w-8 h-8 text-cyan-500 opacity-20" />
                         </div>
-                        <div className="glass-card p-4 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                        <div className="apix-card flex justify-between items-center">
                             <div>
                                 <p className="text-[10px] font-bold text-slate-500 uppercase">PV / Mises en demeure</p>
                                 <h4 className="text-2xl font-bold text-white">{pvCount} / {miseEnDemeureCount}</h4>

@@ -273,7 +273,7 @@ export default function DeclarationsPage() {
                     )}
 
                     {/* Quick Access Portals */}
-                    <div className="glass-card rounded-[32px] p-6 border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">Portails DGI Directs</h4>
                         <div className="space-y-2">
                             <PortalLink name="e-Impôts Côte d'Ivoire" />

@@ -184,7 +184,7 @@ export default function AssistantPage() {
 
             {/* Right: Tools & Presets Sidebar */}
             <div className="w-80 space-y-6">
-                <div className="glass-card rounded-3xl p-6 border border-white/5 bg-slate-900/40">
+                <div className="apix-card">
                     <h3 className="text-white font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
                         <Gavel className="w-4 h-4 text-indigo-400" />
                         Actions Rapides

@@ -209,7 +209,7 @@ export default function ResourcesPlanning() {
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Main Resource Grid */}
-                    <div className="lg:col-span-12 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 p-4 sm:p-6 lg:p-10 flex flex-col shadow-2xl overflow-hidden">
+                    <div className="lg:col-span-12 apix-card flex flex-col">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
                                 <LayoutGrid className="w-6 h-6 text-indigo-400" />
@@ -307,7 +307,7 @@ export default function ResourcesPlanning() {
 
                     {/* Side Panel */}
                     <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                                 <Target className="w-4 h-4 text-indigo-400" /> Taux d'Occupation Équipe
                             </h3>
@@ -332,7 +332,7 @@ export default function ResourcesPlanning() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                        <div className="apix-card">
                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                                 <ListChecks className="w-4 h-4 text-amber-400" /> Tâches non allouées
                             </h3>

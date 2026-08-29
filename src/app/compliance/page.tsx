@@ -207,7 +207,7 @@ export default function NexusComplianceHubPage() {
                 "Regulatory Vault" et "Elite Reporting" n'avaient aucune destination
                 réelle et sont retirées. */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Link href="/compliance/id-verify" className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
+                <Link href="/compliance/id-verify" className="apix-card transition-all group flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                         <Fingerprint className="w-6 h-6" />
                     </div>
@@ -216,7 +216,7 @@ export default function NexusComplianceHubPage() {
                         <p className="text-[10px] text-slate-500 leading-tight">Registre de vérification d&apos;identité (saisie manuelle, aucun criblage biométrique automatisé).</p>
                     </div>
                 </Link>
-                <Link href="/compliance/financial-crime" className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group flex items-start gap-4">
+                <Link href="/compliance/financial-crime" className="apix-card transition-all group flex items-start gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-all">
                         <ShieldAlert className="w-6 h-6" />
                     </div>
@@ -386,7 +386,7 @@ export default function NexusComplianceHubPage() {
                         )}
                     </div>
 
-                    <div className="glass-card p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 bg-slate-900/40 shadow-xl">
+                    <div className="apix-card">
                         <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6">Indice d&apos;Intégrité</h4>
                         {(() => {
                             const evalues = obligations.filter((o) => o.etat !== "NON_EVALUE");
@@ -420,7 +420,7 @@ export default function NexusComplianceHubPage() {
 
 function ReferenceCard({ title, desc, icon: Icon, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group relative overflow-hidden h-64 flex flex-col justify-between shadow-lg">
+        <div className="apix-card transition-all group relative overflow-hidden h-64 flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
                 <Icon className="w-32 h-32" />
             </div>

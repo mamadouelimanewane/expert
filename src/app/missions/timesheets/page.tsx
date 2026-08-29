@@ -230,7 +230,7 @@ export default function MissionTimesheetsPage() {
 
                 {/* Missions Sidebar */}
                 <div className="space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
+                    <div className="apix-card">
                         <h3 className="text-lg font-black text-white mb-6">Missions en cours</h3>
                         <div className="space-y-4">
                             {missions.map(m => (
@@ -271,7 +271,7 @@ export default function MissionTimesheetsPage() {
 
 function SummaryCard({ title, value, subtext, color }: any) {
     return (
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40 relative overflow-hidden group hover:bg-slate-900/60 transition-all">
+        <div className="apix-card relative overflow-hidden">
             <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">{title}</p>
             <h3 className={cn("text-xl sm:text-2xl lg:text-3xl font-black mb-2", color)}>{value}</h3>
             <p className="text-xs text-slate-600 font-bold">{subtext}</p>

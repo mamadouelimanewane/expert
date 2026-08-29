@@ -183,7 +183,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             {/* Sidebar: Context & Checklist */}
             <div className="w-96 flex flex-col gap-6">
                 {/* Client Selector (Context) */}
-                <div className="glass-card rounded-2xl p-4 border border-slate-700/50">
+                <div className="apix-card">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Dossier Client</label>
                     <select
                         value={selectedClient}
@@ -350,7 +350,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Filters & Search */}
-            <div className="glass-card rounded-2xl p-4 border border-slate-700/50 flex gap-4">
+            <div className="apix-card flex gap-4">
                 <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
@@ -924,7 +924,7 @@ function StatCard({ icon: Icon, label, value, trend, color }: {
     };
 
     return (
-        <div className="glass-card rounded-xl p-4 border border-slate-700/50">
+        <div className="apix-card">
             <div className="flex items-center gap-2 mb-2">
                 <Icon className={cn("w-4 h-4", colorClasses[color].split(" ")[0])} />
                 <span className="text-xs text-slate-500 uppercase tracking-wider">{label}</span>

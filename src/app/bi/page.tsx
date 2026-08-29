@@ -258,7 +258,7 @@ export default async function BusinessIntelligencePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
 
         {/* Left Column: Deadlines Fiscales */}
-        <div className="glass-card rounded-2xl p-8 border border-white/5 bg-slate-900/40 shadow-2xl">
+        <div className="apix-card">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Échéances Fiscales Récentes</h3>
             <Link href="/declarations" className="text-[10px] font-black uppercase tracking-widest text-[#006B3F] hover:text-[#004b2c] transition-colors dark:text-indigo-400">Voir le calendrier complet</Link>
@@ -300,7 +300,7 @@ export default async function BusinessIntelligencePage() {
         </div>
 
         {/* Right Column: Activity Feed */}
-        <div className="glass-card rounded-2xl p-8 border border-white/5 bg-slate-900/40 shadow-2xl">
+        <div className="apix-card">
           <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight mb-8">Flux d'Activité Système</h3>
           <div className="pl-6 border-l-2 border-slate-300 dark:border-slate-800 space-y-8">
             {recentLogs.length > 0 ? recentLogs.map((act: AuditLogWithUser, i: number) => (

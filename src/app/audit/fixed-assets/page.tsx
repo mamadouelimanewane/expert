@@ -155,7 +155,7 @@ export default function FixedAssetsAuditPage() {
                             <p className="text-xs text-slate-500 mt-1">Fonctionnalité mobile à venir</p>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
+                        <div className="apix-card">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="text-xs font-bold text-slate-500 uppercase">Taux de couverture</div>
                                 <span className="text-emerald-400 font-bold text-xs">{coveragePct}%</span>
@@ -166,13 +166,13 @@ export default function FixedAssetsAuditPage() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
+                        <div className="apix-card">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Valeur d'Acquisition</div>
                             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">{(totalValue / 1000000).toFixed(1)}M</div>
                             <p className="text-[10px] text-slate-500 mt-2 uppercase">FCFA • Toutes immobilisations</p>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl border border-slate-700/50">
+                        <div className="apix-card">
                             <div className="text-xs font-bold text-slate-500 uppercase mb-4">Écarts Détectés</div>
                             <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-rose-500">{ecartsCount}</div>
                             <p className="text-[10px] text-rose-400 mt-2 flex items-center gap-1 font-bold">
@@ -240,7 +240,7 @@ export default function FixedAssetsAuditPage() {
 
             {activeTab === "rapprochement" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 space-y-6">
+                    <div className="apix-card space-y-6">
                         <h3 className="font-bold text-white flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-indigo-400" />
                             Rapprochement Comptable

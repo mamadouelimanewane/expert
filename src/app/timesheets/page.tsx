@@ -248,7 +248,7 @@ export default function TimesheetsPage() {
                     { label: "Alertes Budget", val: String(overBudgetCount), sub: "Dossiers en dépassement", icon: AlertTriangle, color: "text-rose-400 bg-rose-500/10" },
                     { label: "Dossiers Actifs", val: String(rows.length), sub: "Missions avec saisies", icon: Briefcase, color: "text-blue-400 bg-blue-500/10" }
                 ].map((k, i) => (
-                    <div key={i} className="glass-card p-6 rounded-3xl border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-colors">
+                    <div key={i} className="apix-card hover:bg-slate-900/60 transition-colors">
                         <div className="flex items-center gap-4 mb-4">
                             <div className={cn("p-3 rounded-2xl", k.color)}>
                                 <k.icon className="w-5 h-5" />

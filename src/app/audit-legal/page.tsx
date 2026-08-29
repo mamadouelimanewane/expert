@@ -218,7 +218,7 @@ export default function AuditLegalPage() {
                         <div className="space-y-6 animate-in slide-in-from-right-8 duration-500">
                             
                             {/* Score Card */}
-                            <div className="glass-card rounded-[32px] p-8 border border-white/5 bg-slate-900/40 flex items-center gap-8">
+                            <div className="apix-card flex items-center gap-8">
                                 <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
                                     <svg className="w-full h-full transform -rotate-90">
                                         <circle cx="64" cy="64" r="56" className="stroke-slate-800" strokeWidth="12" fill="none" />
@@ -246,7 +246,7 @@ export default function AuditLegalPage() {
                             </div>
 
                             {/* Anomalies List */}
-                            <div className="glass-card rounded-[32px] p-6 border border-white/5 bg-slate-900/40">
+                            <div className="apix-card">
                                 <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 px-2">Détail des écritures suspectes</h3>
                                 
                                 <div className="space-y-3 max-h-[280px] sm:h-[350px] lg:h-[400px] overflow-y-auto pr-2 custom-scrollbar">
@@ -284,7 +284,7 @@ export default function AuditLegalPage() {
 
                         </div>
                     ) : (
-                        <div className="h-full min-h-[280px] sm:h-[350px] lg:h-[400px] glass-card rounded-[32px] border border-white/5 bg-slate-900/20 flex flex-col items-center justify-center text-center p-8">
+                        <div className="h-full min-h-[280px] sm:h-[350px] lg:h-[400px] apix-card flex flex-col items-center justify-center text-center">
                             <div className="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mb-6">
                                 <Search className="w-10 h-10 text-slate-600" />
                             </div>
