@@ -37,7 +37,10 @@ export default function GovernanceHeatmapPage() {
         fetch("/api/governance/heatmap")
             .then(res => res.json())
             .then(data => {
-                setClients(data);
+                // La route répond { error: "..." } (session expirée, accès refusé)
+                // au lieu d'un tableau en cas d'échec — sans cette vérification,
+                // clients.flatMap(...)/.filter(...) plus bas plantaient la page.
+                setClients(Array.isArray(data) ? data : []);
                 setLoading(false);
             })
             .catch(err => {

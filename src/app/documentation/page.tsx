@@ -17,7 +17,6 @@ import {
     Users,
     Globe,
     FileSignature,
-    PenTool,
     Briefcase,
     GraduationCap,
     Star,
@@ -120,14 +119,12 @@ const documents = [
                 href: "/documentation/welcome-pack",
                 icon: Star,
                 type: "Client Asset"
-            },
-            {
-                title: "Conditions Générales (CGU/CGV)",
-                description: "Cadre contractuel pour les cabinets et leurs clients.",
-                href: "/legal",
-                icon: PenTool,
-                type: "Contracts"
             }
+            // La carte "Conditions Générales (CGU/CGV)" pointait vers /legal,
+            // une route qui n'existe pas (404) — aucune page CGU/CGV n'existe
+            // dans l'app, et /legal/drafting est un outil de rédaction, pas
+            // le vrai contrat du cabinet. Retirée plutôt que de rediriger
+            // vers un contenu trompeur ; à réintroduire quand la page existe.
         ]
     }
 ];

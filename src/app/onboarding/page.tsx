@@ -231,7 +231,10 @@ export default function OnboardingPage() {
                                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
                                 <p className="text-emerald-300 font-bold">Dossier créé pour {clientCree.nom}</p>
                                 <div className="flex gap-3 justify-center">
-                                    <button onClick={() => router.push(`/clients/${clientCree.id}`)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest border border-white/10">
+                                    {/* /clients/[id] n'existe pas (pas de fiche détail client dans
+                                        l'app) — redirige vers la liste, où le dossier créé apparaît,
+                                        plutôt que vers une route inexistante (404 systématique). */}
+                                    <button onClick={() => router.push("/clients")} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest border border-white/10">
                                         Ouvrir le dossier
                                     </button>
                                     <button onClick={() => router.push("/lettres-mission/new")} className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">

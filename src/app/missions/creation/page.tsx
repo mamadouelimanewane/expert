@@ -514,8 +514,11 @@ export default function CreationMissionPage() {
                                     <p className="text-emerald-300 font-bold flex items-center gap-2">
                                         <CheckCircle2 className="w-5 h-5" /> Dossier créé pour {clientCree.nom}
                                     </p>
+                                    {/* /clients/[id] n'existe pas (pas de fiche détail client dans
+                                        l'app) — redirige vers la liste, où le dossier créé apparaît,
+                                        plutôt que vers une route inexistante (404 systématique). */}
                                     <button
-                                        onClick={() => router.push(`/clients/${clientCree.id}`)}
+                                        onClick={() => router.push("/clients")}
                                         className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-bold transition-all"
                                     >
                                         Ouvrir le dossier client

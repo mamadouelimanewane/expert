@@ -498,10 +498,15 @@ export default function TPEClientPortalPage() {
               <div className="absolute -bottom-3 -right-3 w-16 h-16 rounded-full bg-white/10" />
             </button>
 
-            {/* Calendrier fiscal */}
-            <a
-              href="/fiscal-calendar"
-              className="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-5 flex flex-col items-start gap-3 active:scale-95 transition-transform shadow-lg shadow-amber-200"
+            {/* Calendrier fiscal — pointait vers /fiscal-calendar, une route
+                qui n'existe pas (404). Pas de page équivalente côté portail
+                client aujourd'hui ; désactivé plutôt que de renvoyer vers une
+                page inexistante, en attendant qu'elle soit construite. */}
+            <button
+              type="button"
+              disabled
+              title="Bientôt disponible"
+              className="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-5 flex flex-col items-start gap-3 shadow-lg shadow-amber-200 opacity-50 cursor-not-allowed text-left"
             >
               <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
                 <Calendar size={22} className="text-white" />
@@ -511,7 +516,7 @@ export default function TPEClientPortalPage() {
                 <p className="text-white font-bold text-sm leading-tight">fiscal 📅</p>
               </div>
               <div className="absolute -bottom-3 -right-3 w-16 h-16 rounded-full bg-white/10" />
-            </a>
+            </button>
           </div>
 
           <input

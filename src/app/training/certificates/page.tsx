@@ -123,7 +123,7 @@ export default function CertificatesPage() {
                                                 </span>
                                                 <span className={cn(
                                                     "px-2 py-0.5 rounded text-[10px] font-black",
-                                                    cert.grade.startsWith('A') ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
+                                                    cert.grade?.startsWith('A') ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
                                                 )}>
                                                     {cert.grade}
                                                 </span>
@@ -184,7 +184,7 @@ export default function CertificatesPage() {
                                                 </div>
                                                 <div className="w-px bg-white/10" />
                                                 <div className="text-center">
-                                                    <p className={cn("text-2xl sm:text-3xl lg:text-4xl font-black", selectedCert.grade.startsWith('A') ? "text-emerald-400" : "text-amber-400")}>{selectedCert.grade}</p>
+                                                    <p className={cn("text-2xl sm:text-3xl lg:text-4xl font-black", selectedCert.grade?.startsWith('A') ? "text-emerald-400" : "text-amber-400")}>{selectedCert.grade}</p>
                                                     <p className="text-[10px] text-slate-500 uppercase">Mention</p>
                                                 </div>
                                             </div>

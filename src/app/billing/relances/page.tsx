@@ -13,11 +13,22 @@ export default function RelancesPage() {
   const [sendResult, setSendResult] = useState<{ id: string; emailSent: boolean; message: string } | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   useEffect(() => {
     fetch("/api/invoices/relances")
-      .then(res => res.json())
-      .then(d => {
+      .then(async res => {
+        const d = await res.json();
+        // La route répond { error: "..." } (session expirée, accès refusé) au
+        // lieu de { stats, invoices, history } en cas d'échec — sans cette
+        // vérification, data.stats.count/data.invoices.filter(...) plantaient
+        // toute la page.
+        if (!res.ok || d.error) throw new Error(d.error || "Erreur serveur");
         setData(d);
+        setLoading(false);
+      })
+      .catch(e => {
+        setLoadError(e instanceof Error ? e.message : "Impossible de charger les relances.");
         setLoading(false);
       });
   }, []);
@@ -49,6 +60,14 @@ export default function RelancesPage() {
   };
 
   if (loading) return <div className="text-white p-8">Chargement...</div>;
+  if (loadError || !data) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-rose-400 font-bold">{loadError || "Impossible de charger les relances."}</p>
+        <p className="text-slate-500 text-sm mt-1">Rechargez la page ou reconnectez-vous si le problème persiste.</p>
+      </div>
+    );
+  }
 
   const stageTitles = ["Relance 1 (J+30)", "Relance 2 (J+45)", "Relance 3 (J+60)", "Contentieux"];
   const stageColors = ["text-blue-400 bg-blue-500/10", "text-amber-400 bg-amber-500/10", "text-orange-400 bg-orange-500/10", "text-red-400 bg-red-500/10"];

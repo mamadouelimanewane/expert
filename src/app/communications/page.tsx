@@ -46,8 +46,12 @@ export default function CommunicationPage() {
         fetch("/api/communications/hub")
             .then(res => res.json())
             .then(data => {
-                setMessages(data);
-                if (data.length > 0) setSelectedMessage(data[0]);
+                // La route répond { error: "..." } (session expirée, accès refusé)
+                // au lieu d'un tableau en cas d'échec — sans cette vérification,
+                // messages.filter(...) plus bas plantait toute la page.
+                const list = Array.isArray(data) ? data : [];
+                setMessages(list);
+                if (list.length > 0) setSelectedMessage(list[0]);
                 setLoading(false);
             })
             .catch(err => {

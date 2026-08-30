@@ -74,7 +74,7 @@ export default function MissionsBudgetPage() {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {data.missions.map((m: any) => {
-                    const pct = Math.round((m.consumedHours / m.estimatedHours) * 100);
+                    const pct = m.estimatedHours > 0 ? Math.round((m.consumedHours / m.estimatedHours) * 100) : 0;
                     const isOver = pct > 100;
                     const isWarning = pct >= 80 && pct <= 100;
                     
@@ -205,7 +205,7 @@ export default function MissionsBudgetPage() {
                       <p className="text-xs text-slate-400">{m.name}</p>
                       <div className="mt-3 flex items-center gap-2">
                         <Clock className="w-4 h-4 text-slate-500" />
-                        <span className="text-xs font-medium text-slate-300">{m.consumedHours}h / {m.estimatedHours}h ({Math.round(m.consumedHours/m.estimatedHours*100)}%)</span>
+                        <span className="text-xs font-medium text-slate-300">{m.consumedHours}h / {m.estimatedHours}h ({m.estimatedHours > 0 ? Math.round(m.consumedHours / m.estimatedHours * 100) : 0}%)</span>
                       </div>
                     </div>
                   ))}

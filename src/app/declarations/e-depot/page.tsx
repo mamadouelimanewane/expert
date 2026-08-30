@@ -17,7 +17,7 @@ interface Decl {
   country: string;
   client: string;
   type: string;
-  amount: number;
+  amount: string;
   deadline: string;
   status: string;
 }
@@ -34,13 +34,20 @@ export default function EDepotPage() {
     fetch("/api/declarations")
       .then(res => res.json())
       .then(data => {
+        // /api/declarations renvoie déjà des champs reformatés pour l'affichage
+        // (country au premier niveau, amountToPay et deadline déjà en chaînes
+        // formatées) — cette page lisait client?.country/amount/dueDate, des
+        // noms qui n'existent nulle part dans cette réponse. Résultat : le
+        // pays retombait toujours sur "SN" (mauvais classement par onglet),
+        // le montant affichait toujours "0 FCFA" et l'échéance toujours "—",
+        // masquant les vraies données pour absolument toutes les déclarations.
         const list: Decl[] = (data.declarations || []).map((d: any) => ({
           id: d.id,
-          country: d.client?.country || "SN",
+          country: d.country || "SN",
           client: d.client,
           type: `${d.type} — ${d.month}`,
-          amount: d.amount || 0,
-          deadline: d.dueDate ? new Date(d.dueDate).toLocaleDateString("fr-FR") : "—",
+          amount: d.amountToPay ?? "0",
+          deadline: d.deadline || "—",
           status: d.status,
         }));
         setDecls(list);
@@ -124,7 +131,7 @@ export default function EDepotPage() {
                     
                     <div className="flex items-center gap-8">
                       <div className="text-right">
-                        <p className="text-sm font-black text-white">{d.amount.toLocaleString()} FCFA</p>
+                        <p className="text-sm font-black text-white">{d.amount} FCFA</p>
                         <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Avant le {d.deadline}</p>
                       </div>
                       

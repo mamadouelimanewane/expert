@@ -61,10 +61,30 @@ function relativeDateFr(dateStr: string): string {
 export default function NexusPerformancePage() {
     const [view, setView] = useState<"cpm" | "esg" | "tax">("cpm");
     const [data, setData] = useState<PerformanceData | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch("/api/corporate/performance").then((r) => r.json()).then(setData);
+        // La route répond parfois { error: "..." } (session expirée, erreur
+        // serveur) au lieu de la forme attendue — sans cette vérification,
+        // data.monthlySeries.map(...) plus bas plantait toute la page avec
+        // "Cannot read properties of undefined (reading 'map')".
+        fetch("/api/corporate/performance")
+            .then(async (r) => {
+                const json = await r.json();
+                if (!r.ok || json.error) throw new Error(json.error || "Erreur serveur");
+                setData(json);
+            })
+            .catch((e) => setError(e instanceof Error ? e.message : "Impossible de charger les indicateurs."));
     }, []);
+
+    if (error) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 text-center">
+                <p className="text-rose-400 font-bold">{error}</p>
+                <p className="text-slate-500 text-sm">Rechargez la page ou reconnectez-vous si le problème persiste.</p>
+            </div>
+        );
+    }
 
     if (!data) {
         return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
