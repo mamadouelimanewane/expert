@@ -207,6 +207,17 @@ export default withAuth(
         if (pathname.startsWith("/api/")) {
           return true;
         }
+        // Le portail client (/portal/*) n'est jamais authentifié par session
+        // NextAuth : chaque page y lit son propre ?token=/[token] et appelle
+        // /api/portal/[token] (déjà exempté ci-dessus), exactement comme
+        // AppShell le traite déjà en route publique (isPublicRoute inclut
+        // startsWith("/portal")). Sans cette exception, un client externe
+        // sans identifiants staff — le seul public visé par ce lien — était
+        // systématiquement rejeté vers /login : le portail client était
+        // entièrement inaccessible à ses utilisateurs réels.
+        if (pathname.startsWith("/portal")) {
+          return true;
+        }
         return !!token;
       },
     },
