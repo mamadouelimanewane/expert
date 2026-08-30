@@ -108,10 +108,10 @@ export default function PortalByToken() {
       const newEntry = {
         id: Date.now().toString(),
         date: quickEntry.date || new Date().toISOString().slice(0, 10),
-        description: quickEntry.libelle,
-        debitAmount: quickEntry.type === "depense" ? parseFloat(quickEntry.montant) : 0,
-        creditAmount: quickEntry.type === "recette" ? parseFloat(quickEntry.montant) : 0,
-        status: "pending",
+        libelle: quickEntry.libelle,
+        sortie: quickEntry.type === "depense" ? parseFloat(quickEntry.montant) : 0,
+        entree: quickEntry.type === "recette" ? parseFloat(quickEntry.montant) : 0,
+        status: "PENDING",
         createdAt: new Date().toISOString(),
       };
       setEntries(prev => [newEntry, ...prev]);
@@ -259,25 +259,37 @@ export default function PortalByToken() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {entries.slice(0, 8).map((e: any, i: number) => (
+                  {entries.slice(0, 8).map((e: any, i: number) => {
+                    // Les écritures chargées depuis l'API (tpeJournals, champs Prisma
+                    // entree/sortie/status en MAJUSCULES) et celles ajoutées localement
+                    // après une saisie rapide (objet optimiste ci-dessus, entree/sortie
+                    // également) doivent utiliser le même nommage — un ancien mélange
+                    // entree/sortie vs creditAmount/debitAmount faisait planter la page
+                    // (TypeError sur .toLocaleString() d'un champ inexistant) dès qu'un
+                    // client avait au moins une vraie écriture en base.
+                    const credit = e.entree ?? 0;
+                    const debit = e.sortie ?? 0;
+                    const statut = String(e.status || "PENDING").toUpperCase();
+                    return (
                     <div key={e.id || i} className="flex items-center gap-3 p-3 bg-slate-800/40 rounded-xl border border-white/5">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${e.creditAmount > 0 ? "bg-emerald-400" : "bg-rose-400"}`} />
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${credit > 0 ? "bg-emerald-400" : "bg-rose-400"}`} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold truncate">{e.description || "Opération"}</p>
-                        <p className="text-[10px] text-slate-500">{new Date(e.createdAt).toLocaleDateString("fr-FR")}</p>
+                        <p className="text-xs font-bold truncate">{e.description || e.libelle || "Opération"}</p>
+                        <p className="text-[10px] text-slate-500">{new Date(e.date || e.createdAt).toLocaleDateString("fr-FR")}</p>
                       </div>
-                      <span className={`text-xs font-black tabular-nums flex-shrink-0 ${e.creditAmount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {e.creditAmount > 0 ? `+${e.creditAmount.toLocaleString()}` : `-${e.debitAmount.toLocaleString()}`} F
+                      <span className={`text-xs font-black tabular-nums flex-shrink-0 ${credit > 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                        {credit > 0 ? `+${credit.toLocaleString()}` : `-${debit.toLocaleString()}`} F
                       </span>
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-black border flex-shrink-0 ${
-                        e.status === "approved" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
-                        e.status === "rejected" ? "text-rose-400 bg-rose-500/10 border-rose-500/20" :
+                        statut === "APPROVED" || statut === "EXPORTED" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
+                        statut === "REJECTED" ? "text-rose-400 bg-rose-500/10 border-rose-500/20" :
                         "text-amber-400 bg-amber-500/10 border-amber-500/20"
                       }`}>
-                        {e.status === "approved" ? "validé" : e.status === "rejected" ? "rejeté" : "en attente"}
+                        {statut === "APPROVED" || statut === "EXPORTED" ? "validé" : statut === "REJECTED" ? "rejeté" : "en attente"}
                       </span>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
