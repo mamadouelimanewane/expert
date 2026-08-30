@@ -137,12 +137,12 @@ export default function TimeEntryPage() {
             {/* Header */}
             <div className="bg-slate-900/60 p-8 md:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <Timer className="w-48 h-48 text-indigo-400" />
+                    <Timer className="w-48 h-48 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <h2 className="page-title">
-                        Saisie <span className="text-indigo-400">Rapide des Temps</span>
+                        Saisie <span className="text-primary">Rapide des Temps</span>
                     </h2>
                     <p className="page-subtitle">
                         Timer en temps réel ou saisie manuelle, directement persisté sur la mission sélectionnée.
@@ -152,7 +152,7 @@ export default function TimeEntryPage() {
 
             {/* Quick Stats (calculés à partir des vraies saisies) */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <QuickStat icon={Clock} label="Aujourd'hui" value={formatDuration(todayTotal)} color="text-indigo-400" />
+                <QuickStat icon={Clock} label="Aujourd'hui" value={formatDuration(todayTotal)} color="text-primary" />
                 <QuickStat icon={Calendar} label="7 derniers jours" value={formatDuration(weekTotal)} color="text-emerald-400" />
                 <QuickStat icon={Target} label="Taux Imputation" value={`${imputationRate}%`} color="text-amber-400" />
                 <QuickStat icon={TrendingUp} label="Facturable (7j)" value={formatDuration(billableWeek)} color="text-cyan-400" />
@@ -200,8 +200,8 @@ export default function TimeEntryPage() {
                         </div>
 
                         {selectedClient ? (
-                            <div className="mt-8 p-6 bg-indigo-500/10 border border-indigo-500/20 rounded-3xl text-left">
-                                <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-2">Mission Active</p>
+                            <div className="mt-8 p-6 bg-primary/10 border border-primary/20 rounded-3xl text-left">
+                                <p className="text-[10px] text-primary font-black uppercase tracking-widest mb-2">Mission Active</p>
                                 <h4 className="text-white font-bold text-sm">{selectedClient.name}</h4>
                                 <p className="text-xs text-slate-400">{selectedClient.mission}</p>
                             </div>
@@ -225,7 +225,7 @@ export default function TimeEntryPage() {
                                         value={manualHours}
                                         onChange={(e) => setManualHours(e.target.value)}
                                         placeholder="0"
-                                        className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-6 py-4 text-2xl font-black text-white text-center focus:ring-2 focus:ring-indigo-500/50 outline-none"
+                                        className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-6 py-4 text-2xl font-black text-white text-center focus:ring-2 focus:ring-primary/50 outline-none"
                                     />
                                 </div>
                                 <div>
@@ -235,7 +235,7 @@ export default function TimeEntryPage() {
                                         value={manualMinutes}
                                         onChange={(e) => setManualMinutes(e.target.value)}
                                         placeholder="0"
-                                        className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-6 py-4 text-2xl font-black text-white text-center focus:ring-2 focus:ring-indigo-500/50 outline-none"
+                                        className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-6 py-4 text-2xl font-black text-white text-center focus:ring-2 focus:ring-primary/50 outline-none"
                                     />
                                 </div>
                             </div>
@@ -244,13 +244,13 @@ export default function TimeEntryPage() {
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
                                 placeholder="Description de la tâche…"
-                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
+                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-primary/50 outline-none"
                             />
 
                             <button
                                 onClick={() => saveEntry((parseFloat(manualHours) || 0) + (parseFloat(manualMinutes) || 0) / 60)}
                                 disabled={!selectedClient || saving}
-                                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-600/30 transition-all"
+                                className="w-full py-5 bg-primary hover:brightness-110 disabled:opacity-40 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/30 transition-all"
                             >
                                 <Save className="w-4 h-4 inline mr-2" /> {saving ? "Enregistrement…" : "Enregistrer le Temps"}
                             </button>
@@ -269,7 +269,7 @@ export default function TimeEntryPage() {
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     placeholder="Rechercher..."
-                                    className="bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64"
+                                    className="bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64"
                                 />
                             </div>
                         </div>
@@ -282,7 +282,7 @@ export default function TimeEntryPage() {
                                     className={cn(
                                         "p-6 rounded-3xl border cursor-pointer transition-all group",
                                         selectedClient?.id === m.id
-                                            ? "bg-indigo-500/10 border-indigo-500/30 shadow-lg shadow-indigo-500/10"
+                                            ? "bg-primary/10 border-primary/30 shadow-lg shadow-primary/10"
                                             : "bg-slate-800/30 border-white/5 hover:bg-slate-800/50 hover:border-white/10"
                                     )}
                                 >
@@ -292,18 +292,18 @@ export default function TimeEntryPage() {
                                                 <Briefcase className="w-5 h-5 text-slate-400" />
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{m.name}</h4>
+                                                <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">{m.name}</h4>
                                             </div>
                                         </div>
                                         {selectedClient?.id === m.id && (
-                                            <CheckCircle2 className="w-5 h-5 text-indigo-400" />
+                                            <CheckCircle2 className="w-5 h-5 text-primary" />
                                         )}
                                     </div>
                                     <p className="text-xs text-slate-400 leading-relaxed">{m.mission}</p>
                                 </div>
                             ))}
                             {filteredMissions.length === 0 && (
-                                <p className="text-sm text-slate-500 col-span-2">Aucune mission ne correspond. Créez-en une depuis <a href="/missions/new" className="text-indigo-400 underline">Nouvelle mission</a>.</p>
+                                <p className="text-sm text-slate-500 col-span-2">Aucune mission ne correspond. Créez-en une depuis <a href="/missions/new" className="text-primary underline">Nouvelle mission</a>.</p>
                             )}
                         </div>
                     </div>
@@ -312,7 +312,7 @@ export default function TimeEntryPage() {
                     <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden">
                         <div className="p-8 border-b border-white/5 bg-slate-900/60">
                             <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                                <Clock className="w-6 h-6 text-indigo-400" />
+                                <Clock className="w-6 h-6 text-primary" />
                                 Saisies d'Aujourd'hui
                             </h3>
                         </div>
@@ -323,7 +323,7 @@ export default function TimeEntryPage() {
                                     <div className="flex items-center justify-between">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h4 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{entry.client?.companyName || "—"}</h4>
+                                                <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">{entry.client?.companyName || "—"}</h4>
                                                 <span className={cn(
                                                     "px-2 py-0.5 text-[8px] font-black uppercase rounded border",
                                                     entry.category !== "AUTRE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-800 text-slate-400 border-slate-700"
@@ -335,7 +335,7 @@ export default function TimeEntryPage() {
                                             {entry.description && <p className="text-xs text-slate-600 italic">{entry.description}</p>}
                                         </div>
                                         <div className="text-right ml-6">
-                                            <div className="text-2xl font-black text-indigo-400 font-mono">{formatDuration(entry.duration)}</div>
+                                            <div className="text-2xl font-black text-primary font-mono">{formatDuration(entry.duration)}</div>
                                         </div>
                                     </div>
                                 </div>

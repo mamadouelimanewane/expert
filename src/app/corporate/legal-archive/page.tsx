@@ -73,7 +73,7 @@ export default function LegalArchivePage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Database className="w-6 h-6 text-indigo-500" /> Archivage Légal (Empreinte d'Intégrité)
+            <Database className="w-6 h-6 text-primary" /> Archivage Légal (Empreinte d'Intégrité)
           </h2>
           <p className="page-subtitle">Hash SHA-256 réel + horodatage, tracé dans le journal d'audit du cabinet</p>
         </div>
@@ -91,13 +91,13 @@ export default function LegalArchivePage() {
               className={cn(
                 "border-2 border-dashed rounded-2xl flex flex-col items-center justify-center p-8 transition-colors",
                 isAnchoring
-                  ? "border-indigo-500/50 bg-indigo-500/10 cursor-not-allowed"
-                  : "border-slate-700 hover:border-indigo-500/50 hover:bg-slate-800/50 cursor-pointer"
+                  ? "border-primary/50 bg-primary/10 cursor-not-allowed"
+                  : "border-slate-700 hover:border-primary/50 hover:bg-slate-800/50 cursor-pointer"
               )}
             >
               {isAnchoring ? (
                 <div className="flex flex-col items-center">
-                  <Loader2 className="w-10 h-10 text-indigo-400 animate-spin mb-4" />
+                  <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
                   <p className="text-sm font-bold text-white mb-1">Calcul de l'empreinte SHA-256...</p>
                   <p className="text-xs text-slate-400">Enregistrement dans le journal d'audit</p>
                 </div>
@@ -130,8 +130,8 @@ export default function LegalArchivePage() {
             </AnimatePresence>
           </div>
           
-          <div className="bg-slate-900/40 border border-indigo-500/20 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl flex items-start gap-4">
-            <ShieldCheck className="w-8 h-8 text-indigo-400 shrink-0" />
+          <div className="bg-slate-900/40 border border-primary/20 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl flex items-start gap-4">
+            <ShieldCheck className="w-8 h-8 text-primary shrink-0" />
             <div>
               <h4 className="text-sm font-bold text-white mb-2">Ce que garantit cette empreinte</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
@@ -153,7 +153,7 @@ export default function LegalArchivePage() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="Rechercher par nom ou hash..."
-                  className="w-full bg-slate-950/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950/50 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-primary"
                 />
               </div>
             </div>

@@ -33,7 +33,7 @@ export default function MarketplacePage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Landmark className="w-6 h-6 text-indigo-500" /> Marketplace Financement
+            <Landmark className="w-6 h-6 text-primary" /> Marketplace Financement
           </h2>
           <p className="page-subtitle">Connectez les données de vos clients à nos partenaires financiers</p>
         </div>
@@ -51,7 +51,7 @@ export default function MarketplacePage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
             key={p.id}
-            className="bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl flex flex-col h-full hover:border-indigo-500/30 transition-colors group"
+            className="bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl flex flex-col h-full hover:border-primary/30 transition-colors group"
           >
             <div className="flex items-center gap-4 mb-6">
               <div className={cn(

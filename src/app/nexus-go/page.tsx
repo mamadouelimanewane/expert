@@ -180,7 +180,7 @@ export default function NexusGoPage() {
                         <div
                             key={i}
                             className={cn(
-                                "absolute bottom-0 w-1 bg-gradient-to-t from-indigo-600/30 to-transparent rounded-t-full transition-all duration-300",
+                                "absolute bottom-0 w-1 bg-gradient-to-t from-primary/30 to-transparent rounded-t-full transition-all duration-300",
                                 isListening && "animate-pulse"
                             )}
                             style={{
@@ -196,7 +196,7 @@ export default function NexusGoPage() {
                         "p-3 rounded-2xl transition-all shadow-xl",
                         isListening
                             ? "bg-red-600 shadow-red-600/40 animate-pulse"
-                            : "bg-indigo-600 shadow-indigo-600/30"
+                            : "bg-primary shadow-primary/30"
                     )}>
                         <Mic className="w-8 h-8 text-white" />
                     </div>
@@ -235,8 +235,8 @@ export default function NexusGoPage() {
                                     className="w-full p-3 text-left bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all group"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-indigo-500/10 rounded-xl group-hover:bg-indigo-500/20 transition-all">
-                                            <item.icon className="w-4 h-4 text-indigo-400" />
+                                        <div className="p-2 bg-primary/10 rounded-xl group-hover:brightness-110/20 transition-all">
+                                            <item.icon className="w-4 h-4 text-primary" />
                                         </div>
                                         <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{item.label}</span>
                                     </div>
@@ -278,8 +278,8 @@ export default function NexusGoPage() {
                                 <div className={cn(
                                     "flex-none w-9 h-9 rounded-2xl flex items-center justify-center text-xs font-black shadow-lg",
                                     msg.role === "user"
-                                        ? "bg-indigo-600 text-white"
-                                        : "bg-gradient-to-br from-cyan-500 to-indigo-600 text-white shadow-cyan-500/30"
+                                        ? "bg-primary text-white"
+                                        : "bg-gradient-to-br from-cyan-500 to-primary text-white shadow-cyan-500/30"
                                 )}>
                                     {msg.role === "user" ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
                                 </div>
@@ -288,7 +288,7 @@ export default function NexusGoPage() {
                                 <div className={cn(
                                     "max-w-[80%] px-5 py-4 rounded-[24px] relative",
                                     msg.role === "user"
-                                        ? "bg-indigo-600 text-white rounded-tr-md"
+                                        ? "bg-primary text-white rounded-tr-md"
                                         : "bg-slate-800/80 border border-white/5 rounded-tl-md"
                                 )}>
                                     {msg.role === "user" ? (
@@ -298,7 +298,7 @@ export default function NexusGoPage() {
                                     )}
                                     <p className={cn(
                                         "text-[9px] mt-2 font-mono",
-                                        msg.role === "user" ? "text-indigo-200 text-right" : "text-slate-600"
+                                        msg.role === "user" ? "text-primary-foreground/70 text-right" : "text-slate-600"
                                     )}>
                                         {msg.timestamp.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                                     </p>
@@ -309,7 +309,7 @@ export default function NexusGoPage() {
                         {/* Typing indicator */}
                         {isTyping && (
                             <div className="flex gap-4">
-                                <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-gradient-to-br from-cyan-500 to-indigo-600 text-white">
+                                <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-gradient-to-br from-cyan-500 to-primary text-white">
                                     <Sparkles className="w-4 h-4" />
                                 </div>
                                 <div className="bg-slate-800/80 border border-white/5 rounded-[24px] rounded-tl-md px-5 py-4">
@@ -317,7 +317,7 @@ export default function NexusGoPage() {
                                         {[0, 150, 300].map(delay => (
                                             <div
                                                 key={delay}
-                                                className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
+                                                className="w-2 h-2 bg-primary rounded-full animate-bounce"
                                                 style={{ animationDelay: `${delay}ms` }}
                                             />
                                         ))}
@@ -370,13 +370,13 @@ export default function NexusGoPage() {
                                 onChange={e => setInput(e.target.value)}
                                 onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
                                 placeholder="Posez votre question ou dictez à voix haute..."
-                                className="flex-1 bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-3.5 text-sm text-white placeholder-slate-500 focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all"
+                                className="flex-1 bg-slate-800/50 border border-white/5 rounded-2xl px-5 py-3.5 text-sm text-white placeholder-slate-500 focus:ring-1 focus:ring-primary/50 outline-none transition-all"
                             />
 
                             <button
                                 onClick={() => sendMessage()}
                                 disabled={!input.trim() || isTyping}
-                                className="flex-none p-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all border border-indigo-500/50 shadow-lg shadow-indigo-600/30 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
+                                className="flex-none p-3.5 rounded-2xl bg-primary hover:brightness-110 text-white transition-all border border-primary/50 shadow-lg shadow-primary/30 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
                             >
                                 <Send className="w-5 h-5" />
                             </button>

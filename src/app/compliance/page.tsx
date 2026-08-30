@@ -158,15 +158,15 @@ export default function NexusComplianceHubPage() {
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
 
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <ShieldCheck className="w-64 h-64 text-indigo-400" />
+                    <ShieldCheck className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 NEXUS Premium
                             </span>
                             <span className="px-3 py-1 bg-slate-500/10 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-slate-500/20">
@@ -174,7 +174,7 @@ export default function NexusComplianceHubPage() {
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Nexus <span className="text-indigo-400">Legal & Risk Integrity</span>
+                            Nexus <span className="text-primary">Legal & Risk Integrity</span>
                         </h2>
                         <p className="page-subtitle">
                             Pilotage de la conformité multi-textes : OHADA, CGI, UEMOA & Réglementations sectorielles par Intelligence Artificielle.
@@ -185,7 +185,7 @@ export default function NexusComplianceHubPage() {
                         <select
                             value={clientId}
                             onChange={(e) => setClientId(e.target.value)}
-                            className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-indigo-500 outline-none transition-all hover:bg-white/10 shadow-xl"
+                            className="bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-xs font-bold focus:ring-primary outline-none transition-all hover:bg-white/10 shadow-xl"
                         >
                             {clients.map(client => (
                                 <option key={client.id} value={client.id} className="bg-slate-900">{client.nom}</option>
@@ -193,7 +193,7 @@ export default function NexusComplianceHubPage() {
                         </select>
                         <Link
                             href={clientId ? `/missions?type=AUDIT&clientId=${clientId}` : "/missions?type=AUDIT"}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-indigo-600/30"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl transition-all shadow-primary/30"
                         >
                             <History className="w-5 h-5" /> Historique des Audits
                         </Link>
@@ -208,7 +208,7 @@ export default function NexusComplianceHubPage() {
                 réelle et sont retirées. */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Link href="/compliance/id-verify" className="apix-card transition-all group flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:brightness-110 group-hover:text-white transition-all">
                         <Fingerprint className="w-6 h-6" />
                     </div>
                     <div>
@@ -240,7 +240,7 @@ export default function NexusComplianceHubPage() {
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={cn(
                                     "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3",
-                                    activeTab === tab.id ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white"
+                                    activeTab === tab.id ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white"
                                 )}
                             >
                                 <tab.icon className="w-4 h-4" /> {tab.label}
@@ -327,7 +327,7 @@ export default function NexusComplianceHubPage() {
                     {activeTab === "referentiel" && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <ReferenceCard title="Code Général des Impôts" desc="Sénégal / Côte d'Ivoire v2026" icon={Book} color="text-rose-400" />
-                            <ReferenceCard title="AUDSCGIE OHADA" desc="Sociétés Commerciales" icon={Gavel} color="text-indigo-400" />
+                            <ReferenceCard title="AUDSCGIE OHADA" desc="Sociétés Commerciales" icon={Gavel} color="text-primary" />
                             <ReferenceCard title="Convention Fiscale" desc="Éviter la double imposition" icon={Globe} color="text-cyan-400" />
                             <ReferenceCard title="Réglementation Bancaire" desc="UEMOA / BCEAO" icon={ShieldCheck} color="text-amber-400" />
                         </div>
@@ -336,9 +336,9 @@ export default function NexusComplianceHubPage() {
 
                 {/* Right Panel: AI & Score */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-8 rounded-[40px] border border-indigo-500/20 bg-gradient-to-br from-slate-900 to-indigo-900/30">
+                    <div className="glass-card p-8 rounded-[40px] border border-primary/20 bg-gradient-to-br from-slate-900 to-primary/30">
                         <div className="flex items-center gap-3 mb-8">
-                            <Cpu className="w-6 h-6 text-indigo-400" />
+                            <Cpu className="w-6 h-6 text-primary" />
                             <h3 className="text-lg font-black text-white uppercase tracking-tight">Intelligence Nexus</h3>
                         </div>
 
@@ -348,12 +348,12 @@ export default function NexusComplianceHubPage() {
                                     value={question}
                                     onChange={(e) => setQuestion(e.target.value)}
                                     placeholder="Interrogez l'assistant sur les donnees du cabinet"
-                                    className="w-full h-40 bg-black/40 border border-white/5 rounded-3xl p-6 text-sm text-slate-300 placeholder:text-slate-600 focus:border-indigo-500 outline-none resize-none transition-all group-hover:border-white/10"
+                                    className="w-full h-40 bg-black/40 border border-white/5 rounded-3xl p-6 text-sm text-slate-300 placeholder:text-slate-600 focus:border-primary outline-none resize-none transition-all group-hover:border-white/10"
                                 />
                                 <button
                                     type="submit"
                                     disabled={askingIA}
-                                    className="absolute bottom-4 right-4 p-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl shadow-2xl transition-all active:scale-95 disabled:opacity-50"
+                                    className="absolute bottom-4 right-4 p-4 bg-primary hover:brightness-110 text-white rounded-2xl shadow-2xl transition-all active:scale-95 disabled:opacity-50"
                                 >
                                     {askingIA ? <Loader2 className="w-6 h-6 animate-spin" /> : <Zap className="w-6 h-6" />}
                                 </button>
@@ -365,11 +365,11 @@ export default function NexusComplianceHubPage() {
                                 "mt-8 p-6 rounded-3xl border animate-in fade-in slide-in-from-top-4",
                                 aiNonConfigure
                                     ? "bg-amber-500/10 border-amber-500/20"
-                                    : "bg-indigo-500/10 border-indigo-500/20"
+                                    : "bg-primary/10 border-primary/20"
                             )}>
                                 <p className={cn(
                                     "text-xs leading-relaxed font-medium",
-                                    aiNonConfigure ? "text-amber-200" : "text-indigo-200"
+                                    aiNonConfigure ? "text-amber-200" : "text-primary-foreground/70"
                                 )}>
                                     {aiResponse}
                                 </p>
@@ -401,7 +401,7 @@ export default function NexusComplianceHubPage() {
                                         </span>
                                     </div>
                                     <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden mt-6">
-                                        <div className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{ width: `${indice ?? 0}%` }} />
+                                        <div className="h-full bg-primary shadow-[0_0_15px_rgba(0, 107, 63,0.5)]" style={{ width: `${indice ?? 0}%` }} />
                                     </div>
                                     <p className="text-[10px] text-slate-500 mt-6 leading-relaxed italic">
                                         {evalues.length > 0

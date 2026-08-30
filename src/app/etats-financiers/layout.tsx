@@ -14,7 +14,7 @@ export default function EtatsFinanciersLayout({
       <header className="border-b border-slate-200 bg-white/50 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/50 print:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-indigo-600 p-2 text-white">
+            <div className="rounded-lg bg-primary p-2 text-white">
               <FileSpreadsheet className="h-6 w-6" />
             </div>
             <div>
@@ -51,7 +51,7 @@ function NavItem({ href, icon, label }: { href: string; icon: React.ReactNode; l
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-indigo-600 hover:shadow-sm dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white hover:text-primary hover:shadow-sm dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-primary"
     >
       {icon}
       <span>{label}</span>

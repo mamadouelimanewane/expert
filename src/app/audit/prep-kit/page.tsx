@@ -165,7 +165,7 @@ export default function CompleteAuditKitPage() {
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
                     <div>
                         <div className="flex items-center gap-4 mb-3">
-                            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
+                            <div className="p-3 bg-primary rounded-2xl shadow-lg shadow-primary/30">
                                 <Briefcase className="w-8 h-8 text-white" />
                             </div>
                             <h2 className="page-title">Kit de préparation d&apos;audit</h2>
@@ -202,7 +202,7 @@ export default function CompleteAuditKitPage() {
                                     onClick={() => setCurrentPhase(tab.phase)}
                                     className={cn(
                                         "px-6 py-4 rounded-xl flex items-center gap-3 transition-all",
-                                        currentPhase === tab.phase ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"
+                                        currentPhase === tab.phase ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"
                                     )}
                                 >
                                     <tab.icon className={cn("w-4 h-4", currentPhase === tab.phase ? "text-white" : "text-slate-500")} />
@@ -227,7 +227,7 @@ export default function CompleteAuditKitPage() {
             {currentPhase === "planning" && (
                 <div className="apix-card max-w-xl">
                     <div className="flex items-center gap-3 mb-6">
-                        <Scale className="w-6 h-6 text-indigo-400" />
+                        <Scale className="w-6 h-6 text-primary" />
                         <h3 className="text-xl font-bold text-white">Calculateur de seuil de signification</h3>
                     </div>
 
@@ -253,7 +253,7 @@ export default function CompleteAuditKitPage() {
                         <button
                             onClick={calculateMateriality}
                             disabled={ca === 0}
-                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-xs rounded-xl shadow-lg transition-all disabled:opacity-50"
+                            className="w-full py-4 bg-primary hover:brightness-110 text-white font-black uppercase tracking-widest text-xs rounded-xl shadow-lg transition-all disabled:opacity-50"
                         >
                             Calculer le seuil
                         </button>
@@ -314,7 +314,7 @@ export default function CompleteAuditKitPage() {
                                     {risques.map((risk) => (
                                         <tr key={risk.id} className="hover:bg-white/[0.02]">
                                             <td className="px-8 py-4">
-                                                <span className="block text-xs font-bold text-indigo-400 uppercase mb-1">{risk.cycle}</span>
+                                                <span className="block text-xs font-bold text-primary uppercase mb-1">{risk.cycle}</span>
                                                 <span className="text-sm font-medium text-white">{risk.description}</span>
                                             </td>
                                             <td className="px-6 py-4 text-center"><RiskBadge level={risk.risqueInherent} /></td>
@@ -358,7 +358,7 @@ export default function CompleteAuditKitPage() {
                                 placeholder="Procédure d'audit"
                                 className="flex-1 min-w-[200px] bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white"
                             />
-                            <button onClick={ajouterProcedure} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
+                            <button onClick={ajouterProcedure} className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
                                 <Plus className="w-4 h-4" /> Ajouter
                             </button>
                         </div>
@@ -378,7 +378,7 @@ export default function CompleteAuditKitPage() {
                                     </button>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-black bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 uppercase">{item.cycle}</span>
+                                            <span className="text-[10px] font-black bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20 uppercase">{item.cycle}</span>
                                             <span className="text-[10px] font-black text-slate-600 uppercase border border-slate-700 px-2 py-0.5 rounded">{item.assertion}</span>
                                         </div>
                                         <p className="text-sm font-bold text-white">{item.procedure}</p>

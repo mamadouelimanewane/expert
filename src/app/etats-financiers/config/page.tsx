@@ -86,7 +86,7 @@ export default function ConfigPage() {
                             </div>
                         </>
                     ) : (
-                        <p className="text-sm text-slate-500">Aucun client. Créez-en un depuis <a href="/clients/new" className="text-indigo-600 underline">Nouveau client</a>.</p>
+                        <p className="text-sm text-slate-500">Aucun client. Créez-en un depuis <a href="/clients/new" className="text-primary underline">Nouveau client</a>.</p>
                     )}
                 </div>
             </div>

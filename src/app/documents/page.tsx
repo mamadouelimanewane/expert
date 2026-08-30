@@ -95,18 +95,18 @@ export default function SmartGEDPage() {
             {/* Header Smart GED */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <Folder className="w-48 h-48 text-indigo-400" />
+                    <Folder className="w-48 h-48 text-primary" />
                 </div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                             Collecte Automatique
                         </span>
                         <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-500/20 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" /> OCR Actif
                         </span>
                     </div>
-                    <h2 className="page-title">GED <span className="text-indigo-400">Intelligente</span></h2>
+                    <h2 className="page-title">GED <span className="text-primary">Intelligente</span></h2>
                     <p className="page-subtitle">
                         Déposez vos documents : l'OCR les lit et en extrait les données automatiquement. L'alerte de pièces manquantes n'est pas encore implémentée.
                     </p>
@@ -119,7 +119,7 @@ export default function SmartGEDPage() {
                     <button
                         onClick={handleUploadClick}
                         disabled={isUploading || clients.length === 0}
-                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 shadow-xl shadow-indigo-600/30"
+                        className="px-6 py-3 bg-primary hover:brightness-110 disabled:opacity-40 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-2 shadow-xl shadow-primary/30"
                     >
                         <UploadCloud className="w-4 h-4" /> {isUploading ? "Analyse OCR…" : "Uploader"}
                     </button>
@@ -130,7 +130,7 @@ export default function SmartGEDPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 apix-card relative overflow-hidden">
                     <h3 className="text-xl font-black text-white mb-6 flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-indigo-400" />
+                        <FileText className="w-5 h-5 text-primary" />
                         Répartition par catégorie
                     </h3>
                     <div className="space-y-3">
@@ -161,9 +161,9 @@ export default function SmartGEDPage() {
 
             {/* Dropzone IA */}
             {isUploading && (
-                <div className="glass-card p-4 sm:p-8 lg:p-16 rounded-[40px] border-2 border-dashed border-indigo-500/30 bg-slate-900/40 text-center animate-pulse">
-                    <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-6">
-                        <Sparkles className="w-8 h-8 text-indigo-400 animate-spin" />
+                <div className="glass-card p-4 sm:p-8 lg:p-16 rounded-[40px] border-2 border-dashed border-primary/30 bg-slate-900/40 text-center animate-pulse">
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                        <Sparkles className="w-8 h-8 text-primary animate-spin" />
                     </div>
                     <h3 className="text-xl font-black text-white mb-2">Analyse OCR en cours...</h3>
                     <p className="text-slate-400 text-sm">Classification par client et catégorie fiscale en cours.</p>
@@ -181,7 +181,7 @@ export default function SmartGEDPage() {
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Rechercher un document, client..."
-                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
                             />
                         </div>
                     </div>
@@ -214,7 +214,7 @@ export default function SmartGEDPage() {
                                         <tr key={file.id} className="hover:bg-white/[0.02] transition-colors group">
                                             <td className="px-6 py-4 flex items-center gap-3">
                                                 <div className="p-2 bg-slate-800 rounded-xl">
-                                                    <FileText className="w-5 h-5 text-indigo-400" />
+                                                    <FileText className="w-5 h-5 text-primary" />
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-white">{file.name}</p>
@@ -259,7 +259,7 @@ export default function SmartGEDPage() {
                                 <div key={file.id} className="p-6 border border-white/5 bg-slate-900/40 rounded-[32px] hover:bg-slate-900/60 transition-colors group relative">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="p-3 bg-slate-800 rounded-2xl">
-                                            <FileText className="w-6 h-6 text-indigo-400" />
+                                            <FileText className="w-6 h-6 text-primary" />
                                         </div>
                                         <button disabled title="Non implémenté" className="p-2 text-slate-700 cursor-not-allowed"><MoreVertical className="w-4 h-4" /></button>
                                     </div>

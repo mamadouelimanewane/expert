@@ -240,9 +240,9 @@ export default function TrainingAcademyPage() {
                             )}
                         </div>
 
-                        <div className="p-6 rounded-[32px] border border-white/5 bg-gradient-to-br from-indigo-500/5 to-transparent">
+                        <div className="p-6 rounded-[32px] border border-white/5 bg-gradient-to-br from-primary/5 to-transparent">
                             <h3 className="font-bold text-white mb-3 flex items-center gap-2">
-                                <Trophy className="w-5 h-5 text-indigo-400" /> Classement Cabinet
+                                <Trophy className="w-5 h-5 text-primary" /> Classement Cabinet
                             </h3>
                             <p className="text-xs text-slate-500">Le classement inter-collaborateurs n'est pas encore disponible dans l'application.</p>
                         </div>

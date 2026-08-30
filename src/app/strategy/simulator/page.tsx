@@ -20,7 +20,7 @@ const SCENARIOS = [
     { id: "inflation", label: "Choc Inflationniste", icon: TrendingUp, color: "text-rose-400", bg: "bg-rose-500/10" },
     { id: "growth", label: "Hyper-Croissance", icon: Zap, color: "text-amber-400", bg: "bg-amber-500/10" },
     { id: "churn", label: "Perte Client Majeur", icon: AlertTriangle, color: "text-orange-400", bg: "bg-orange-500/10" },
-    { id: "resilience", label: "Stress Test Bancaire", icon: ShieldCheck, color: "text-indigo-400", bg: "bg-indigo-500/10" }
+    { id: "resilience", label: "Stress Test Bancaire", icon: ShieldCheck, color: "text-primary", bg: "bg-primary/10" }
 ];
 
 export default function StrategySimulatorPage() {

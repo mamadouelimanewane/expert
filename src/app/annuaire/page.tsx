@@ -32,7 +32,7 @@ type RepartitionRole = { role: string; libelle: string; nombre: number };
 
 const COULEUR_ROLE: Record<string, string> = {
     ADMIN: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    EXPERT: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    EXPERT: "bg-primary/10 text-primary border-primary/20",
     COLLABORATOR: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     ASSISTANT: "bg-amber-500/10 text-amber-400 border-amber-500/20",
 };

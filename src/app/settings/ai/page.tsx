@@ -34,8 +34,8 @@ export default function AILlmSettings() {
     return (
         <div className="p-8 max-w-3xl mx-auto space-y-8 animate-in fade-in duration-700">
             <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 border border-indigo-500/20 flex items-center justify-center shadow-xl shadow-indigo-500/10">
-                    <BrainCircuit className="w-8 h-8 text-indigo-400" />
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/20 to-purple-600/10 border border-primary/20 flex items-center justify-center shadow-xl shadow-primary/10">
+                    <BrainCircuit className="w-8 h-8 text-primary" />
                 </div>
                 <div>
                     <h2 className="page-title">Moteur IA</h2>

@@ -196,7 +196,7 @@ export default function TimesheetsPage() {
             {/* Header Premium */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <Clock className="w-64 h-64 text-indigo-400" />
+                    <Clock className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
@@ -210,7 +210,7 @@ export default function TimesheetsPage() {
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Suivi des Temps & <span className="text-indigo-400">Rentabilité</span>
+                            Suivi des Temps & <span className="text-primary">Rentabilité</span>
                         </h2>
                         <p className="page-subtitle">
                             Saisissez vos heures pour analyser la rentabilité des missions et facturer le hors-forfait.
@@ -243,7 +243,7 @@ export default function TimesheetsPage() {
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: "Heures saisies", val: `${totalHoursThisWeek}h`, sub: "Cette semaine", icon: Clock, color: "text-indigo-400 bg-indigo-500/10" },
+                    { label: "Heures saisies", val: `${totalHoursThisWeek}h`, sub: "Cette semaine", icon: Clock, color: "text-primary bg-primary/10" },
                     { label: "Taux de facturabilité", val: `${billableRate}%`, sub: "Hors catégorie 'Autre'", icon: TrendingDown, color: "text-emerald-400 bg-emerald-500/10" },
                     { label: "Alertes Budget", val: String(overBudgetCount), sub: "Dossiers en dépassement", icon: AlertTriangle, color: "text-rose-400 bg-rose-500/10" },
                     { label: "Dossiers Actifs", val: String(rows.length), sub: "Missions avec saisies", icon: Briefcase, color: "text-blue-400 bg-blue-500/10" }
@@ -265,7 +265,7 @@ export default function TimesheetsPage() {
             <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
                 <div className="p-6 border-b border-white/5 bg-slate-900/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div className="flex items-center gap-4">
-                        <Users className="w-5 h-5 text-indigo-400" />
+                        <Users className="w-5 h-5 text-primary" />
                         <h3 className="text-lg font-black text-white uppercase tracking-widest">Feuille de Temps</h3>
                     </div>
                     <div className="flex gap-2 items-center">
@@ -279,7 +279,7 @@ export default function TimesheetsPage() {
                                 <option key={m.id} value={m.id}>{m.clientName} — {m.title}</option>
                             ))}
                         </select>
-                        <button onClick={addMissionRow} className="p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white transition-colors">
+                        <button onClick={addMissionRow} className="p-2 bg-primary hover:brightness-110 rounded-lg text-white transition-colors">
                             <Plus className="w-4 h-4" />
                         </button>
                     </div>
@@ -324,9 +324,9 @@ export default function TimesheetsPage() {
                                                         value={isLocked ? persisted : (pendingRow[dayIdx] || "")}
                                                         onChange={(e) => setPendingHour(row.key, dayIdx, e.target.value)}
                                                         className={cn(
-                                                            "w-14 h-12 text-center rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors",
+                                                            "w-14 h-12 text-center rounded-xl border focus:outline-none focus:ring-2 focus:ring-primary transition-colors",
                                                             isLocked ? "bg-slate-800/80 border-white/5 text-slate-400 cursor-not-allowed" :
-                                                            (pendingRow[dayIdx] > 0 ? "border-indigo-500/50 text-indigo-300 font-black bg-indigo-500/10" : "bg-slate-800/50 border-white/5 text-slate-500")
+                                                            (pendingRow[dayIdx] > 0 ? "border-primary/50 text-primary-foreground/70 font-black bg-primary/10" : "bg-slate-800/50 border-white/5 text-slate-500")
                                                         )}
                                                     />
                                                 </td>
@@ -377,7 +377,7 @@ export default function TimesheetsPage() {
                                     <button
                                         onClick={saveWeek}
                                         disabled={saving || Object.keys(pending).length === 0}
-                                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 active:scale-95 flex items-center gap-2 ml-auto"
+                                        className="px-8 py-4 bg-primary hover:brightness-110 disabled:opacity-40 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary/30 active:scale-95 flex items-center gap-2 ml-auto"
                                     >
                                         <Save className="w-4 h-4" /> {saving ? "Enregistrement…" : "Enregistrer la semaine"}
                                     </button>

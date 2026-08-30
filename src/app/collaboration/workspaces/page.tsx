@@ -35,7 +35,7 @@ interface Activity {
 
 const TYPE_LABEL: Record<string, string> = { DUE_DILIGENCE: "Due Diligence", LITIGE: "Contentieux", PROJET: "Projet", AUTRE: "Autre" };
 const TYPE_COLOR: Record<string, string> = {
-    DUE_DILIGENCE: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+    DUE_DILIGENCE: "text-primary bg-primary/10 border-primary/20",
     LITIGE: "text-rose-400 bg-rose-500/10 border-rose-500/20",
     PROJET: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
     AUTRE: "text-slate-400 bg-slate-500/10 border-slate-500/20",

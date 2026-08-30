@@ -240,14 +240,14 @@ export default function ClauseBankPage() {
 
                             {/* Annotations */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="p-6 bg-indigo-500/5 rounded-3xl border border-indigo-500/20">
-                                    <h4 className="text-sm font-black text-indigo-400 mb-4 uppercase tracking-widest flex items-center gap-2">
+                                <div className="p-6 bg-primary/5 rounded-3xl border border-primary/20">
+                                    <h4 className="text-sm font-black text-primary mb-4 uppercase tracking-widest flex items-center gap-2">
                                         <Info className="w-4 h-4" /> Annotations Expert
                                     </h4>
                                     <ul className="space-y-3">
                                         {selectedClause.annotations.map((note, i) => (
                                             <li key={i} className="flex items-start gap-2 text-sm text-slate-400">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
+                                                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
                                                 {note}
                                             </li>
                                         ))}

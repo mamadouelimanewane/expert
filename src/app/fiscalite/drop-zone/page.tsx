@@ -214,7 +214,7 @@ export default function DropZoneFiscalePage() {
                                     <Lightbulb className="w-6 h-6 text-amber-400" />
                                     Analyse Nexus IA — {uploadedFile?.name}
                                 </h3>
-                                <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[9px] font-black uppercase tracking-widest rounded-full border border-indigo-500/20 flex items-center gap-1.5">
+                                <span className="px-3 py-1 bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest rounded-full border border-primary/20 flex items-center gap-1.5">
                                     <Sparkles className="w-3 h-3" /> Généré par IA — à vérifier
                                 </span>
                             </div>

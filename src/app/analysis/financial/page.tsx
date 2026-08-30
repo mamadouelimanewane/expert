@@ -161,12 +161,12 @@ export default function FinancialAnalysisPage() {
 
                                     <div className="grid grid-cols-2 gap-16 h-64">
                                         {/* ACTIF - only real breakdown available: trésorerie vs reste */}
-                                        <div className="flex flex-col h-full border-l-4 border-indigo-500/20 pl-6 relative">
-                                            <div className="absolute -left-[11px] top-0 w-5 h-5 bg-indigo-500 rounded-full border-4 border-slate-900" />
-                                            <h4 className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">Actif</h4>
+                                        <div className="flex flex-col h-full border-l-4 border-primary/20 pl-6 relative">
+                                            <div className="absolute -left-[11px] top-0 w-5 h-5 bg-primary rounded-full border-4 border-slate-900" />
+                                            <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-4">Actif</h4>
                                             <div className="flex-1 flex flex-col gap-2">
-                                                <div className="flex-grow-[8] bg-indigo-500/20 border border-indigo-500/30 rounded-xl p-4 flex flex-col justify-center">
-                                                    <span className="text-[10px] font-black text-indigo-300 uppercase">Autres Actifs (non détaillés)</span>
+                                                <div className="flex-grow-[8] bg-primary/20 border border-primary/30 rounded-xl p-4 flex flex-col justify-center">
+                                                    <span className="text-[10px] font-black text-primary-foreground/70 uppercase">Autres Actifs (non détaillés)</span>
                                                     <span className="text-2xl font-black text-white">{fmt(ratios.totalBilan - ratios.netCash)}</span>
                                                 </div>
                                                 <div className="flex-grow-[2] bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-2 flex flex-col justify-center">
@@ -281,7 +281,7 @@ export default function FinancialAnalysisPage() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 <div className="apix-card">
                                     <div className="flex items-center gap-3 mb-8">
-                                        <Divide className="w-6 h-6 text-indigo-400" />
+                                        <Divide className="w-6 h-6 text-primary" />
                                         <h3 className="text-xl font-bold text-white">Décomposition DuPont (ROE)</h3>
                                     </div>
 
@@ -289,8 +289,8 @@ export default function FinancialAnalysisPage() {
                                         <p className="text-slate-500 text-sm text-center py-8">Données insuffisantes pour calculer la décomposition DuPont.</p>
                                     ) : (
                                         <div className="flex flex-col items-center gap-6">
-                                            <div className="p-6 rounded-3xl bg-indigo-600/10 border border-indigo-500/30 text-center w-full">
-                                                <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-2">Return On Equity (ROE)</p>
+                                            <div className="p-6 rounded-3xl bg-primary/10 border border-primary/30 text-center w-full">
+                                                <p className="text-xs font-black text-primary uppercase tracking-widest mb-2">Return On Equity (ROE)</p>
                                                 <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{dupont.roe}%</p>
                                             </div>
 

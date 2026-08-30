@@ -112,13 +112,13 @@ export default function PartnerWarRoom() {
 
             {chargement ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 </div>
             ) : (
                 <>
                     {/* Strategic KPI Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <WarStatCard title="Missions en cours" value={String(stats.inProgress)} icon={Zap} color="text-indigo-400" />
+                        <WarStatCard title="Missions en cours" value={String(stats.inProgress)} icon={Zap} color="text-primary" />
                         <WarStatCard title="Missions terminées" value={String(stats.completed)} icon={CheckCircle2} color="text-emerald-400" />
                         <WarStatCard title="Dossiers en retard" value={String(retards.length)} icon={Flame} color="text-rose-400" />
                         <WarStatCard title="Alertes fraude ouvertes" value={String(alertesFraudeOuvertes)} icon={ShieldAlert} color="text-amber-400" />
@@ -169,7 +169,7 @@ export default function PartnerWarRoom() {
                                     <p className="text-[10px] text-slate-500 font-black uppercase mb-1">Missions actives</p>
                                     <h4 className="text-2xl font-black text-white">{stats.total}</h4>
                                 </div>
-                                <BarChart3 className="w-10 h-10 text-indigo-500 opacity-50" />
+                                <BarChart3 className="w-10 h-10 text-primary opacity-50" />
                             </div>
                         </div>
                     </div>
@@ -197,7 +197,7 @@ function BottleneckRow({ client, mission, delay, expert }: any) {
     return (
         <div className="flex flex-col md:flex-row items-center justify-between p-6 bg-white/[0.02] border border-white/5 rounded-3xl group hover:bg-white/[0.05] transition-all gap-6">
             <div className="flex-1 w-full lg:w-auto">
-                <h4 className="text-base font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors truncate">{client}</h4>
+                <h4 className="text-base font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors truncate">{client}</h4>
                 <div className="flex items-center gap-3 mt-1">
                     <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{mission}</span>
                     <span className="w-1 h-1 bg-slate-700 rounded-full" />

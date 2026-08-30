@@ -64,7 +64,7 @@ const JOURS = [
 
 /** Couleur stable par collaborateur, dérivée de son identifiant. */
 const PALETTE = [
-    "bg-indigo-500",
+    "bg-primary",
     "bg-purple-500",
     "bg-blue-500",
     "bg-amber-500",
@@ -197,7 +197,7 @@ export default function ResourcePlanningPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h2 className="page-title flex items-center gap-4">
-                        <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30">
+                        <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/30">
                             <CalendarIcon className="w-8 h-8 text-white" />
                         </div>
                         Planning &amp; charge de travail
@@ -250,7 +250,7 @@ export default function ResourcePlanningPage() {
                     icon={Users}
                     label="Taux d'occupation"
                     value={`${Math.round(indicateurs.tauxOccupation)}%`}
-                    color="text-indigo-400"
+                    color="text-primary"
                 />
                 <StatBox
                     icon={Clock}
@@ -466,7 +466,7 @@ export default function ResourcePlanningPage() {
                             {tachesNonAffectees.map((t) => (
                                 <div
                                     key={t.id}
-                                    className="flex items-center justify-between p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl"
+                                    className="flex items-center justify-between p-4 bg-primary/10 border border-primary/20 rounded-2xl"
                                 >
                                     <div>
                                         <p className="text-sm font-bold text-white">{t.title}</p>

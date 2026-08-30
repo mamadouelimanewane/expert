@@ -69,7 +69,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
             <div className="bg-slate-900 border border-white/10 rounded-[32px] w-full max-w-md p-8 relative shadow-2xl overflow-hidden">
                 {/* Decorative background glow */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-600/20 blur-[100px]" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[100px]" />
                 <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-600/10 blur-[100px]" />
 
                 <button
@@ -82,8 +82,8 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                 {step === "method" && (
                     <div className="space-y-8 relative z-10">
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/20 shadow-xl">
-                                <QrCode className="w-8 h-8 text-indigo-400" />
+                            <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-primary/20 shadow-xl">
+                                <QrCode className="w-8 h-8 text-primary" />
                             </div>
                             <h3 className="text-2xl font-black text-white tracking-tight">Règlement Facture</h3>
                             <p className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-[0.2em]">{invoiceId}</p>
@@ -166,14 +166,14 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                                 placeholder="Ex: 07 00 00 00 00"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
-                                className="w-full bg-slate-800/50 border-2 border-white/5 rounded-2xl p-4 text-white font-mono focus:border-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                                className="w-full bg-slate-800/50 border-2 border-white/5 rounded-2xl p-4 text-white font-mono focus:border-primary outline-none transition-all placeholder:text-slate-600"
                             />
                         </div>
 
                         <button
                             disabled={!selectedMethod || !phoneNumber || isSubmitting}
                             onClick={handlePay}
-                            className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 disabled:grayscale text-white rounded-[20px] font-black uppercase tracking-widest text-xs transition-all shadow-2xl shadow-indigo-600/30 active:scale-95"
+                            className="w-full py-5 bg-primary hover:brightness-110 disabled:opacity-30 disabled:grayscale text-white rounded-[20px] font-black uppercase tracking-widest text-xs transition-all shadow-2xl shadow-primary/30 active:scale-95"
                         >
                             {isSubmitting ? "Initialisation..." : "Valider le paiement"}
                         </button>
@@ -183,9 +183,9 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                 {step === "processing" && (
                     <div className="py-16 flex flex-col items-center justify-center text-center space-y-8 relative z-10">
                         <div className="relative">
-                            <div className="w-32 h-32 rounded-full border-[6px] border-white/5 border-t-indigo-500 animate-[spin_1s_linear_infinite] shadow-[0_0_30px_rgba(99,102,241,0.2)]" />
+                            <div className="w-32 h-32 rounded-full border-[6px] border-white/5 border-t-primary animate-[spin_1s_linear_infinite] shadow-[0_0_30px_rgba(0, 107, 63,0.2)]" />
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <Smartphone className="w-12 h-12 text-indigo-400 animate-pulse" />
+                                <Smartphone className="w-12 h-12 text-primary animate-pulse" />
                             </div>
                         </div>
                         <div>
@@ -213,7 +213,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Référence</span>
-                                <span className="text-xs font-mono font-bold text-indigo-400">{transactionId ?? "Reference en attente"}</span>
+                                <span className="text-xs font-mono font-bold text-primary">{transactionId ?? "Reference en attente"}</span>
                             </div>
                         </div>
                         <button

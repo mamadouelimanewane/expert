@@ -149,7 +149,7 @@ export default function PaymentsPage() {
   return (
     <div className="min-h-screen bg-[#020617] text-white">
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-indigo-600/10 blur-[120px]" />
+        <div className="absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute top-1/2 -right-24 h-80 w-80 rounded-full bg-emerald-600/8 blur-[100px]" />
         <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-violet-600/8 blur-[100px]" />
       </div>
@@ -158,7 +158,7 @@ export default function PaymentsPage() {
 
         {/* Header */}
         <div className="mb-10 flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet-600 shadow-lg shadow-primary/30">
             <Smartphone className="h-7 w-7 text-white" />
           </div>
           <div>
@@ -176,7 +176,7 @@ export default function PaymentsPage() {
           <StatCard label="Encaissements confirmés" value={`${totalConfirmed.toLocaleString("fr-FR")} FCFA`} icon={TrendingUp} accent="bg-emerald-500" />
           <StatCard label="Transactions enregistrées" value={String(transactions.length)} icon={Link2} accent="bg-blue-500" />
           <StatCard label="En attente" value={String(pending.length)} icon={Clock} accent="bg-amber-500" />
-          <StatCard label="Taux de rapprochement" value={reconciliationRate !== null ? `${reconciliationRate} %` : "—"} icon={CheckCircle2} accent="bg-indigo-500" />
+          <StatCard label="Taux de rapprochement" value={reconciliationRate !== null ? `${reconciliationRate} %` : "—"} icon={CheckCircle2} accent="bg-primary" />
         </div>
 
         {/* Main Content Grid */}
@@ -185,7 +185,7 @@ export default function PaymentsPage() {
           {/* Left: Generator Form */}
           <div className="rounded-2xl border border-white/8 bg-white/4 backdrop-blur-sm p-6">
             <h2 className="mb-5 flex items-center gap-2 text-base font-semibold text-white">
-              <Zap className="h-4 w-4 text-indigo-400" />
+              <Zap className="h-4 w-4 text-primary" />
               Initier un Paiement
             </h2>
 
@@ -196,7 +196,7 @@ export default function PaymentsPage() {
                 <div className="relative">
                   <button
                     onClick={() => setProviderOpen((v) => !v)}
-                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition hover:border-indigo-500/50 hover:bg-white/8 focus:outline-none"
+                    className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition hover:border-primary/50 hover:bg-white/8 focus:outline-none"
                   >
                     <span className="flex items-center gap-2.5">
                       <span className={cn("h-2.5 w-2.5 rounded-full", selectedProvider.dotColor)} />
@@ -227,7 +227,7 @@ export default function PaymentsPage() {
                   type="number" min="100" value={amount}
                   onChange={(e) => { setAmount(e.target.value); setResult(null); }}
                   placeholder="Ex : 150 000"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/40"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export default function PaymentsPage() {
                   type="tel" value={phoneNumber}
                   onChange={(e) => { setPhoneNumber(e.target.value); setResult(null); }}
                   placeholder="Ex : +225 07 00 00 00 00"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/40"
                 />
               </div>
 
@@ -247,7 +247,7 @@ export default function PaymentsPage() {
                   type="text" value={reference}
                   onChange={(e) => { setReference(e.target.value); setResult(null); }}
                   placeholder="Ex : FAC-2024-0895"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/40"
                 />
               </div>
 
@@ -257,7 +257,7 @@ export default function PaymentsPage() {
                   type="text" value={client}
                   onChange={(e) => setClient(e.target.value)}
                   placeholder="Ex : Konan Yves Emmanuel"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-600 transition hover:border-primary/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/40"
                 />
               </div>
 
@@ -266,10 +266,10 @@ export default function PaymentsPage() {
                 disabled={generating || !amount || Number(amount) <= 0 || !phoneNumber}
                 className={cn(
                   "relative w-full overflow-hidden rounded-xl px-4 py-3.5 text-sm font-semibold text-white transition-all duration-300",
-                  "bg-gradient-to-r from-indigo-600 to-violet-600 shadow-lg shadow-indigo-500/25",
-                  "hover:from-indigo-500 hover:to-violet-500 hover:shadow-indigo-500/40 hover:-translate-y-0.5",
+                  "bg-gradient-to-r from-primary to-violet-600 shadow-lg shadow-primary/25",
+                  "hover:from-primary hover:to-violet-500 hover:shadow-primary/40 hover:-translate-y-0.5",
                   "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0",
-                  "focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                  "focus:outline-none focus:ring-2 focus:ring-primary/50"
                 )}
               >
                 {generating ? (

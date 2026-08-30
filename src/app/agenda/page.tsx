@@ -197,7 +197,7 @@ export default function AgendaPage() {
     if (!meetings) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -207,7 +207,7 @@ export default function AgendaPage() {
             {/* Mobile Header */}
             <div className="lg:hidden">
                 <h2 className="page-title flex items-center gap-3">
-                    <CalendarIcon className="w-6 h-6 text-indigo-400" />
+                    <CalendarIcon className="w-6 h-6 text-primary" />
                     Agenda Partagé
                 </h2>
             </div>
@@ -225,7 +225,7 @@ export default function AgendaPage() {
                             {Array.from({ length: daysInMonth }, (_, i) => (
                                 <div key={i} className={cn(
                                     "p-1 sm:p-2 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors relative text-xs sm:text-sm",
-                                    i + 1 === todayDate ? "bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-500/30" : "text-slate-300"
+                                    i + 1 === todayDate ? "bg-primary text-white font-bold shadow-lg shadow-primary/30" : "text-slate-300"
                                 )}>
                                     {i + 1}
                                     {daysWithMeetings.has(i + 1) && (
@@ -240,12 +240,12 @@ export default function AgendaPage() {
                     <div className="flex-1 glass-card rounded-2xl border border-slate-700/50 overflow-hidden flex flex-col min-h-[300px] lg:min-h-0">
                         <div className="p-4 bg-slate-900/50 border-b border-slate-700/50 flex items-center justify-between gap-2">
                             <h3 className="font-bold text-white flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-indigo-400" />
+                                <Clock className="w-4 h-4 text-primary" />
                                 Réunions ({meetings.length})
                             </h3>
                             <button
                                 onClick={() => { setShowCreate(true); setCreateError(null); }}
-                                className="p-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-colors"
+                                className="p-1.5 bg-primary hover:brightness-110 text-white rounded-lg transition-colors"
                                 title="Nouvelle réunion"
                             >
                                 <Plus className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function AgendaPage() {
                                     className={cn(
                                         "p-3 rounded-xl border cursor-pointer transition-all",
                                         selectedId === meeting.id
-                                            ? "bg-indigo-500/10 border-indigo-500/50"
+                                            ? "bg-primary/10 border-primary/50"
                                             : "bg-slate-800/30 border-slate-700/50 hover:bg-slate-800"
                                     )}
                                 >
@@ -289,7 +289,7 @@ export default function AgendaPage() {
                         <>
                             {/* Header Card */}
                             <div className="apix-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
-                                <div className="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                                <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
                                 <div className="flex-1">
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-2">
@@ -326,13 +326,13 @@ export default function AgendaPage() {
                             {/* Notes Editor (compte-rendu manuel réel) */}
                             <div className="flex-1 glass-card rounded-2xl border border-slate-700/50 flex flex-col overflow-hidden min-h-[400px] lg:min-h-0">
                                 <div className="p-3 sm:p-4 border-b border-slate-700/50 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                                    <h3 className="text-sm font-medium text-indigo-400">
+                                    <h3 className="text-sm font-medium text-primary">
                                         Compte Rendu de Réunion
                                     </h3>
                                     <button
                                         onClick={handleSaveNotes}
                                         disabled={saving}
-                                        className="px-3 sm:px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white text-[10px] sm:text-xs font-bold rounded-lg flex items-center gap-1 sm:gap-2 transition-all whitespace-nowrap"
+                                        className="px-3 sm:px-4 py-1.5 bg-primary hover:brightness-110 disabled:bg-slate-700 text-white text-[10px] sm:text-xs font-bold rounded-lg flex items-center gap-1 sm:gap-2 transition-all whitespace-nowrap"
                                     >
                                         {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                                         {saved ? "Enregistré" : "Enregistrer"}
@@ -342,7 +342,7 @@ export default function AgendaPage() {
                                 <div className="flex-1 p-4 sm:p-6 bg-slate-900/30 overflow-hidden">
                                     <div className="h-full flex flex-col gap-4">
                                         <textarea
-                                            className="flex-1 w-full h-full bg-slate-800/50 border border-slate-700 rounded-xl p-3 sm:p-6 text-slate-300 leading-relaxed focus:outline-none focus:border-indigo-500/50 transition-all resize-none font-mono text-xs sm:text-sm"
+                                            className="flex-1 w-full h-full bg-slate-800/50 border border-slate-700 rounded-xl p-3 sm:p-6 text-slate-300 leading-relaxed focus:outline-none focus:border-primary/50 transition-all resize-none font-mono text-xs sm:text-sm"
                                             placeholder="Rédigez ici les notes et le compte-rendu de la réunion (points abordés, décisions, prochaines étapes)…"
                                             value={notes}
                                             onChange={(e) => { setNotes(e.target.value); setSaved(false); }}
@@ -393,7 +393,7 @@ export default function AgendaPage() {
                                     value={form.title}
                                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                                     placeholder="Ex: Revue trimestrielle"
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                 />
                             </div>
 
@@ -402,7 +402,7 @@ export default function AgendaPage() {
                                 <select
                                     value={form.clientId}
                                     onChange={(e) => setForm({ ...form, clientId: e.target.value })}
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                 >
                                     <option value="">Aucun</option>
                                     {clientsList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -416,7 +416,7 @@ export default function AgendaPage() {
                                         type="date"
                                         value={form.date}
                                         onChange={(e) => setForm({ ...form, date: e.target.value })}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                         style={{ colorScheme: "dark" }}
                                     />
                                 </div>
@@ -426,7 +426,7 @@ export default function AgendaPage() {
                                         type="time"
                                         value={form.startTime}
                                         onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                         style={{ colorScheme: "dark" }}
                                     />
                                 </div>
@@ -436,7 +436,7 @@ export default function AgendaPage() {
                                         type="time"
                                         value={form.endTime}
                                         onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                         style={{ colorScheme: "dark" }}
                                     />
                                 </div>
@@ -468,7 +468,7 @@ export default function AgendaPage() {
                                         value={form.meetingUrl}
                                         onChange={(e) => setForm({ ...form, meetingUrl: e.target.value })}
                                         placeholder="https://..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                     />
                                 </div>
                             ) : (
@@ -479,7 +479,7 @@ export default function AgendaPage() {
                                         value={form.location}
                                         onChange={(e) => setForm({ ...form, location: e.target.value })}
                                         placeholder="Ex: Siège, bureau du client..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary"
                                     />
                                 </div>
                             )}
@@ -492,7 +492,7 @@ export default function AgendaPage() {
                             <button
                                 onClick={handleCreateMeeting}
                                 disabled={creating}
-                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-sm font-bold flex items-center gap-2"
+                                className="px-5 py-2 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-lg text-sm font-bold flex items-center gap-2"
                             >
                                 {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                                 Créer

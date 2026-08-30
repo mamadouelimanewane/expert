@@ -293,7 +293,7 @@ export default function NexusAuditAssurancePage() {
                                 <div className={cn(
                                     "w-16 h-16 rounded-[24px] flex items-center justify-center border transition-all",
                                     etat === "done" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                        etat === "doing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]" :
+                                        etat === "doing" ? "bg-primary/10 text-primary border-primary/20 shadow-[0_0_15px_rgba(0, 107, 63,0.2)]" :
                                             "bg-slate-800 text-slate-500 border-slate-700"
                                 )}>
                                     {etat === "done" ? <CheckCircle2 className="w-8 h-8" /> :
@@ -362,16 +362,16 @@ export default function NexusAuditAssurancePage() {
             {showResults && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 animate-in zoom-in duration-300">
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl" onClick={() => setShowResults(false)} />
-                    <div className="glass-card w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] shadow-[0_0_100px_rgba(99,102,241,0.2)] overflow-hidden relative z-10">
+                    <div className="glass-card w-full max-w-4xl bg-slate-900 border border-primary/30 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] shadow-[0_0_100px_rgba(0, 107, 63,0.2)] overflow-hidden relative z-10">
                         <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5">
-                            <Cpu className="w-64 h-64 text-indigo-400" />
+                            <Cpu className="w-64 h-64 text-primary" />
                         </div>
 
                         <div className="p-10 sm:p-16">
                             <div className="flex justify-between items-start mb-12">
                                 <div>
                                     <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white flex items-center gap-5">
-                                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                                        <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
                                             <Zap className="w-6 h-6 text-white" />
                                         </div>
                                         Score de risque du dossier
@@ -427,7 +427,7 @@ export default function NexusAuditAssurancePage() {
                             )}
 
                             <div className="mt-16 flex gap-4">
-                                <button className="flex-1 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all" onClick={() => setShowResults(false)}>
+                                <button className="flex-1 py-5 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all" onClick={() => setShowResults(false)}>
                                     Fermer
                                 </button>
                             </div>

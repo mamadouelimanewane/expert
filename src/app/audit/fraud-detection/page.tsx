@@ -157,7 +157,7 @@ export default function FraudDetectionPage() {
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 NEXUS Shield
                             </span>
                         </div>
@@ -200,8 +200,8 @@ export default function FraudDetectionPage() {
                 <div className="apix-card">
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Nouvelles Alertes</p>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-indigo-400">{newCount}</span>
-                        <Zap className="w-5 h-5 text-indigo-500" />
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-black text-primary">{newCount}</span>
+                        <Zap className="w-5 h-5 text-primary" />
                     </div>
                 </div>
                 <div className="apix-card">
@@ -269,9 +269,9 @@ export default function FraudDetectionPage() {
                     </div>
 
                     {/* Rule Reference */}
-                    <div className="glass-card rounded-[32px] border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-transparent p-6">
+                    <div className="glass-card rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <Sparkles className="w-5 h-5 text-indigo-400" />
+                            <Sparkles className="w-5 h-5 text-primary" />
                             <h4 className="text-sm font-black text-white uppercase">Règles de Détection</h4>
                         </div>
                         <p className="text-xs text-slate-400 leading-relaxed">
@@ -317,7 +317,7 @@ export default function FraudDetectionPage() {
                                                     {SEVERITY_LABEL[alert.severity]}
                                                 </span>
                                                 {alert.status === "NOUVELLE" && (
-                                                    <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 rounded text-[9px] font-black uppercase border border-indigo-500/20">
+                                                    <span className="px-2 py-0.5 bg-primary/20 text-primary rounded text-[9px] font-black uppercase border border-primary/20">
                                                         Nouveau
                                                     </span>
                                                 )}
@@ -352,7 +352,7 @@ export default function FraudDetectionPage() {
                                 <div className="flex items-center gap-4 pt-4 border-t border-white/5">
                                     <span className={cn(
                                         "text-[10px] font-black uppercase",
-                                        alert.status === "NOUVELLE" ? "text-indigo-400" :
+                                        alert.status === "NOUVELLE" ? "text-primary" :
                                             alert.status === "EN_ANALYSE" ? "text-amber-400" :
                                                 alert.status === "CONFIRMEE" ? "text-rose-400" : "text-slate-500"
                                     )}>

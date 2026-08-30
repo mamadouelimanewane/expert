@@ -28,13 +28,13 @@ export default function PresentationLetterPage() {
                 <div className="flex gap-4">
                     <button
                         onClick={handlePrint}
-                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition-all"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-lg hover:brightness-110 transition-all"
                     >
                         <Printer className="w-5 h-5" /> Imprimer / PDF
                     </button>
                     <div className="h-10 w-px bg-slate-200" />
                     <p className="text-slate-500 text-sm font-medium">
-                        <span className="text-indigo-600 font-bold uppercase">Mode Édition</span> : Cliquez directement sur le texte pour le modifier avant l'impression.
+                        <span className="text-primary font-bold uppercase">Mode Édition</span> : Cliquez directement sur le texte pour le modifier avant l'impression.
                     </p>
                 </div>
             </div>
@@ -62,15 +62,15 @@ export default function PresentationLetterPage() {
                     <div className="text-right space-y-2 text-sm text-slate-400 font-medium">
                         <div className="flex items-center justify-end gap-2">
                             <span contentEditable suppressContentEditableWarning className="outline-none">Abidjan / Dakar</span>
-                            <MapPin className="w-4 h-4 text-indigo-500" />
+                            <MapPin className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex items-center justify-end gap-2">
                             <span contentEditable suppressContentEditableWarning className="outline-none">contact@cabinet360.com</span>
-                            <AtSign className="w-4 h-4 text-indigo-500" />
+                            <AtSign className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex items-center justify-end gap-2">
                             <span contentEditable suppressContentEditableWarning className="outline-none">+225 00 00 00 00 / +221 00 00 00 00</span>
-                            <Phone className="w-4 h-4 text-indigo-500" />
+                            <Phone className="w-4 h-4 text-primary" />
                         </div>
                     </div>
                 </div>
@@ -79,7 +79,7 @@ export default function PresentationLetterPage() {
                 <div className="flex flex-col gap-4 sm:gap-6 lg:gap-10 mb-20">
                     <div className="text-right">
                         <p className="text-slate-600">
-                            Fait à <span contentEditable suppressContentEditableWarning className="font-bold underline underline-offset-4 decoration-indigo-300">Dakar</span>, le {date}
+                            Fait à <span contentEditable suppressContentEditableWarning className="font-bold underline underline-offset-4 decoration-primary">Dakar</span>, le {date}
                         </p>
                     </div>
 
@@ -96,7 +96,7 @@ export default function PresentationLetterPage() {
                 </div>
 
                 {/* Subject */}
-                <div className="mb-10 p-4 bg-slate-50 border-l-4 border-indigo-600">
+                <div className="mb-10 p-4 bg-slate-50 border-l-4 border-primary">
                     <p className="font-bold uppercase tracking-tight text-slate-900">
                         Objet : Présentation de Cabinet 360 - Solution Innovante d'Expertise Comptable OHADA
                     </p>

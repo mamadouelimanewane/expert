@@ -46,7 +46,7 @@ interface Widget {
 
 const DEFAULT_WIDGETS: Widget[] = [
     { id: "w1", title: "Trésorerie Actuelle", icon: Wallet, color: "text-emerald-400", size: "small", active: true },
-    { id: "w2", title: "Évolution CA", icon: TrendingUp, color: "text-indigo-400", size: "medium", active: true },
+    { id: "w2", title: "Évolution CA", icon: TrendingUp, color: "text-primary", size: "medium", active: true },
     { id: "w3", title: "Délai Paiement (DSO)", icon: BarChart3, color: "text-amber-400", size: "small", active: true },
     { id: "w4", title: "Top 5 Clients", icon: Users, color: "text-purple-400", size: "medium", active: false },
     { id: "w5", title: "Répartition Dépenses", icon: PieChart, color: "text-rose-400", size: "medium", active: false },
@@ -116,7 +116,7 @@ function CustomDashboardInner() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#0a0c10]">
-                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
         );
     }
@@ -152,18 +152,18 @@ function CustomDashboardInner() {
             {/* Header */}
             <div className="p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <LayoutDashboard className="w-64 h-64 text-indigo-400" />
+                    <LayoutDashboard className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 {clientNom || "Votre espace"}
                             </span>
                         </div>
                         <h2 className="page-title-dark">
-                            Personnalisez votre <span className="text-indigo-400">Espace Pilotage</span>
+                            Personnalisez votre <span className="text-primary">Espace Pilotage</span>
                         </h2>
                         <p className="page-subtitle-dark max-w-2xl">
                             Sélectionnez les indicateurs clés les plus pertinents pour votre activité.
@@ -181,7 +181,7 @@ function CustomDashboardInner() {
                         <button
                             onClick={enregistrer}
                             disabled={sauvegardeEnCours}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30"
+                            className="px-8 py-4 bg-primary hover:brightness-110 disabled:opacity-60 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30"
                         >
                             <Save className="w-4 h-4" /> {sauvegardeEnCours ? "…" : enregistre ? "Enregistré" : "Enregistrer"}
                         </button>
@@ -194,7 +194,7 @@ function CustomDashboardInner() {
                     <div className="lg:col-span-1 space-y-6 animate-in slide-in-from-left duration-500">
                         <div className="glass-card p-8 rounded-[40px] border border-white/5 bg-slate-900/40">
                             <h3 className="text-white font-black text-xs uppercase tracking-widest mb-8 flex items-center gap-3">
-                                <Plus className="w-5 h-5 text-indigo-400" />
+                                <Plus className="w-5 h-5 text-primary" />
                                 Widgets Disponibles
                             </h3>
                             <div className="space-y-3">
@@ -203,7 +203,7 @@ function CustomDashboardInner() {
                                         key={widget.id}
                                         className={cn(
                                             "p-4 rounded-2xl border transition-all cursor-pointer group flex items-center justify-between",
-                                            widget.active ? "bg-indigo-600/10 border-indigo-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                                            widget.active ? "bg-primary/10 border-primary/30" : "bg-white/5 border-white/5 hover:border-white/10"
                                         )}
                                         onClick={() => toggleWidget(widget.id)}
                                     >
@@ -214,7 +214,7 @@ function CustomDashboardInner() {
                                         <div
                                             className={cn(
                                                 "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
-                                                widget.active ? "bg-indigo-600 border-indigo-500 text-white" : "border-slate-700 text-transparent"
+                                                widget.active ? "bg-primary border-primary text-white" : "border-slate-700 text-transparent"
                                             )}
                                         >
                                             <CheckCircle2 className="w-3 h-3" />
@@ -258,8 +258,8 @@ function CustomDashboardInner() {
                                         )}
                                     </div>
                                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mb-1">{widget.title}</p>
-                                    <div className="h-40 flex items-center justify-center border-2 border-dashed border-white/5 rounded-3xl group-hover:border-indigo-500/20 transition-colors">
-                                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">
+                                    <div className="h-40 flex items-center justify-center border-2 border-dashed border-white/5 rounded-3xl group-hover:border-primary/20 transition-colors">
+                                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-primary transition-colors">
                                             Visualisation {widget.title}
                                         </span>
                                     </div>

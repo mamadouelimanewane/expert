@@ -65,11 +65,11 @@ export default function ClientPortalObligationsPage() {
             <div className="flex justify-between items-center bg-white p-8 rounded-[32px] shadow-sm border border-slate-200">
                 <div>
                     <h2 className="page-title mb-0 flex items-center gap-3">
-                        <Calendar className="w-6 h-6 text-indigo-500" /> Calendrier des Obligations
+                        <Calendar className="w-6 h-6 text-primary" /> Calendrier des Obligations
                     </h2>
                     <p className="page-subtitle mb-0">Vos échéances fiscales et sociales</p>
                 </div>
-                <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-sm">
+                <button className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-sm">
                     Contacter l&apos;Expert
                 </button>
             </div>
@@ -136,7 +136,7 @@ export default function ClientPortalObligationsPage() {
                                                     ? "text-red-500"
                                                     : ob.status === "PROCHE"
                                                       ? "text-amber-500"
-                                                      : "text-indigo-500"
+                                                      : "text-primary"
                                             )}
                                         >
                                             {ob.status === "URGENT" && <AlertCircle className="w-3 h-3" />}
@@ -155,7 +155,7 @@ export default function ClientPortalObligationsPage() {
                                 </div>
 
                                 {ob.status !== "RÉGLÉ" ? (
-                                    <button className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-indigo-600 flex items-center justify-center transition-colors">
+                                    <button className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-primary flex items-center justify-center transition-colors">
                                         <ChevronRight className="w-5 h-5" />
                                     </button>
                                 ) : (

@@ -12,7 +12,7 @@ export default function TrainingPDFExport() {
                     <p className="text-[11px] text-slate-400 mb-4">Pour exporter ce programme de formation complet, utilisez <kbd className="bg-white/10 px-1 rounded">Ctrl + P</kbd> et choisissez "Enregistrer au format PDF".</p>
                     <button
                         onClick={() => window.print()}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20">
+                        className="w-full py-3 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                         Imprimer le Catalogue
                     </button>
                 </div>
@@ -32,14 +32,14 @@ export default function TrainingPDFExport() {
                         </div>
 
                         <div className="space-y-4">
-                            <p className="text-indigo-600 font-sans font-bold uppercase tracking-[0.4em] text-sm">Programme Officiel 2026</p>
+                            <p className="text-primary font-sans font-bold uppercase tracking-[0.4em] text-sm">Programme Officiel 2026</p>
                             <h1 className="text-7xl font-sans font-black text-slate-900 tracking-tighter leading-[0.85] uppercase">
                                 Masterclass <br />
                                 <span className="text-slate-400">Professionnelle</span>
                             </h1>
                         </div>
 
-                        <div className="h-1 w-40 bg-indigo-500 mt-12" />
+                        <div className="h-1 w-40 bg-primary mt-12" />
 
                         <p className="text-2xl text-slate-600 max-w-lg mt-12 leading-relaxed font-serif italic">
                             Le guide intégral de formation pour l'excellence opérationnelle des cabinets d'expertise en zone OHADA.
@@ -89,8 +89,8 @@ export default function TrainingPDFExport() {
                 {/* SECTION: STRATEGY */}
                 <section className="p-24 space-y-16">
                     <div className="space-y-12 break-after-page min-h-[250mm]">
-                        <div className="flex items-center gap-6 text-indigo-500 font-sans font-black uppercase tracking-widest text-xs">
-                            <span className="w-12 h-[2px] bg-indigo-500" />
+                        <div className="flex items-center gap-6 text-primary font-sans font-black uppercase tracking-widest text-xs">
+                            <span className="w-12 h-[2px] bg-primary" />
                             Module 01 : Expertise Comptable
                         </div>
 
@@ -128,7 +128,7 @@ export default function TrainingPDFExport() {
                                     "Génération de la Liasse Fiscale (Bilan, CR, TFT)."
                                 ].map((step, i) => (
                                     <li key={i} className="flex gap-4 items-start font-sans text-sm">
-                                        <CheckCircle2 className="w-5 h-5 text-indigo-600 shrink-0" />
+                                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
                                         <span className="font-bold">{step}</span>
                                     </li>
                                 ))}

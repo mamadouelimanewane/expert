@@ -53,7 +53,7 @@ const ROLE_LABELS: Record<string, string> = {
 // réalité 5 rôles Prisma (requireStaff/requireAdmin), pas un modèle de
 // permissions par action. Retirés plutôt qu'inventés.
 const ROLES: RoleDefinition[] = [
-    { id: "1", name: "Expert-Comptable", description: "Accès total, signature légale et validation finale.", color: "text-indigo-400" },
+    { id: "1", name: "Expert-Comptable", description: "Accès total, signature légale et validation finale.", color: "text-primary" },
     { id: "2", name: "Administrateur IT", description: "Gestion des utilisateurs, sécurité et sauvegardes.", color: "text-rose-400" },
     { id: "3", name: "Collaborateur Senior", description: "Gestion complète des dossiers clients et révision.", color: "text-emerald-400" },
     { id: "4", name: "Collaborateur Junior", description: "Saisie comptable et gestion documentaire de base.", color: "text-amber-400" },
@@ -91,7 +91,7 @@ export default function UsersSettingsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <ShieldCheck className="w-8 h-8 text-indigo-400" />
+                        <ShieldCheck className="w-8 h-8 text-primary" />
                         Administration Système
                     </h2>
                     <p className="page-subtitle">Gestion des accès, des rôles et politiques de sauvegarde OHADA.</p>
@@ -119,7 +119,7 @@ export default function UsersSettingsPage() {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
                     <div className="flex justify-between items-center">
                         <h3 className="font-bold text-foreground text-lg flex items-center gap-2">
-                            <Users className="w-5 h-5 text-indigo-400" />
+                            <Users className="w-5 h-5 text-primary" />
                             Comptes Collaborateurs
                         </h3>
                         <button disabled title="Non implémenté : aucun flux d'invitation n'existe encore" className="px-4 py-2 bg-slate-800/50 text-slate-500 rounded-lg font-medium flex items-center gap-2 cursor-not-allowed">
@@ -150,7 +150,7 @@ export default function UsersSettingsPage() {
                                     <tr key={user.id} className="hover:bg-muted/30 group transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-indigo-400 border border-border">
+                                                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-primary border border-border">
                                                     {user.name.split(' ').map(n => n[0]).join('')}
                                                 </div>
                                                 <div>
@@ -202,7 +202,7 @@ export default function UsersSettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {ROLES.map((role) => (
-                            <div key={role.id} className="apix-card hover:border-indigo-500/50 transition-all group">
+                            <div key={role.id} className="apix-card hover:border-primary/50 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
                                     <h4 className={cn("font-bold uppercase tracking-widest text-xs", role.color)}>{role.name}</h4>
                                     <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">

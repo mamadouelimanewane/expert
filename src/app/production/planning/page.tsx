@@ -173,18 +173,18 @@ export default function ResourcesPlanning() {
             {/* Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <CalendarIcon className="w-64 h-64 text-indigo-400" />
+                    <CalendarIcon className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Resource Management (GPAO)
                             </span>
                         </div>
                         <h2 className="page-title leading-tight">
-                            Planning & <span className="text-indigo-400">Charge de Travail</span>
+                            Planning & <span className="text-primary">Charge de Travail</span>
                         </h2>
                         <p className="page-subtitle">
                             Visualisez et allouez la charge réelle de vos collaborateurs, semaine par semaine.
@@ -197,7 +197,7 @@ export default function ResourcesPlanning() {
                             <span className="text-xs font-black text-white uppercase tracking-widest px-4">{weekLabel}</span>
                             <button onClick={() => shiftWeek(7)} className="p-2 hover:bg-white/5 rounded-xl text-slate-400"><ChevronRight className="w-5 h-5" /></button>
                         </div>
-                        <button onClick={() => openModalForTask()} className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                        <button onClick={() => openModalForTask()} className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95">
                             <Plus className="w-5 h-5" /> Allouer Ressource
                         </button>
                     </div>
@@ -205,14 +205,14 @@ export default function ResourcesPlanning() {
             </div>
 
             {loading ? (
-                <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>
+                <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Main Resource Grid */}
                     <div className="lg:col-span-12 apix-card flex flex-col">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                                <LayoutGrid className="w-6 h-6 text-indigo-400" />
+                                <LayoutGrid className="w-6 h-6 text-primary" />
                                 Vue Hebdomadaire des Équipes
                             </h3>
                         </div>
@@ -266,7 +266,7 @@ export default function ResourcesPlanning() {
                                                         ) : cell.map((a) => (
                                                             <div key={a.id} onClick={() => handleRemove(a.id)} title="Cliquer pour retirer" className={cn(
                                                                 "rounded-lg px-1.5 py-1 cursor-pointer hover:opacity-70 transition-all",
-                                                                isOverloaded ? "bg-rose-500/10 text-rose-300" : "bg-indigo-500/10 text-indigo-300"
+                                                                isOverloaded ? "bg-rose-500/10 text-rose-300" : "bg-primary/10 text-primary-foreground/70"
                                                             )}>
                                                                 <p className="text-[8px] font-black uppercase tracking-tighter truncate">{a.mission?.title || a.task?.title || "Allocation"}</p>
                                                                 <p className="text-[7px] font-bold opacity-70">{a.durationHours}h</p>
@@ -284,9 +284,9 @@ export default function ResourcesPlanning() {
                         )}
 
                         {/* Overload / charge summary */}
-                        <div className="mt-12 p-8 bg-indigo-500/5 border border-indigo-500/10 rounded-[32px] flex flex-col gap-4">
+                        <div className="mt-12 p-8 bg-primary/5 border border-primary/10 rounded-[32px] flex flex-col gap-4">
                             <div className="flex items-center gap-4">
-                                <div className={cn("p-4 rounded-2xl", overloads.length > 0 ? "bg-rose-600" : "bg-indigo-600")}>
+                                <div className={cn("p-4 rounded-2xl", overloads.length > 0 ? "bg-rose-600" : "bg-primary")}>
                                     <AlertCircle className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
@@ -309,7 +309,7 @@ export default function ResourcesPlanning() {
                     <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="apix-card">
                             <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <Target className="w-4 h-4 text-indigo-400" /> Taux d'Occupation Équipe
+                                <Target className="w-4 h-4 text-primary" /> Taux d'Occupation Équipe
                             </h3>
                             <div className="flex items-center justify-center p-6 border-b border-white/5 mb-6">
                                 <div className="text-center">
@@ -345,7 +345,7 @@ export default function ResourcesPlanning() {
                                             <p className="text-[10px] font-black text-white truncate">{t.title}</p>
                                             <p className="text-[8px] text-slate-500 uppercase truncate">{t.mission?.title} {t.mission?.client ? `· ${clientLabel(t.mission.client)}` : ""}</p>
                                         </div>
-                                        <button onClick={() => openModalForTask(t.id)} className="shrink-0 p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white">
+                                        <button onClick={() => openModalForTask(t.id)} className="shrink-0 p-2 bg-primary hover:brightness-110 rounded-lg text-white">
                                             <Plus className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
@@ -381,7 +381,7 @@ export default function ResourcesPlanning() {
                                 <input type="number" step="0.5" placeholder="Heures" value={form.durationHours} onChange={(e) => setForm({ ...form, durationHours: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                                 <input type="number" step="0.5" placeholder="Capacité/jour" value={form.capacityHours} onChange={(e) => setForm({ ...form, capacityHours: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                             </div>
-                            <button onClick={handleAllocate} disabled={saving} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                            <button onClick={handleAllocate} disabled={saving} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {saving ? "Enregistrement…" : "Allouer"}
                             </button>
                         </div>

@@ -210,7 +210,7 @@ export default function SustainabilityHubPage() {
             </div>
 
             <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 space-y-4">
-              <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-indigo-400" /> Gouvernance</h3>
+              <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-primary" /> Gouvernance</h3>
               {champ("nombreMembresConseil", "Membres du conseil/CODIR", "personnes")}
               {champ("nombreFemmesConseil", "Dont femmes", "personnes")}
               <label className="flex items-center gap-2 text-xs text-slate-400 pt-2">

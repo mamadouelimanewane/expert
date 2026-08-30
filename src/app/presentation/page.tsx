@@ -15,7 +15,7 @@ export default function PresentationPage() {
             <div className="fixed top-6 right-6 flex gap-4 print:hidden z-50">
                 <button
                     onClick={handlePrint}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-primary hover:brightness-110 text-white rounded-full font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
                 >
                     <Printer className="w-5 h-5" />
                     Imprimer / Sauvegarder en PDF
@@ -26,11 +26,11 @@ export default function PresentationPage() {
             <div className="max-w-[21cm] mx-auto bg-white shadow-2xl min-h-screen my-8 p-[2cm] print:shadow-none print:m-0 print:p-0 print:w-full">
 
                 {/* Header */}
-                <header className="border-b-4 border-indigo-600 pb-8 mb-12">
+                <header className="border-b-4 border-primary pb-8 mb-12">
                     <div className="flex justify-between items-end">
                         <div className="space-y-2">
                             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight uppercase">Cabinet 360</h1>
-                            <p className="text-indigo-600 font-bold text-lg">Expertise Comptable OHADA & Audit</p>
+                            <p className="text-primary font-bold text-lg">Expertise Comptable OHADA & Audit</p>
                         </div>
                         <div className="text-right space-y-1">
                             <p className="text-sm font-semibold text-slate-500">DOCUMENT STRATÉGIQUE</p>
@@ -46,19 +46,19 @@ export default function PresentationPage() {
                 <div className="space-y-8 print:space-y-6 text-justify leading-relaxed">
 
                     {/* Title Section */}
-                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0 group hover:border-indigo-200 transition-colors relative">
-                        <div className="hidden group-hover:block absolute right-8 top-8 text-xs text-indigo-400 font-bold bg-white px-2 py-1 rounded shadow-sm print:hidden">Éditable</div>
-                        <h2 contentEditable suppressContentEditableWarning className="text-2xl font-bold text-slate-800 mb-2 outline-none focus:bg-indigo-50/30 rounded px-1">Analyse de la Solution Cabinet 360 ERP</h2>
-                        <h3 contentEditable suppressContentEditableWarning className="text-lg text-slate-600 font-medium outline-none focus:bg-indigo-50/30 rounded px-1">Pour le marché de l'expertise comptable en Afrique et l'espace OHADA</h3>
+                    <div className="bg-slate-50 p-8 rounded-2xl border border-slate-100 print:bg-transparent print:border-none print:p-0 group hover:border-primary transition-colors relative">
+                        <div className="hidden group-hover:block absolute right-8 top-8 text-xs text-primary font-bold bg-white px-2 py-1 rounded shadow-sm print:hidden">Éditable</div>
+                        <h2 contentEditable suppressContentEditableWarning className="text-2xl font-bold text-slate-800 mb-2 outline-none focus:bg-primary/30 rounded px-1">Analyse de la Solution Cabinet 360 ERP</h2>
+                        <h3 contentEditable suppressContentEditableWarning className="text-lg text-slate-600 font-medium outline-none focus:bg-primary/30 rounded px-1">Pour le marché de l'expertise comptable en Afrique et l'espace OHADA</h3>
                     </div>
 
                     {/* 1. Présentation */}
                     <section className="space-y-4">
-                        <h4 contentEditable suppressContentEditableWarning className="text-xl font-bold text-indigo-700 flex items-center gap-2 outline-none">
-                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0">1</span>
+                        <h4 contentEditable suppressContentEditableWarning className="text-xl font-bold text-primary flex items-center gap-2 outline-none">
+                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0">1</span>
                             Présentation Générale de la Solution
                         </h4>
-                        <p contentEditable suppressContentEditableWarning className="text-slate-600 outline-none focus:bg-indigo-50/30 rounded p-1">
+                        <p contentEditable suppressContentEditableWarning className="text-slate-600 outline-none focus:bg-primary/30 rounded p-1">
                             <strong>Cabinet 360 ERP</strong> représente une plateforme SaaS complète dédiée à la gestion des cabinets d'expertise comptable,
                             spécialement conçue pour l'Afrique francophone et l'espace OHADA. Cette solution se positionne comme un outil intégré répondant aux
                             besoins spécifiques des Experts-Comptables dans un contexte africain en pleine mutation digitale.
@@ -66,15 +66,15 @@ export default function PresentationPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 print:border-slate-300">
-                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-slate-800 mb-2 flex items-center gap-2 outline-none"><BriefcaseIcon className="w-4 h-4 text-indigo-500" /> Fonctionnalités Classiques</h5>
-                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-indigo-50/30 rounded">
+                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-slate-800 mb-2 flex items-center gap-2 outline-none"><BriefcaseIcon className="w-4 h-4 text-primary" /> Fonctionnalités Classiques</h5>
+                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-primary/30 rounded">
                                     Gestion complète des dossiers clients, tenue comptable conforme SYSCOHADA, facturation des honoraires,
                                     suivi des temps (Time Tracking) et Gestion Électronique de Documents (GED) fiscale.
                                 </p>
                             </div>
-                            <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 print:border-slate-300">
-                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-indigo-900 mb-2 flex items-center gap-2 outline-none"><Cpu className="w-4 h-4 text-indigo-500" /> Innovations IA</h5>
-                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-indigo-50/30 rounded">
+                            <div className="p-4 bg-primary/50 rounded-xl border border-primary print:border-slate-300">
+                                <h5 contentEditable suppressContentEditableWarning className="font-bold text-primary mb-2 flex items-center gap-2 outline-none"><Cpu className="w-4 h-4 text-primary" /> Innovations IA</h5>
+                                <p contentEditable suppressContentEditableWarning className="text-sm text-slate-600 outline-none focus:bg-primary/30 rounded">
                                     <strong>ExpertAI</strong> pour l'assistant fiscal, <strong>Audit Scanner</strong> pour la détection automatique d'anomalies comptables,
                                     et générateur automatique d'états financiers et de liasses fiscales.
                                 </p>
@@ -84,8 +84,8 @@ export default function PresentationPage() {
 
                     {/* 2. Pertinence Marché */}
                     <section className="space-y-4">
-                        <h4 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
-                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm">2</span>
+                        <h4 className="text-xl font-bold text-primary flex items-center gap-2">
+                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">2</span>
                             Pertinence pour le Marché Sénégalais et Sous-Régional
                         </h4>
                         <div className="space-y-3">
@@ -107,8 +107,8 @@ export default function PresentationPage() {
 
                     {/* 3. Avantage IA */}
                     <section className="space-y-4 break-inside-avoid">
-                        <h4 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
-                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm">3</span>
+                        <h4 className="text-xl font-bold text-primary flex items-center gap-2">
+                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">3</span>
                             Avantage Concurrentiel de l'Intelligence Artificielle
                         </h4>
                         <p className="text-slate-600 text-sm">
@@ -120,8 +120,8 @@ export default function PresentationPage() {
 
                     {/* 4. Architecture & Sécurité */}
                     <section className="space-y-4 break-inside-avoid">
-                        <h4 className="text-xl font-bold text-indigo-700 flex items-center gap-2">
-                            <span className="bg-indigo-100 text-indigo-700 w-8 h-8 flex items-center justify-center rounded-lg text-sm">4</span>
+                        <h4 className="text-xl font-bold text-primary flex items-center gap-2">
+                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">4</span>
                             Architecture Technique & Sécurité
                         </h4>
 
@@ -150,7 +150,7 @@ export default function PresentationPage() {
                     {/* 5. Pricing & Conclusion */}
                     <section className="bg-slate-900 text-white p-6 rounded-2xl print:bg-white print:text-black print:border print:border-slate-300">
                         <h4 className="text-lg font-bold mb-3 flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-indigo-400 print:text-black" />
+                            <BarChart3 className="w-5 h-5 text-primary print:text-black" />
                             Modèle Économique & Conclusion
                         </h4>
                         <p className="text-sm opacity-90 print:opacity-100">
@@ -158,7 +158,7 @@ export default function PresentationPage() {
                             L'opportunité de marché est massive, couvrant non seulement Dakar mais l'ensemble des capitales économiques de l'UEMOA (Abidjan, Lomé, Cotonou).
                         </p>
                         <div className="mt-4 pt-4 border-t border-white/10 print:border-black/10 flex justify-between items-center">
-                            <span className="font-bold text-indigo-400 print:text-black">Cabinet 360 v2.0</span>
+                            <span className="font-bold text-primary print:text-black">Cabinet 360 v2.0</span>
                             <span className="text-xs opacity-70">Généré le {new Date().toLocaleDateString()}</span>
                         </div>
                     </section>

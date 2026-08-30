@@ -52,18 +52,18 @@ export default function FinancialHealthRadarPage() {
             {/* Header: Financial Command Center */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <RadarIcon className="w-64 h-64 text-indigo-400" />
+                    <RadarIcon className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Diagnostique Prédictif 360°
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Radar de <span className="text-indigo-400">Santé Financière</span>
+                            Radar de <span className="text-primary">Santé Financière</span>
                         </h2>
                         <p className="page-subtitle">
                             Évaluation multidimensionnelle de la santé de vos clients. Détectez les signaux faibles d'insolvabilité et identifiez les leviers de croissance.
@@ -73,7 +73,7 @@ export default function FinancialHealthRadarPage() {
                     <div className="flex gap-4">
                         <button
                             onClick={() => setCurrentIndex((prev) => (prev + 1) % (clients.length || 1))}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95">
                             <Zap className="w-5 h-5" /> Client Suivant (Réel)
                         </button>
                     </div>
@@ -137,8 +137,8 @@ export default function FinancialHealthRadarPage() {
                                             {n > 0 && (
                                                 <polygon
                                                     points={polygonPoints}
-                                                    fill="rgba(99, 102, 241, 0.2)"
-                                                    stroke="#6366f1"
+                                                    fill="rgba(0, 107, 63, 0.2)"
+                                                    stroke="#006B3F"
                                                     strokeWidth="1"
                                                     className="transition-all duration-700"
                                                 />
@@ -182,7 +182,7 @@ export default function FinancialHealthRadarPage() {
                 <div className="lg:col-span-5 space-y-8">
                     <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
-                            <BarChart3 className="w-6 h-6 text-indigo-400" />
+                            <BarChart3 className="w-6 h-6 text-primary" />
                             Ratios Calculés (DB)
                         </h3>
                         <div className="space-y-6">
@@ -206,7 +206,7 @@ export default function FinancialHealthRadarPage() {
                         </div>
                     </div>
 
-                    <div className="p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-gradient-to-br from-indigo-600/20 to-transparent border border-indigo-500/20 shadow-xl relative overflow-hidden">
+                    <div className="p-8 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 shadow-xl relative overflow-hidden">
                         <div className="absolute -right-4 -top-4 opacity-10">
                             <Sparkles className="w-24 h-24 text-white" />
                         </div>
@@ -230,7 +230,7 @@ function OpportunityItem({ text }: { text: string }) {
     return (
         <div className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0 shadow-[0_0_8px_#10b981]" />
-            <p className="text-[11px] text-indigo-100 leading-relaxed font-medium">{text}</p>
+            <p className="text-[11px] text-primary-foreground/70 leading-relaxed font-medium">{text}</p>
         </div>
     );
 }

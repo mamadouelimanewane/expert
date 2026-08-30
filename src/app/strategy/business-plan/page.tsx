@@ -118,7 +118,7 @@ export default function BusinessPlanPage() {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-rose-600 flex items-center justify-center shadow-xl shadow-indigo-500/20">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-rose-600 flex items-center justify-center shadow-xl shadow-primary/20">
                         <Rocket className="w-8 h-8 text-white" />
                     </div>
                     <div>
@@ -127,7 +127,7 @@ export default function BusinessPlanPage() {
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             placeholder="Nom du projet"
-                            className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight bg-transparent border-b border-transparent hover:border-slate-700 focus:border-indigo-500 outline-none"
+                            className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight bg-transparent border-b border-transparent hover:border-slate-700 focus:border-primary outline-none"
                         />
                         <div className="flex items-center gap-4 mt-1">
                             <p className="text-slate-400 text-sm">Business Plan & Modèle Financier</p>
@@ -139,7 +139,7 @@ export default function BusinessPlanPage() {
                         onClick={generateAIPlan}
                         disabled={isGenerating || !projectName.trim()}
                         title={!projectName.trim() ? "Renseignez un nom de projet" : ""}
-                        className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
+                        className="px-6 py-2.5 bg-gradient-to-r from-primary to-rose-600 hover:opacity-90 text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                         {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                         {isGenerating ? "Génération…" : "Rédiger un projet via IA"}
@@ -197,7 +197,7 @@ function TabButton({ active, onClick, icon: Icon, label }: any) {
                     : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
             )}
         >
-            <Icon className={cn("w-4 h-4", active ? "text-indigo-400" : "text-slate-600")} />
+            <Icon className={cn("w-4 h-4", active ? "text-primary" : "text-slate-600")} />
             {label}
         </button>
     );
@@ -218,7 +218,7 @@ function PlanSection({ isEditMode, setIsEditMode, sections, setSections }: any) 
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
                     <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                        <Building2 className="w-5 h-5 text-indigo-400" />
+                        <Building2 className="w-5 h-5 text-primary" />
                         Structure Stratégique
                     </h3>
                     <button
@@ -245,7 +245,7 @@ function PlanSection({ isEditMode, setIsEditMode, sections, setSections }: any) 
                         <div className="p-6">
                             {isEditMode ? (
                                 <textarea
-                                    className="w-full h-32 bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 focus:outline-none focus:border-indigo-500"
+                                    className="w-full h-32 bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-300 focus:outline-none focus:border-primary"
                                     placeholder="À rédiger — vous pouvez aussi utiliser « Rédiger un projet via IA »."
                                     value={s.content}
                                     onChange={(e) => setSections((prev: any[]) => prev.map((x, i) => i === idx ? { ...x, content: e.target.value } : x))}
@@ -284,7 +284,7 @@ function FinanceSection({ projections, setProjections }: any) {
             <div className="lg:col-span-1 space-y-4">
                 <div className="apix-card">
                     <h4 className="font-bold text-white mb-6 flex items-center gap-2">
-                        <Calculator className="w-4 h-4 text-indigo-400" />
+                        <Calculator className="w-4 h-4 text-primary" />
                         Paramètres du Modèle
                     </h4>
                     <div className="space-y-6">
@@ -325,11 +325,11 @@ function FinanceSection({ projections, setProjections }: any) {
                             const height = (rev / 2000) * 100; // Normalization for 2M$ max in display
                             return (
                                 <div key={y} className="flex-1 flex flex-col items-center gap-2 group relative">
-                                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-all bg-indigo-600 text-[10px] font-bold text-white px-2 py-1 rounded">
+                                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-all bg-primary text-[10px] font-bold text-white px-2 py-1 rounded">
                                         {Math.round(rev).toLocaleString()} k$
                                     </div>
                                     <div
-                                        className="w-full bg-gradient-to-t from-indigo-900 to-indigo-500 rounded-t-lg transition-all duration-500 hover:scale-x-105"
+                                        className="w-full bg-gradient-to-t from-primary to-primary rounded-t-lg transition-all duration-500 hover:scale-x-105"
                                         style={{ height: `${Math.min(height, 100)}%` }}
                                     />
                                     <span className="text-[10px] font-bold text-slate-500">YEAR {y}</span>
@@ -377,12 +377,12 @@ function InputRange({ label, value, min, max, step, onChange }: any) {
         <div className="space-y-2">
             <div className="flex justify-between items-center">
                 <label className="text-sm text-slate-400">{label}</label>
-                <span className="text-sm font-bold text-indigo-400">{value.toLocaleString()}</span>
+                <span className="text-sm font-bold text-primary">{value.toLocaleString()}</span>
             </div>
             <input
                 type="range" min={min} max={max} step={step} value={value}
                 onChange={(e) => onChange(parseInt(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"
             />
         </div>
     );
@@ -392,16 +392,16 @@ function ValuationSection({ valuation }: any) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
-                <div className="glass-card rounded-3xl border border-slate-700/50 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-indigo-900/40 to-slate-900 shadow-2xl relative overflow-hidden">
+                <div className="glass-card rounded-3xl border border-slate-700/50 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-primary/40 to-slate-900 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
-                        <Shield className="w-32 h-32 text-indigo-400" />
+                        <Shield className="w-32 h-32 text-primary" />
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Startup Valuation Result</h3>
                     <p className="text-slate-400 text-sm mb-10">Méthode Combinée : Multiples SaaS (8.5x) + DCF (WACC 18%)</p>
 
                     <div className="space-y-8">
                         <div>
-                            <p className="text-[10px] text-indigo-400 uppercase font-bold tracking-widest mb-1">Pre-Money Valuation</p>
+                            <p className="text-[10px] text-primary uppercase font-bold tracking-widest mb-1">Pre-Money Valuation</p>
                             <div className="flex items-baseline gap-2">
                                 <p className="text-2xl sm:text-3xl lg:text-5xl font-black text-white italic">{(valuation.preMoney / 1000).toFixed(1)}M</p>
                                 <span className="text-xl font-bold text-slate-500">USD</span>
@@ -420,7 +420,7 @@ function ValuationSection({ valuation }: any) {
                         </div>
 
                         <div className="pt-8 border-t border-slate-700/50">
-                            <button disabled title="Non implémenté" className="w-full py-4 bg-indigo-600/50 text-white/50 rounded-2xl font-bold cursor-not-allowed flex items-center justify-center gap-3">
+                            <button disabled title="Non implémenté" className="w-full py-4 bg-primary/50 text-white/50 rounded-2xl font-bold cursor-not-allowed flex items-center justify-center gap-3">
                                 <Briefcase className="w-5 h-5" />
                                 Générer un mémorandum d'investissement (non disponible)
                             </button>
@@ -452,7 +452,7 @@ function DeckSection({ projectName }: any) {
             <div className="flex justify-between items-end">
                 <div>
                     <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                        <Presentation className="w-5 h-5 text-indigo-400" />
+                        <Presentation className="w-5 h-5 text-primary" />
                         Structure de Pitch Deck (exemple)
                     </h3>
                     <p className="text-slate-500 text-sm mt-1">Trame indicative à personnaliser — pas un contenu généré pour {projectName || "votre projet"}.</p>
@@ -503,16 +503,16 @@ function SlidePreview({ num, title, desc, active }: any) {
     return (
         <div className={cn(
             "glass-card rounded-2xl border aspect-video overflow-hidden flex flex-col p-6 transition-all hover:scale-105 hover:shadow-2xl relative",
-            active ? "border-indigo-500 bg-indigo-900/10" : "border-slate-700/50"
+            active ? "border-primary bg-primary/10" : "border-slate-700/50"
         )}>
-            <span className="text-xs font-bold text-indigo-400 mb-2">SLIDE {num}</span>
+            <span className="text-xs font-bold text-primary mb-2">SLIDE {num}</span>
             <h4 className="text-lg font-bold text-white mb-4">{title}</h4>
             <p className="text-xs text-slate-400 leading-relaxed italic line-clamp-4">"{desc}"</p>
-            {active && <div className="absolute top-4 right-4"><Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" /></div>}
+            {active && <div className="absolute top-4 right-4"><Sparkles className="w-4 h-4 text-primary animate-pulse" /></div>}
             <div className="absolute bottom-4 right-6 flex items-center gap-1">
                 <div className="w-1 h-1 rounded-full bg-slate-700" />
                 <div className="w-1 h-1 rounded-full bg-slate-700" />
-                <div className="w-4 h-1 rounded-full bg-indigo-500" />
+                <div className="w-4 h-1 rounded-full bg-primary" />
             </div>
         </div>
     );

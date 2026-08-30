@@ -89,7 +89,7 @@ export default function NexusChatPage() {
       if (part.startsWith('```') && part.endsWith('```')) {
         const code = part.slice(3, -3);
         return (
-          <div key={i} className="my-3 bg-slate-950 p-4 rounded-xl border border-white/10 font-mono text-sm text-indigo-300 whitespace-pre-wrap shadow-inner">
+          <div key={i} className="my-3 bg-slate-950 p-4 rounded-xl border border-white/10 font-mono text-sm text-primary-foreground/70 whitespace-pre-wrap shadow-inner">
             {code}
           </div>
         );
@@ -125,7 +125,7 @@ export default function NexusChatPage() {
             }]);
             setSuggestions(["📊 KPIs du cabinet", "📅 Échéances semaine", "🔍 Analyser TVA", "📝 Journal de clôture"]);
           }}
-          className="w-full mb-6 py-3 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border border-indigo-500/30 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+          className="w-full mb-6 py-3 bg-primary/20 hover:brightness-110/40 text-primary border border-primary/30 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Nouvelle Conversation
         </button>
@@ -140,7 +140,7 @@ export default function NexusChatPage() {
         {/* Chat Header */}
         <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -171,7 +171,7 @@ export default function NexusChatPage() {
               >
                 <div className={cn(
                   "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg",
-                  msg.role === 'user' ? "bg-slate-700 text-white" : "bg-indigo-600 text-white"
+                  msg.role === 'user' ? "bg-slate-700 text-white" : "bg-primary text-white"
                 )}>
                   {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                 </div>
@@ -179,7 +179,7 @@ export default function NexusChatPage() {
                 <div className={cn(
                   "px-6 py-4 rounded-2xl shadow-md",
                   msg.role === 'user' 
-                    ? "bg-indigo-600 text-white rounded-tr-sm" 
+                    ? "bg-primary text-white rounded-tr-sm" 
                     : "bg-slate-800 border border-white/5 text-slate-200 rounded-tl-sm"
                 )}>
                   <div className="text-[15px] leading-relaxed">
@@ -187,7 +187,7 @@ export default function NexusChatPage() {
                   </div>
                   <span className={cn(
                     "text-[10px] font-bold uppercase tracking-widest mt-2 block",
-                    msg.role === 'user' ? "text-indigo-300 text-right" : "text-slate-500"
+                    msg.role === 'user' ? "text-primary-foreground/70 text-right" : "text-slate-500"
                   )}>
                     {msg.timestamp}
                   </span>
@@ -198,13 +198,13 @@ export default function NexusChatPage() {
 
           {isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4 max-w-[85%]">
-              <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-lg">
+              <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center flex-shrink-0 shadow-lg">
                 <Bot className="w-5 h-5" />
               </div>
               <div className="px-6 py-4 bg-slate-800 border border-white/5 rounded-2xl rounded-tl-sm flex items-center gap-2">
-                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
               </div>
             </motion.div>
           )}
@@ -244,14 +244,14 @@ export default function NexusChatPage() {
                 }
               }}
               placeholder="Posez une question sur vos dossiers, la comptabilité, ou les normes OHADA..."
-              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl pl-16 pr-16 py-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 resize-none min-h-[56px] max-h-[120px]"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl pl-16 pr-16 py-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-primary resize-none min-h-[56px] max-h-[120px]"
               rows={1}
             />
             
             <button 
               onClick={() => handleSend(input)}
               disabled={!input.trim() || isLoading}
-              className="absolute right-3 bottom-3 p-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl transition-colors shadow-lg"
+              className="absolute right-3 bottom-3 p-3 bg-primary hover:brightness-110 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl transition-colors shadow-lg"
             >
               <Send className="w-4 h-4" />
             </button>

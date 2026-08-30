@@ -79,7 +79,7 @@ export default function ClientProfitabilityPage() {
 
             {/* Global KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <GlobalKPICard title="Taux Horaire Moyen" value={data.kpis.avgEffectiveRate !== null ? data.kpis.avgEffectiveRate.toLocaleString("fr-FR") : "—"} unit="FCFA" icon={DollarSign} color="text-indigo-400" />
+                <GlobalKPICard title="Taux Horaire Moyen" value={data.kpis.avgEffectiveRate !== null ? data.kpis.avgEffectiveRate.toLocaleString("fr-FR") : "—"} unit="FCFA" icon={DollarSign} color="text-primary" />
                 <GlobalKPICard title="Taux de Réalisation" value={data.kpis.billingRealizationPct !== null ? `${data.kpis.billingRealizationPct}` : "—"} unit="%" icon={Activity} color="text-emerald-400" />
                 <GlobalKPICard title="Dossiers Sous-facturés" value={String(data.kpis.underbilledCount)} unit="" icon={AlertCircle} color="text-rose-400" />
                 <GlobalKPICard title="Heures Enregistrées" value={data.kpis.totalHours.toLocaleString("fr-FR")} unit="h" icon={Clock} color="text-cyan-400" />
@@ -171,10 +171,10 @@ export default function ClientProfitabilityPage() {
                     </div>
 
                     {data.insight && (
-                        <div className="p-8 bg-indigo-500/5 border-t border-indigo-500/10">
+                        <div className="p-8 bg-primary/5 border-t border-primary/10">
                             <div className="flex items-start gap-4">
-                                <Info className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-indigo-200/80 leading-relaxed">{data.insight}</p>
+                                <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                                <p className="text-xs text-primary-foreground/70/80 leading-relaxed">{data.insight}</p>
                             </div>
                         </div>
                     )}
@@ -202,8 +202,8 @@ export default function ClientProfitabilityPage() {
                         </div>
                     </div>
 
-                    <div className="p-8 rounded-[40px] bg-indigo-600/10 border border-indigo-500/20">
-                        <h4 className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <div className="p-8 rounded-[40px] bg-primary/10 border border-primary/20">
+                        <h4 className="text-[10px] text-primary font-black uppercase tracking-widest mb-4 flex items-center gap-2">
                             <Calendar className="w-4 h-4" /> Méthodologie
                         </h4>
                         <p className="text-[11px] text-slate-400 leading-relaxed">

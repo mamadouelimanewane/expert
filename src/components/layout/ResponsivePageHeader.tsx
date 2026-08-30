@@ -20,7 +20,7 @@ export function ResponsivePageHeader({
         <div className="flex flex-col gap-4">
             <div className="flex items-start gap-3">
                 {Icon && (
-                    <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+                    <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-600 items-center justify-center shadow-lg shadow-primary/20 shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                     </div>
                 )}

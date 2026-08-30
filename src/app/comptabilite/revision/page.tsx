@@ -102,13 +102,13 @@ export default function RevisionPage() {
             {/* Header SEPTEO Style */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <ClipboardCheck className="w-48 h-48 text-indigo-400" />
+                    <ClipboardCheck className="w-48 h-48 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h2 className="page-title flex items-center gap-5">
-                            <div className="p-4 bg-indigo-600 rounded-[24px] shadow-2xl shadow-indigo-600/30">
+                            <div className="p-4 bg-primary rounded-[24px] shadow-2xl shadow-primary/30">
                                 <ClipboardCheck className="w-8 h-8 text-white" />
                             </div>
                             Révision & Certification
@@ -122,7 +122,7 @@ export default function RevisionPage() {
                         <Link href="/comptabilite/revision/print" target="_blank" className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-3 transition-all">
                             <Download className="w-4 h-4" /> Rapport de Révision
                         </Link>
-                        <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                        <button className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95">
                             <ShieldCheck className="w-5 h-5" /> Certifier les Comptes
                         </button>
                     </div>
@@ -146,7 +146,7 @@ export default function RevisionPage() {
                                     strokeWidth="8"
                                     strokeDasharray={226}
                                     strokeDashoffset={226 * (1 - avancement / 100)}
-                                    className="text-indigo-500 transition-all"
+                                    className="text-primary transition-all"
                                 />
                             </svg>
                             <span className="absolute inset-0 flex items-center justify-center font-black text-white text-lg tabular-nums">
@@ -223,7 +223,7 @@ export default function RevisionPage() {
                                     "w-12 h-12 rounded-2xl flex items-center justify-center font-black",
                                     section.status === "done" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
                                         section.status === "alert" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" :
-                                            "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                                            "bg-primary/10 text-primary border border-primary/20"
                                 )}>
                                     {section.status === "done" ? <CheckCircle2 className="w-6 h-6" /> :
                                         section.status === "alert" ? <AlertCircle className="w-6 h-6" /> :
@@ -255,12 +255,12 @@ export default function RevisionPage() {
                                                 "p-5 rounded-2xl border transition-all cursor-pointer group flex items-start gap-4",
                                                 task.completed
                                                     ? "bg-emerald-500/5 border-emerald-500/10"
-                                                    : "bg-slate-800/30 border-white/5 hover:border-indigo-500/30"
+                                                    : "bg-slate-800/30 border-white/5 hover:border-primary/30"
                                             )}
                                         >
                                             <div className={cn(
                                                 "w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-colors",
-                                                task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "bg-slate-900 border-white/10 text-transparent group-hover:border-indigo-500"
+                                                task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "bg-slate-900 border-white/10 text-transparent group-hover:border-primary"
                                             )}>
                                                 <Check className="w-4 h-4" />
                                             </div>
@@ -272,7 +272,7 @@ export default function RevisionPage() {
                                             <MoreVertical className="w-4 h-4 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     ))}
-                                    <button className="p-5 border-2 border-dashed border-slate-800 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black text-slate-600 uppercase tracking-widest hover:border-indigo-500/30 hover:text-indigo-400 transition-all">
+                                    <button className="p-5 border-2 border-dashed border-slate-800 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black text-slate-600 uppercase tracking-widest hover:border-primary/30 hover:text-primary transition-all">
                                         + Ajouter un contrôle
                                     </button>
                                 </div>

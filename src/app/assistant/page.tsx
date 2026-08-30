@@ -90,7 +90,7 @@ export default function AssistantPage() {
                 {/* Chat Header */}
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-900/50">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 animate-pulse">
+                        <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 animate-pulse">
                             <Brain className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -117,7 +117,7 @@ export default function AssistantPage() {
                         )}>
                             <div className={cn(
                                 "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl shadow-black/20",
-                                msg.role === "assistant" ? "bg-indigo-600 border-indigo-400 text-white" : "bg-slate-800 border-slate-700 text-indigo-400"
+                                msg.role === "assistant" ? "bg-primary border-primary text-white" : "bg-slate-800 border-slate-700 text-primary"
                             )}>
                                 {msg.role === "assistant" ? <Brain className="w-5 h-5" /> : <UserCheck className="w-5 h-5" />}
                             </div>
@@ -129,7 +129,7 @@ export default function AssistantPage() {
                                     "p-6 rounded-3xl border shadow-xl",
                                     msg.role === "assistant"
                                         ? "bg-slate-800/80 border-white/5 text-slate-200"
-                                        : "bg-indigo-600 border-indigo-400 text-white"
+                                        : "bg-primary border-primary text-white"
                                 )}>
                                     <p className="text-sm leading-relaxed">{msg.content}</p>
                                 </div>
@@ -139,7 +139,7 @@ export default function AssistantPage() {
                     ))}
                     {envoiEnCours && (
                         <div className="flex gap-4 max-w-4xl mx-auto">
-                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl shadow-black/20 bg-indigo-600 border-indigo-400 text-white">
+                            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl shadow-black/20 bg-primary border-primary text-white">
                                 <Brain className="w-5 h-5" />
                             </div>
                             <div className="p-6 rounded-3xl border shadow-xl bg-slate-800/80 border-white/5 text-slate-400 flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function AssistantPage() {
                 {/* Chat Input */}
                 <div className="p-8 bg-slate-950/50 border-t border-white/5">
                     <div className="max-w-4xl mx-auto relative group">
-                        <div className="absolute inset-0 bg-indigo-600 rounded-3xl blur opacity-10 group-focus-within:opacity-20 transition-opacity" />
+                        <div className="absolute inset-0 bg-primary rounded-3xl blur opacity-10 group-focus-within:opacity-20 transition-opacity" />
                         <div className="relative bg-slate-900 border border-white/10 rounded-3xl p-2 shadow-2xl flex items-end gap-2 pr-4 pl-6">
                             <textarea
                                 value={input}
@@ -172,7 +172,7 @@ export default function AssistantPage() {
                                 <button
                                     onClick={handleSend}
                                     disabled={envoiEnCours}
-                                    className="p-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all"
+                                    className="p-3.5 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all"
                                 >
                                     <Send className="w-5 h-5" />
                                 </button>
@@ -186,7 +186,7 @@ export default function AssistantPage() {
             <div className="w-80 space-y-6">
                 <div className="apix-card">
                     <h3 className="text-white font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
-                        <Gavel className="w-4 h-4 text-indigo-400" />
+                        <Gavel className="w-4 h-4 text-primary" />
                         Actions Rapides
                     </h3>
                     <div className="space-y-3">
@@ -204,7 +204,7 @@ export default function AssistantPage() {
 function AssistantAction({ icon: Icon, label }: any) {
     return (
         <button className="w-full flex items-center gap-3 p-3 bg-white/[0.02] hover:bg-white/[0.05] rounded-2xl border border-white/5 group transition-all text-left">
-            <div className="p-2 bg-slate-800 rounded-lg group-hover:bg-indigo-600 transition-colors">
+            <div className="p-2 bg-slate-800 rounded-lg group-hover:brightness-110 transition-colors">
                 <Icon className="w-4 h-4 text-slate-400 group-hover:text-white" />
             </div>
             <span className="text-xs font-bold text-slate-300 group-hover:text-white">{label}</span>

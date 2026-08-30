@@ -48,7 +48,7 @@ export default function NexusFiscalPage() {
         <div className="max-w-3xl mx-auto p-8 space-y-8 flex flex-col h-[calc(100vh-4rem)]">
             <div>
                 <h2 className="page-title flex items-center gap-3">
-                    <Landmark className="w-8 h-8 text-indigo-400" /> Nexus Fiscal
+                    <Landmark className="w-8 h-8 text-primary" /> Nexus Fiscal
                 </h2>
                 <p className="page-subtitle">
                     Assistant IA spécialisé fiscalité et obligations sociales OHADA/UEMOA, ancré sur le référentiel réel du cabinet.
@@ -68,7 +68,7 @@ export default function NexusFiscalPage() {
                     <div key={i} className={m.role === "user" ? "flex justify-end" : "flex justify-start"}>
                         <div className={
                             m.role === "user"
-                                ? "max-w-[80%] bg-indigo-600 text-white rounded-2xl rounded-br-sm px-4 py-3 text-sm"
+                                ? "max-w-[80%] bg-primary text-white rounded-2xl rounded-br-sm px-4 py-3 text-sm"
                                 : "max-w-[80%] bg-slate-800 text-slate-200 rounded-2xl rounded-bl-sm px-4 py-3 text-sm whitespace-pre-wrap"
                         }>
                             {m.nonConfigure && (
@@ -94,12 +94,12 @@ export default function NexusFiscalPage() {
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="Ex : quelle est l'échéance de la TVA au Sénégal ?"
-                    className="flex-1 bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-indigo-500"
+                    className="flex-1 bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-primary"
                 />
                 <button
                     type="submit"
                     disabled={!question.trim() || enCours}
-                    className="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl font-bold flex items-center gap-2 transition-all"
+                    className="px-6 py-4 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-2xl font-bold flex items-center gap-2 transition-all"
                 >
                     <Send className="w-4 h-4" />
                 </button>

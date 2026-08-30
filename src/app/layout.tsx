@@ -27,7 +27,7 @@ export default function RootLayout({
         <html lang="fr" className="light">
           <head>
             <link rel="manifest" href="/manifest.json" />
-            <meta name="theme-color" content="#4f46e5" />
+            <meta name="theme-color" content="#006B3F" />
             <script dangerouslySetInnerHTML={{
               __html: `
                 if ('serviceWorker' in navigator) {

@@ -48,14 +48,14 @@ export default function MorningBriefPage() {
     return (
         <div className="min-h-screen space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Ultra Premium Header */}
-            <div className="relative p-6 sm:p-12 rounded-3xl sm:rounded-[60px] overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/30 shadow-2xl">
+            <div className="relative p-6 sm:p-12 rounded-3xl sm:rounded-[60px] overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-primary/30 shadow-2xl">
                 <div className="absolute top-0 right-0 p-10 sm:p-20 opacity-10 pointer-events-none group">
-                    <Sparkles className="w-32 h-32 sm:w-64 h-64 text-indigo-400 animate-pulse" />
+                    <Sparkles className="w-32 h-32 sm:w-64 h-64 text-primary animate-pulse" />
                 </div>
 
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="px-4 py-1.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-indigo-500/30 backdrop-blur-md">
+                        <div className="px-4 py-1.5 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-primary/30 backdrop-blur-md">
                             Morning Briefing
                         </div>
                         <div className="text-[10px] font-bold text-slate-500 flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function MorningBriefPage() {
                     </div>
 
                     <h1 className="page-title mb-4 uppercase">
-                        Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Collaborateur</span>
+                        Bonjour, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400">Collaborateur</span>
                     </h1>
                     <p className="page-subtitle max-w-2xl leading-relaxed">
                         Voici votre synthèse du <span className="text-white font-bold">{currentTime.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span> : briefings enregistrés et rentabilité de l'équipe.
@@ -113,9 +113,9 @@ export default function MorningBriefPage() {
 
                 {/* 2. Side Console: Cabinet Health & Comms */}
                 <div className="lg:col-span-4 space-y-6 sm:space-y-8">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent text-center">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-indigo-500/20">
-                            <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-400" />
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-primary/5 to-transparent text-center">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-primary/20">
+                            <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                         </div>
                         <h4 className="text-white font-black uppercase text-xs tracking-widest mb-2">Taux de Recouvrement</h4>
                         <div className="text-2xl sm:text-3xl lg:text-5xl font-black text-white tracking-widest uppercase mb-4">
@@ -127,7 +127,7 @@ export default function MorningBriefPage() {
                                 : "Chargement..."}
                         </p>
                         <div className="h-1.5 w-full bg-slate-800 rounded-full mt-8 overflow-hidden">
-                            <div className="h-full bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{ width: `${exec?.kpis.recouvrement ?? 0}%` }} />
+                            <div className="h-full bg-primary shadow-[0_0_15px_rgba(0, 107, 63,0.5)]" style={{ width: `${exec?.kpis.recouvrement ?? 0}%` }} />
                         </div>
                     </div>
 
@@ -156,7 +156,7 @@ export default function MorningBriefPage() {
 function BriefItem({ type, title, desc, action, color }: any) {
     const colors: any = {
         rose: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-        indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+        indigo: "bg-primary/10 text-primary border-primary/20",
         emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     };
 
@@ -189,7 +189,7 @@ function UserStatus({ name, hours, billable }: { name: string; hours: number; bi
                 </div>
             </div>
             <div className="text-right">
-                <div className={cn("text-[9px] font-black uppercase mb-1", "text-indigo-400")}>
+                <div className={cn("text-[9px] font-black uppercase mb-1", "text-primary")}>
                     {billable}%
                 </div>
                 <div className="text-[8px] text-slate-600 font-black uppercase">Facturable</div>

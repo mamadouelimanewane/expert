@@ -70,14 +70,14 @@ export default function SupervisionTimelinePage() {
         if (action === 'CREATE') return "text-emerald-400";
         if (action === 'DELETE') return "text-rose-400";
         if (action === 'UPDATE') return "text-sky-400";
-        return "text-indigo-400";
+        return "text-primary";
     };
 
     const getBg = (action: string) => {
         if (action === 'CREATE') return "bg-emerald-500/10";
         if (action === 'DELETE') return "bg-rose-500/10";
         if (action === 'UPDATE') return "bg-sky-500/10";
-        return "bg-indigo-500/10";
+        return "bg-primary/10";
     };
 
     return (

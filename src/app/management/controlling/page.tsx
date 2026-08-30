@@ -29,10 +29,10 @@ export default function ControllingPage() {
       </div>
 
       <div className="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl flex-wrap">
-        <button onClick={() => setActiveTab('general')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'general' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Vue Générale</button>
-        <button onClick={() => setActiveTab('dept')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'dept' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Par Pôle</button>
-        <button onClick={() => setActiveTab('collab')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'collab' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Par Collaborateur</button>
-        <button onClick={() => setActiveTab('proj')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'proj' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>CA Mensuel</button>
+        <button onClick={() => setActiveTab('general')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'general' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Vue Générale</button>
+        <button onClick={() => setActiveTab('dept')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'dept' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Par Pôle</button>
+        <button onClick={() => setActiveTab('collab')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'collab' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Par Collaborateur</button>
+        <button onClick={() => setActiveTab('proj')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'proj' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>CA Mensuel</button>
       </div>
 
       <AnimatePresence mode="wait">
@@ -60,9 +60,9 @@ export default function ControllingPage() {
           <motion.div key="dept" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {data.departments.map((dept: any) => (
               <div key={dept.id} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-[40px] group-hover:bg-indigo-500/10 transition-colors"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] group-hover:brightness-110/10 transition-colors"></div>
                 <h3 className="text-xl font-black text-white flex items-center gap-2 mb-6">
-                  <Building className="w-5 h-5 text-indigo-400" /> {dept.name}
+                  <Building className="w-5 h-5 text-primary" /> {dept.name}
                 </h3>
 
                 <div className="space-y-4">
@@ -100,11 +100,11 @@ export default function ControllingPage() {
                   {data.collaborators.map((collab: any) => (
                     <tr key={collab.id} className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-4 flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">{collab.initials}</div>
+                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold">{collab.initials}</div>
                         <span className="text-sm font-bold text-white">{collab.name}</span>
                       </td>
                       <td className="py-4 text-right">
-                        <span className="text-sm font-bold text-indigo-400">{(collab.valeur / 1000000).toFixed(1)}M F</span>
+                        <span className="text-sm font-bold text-primary">{(collab.valeur / 1000000).toFixed(1)}M F</span>
                       </td>
                       <td className="py-4 text-right">
                         <span className="text-sm text-slate-300">{collab.hours}h</span>
@@ -131,7 +131,7 @@ export default function ControllingPage() {
         {activeTab === 'proj' && (
           <motion.div key="proj" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
             <h3 className="text-lg font-black text-white flex items-center gap-2 mb-6">
-              <TrendingUp className="w-5 h-5 text-indigo-400" /> Chiffre d'Affaires Mensuel (Réel)
+              <TrendingUp className="w-5 h-5 text-primary" /> Chiffre d'Affaires Mensuel (Réel)
             </h3>
 
             <div className="h-64 mt-8 flex items-end gap-2 border-b border-white/5 pb-4 relative">
@@ -149,7 +149,7 @@ export default function ControllingPage() {
                       initial={{ height: 0 }}
                       animate={{ height: h }}
                       transition={{ duration: 0.5, delay: i * 0.05 }}
-                      className="w-full rounded-t-sm transition-all bg-indigo-500/80 hover:bg-indigo-400"
+                      className="w-full rounded-t-sm transition-all bg-primary/80 hover:brightness-110"
                     ></motion.div>
                   </div>
                 );

@@ -181,12 +181,12 @@ export default function ExpensesPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-3xl border border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <Wallet className="w-40 h-40 text-indigo-400" />
+                    <Wallet className="w-40 h-40 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <h2 className="page-title flex items-center gap-4">
-                        <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/20">
+                        <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20">
                             <Plane className="w-8 h-8 text-white" />
                         </div>
                         Frais & Missions
@@ -201,12 +201,12 @@ export default function ExpensesPage() {
                         onClick={() => setShowNewOrderModal(true)}
                         className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs border border-white/5 flex items-center gap-3 transition-all active:scale-95 shadow-xl"
                     >
-                        <Plane className="w-4 h-4 text-indigo-400" />
+                        <Plane className="w-4 h-4 text-primary" />
                         Nouvel Ordre de Mission
                     </button>
                     <button
                         onClick={() => setShowNewExpenseModal(true)}
-                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all active:scale-95 shadow-xl shadow-indigo-600/30"
+                        className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all active:scale-95 shadow-xl shadow-primary/30"
                     >
                         <Plus className="w-5 h-5" />
                         Nouvelle Note
@@ -216,7 +216,7 @@ export default function ExpensesPage() {
 
             {/* KPI Section */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <KpiCard title="Total Engagé" value={(totalEngaged / 1000).toFixed(0) + "K"} currency="FCFA" icon={TrendingUp} color="text-indigo-400" bgColor="bg-indigo-500/10" />
+                <KpiCard title="Total Engagé" value={(totalEngaged / 1000).toFixed(0) + "K"} currency="FCFA" icon={TrendingUp} color="text-primary" bgColor="bg-primary/10" />
                 <KpiCard title="A Approuver" value={String(pendingCount)} subtext="Notes en attente" icon={Clock} color="text-amber-400" bgColor="bg-amber-500/10" />
                 <KpiCard title="Budget Missions" value={(totalMissionBudget / 1000).toFixed(0) + "K"} currency="FCFA" subtext={`${missionOrders.length} ordre(s) de mission`} icon={Plane} color="text-cyan-400" bgColor="bg-cyan-500/10" />
                 <KpiCard title="Remboursé (Total)" value={(totalReimbursed / 1000).toFixed(0) + "K"} currency="FCFA" icon={TrendingDown} color="text-emerald-400" bgColor="bg-emerald-500/10" />
@@ -226,7 +226,7 @@ export default function ExpensesPage() {
                 {/* Advanced Validation Workflow */}
                 <div className="lg:col-span-2 apix-card relative overflow-hidden">
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
-                        <CheckCircle2 className="w-6 h-6 text-indigo-400" />
+                        <CheckCircle2 className="w-6 h-6 text-primary" />
                         Circuit de Validation de Frais
                     </h3>
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative">
@@ -241,11 +241,11 @@ export default function ExpensesPage() {
                         </div>
 
                         <div className="relative z-10 text-center space-y-3 p-4 bg-white/5 rounded-3xl border border-white/10 scale-110 shadow-2xl">
-                            <div className="w-16 h-16 bg-indigo-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-indigo-600/30">
+                            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto shadow-lg shadow-primary/30">
                                 <Users className="w-8 h-8 text-white" />
                             </div>
                             <p className="text-[10px] font-black text-white uppercase tracking-widest">Approbation Manager</p>
-                            <span className="text-[8px] text-indigo-400 font-black uppercase">En cours ({pendingCount})</span>
+                            <span className="text-[8px] text-primary font-black uppercase">En cours ({pendingCount})</span>
                         </div>
 
                         <div className="relative z-10 text-center space-y-3">
@@ -293,7 +293,7 @@ export default function ExpensesPage() {
                     onClick={() => setActiveTab("notes")}
                     className={cn(
                         "px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all",
-                        activeTab === "notes" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" : "text-slate-500 hover:text-slate-300"
+                        activeTab === "notes" ? "bg-primary text-white shadow-xl shadow-primary/20" : "text-slate-500 hover:text-slate-300"
                     )}
                 >
                     Notes de Frais
@@ -302,7 +302,7 @@ export default function ExpensesPage() {
                     onClick={() => setActiveTab("ordres")}
                     className={cn(
                         "px-10 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all",
-                        activeTab === "ordres" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" : "text-slate-500 hover:text-slate-300"
+                        activeTab === "ordres" ? "bg-primary text-white shadow-xl shadow-primary/20" : "text-slate-500 hover:text-slate-300"
                     )}
                 >
                     Ordres de Mission
@@ -312,7 +312,7 @@ export default function ExpensesPage() {
             {/* Content Area */}
             {loading ? (
                 <div className="apix-card flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 </div>
             ) : activeTab === "notes" ? (
                 <div className="glass-card rounded-[40px] overflow-hidden border border-white/5 bg-slate-900/20 shadow-2xl">
@@ -324,7 +324,7 @@ export default function ExpensesPage() {
                                 placeholder="Rechercher par employé ou mission..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-primary/50 outline-none"
                             />
                         </div>
                         <div className="flex gap-2">
@@ -379,7 +379,7 @@ export default function ExpensesPage() {
                                         <td className="px-6 py-6">
                                             <span className={cn(
                                                 "px-3 py-1 rounded-full text-[10px] font-black uppercase border flex items-center gap-2 w-fit",
-                                                exp.status === "APPROUVEE" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
+                                                exp.status === "APPROUVEE" ? "bg-primary/10 text-primary border-primary/20" :
                                                     exp.status === "REMBOURSEE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                                                         exp.status === "REJETEE" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
                                                             "bg-slate-800 text-slate-500 border-slate-700"
@@ -446,7 +446,7 @@ export default function ExpensesPage() {
 
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">{om.reference}</span>
+                                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{om.reference}</span>
                                     <h3 className="text-xl font-bold text-white mt-1">{om.purpose}</h3>
                                 </div>
                                 <span className={cn(
@@ -468,7 +468,7 @@ export default function ExpensesPage() {
                                 <div>
                                     <p className="text-[10px] text-slate-600 font-black uppercase mb-2">Période de Mission</p>
                                     <p className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-indigo-400" />
+                                        <Clock className="w-4 h-4 text-primary" />
                                         {new Date(om.startDate).toLocaleDateString("fr-FR")} - {new Date(om.endDate).toLocaleDateString("fr-FR")}
                                     </p>
                                 </div>
@@ -476,7 +476,7 @@ export default function ExpensesPage() {
 
                             <div className="flex items-center justify-between pt-6 border-t border-white/5">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-indigo-400">
+                                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-primary">
                                         {om.user?.firstName?.[0] || "?"}
                                     </div>
                                     <div>
@@ -500,15 +500,15 @@ export default function ExpensesPage() {
                                         });
                                         loadData();
                                     }}
-                                    className="mt-8 w-full py-4 bg-white/[0.03] hover:bg-white/[0.08] text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl border border-white/5 transition-all flex items-center justify-center gap-3 group-hover:border-indigo-500/30">
-                                    Valider l'ordre de mission <ArrowRight className="w-4 h-4 text-indigo-400" />
+                                    className="mt-8 w-full py-4 bg-white/[0.03] hover:bg-white/[0.08] text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl border border-white/5 transition-all flex items-center justify-center gap-3 group-hover:border-primary/30">
+                                    Valider l'ordre de mission <ArrowRight className="w-4 h-4 text-primary" />
                                 </button>
                             )}
                         </div>
                     ))}
 
-                    <button onClick={() => setShowNewOrderModal(true)} className="h-full min-h-[300px] border-2 border-dashed border-slate-800 rounded-[40px] flex flex-col items-center justify-center text-slate-600 hover:border-indigo-500/30 hover:text-indigo-400 transition-all group">
-                        <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                    <button onClick={() => setShowNewOrderModal(true)} className="h-full min-h-[300px] border-2 border-dashed border-slate-800 rounded-[40px] flex flex-col items-center justify-center text-slate-600 hover:border-primary/30 hover:text-primary transition-all group">
+                        <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-4 group-hover:brightness-110 group-hover:text-white transition-all">
                             <Plus className="w-8 h-8" />
                         </div>
                         <span className="font-black uppercase tracking-[0.2em] text-xs">Créer un Ordre de Mission</span>
@@ -542,7 +542,7 @@ export default function ExpensesPage() {
                                 {missions.map((m: any) => <option key={m.id} value={m.id}>{m.title}</option>)}
                             </select>
                             <textarea placeholder="Notes (optionnel)" value={expenseForm.notes} onChange={e => setExpenseForm({ ...expenseForm, notes: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" rows={2} />
-                            <button onClick={handleCreateExpense} disabled={saving} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                            <button onClick={handleCreateExpense} disabled={saving} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {saving ? "Enregistrement…" : "Créer la note de frais"}
                             </button>
                         </div>
@@ -570,7 +570,7 @@ export default function ExpensesPage() {
                                 <option value="">Aucune mission associée</option>
                                 {missions.map((m: any) => <option key={m.id} value={m.id}>{m.title}</option>)}
                             </select>
-                            <button onClick={handleCreateOrder} disabled={saving} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                            <button onClick={handleCreateOrder} disabled={saving} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {saving ? "Enregistrement…" : "Créer l'ordre de mission"}
                             </button>
                         </div>

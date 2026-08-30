@@ -50,7 +50,7 @@ export function ImportBalance({ year }: { year: string }) {
 
             <div
                 className={`relative flex h-48 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors ${dragActive
-                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
+                        ? "border-primary bg-primary dark:bg-primary/20"
                         : "border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
                     }`}
                 onDragEnter={handleDrag}
@@ -67,7 +67,7 @@ export function ImportBalance({ year }: { year: string }) {
 
                 {file ? (
                     <div className="z-10 flex flex-col items-center">
-                        <div className="flex items-center justify-center rounded-full bg-indigo-100 p-3 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <div className="flex items-center justify-center rounded-full bg-primary p-3 text-primary dark:bg-primary/30 dark:text-primary">
                             <FileType className="h-6 w-6" />
                         </div>
                         <p className="mt-2 text-sm font-medium text-slate-900 dark:text-white">

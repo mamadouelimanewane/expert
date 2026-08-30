@@ -173,7 +173,7 @@ export default function WhatsAppBotHub() {
       {/* Stats rapides — calculées à partir des données réelles */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Users, label: "Contacts", val: conversations.length, color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20" },
+          { icon: Users, label: "Contacts", val: conversations.length, color: "text-primary bg-primary/10 border-primary/20" },
           { icon: MessageCircle, label: "Messages enregistrés", val: messages.length, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
           { icon: Clock, label: "Non lus", val: totalUnread, color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
           { icon: Bot, label: "Réponses automatiques", val: "—", color: "text-slate-400 bg-slate-500/10 border-slate-500/20" },

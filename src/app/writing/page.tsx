@@ -224,7 +224,7 @@ export default function WritingCenterPage() {
                         onClick={() => setView("courrier")}
                         className={cn(
                             "px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all flex items-center gap-2",
-                            view === "courrier" ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-500 hover:text-white"
+                            view === "courrier" ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-500 hover:text-white"
                         )}
                     >
                         <Mail className="w-4 h-4" /> Courrier
@@ -386,7 +386,7 @@ export default function WritingCenterPage() {
                                 <p className="text-[10px] font-bold text-slate-500 uppercase">Total Courriers</p>
                                 <h4 className="text-2xl font-bold text-white">{correspondences.length}</h4>
                             </div>
-                            <Inbox className="w-8 h-8 text-indigo-500 opacity-20" />
+                            <Inbox className="w-8 h-8 text-primary opacity-20" />
                         </div>
                         <div className="apix-card flex justify-between items-center">
                             <div>
@@ -404,7 +404,7 @@ export default function WritingCenterPage() {
                         </div>
                         <button
                             onClick={() => setShowLogModal(true)}
-                            className="bg-indigo-600 hover:bg-indigo-500 rounded-xl p-4 flex items-center justify-center gap-3 text-white font-bold shadow-lg shadow-indigo-600/20 transition-all"
+                            className="bg-primary hover:brightness-110 rounded-xl p-4 flex items-center justify-center gap-3 text-white font-bold shadow-lg shadow-primary/20 transition-all"
                         >
                             <Plus className="w-5 h-5" /> Enregistrer Courrier
                         </button>
@@ -493,7 +493,7 @@ export default function WritingCenterPage() {
                                 ))}
                             </select>
                             <textarea placeholder="Contenu / notes du courrier" value={logForm.content} onChange={(e) => setLogForm({ ...logForm, content: e.target.value })} rows={5} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
-                            <button onClick={handleLogMail} disabled={savingLog} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                            <button onClick={handleLogMail} disabled={savingLog} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {savingLog ? "Enregistrement…" : "Enregistrer"}
                             </button>
                         </div>

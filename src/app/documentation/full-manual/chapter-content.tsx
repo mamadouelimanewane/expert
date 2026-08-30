@@ -11,13 +11,13 @@ export function ChapterContent({ chapter }: any) {
         <>
             <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                    <span className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase border border-indigo-500/20 print:border-black print:text-black">
+                    <span className="px-4 py-1.5 bg-primary/10 text-primary rounded-full text-[10px] font-black tracking-widest uppercase border border-primary/20 print:border-black print:text-black">
                         {chapter.label}
                     </span>
                     <div className="h-px flex-1 bg-white/5 print:bg-black/10" />
                 </div>
                 <div className="flex items-start gap-8 print:block">
-                    <div className="p-5 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl shadow-2xl shadow-indigo-600/20 shrink-0 print:hidden">
+                    <div className="p-5 bg-gradient-to-br from-primary to-purple-700 rounded-3xl shadow-2xl shadow-primary/20 shrink-0 print:hidden">
                         <chapter.icon className="w-12 h-12 text-white" />
                     </div>
                     <div className="space-y-3 print:space-y-1">
@@ -35,7 +35,7 @@ export function ChapterContent({ chapter }: any) {
                 {chapter.sections.map((section: any, sIdx: number) => (
                     <div key={sIdx} className="space-y-8 print:space-y-4 break-inside-avoid">
                         <h3 className="flex items-center gap-3 text-xl font-black text-white tracking-tight print:text-black print:text-lg">
-                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-indigo-400 print:hidden">
+                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-primary print:hidden">
                                 <MousePointer2 className="w-4 h-4" />
                             </div>
                             {section.title}
@@ -43,11 +43,11 @@ export function ChapterContent({ chapter }: any) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-1 print:gap-4">
                             {section.items.map((item: any, iIdx: number) => (
-                                <div key={iIdx} className="group p-8 bg-[#0d1117] border border-white/5 rounded-[40px] hover:border-indigo-500/40 transition-all shadow-2xl relative overflow-hidden print:bg-white print:border-gray-300 print:p-4 print:rounded-xl print:shadow-none">
+                                <div key={iIdx} className="group p-8 bg-[#0d1117] border border-white/5 rounded-[40px] hover:border-primary/40 transition-all shadow-2xl relative overflow-hidden print:bg-white print:border-gray-300 print:p-4 print:rounded-xl print:shadow-none">
                                     <div className="space-y-6 relative z-10 print:space-y-2">
                                         <div className="space-y-2">
-                                            <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors print:text-black print:text-base">{item.name}</h4>
-                                            <div className="h-1 w-12 bg-indigo-600 rounded-full print:bg-black" />
+                                            <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors print:text-black print:text-base">{item.name}</h4>
+                                            <div className="h-1 w-12 bg-primary rounded-full print:bg-black" />
                                         </div>
 
                                         <div className="space-y-4 print:space-y-2">

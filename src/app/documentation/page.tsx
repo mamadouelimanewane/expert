@@ -148,10 +148,10 @@ export default function DocumentationHubPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-12">
                     <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-widest uppercase">
                             Centre de Ressources Elite
                         </div>
-                        <h1 className="page-title-dark">Documentation & <span className="text-indigo-500">Marketing</span></h1>
+                        <h1 className="page-title-dark">Documentation & <span className="text-primary">Marketing</span></h1>
                         <p className="page-subtitle-dark">
                             Accédez à tous les supports officiels, guides d'utilisation et matériels marketing
                             conçus pour l'excellence de votre cabinet.
@@ -160,7 +160,7 @@ export default function DocumentationHubPage() {
                     <div className="flex gap-3">
                         <button
                             onClick={handleDownloadAll}
-                            className="flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all border shadow-lg bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-indigo-500/50"
+                            className="flex items-center gap-3 px-6 py-4 rounded-xl font-bold transition-all border shadow-lg bg-white/5 hover:bg-white/10 text-white border-white/10 hover:border-primary/50"
                         >
                             <Download className="w-5 h-5" /> Tout Télécharger
                         </button>
@@ -172,7 +172,7 @@ export default function DocumentationHubPage() {
                     {documents.map((section, idx) => (
                         <section key={idx} className="space-y-6">
                             <h2 className="text-xl font-bold text-slate-400 flex items-center gap-3">
-                                <span className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                                <span className="w-1.5 h-6 bg-primary rounded-full" />
                                 {section.category}
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -182,13 +182,13 @@ export default function DocumentationHubPage() {
                                         <Link
                                             key={dIdx}
                                             href={doc.href}
-                                            className="group relative bg-[#13161c] border border-white/5 p-6 rounded-[24px] hover:border-indigo-500/50 transition-all hover:bg-[#1a1e26] hover:-translate-y-1 shadow-xl overflow-hidden"
+                                            className="group relative bg-[#13161c] border border-white/5 p-6 rounded-[24px] hover:border-primary/50 transition-all hover:bg-[#1a1e26] hover:-translate-y-1 shadow-xl overflow-hidden"
                                         >
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-[40px] rounded-full group-hover:bg-indigo-600/10 transition-colors" />
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[40px] rounded-full group-hover:brightness-110/10 transition-colors" />
 
                                             <div className="flex flex-col h-full gap-6">
                                                 <div className="flex justify-between items-start relative z-10">
-                                                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                                                         <Icon className="w-6 h-6" />
                                                     </div>
                                                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-2 py-1 rounded">
@@ -197,7 +197,7 @@ export default function DocumentationHubPage() {
                                                 </div>
 
                                                 <div className="relative z-10">
-                                                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                                                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors">
                                                         {doc.title}
                                                     </h3>
                                                     <p className="text-sm text-slate-500 leading-relaxed">
@@ -205,7 +205,7 @@ export default function DocumentationHubPage() {
                                                     </p>
                                                 </div>
 
-                                                <div className="mt-auto flex items-center gap-2 text-indigo-500 font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0 relative z-10">
+                                                <div className="mt-auto flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0 relative z-10">
                                                     Ouvrir le document <ArrowRight className="w-4 h-4" />
                                                 </div>
                                             </div>
@@ -218,15 +218,15 @@ export default function DocumentationHubPage() {
                 </div>
 
                 {/* Integration Checklist / Help Area */}
-                <div className="mt-20 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[40px] text-white flex flex-col md:flex-row items-center gap-4 sm:gap-6 lg:gap-10 shadow-2xl shadow-indigo-500/20">
+                <div className="mt-20 p-4 sm:p-6 lg:p-10 bg-gradient-to-br from-primary to-violet-700 rounded-[40px] text-white flex flex-col md:flex-row items-center gap-4 sm:gap-6 lg:gap-10 shadow-2xl shadow-primary/20">
                     <div className="flex-1 space-y-4">
                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-black">Besoin d'un support personnalisé ?</h2>
-                        <p className="text-indigo-100 text-lg">
+                        <p className="text-primary-foreground/70 text-lg">
                             Nos équipes sont disponibles pour vous accompagner dans la personnalisation de vos
                             documents juridiques et marketing.
                         </p>
                         <div className="flex gap-4 pt-4">
-                            <button className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:shadow-lg transition-all shadow-md">
+                            <button className="px-6 py-3 bg-white text-primary rounded-xl font-bold hover:shadow-lg transition-all shadow-md">
                                 Contacter le Support
                             </button>
                             <button className="px-6 py-3 bg-transparent border border-white/30 text-white rounded-xl font-bold hover:bg-white/10 transition-all">
@@ -237,12 +237,12 @@ export default function DocumentationHubPage() {
                     <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
                         <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center">
                             <CheckCircle2 className="w-8 h-8 text-white mb-2" />
-                            <span className="text-[10px] uppercase font-bold text-indigo-100">Disponibilité</span>
+                            <span className="text-[10px] uppercase font-bold text-primary-foreground/70">Disponibilité</span>
                             <span className="font-bold">24/7/365</span>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center">
                             <Users className="w-8 h-8 text-white mb-2" />
-                            <span className="text-[10px] uppercase font-bold text-indigo-100">Experts</span>
+                            <span className="text-[10px] uppercase font-bold text-primary-foreground/70">Experts</span>
                             <span className="font-bold">Dédiés</span>
                         </div>
                     </div>

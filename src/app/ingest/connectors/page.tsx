@@ -116,7 +116,7 @@ export default function ConnectorsPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Link2 className="w-6 h-6 text-indigo-500" /> Connecteurs & Imports
+                        <Link2 className="w-6 h-6 text-primary" /> Connecteurs & Imports
                     </h2>
                     <p className="page-subtitle">
                         Import réel d&apos;écritures, imputées par le même moteur que le canal WhatsApp
@@ -161,7 +161,7 @@ export default function ConnectorsPage() {
                                 "w-full text-left p-6 rounded-[32px] border transition-all",
                                 !conn.disponible && "opacity-40 cursor-not-allowed",
                                 activeConnector === conn.id
-                                    ? "bg-slate-900/80 border-indigo-500/50 shadow-xl shadow-indigo-500/10"
+                                    ? "bg-slate-900/80 border-primary/50 shadow-xl shadow-primary/10"
                                     : "bg-slate-900/40 border-white/5 hover:bg-slate-900/60"
                             )}
                         >
@@ -238,7 +238,7 @@ export default function ConnectorsPage() {
 
                                 <a
                                     href="/comptabilite/production"
-                                    className="mt-auto flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest"
+                                    className="mt-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-black uppercase tracking-widest"
                                 >
                                     <FileSpreadsheet className="w-4 h-4" /> Voir la production comptable
                                 </a>
@@ -249,12 +249,12 @@ export default function ConnectorsPage() {
                                     className={cn(
                                         "w-full max-w-lg border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center p-12 transition-colors",
                                         clientId
-                                            ? "border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 cursor-pointer"
+                                            ? "border-primary/30 bg-primary/5 hover:brightness-110/10 cursor-pointer"
                                             : "border-white/5 bg-white/[0.02] cursor-not-allowed"
                                     )}
                                     onClick={() => clientId && fileInputRef.current?.click()}
                                 >
-                                    <div className="w-20 h-20 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mb-6">
+                                    <div className="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mb-6">
                                         {isUploading ? <Loader2 className="w-10 h-10 animate-spin" /> : <UploadCloud className="w-10 h-10" />}
                                     </div>
                                     <h4 className="text-lg font-black text-white mb-2">

@@ -24,7 +24,7 @@ export default function MissionsBudgetPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Target className="w-6 h-6 text-indigo-500" /> Pilotage Budgétaire des Missions
+            <Target className="w-6 h-6 text-primary" /> Pilotage Budgétaire des Missions
           </h2>
           <p className="page-subtitle">Suivi de la rentabilité et des temps passés</p>
         </div>
@@ -47,10 +47,10 @@ export default function MissionsBudgetPage() {
           <p className="text-3xl font-black text-white">{data.stats.alertes}</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-slate-900/40 border border-indigo-500/20 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-slate-900/40 border border-primary/20 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
           <div className="flex justify-between items-start mb-4">
-            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Budget Total Engagé</p>
-            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><PieChart className="w-4 h-4" /></div>
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Budget Total Engagé</p>
+            <div className="p-2 bg-primary/10 rounded-lg text-primary"><PieChart className="w-4 h-4" /></div>
           </div>
           <p className="text-3xl font-black text-white">{(data.stats.totalBudget / 1000000).toFixed(1)}M <span className="text-sm text-slate-400">FCFA</span></p>
         </motion.div>
@@ -85,14 +85,14 @@ export default function MissionsBudgetPage() {
                         className="hover:bg-slate-800/30 transition-colors cursor-pointer group"
                       >
                         <td className="py-4">
-                          <p className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{m.name}</p>
+                          <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">{m.name}</p>
                           <p className="text-xs text-slate-400">{m.client}</p>
                         </td>
                         <td className="py-4 text-right">
                           <p className="text-sm font-medium text-white">{m.consumedHours}h <span className="text-slate-500">/ {m.estimatedHours}h</span></p>
                         </td>
                         <td className="py-4 text-right">
-                          <p className="text-sm font-bold text-indigo-400">{m.budget.toLocaleString('fr-FR')} F</p>
+                          <p className="text-sm font-bold text-primary">{m.budget.toLocaleString('fr-FR')} F</p>
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function MissionsBudgetPage() {
                 initial={{ opacity: 0, x: 20 }} 
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
-                className="bg-slate-900/40 border border-indigo-500/30 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+                className="bg-slate-900/40 border border-primary/30 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-4">
                   <button onClick={() => setSelectedMission(null)} className="text-slate-500 hover:text-white">✕</button>
@@ -150,7 +150,7 @@ export default function MissionsBudgetPage() {
                     </div>
                     <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
                       <div 
-                        className={cn("h-full transition-all", selectedMission.consumedHours > selectedMission.estimatedHours ? "bg-red-500" : "bg-indigo-500")} 
+                        className={cn("h-full transition-all", selectedMission.consumedHours > selectedMission.estimatedHours ? "bg-red-500" : "bg-primary")} 
                         style={{ width: `${Math.min((selectedMission.consumedHours / selectedMission.estimatedHours) * 100, 100)}%` }}
                       ></div>
                     </div>

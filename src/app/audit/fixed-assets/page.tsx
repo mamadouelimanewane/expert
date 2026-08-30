@@ -242,7 +242,7 @@ export default function FixedAssetsAuditPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="apix-card space-y-6">
                         <h3 className="font-bold text-white flex items-center gap-2">
-                            <Calculator className="w-5 h-5 text-indigo-400" />
+                            <Calculator className="w-5 h-5 text-primary" />
                             Rapprochement Comptable
                         </h3>
                         <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">

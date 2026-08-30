@@ -95,12 +95,12 @@ export default function SignaturePage() {
             {/* Header Premium */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <Fingerprint className="w-48 h-48 text-indigo-400" />
+                    <Fingerprint className="w-48 h-48 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <h2 className="page-title flex items-center gap-5">
-                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
+                        <div className="p-4 bg-primary rounded-3xl shadow-2xl shadow-primary/30">
                             <PenTool className="w-8 h-8 text-white" />
                         </div>
                         Signature Électronique Certifiée
@@ -121,7 +121,7 @@ export default function SignaturePage() {
 
             {/* Verification & Trust Banner */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <TrustCard icon={Fingerprint} title="Empreinte SHA-256" desc="Hash calculé sur le document et le signataire réels." color="text-indigo-400" />
+                <TrustCard icon={Fingerprint} title="Empreinte SHA-256" desc="Hash calculé sur le document et le signataire réels." color="text-primary" />
                 <TrustCard icon={History} title="Journal d'Audit" desc="Chaque signature est tracée dans le journal d'audit du cabinet." color="text-emerald-400" />
                 <TrustCard icon={Lock} title="Horodatage" desc="Date et heure exactes enregistrées avec le document." color="text-cyan-400" />
             </div>
@@ -154,7 +154,7 @@ export default function SignaturePage() {
                     <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40">
                             <h3 className="text-xl font-black text-white flex items-center gap-3">
-                                <History className="w-5 h-5 text-indigo-400" />
+                                <History className="w-5 h-5 text-primary" />
                                 Documents à Signer
                             </h3>
                             <div className="relative w-full md:w-80">
@@ -164,7 +164,7 @@ export default function SignaturePage() {
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                     placeholder="Rechercher par titre..."
-                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-primary/50 outline-none"
                                 />
                             </div>
                         </div>
@@ -180,17 +180,17 @@ export default function SignaturePage() {
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
                                     {toSign.map((doc) => (
-                                        <tr key={doc.id} className="hover:bg-indigo-600/5 transition-colors group">
+                                        <tr key={doc.id} className="hover:brightness-110/5 transition-colors group">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                                                    <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:brightness-110 transition-colors">
                                                         <FileText className="w-6 h-6 text-slate-400 group-hover:text-white" />
                                                     </div>
                                                     <div>
-                                                        <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{doc.title}</span>
+                                                        <span className="font-bold text-white block group-hover:text-primary transition-colors">{doc.title}</span>
                                                         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{doc.client} • {new Date(doc.date).toLocaleDateString("fr-FR")}</span>
                                                         {signResult?.id === doc.id && (
-                                                            <p className="text-[10px] text-indigo-300 mt-1">{signResult.message}</p>
+                                                            <p className="text-[10px] text-primary-foreground/70 mt-1">{signResult.message}</p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -206,7 +206,7 @@ export default function SignaturePage() {
                                                     <button
                                                         onClick={() => handleSign(doc.id)}
                                                         disabled={signingDoc === doc.id}
-                                                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 disabled:opacity-50"
+                                                        className="px-5 py-3 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50"
                                                     >
                                                         {signingDoc === doc.id ? "Signature..." : "Signer"}
                                                     </button>
@@ -225,13 +225,13 @@ export default function SignaturePage() {
                     {/* Documents signés (empreinte réelle) */}
                     <div className="apix-card overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                            <Lock className="w-48 h-48 text-indigo-400" />
+                            <Lock className="w-48 h-48 text-primary" />
                         </div>
 
                         <div className="mb-10 relative z-10">
                             <h3 className="text-2xl font-black text-white flex items-center gap-4">
-                                <div className="p-2 bg-indigo-500/20 rounded-xl border border-indigo-500/30">
-                                    <Layers className="w-6 h-6 text-indigo-400" />
+                                <div className="p-2 bg-primary/20 rounded-xl border border-primary/30">
+                                    <Layers className="w-6 h-6 text-primary" />
                                 </div>
                                 Documents Signés
                             </h3>
@@ -242,7 +242,7 @@ export default function SignaturePage() {
                             {signed.map((doc) => (
                                 <div key={doc.id} className="p-5 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.05] transition-all group relative overflow-hidden">
                                      <div className="flex justify-between items-start mb-4">
-                                        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-500 group-hover:text-indigo-400">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-slate-500 group-hover:text-primary">
                                             <ShieldCheck className="w-6 h-6" />
                                         </div>
                                         <div className="text-right">

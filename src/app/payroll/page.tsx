@@ -244,7 +244,7 @@ export default function PayrollDashboard() {
                         <th className="p-3 rounded-tl-xl">Employé</th>
                         <th className="p-3 text-right">Base</th>
                         <th className="p-3 text-center text-rose-400">Absences</th>
-                        <th className="p-3 text-center text-indigo-400">HS</th>
+                        <th className="p-3 text-center text-primary">HS</th>
                         <th className="p-3 text-right text-emerald-400">Primes</th>
                         <th className="p-3 text-right text-orange-400 border-l border-white/5">Impôts (IR)</th>
                         <th className="p-3 text-right text-purple-400">Cotis. (Sal)</th>
@@ -269,7 +269,7 @@ export default function PayrollDashboard() {
                           <td className="py-3 px-3 text-center text-rose-400 font-mono text-sm">
                             {v.absencesDays} j
                           </td>
-                          <td className="py-3 px-3 text-center text-indigo-400 font-mono text-sm">
+                          <td className="py-3 px-3 text-center text-primary font-mono text-sm">
                             {v.overtimeHours} h
                           </td>
                           <td className="py-3 px-3 text-right text-emerald-400 font-mono text-sm">

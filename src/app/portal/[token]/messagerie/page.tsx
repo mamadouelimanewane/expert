@@ -90,7 +90,7 @@ export default function ClientPortalMessagesPage() {
     return (
         <div className="h-[calc(100vh-80px)] flex flex-col bg-white rounded-[32px] shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-700">
             <div className="px-8 py-6 border-b border-slate-100 flex items-center gap-4">
-                <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">
+                <div className="w-10 h-10 bg-primary text-primary rounded-xl flex items-center justify-center font-bold">
                     <MessageSquare className="w-5 h-5" />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ export default function ClientPortalMessagesPage() {
                                 className={cn(
                                     "px-6 py-4 rounded-2xl shadow-sm",
                                     msg.sender === "client"
-                                        ? "bg-indigo-600 text-white rounded-tr-sm"
+                                        ? "bg-primary text-white rounded-tr-sm"
                                         : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
                                 )}
                             >
@@ -132,7 +132,7 @@ export default function ClientPortalMessagesPage() {
                                 <p
                                     className={cn(
                                         "text-[10px] font-bold mt-2",
-                                        msg.sender === "client" ? "text-indigo-200" : "text-slate-400"
+                                        msg.sender === "client" ? "text-primary-foreground/70" : "text-slate-400"
                                     )}
                                 >
                                     {msg.time}
@@ -163,13 +163,13 @@ export default function ClientPortalMessagesPage() {
                             }
                         }}
                         placeholder="Écrivez votre message…"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-14 pr-14 py-4 text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none min-h-[56px] max-h-[120px]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-14 pr-14 py-4 text-sm text-slate-800 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none min-h-[56px] max-h-[120px]"
                         rows={1}
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || envoi}
-                        className="absolute right-3 bottom-2 p-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-300 disabled:text-slate-500 text-white rounded-xl transition-colors shadow-sm"
+                        className="absolute right-3 bottom-2 p-3 bg-primary hover:brightness-110 disabled:bg-slate-300 disabled:text-slate-500 text-white rounded-xl transition-colors shadow-sm"
                     >
                         <Send className="w-4 h-4" />
                     </button>

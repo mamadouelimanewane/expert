@@ -130,13 +130,13 @@ export default function MissionTimesheetsPage() {
             {/* Header / Timer */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <Timer className="w-64 h-64 text-indigo-400" />
+                    <Timer className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4 sm:gap-6 lg:gap-10">
                     <div className="text-center lg:text-left">
                         <h2 className="page-title flex items-center justify-center lg:justify-start gap-4">
-                            <Clock className="w-10 h-10 text-indigo-500" />
+                            <Clock className="w-10 h-10 text-primary" />
                             Gestion des Temps
                         </h2>
                         <p className="page-subtitle max-w-xl text-lg leading-relaxed">
@@ -150,7 +150,7 @@ export default function MissionTimesheetsPage() {
                             <span className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white font-mono tracking-tighter tabular-nums">
                                 {formatTime(elapsedTime)}
                             </span>
-                            <p className="text-xs font-bold text-indigo-400 mt-2 uppercase tracking-widest">
+                            <p className="text-xs font-bold text-primary mt-2 uppercase tracking-widest">
                                 {activeMission ? `${activeMission.clientName} — ${activeMission.title}` : "Aucune mission sélectionnée"}
                             </p>
                         </div>
@@ -161,7 +161,7 @@ export default function MissionTimesheetsPage() {
                                 disabled={!activeMission}
                                 className={cn(
                                     "w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-xl active:scale-90 disabled:opacity-40",
-                                    isTimerRunning ? "bg-amber-600 hover:bg-amber-500 text-white" : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                                    isTimerRunning ? "bg-amber-600 hover:bg-amber-500 text-white" : "bg-primary hover:brightness-110 text-white"
                                 )}
                             >
                                 {isTimerRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
@@ -180,7 +180,7 @@ export default function MissionTimesheetsPage() {
 
             {/* Stats Summary (calculées sur les 7 derniers jours) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <SummaryCard title="Total 7 jours" value={`${weekTotalH.toFixed(1)}h`} subtext="Toutes missions confondues" color="text-indigo-400" />
+                <SummaryCard title="Total 7 jours" value={`${weekTotalH.toFixed(1)}h`} subtext="Toutes missions confondues" color="text-primary" />
                 <SummaryCard title="Heures Approuvées/Facturées" value={`${invoicedH.toFixed(1)}h`} subtext={`${billableRate}% du temps total`} color="text-emerald-400" />
                 <SummaryCard title="Taux Horaire Moyen" value={avgRate.toLocaleString()} subtext="FCFA / Heure (missions au taux horaire)" color="text-amber-400" />
             </div>
@@ -191,7 +191,7 @@ export default function MissionTimesheetsPage() {
                     <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
                             <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                <History className="w-5 h-5 text-indigo-400" />
+                                <History className="w-5 h-5 text-primary" />
                                 Entrées Récentes
                             </h3>
                         </div>
@@ -200,11 +200,11 @@ export default function MissionTimesheetsPage() {
                             {entries.slice(0, 20).map((entry) => (
                                 <div key={entry.id} className="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors group">
                                     <div className="flex items-center gap-6">
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-indigo-400 font-black border border-white/5">
+                                        <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-primary font-black border border-white/5">
                                             {entry.duration.toFixed(1)}h
                                         </div>
                                         <div>
-                                            <p className="font-bold text-white group-hover:text-indigo-400 transition-colors">{entry.client?.companyName || "—"}</p>
+                                            <p className="font-bold text-white group-hover:text-primary transition-colors">{entry.client?.companyName || "—"}</p>
                                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{entry.mission?.title || "—"}</p>
                                         </div>
                                     </div>
@@ -214,7 +214,7 @@ export default function MissionTimesheetsPage() {
                                         </div>
                                         <span className={cn(
                                             "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border",
-                                            entry.status === "INVOICED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                            entry.status === "INVOICED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-primary/10 text-primary border-primary/20"
                                         )}>
                                             {entry.status === "INVOICED" ? "Facturé" : entry.status}
                                         </span>
@@ -239,7 +239,7 @@ export default function MissionTimesheetsPage() {
                                     onClick={() => setActiveMission(m)}
                                     className={cn(
                                         "w-full p-4 rounded-2xl border transition-all text-left flex justify-between items-center group",
-                                        activeMission?.id === m.id ? "bg-indigo-600 border-indigo-500 text-white shadow-lg" : "bg-white/5 border-white/5 text-slate-400 hover:border-indigo-500/30"
+                                        activeMission?.id === m.id ? "bg-primary border-primary text-white shadow-lg" : "bg-white/5 border-white/5 text-slate-400 hover:border-primary/30"
                                     )}
                                 >
                                     <span className="text-xs font-bold uppercase tracking-widest">{m.clientName} — {m.title}</span>
@@ -253,10 +253,10 @@ export default function MissionTimesheetsPage() {
                     </div>
 
                     {overBudgetMission && (
-                        <div className="glass-card p-8 rounded-[40px] bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20">
+                        <div className="glass-card p-8 rounded-[40px] bg-gradient-to-br from-primary/20 to-purple-900/20 border border-primary/20">
                             <div className="flex items-center gap-3 mb-4">
-                                <TrendingUp className="w-5 h-5 text-indigo-400" />
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Alerte Rentabilité</span>
+                                <TrendingUp className="w-5 h-5 text-primary" />
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Alerte Rentabilité</span>
                             </div>
                             <p className="text-xs text-slate-300 leading-relaxed font-medium">
                                 La mission <span className="text-white font-bold">{overBudgetMission.title}</span> ({overBudgetMission.clientName}) dépasse son budget d'heures estimé ({overBudgetMission.estimatedHours}h). Prévoyez une facturation complémentaire.

@@ -190,7 +190,7 @@ export default function DeclarationsPage() {
                                                 <span className={cn(
                                                     "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
                                                     decl.status === "payee" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                        decl.status === "teletransmise" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
+                                                        decl.status === "teletransmise" ? "bg-primary/10 text-primary border-primary/20" :
                                                             decl.status === "validation" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                                                                 "bg-slate-700/30 text-slate-400 border-slate-600/30"
                                                 )}>

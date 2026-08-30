@@ -51,18 +51,18 @@ export default function GovernanceHeatmapPage() {
             {/* Header: Governance Command Center */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Grid className="w-64 h-64 text-indigo-400" />
+                    <Grid className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Supervision Gouvernance OHADA
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Heatmap de <span className="text-indigo-400">Conformité Juridique</span>
+                            Heatmap de <span className="text-primary">Conformité Juridique</span>
                         </h2>
                         <p className="page-subtitle">
                             Surveillance temps réel de l'hygiène juridique de votre portefeuille. Identifiez instantanément les risques de sanctions ou de nullité d'actes.
@@ -87,7 +87,7 @@ export default function GovernanceHeatmapPage() {
                     label="Indice de Conformité"
                     value={clients.length === 0 ? "—" : Math.round((clients.flatMap(c => Object.values(c.status)).filter(v => v === 'valid').length / (clients.length * COLUMNS.length)) * 100)}
                     unit={clients.length === 0 ? "" : "%"}
-                    color="text-indigo-400"
+                    color="text-primary"
                 />
                 <StatusStat label="AG en Retard" value={clients.filter(c => c.status.ag === 'late').length} color="text-rose-400" />
                 <StatusStat label="Mandats Expirants" value={clients.filter(c => c.status.mandats === 'expiring').length} color="text-amber-400" />
@@ -110,7 +110,7 @@ export default function GovernanceHeatmapPage() {
                 <div className="overflow-x-auto">
                     {loading ? (
                         <div className="py-20 flex justify-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
                         </div>
                     ) : (
                         <table className="apix-table text-left border-separate border-spacing-2">
@@ -132,7 +132,7 @@ export default function GovernanceHeatmapPage() {
                                                 <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center font-black text-[10px] text-white">
                                                     {idx + 1}
                                                 </div>
-                                                <span className="text-sm font-bold text-slate-200 group-hover:text-indigo-400 transition-colors uppercase truncate max-w-[150px]">{client.name}</span>
+                                                <span className="text-sm font-bold text-slate-200 group-hover:text-primary transition-colors uppercase truncate max-w-[150px]">{client.name}</span>
                                             </div>
                                         </td>
                                         {COLUMNS.map(col => (
@@ -169,7 +169,7 @@ export default function GovernanceHeatmapPage() {
                 </div>
                 <div className="apix-card relative overflow-hidden group">
                     <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform">
-                        <Gavel className="w-40 h-40 text-indigo-400" />
+                        <Gavel className="w-40 h-40 text-primary" />
                     </div>
                     <h3 className="text-xl font-black text-white mb-8">Synthèse Mandats</h3>
                     <p className="text-sm text-slate-400 leading-relaxed font-medium mb-6">

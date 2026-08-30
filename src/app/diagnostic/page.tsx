@@ -267,7 +267,7 @@ export default function DiagnosticPage() {
             {diagnosticVisible && diagData && (
                 <div className="space-y-6 pb-12">
                     {/* Global Score Dashboard */}
-                    <div className="glass-card rounded-2xl p-8 border border-slate-700/50 bg-gradient-to-br from-slate-900 to-indigo-900/10">
+                    <div className="glass-card rounded-2xl p-8 border border-slate-700/50 bg-gradient-to-br from-slate-900 to-primary/10">
                         <div className="flex items-center justify-between mb-6">
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Score Global de Santé</h3>
@@ -306,7 +306,7 @@ export default function DiagnosticPage() {
                             onClick={() => setShowEvolution(!showEvolution)}
                         >
                             <h3 className="font-bold text-white flex items-center gap-3">
-                                <LineChart className="w-5 h-5 text-indigo-400" />
+                                <LineChart className="w-5 h-5 text-primary" />
                                 Évolution Pluriannuelle
                             </h3>
                             <Eye className={cn("w-5 h-5 text-slate-500 transition-transform", showEvolution ? "rotate-180" : "")} />
@@ -321,7 +321,7 @@ export default function DiagnosticPage() {
                                     {currentYears.map((year, i) => (
                                         <div key={i} className={cn(
                                             "p-4 rounded-xl border",
-                                            i === currentYears.length - 1 ? "bg-indigo-500/10 border-indigo-500/30" : "bg-slate-800/30 border-slate-700/30"
+                                            i === currentYears.length - 1 ? "bg-primary/10 border-primary/30" : "bg-slate-800/30 border-slate-700/30"
                                         )}>
                                             <div className="flex items-center gap-2 mb-4">
                                                 <Calendar className="w-4 h-4 text-slate-500" />
@@ -351,7 +351,7 @@ export default function DiagnosticPage() {
                                                 <div key={i} className="flex-1 flex flex-col items-center gap-2">
                                                     <div className="w-full flex flex-col gap-1">
                                                         <div
-                                                            className="w-full bg-indigo-500 rounded-t transition-all hover:bg-indigo-400"
+                                                            className="w-full bg-primary rounded-t transition-all hover:brightness-110"
                                                             style={{ height: `${Math.max(4, (year.ca / maxCa) * 100)}px` }}
                                                         />
                                                         <div
@@ -366,7 +366,7 @@ export default function DiagnosticPage() {
                                     </div>
                                     <div className="flex items-center justify-center gap-6 mt-4 text-xs">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 bg-indigo-500 rounded" />
+                                            <div className="w-3 h-3 bg-primary rounded" />
                                             <span className="text-slate-400">CA</span>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -412,7 +412,7 @@ export default function DiagnosticPage() {
                                         {section.evolution && (
                                             <div className="bg-slate-800/30 rounded-xl border border-slate-700/30 overflow-hidden">
                                                 <div className="p-3 bg-slate-900/50 border-b border-slate-700/30">
-                                                    <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <h4 className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
                                                         <TrendingUp className="w-3 h-3" /> Évolution Comparative
                                                     </h4>
                                                 </div>
@@ -436,7 +436,7 @@ export default function DiagnosticPage() {
                                                                     <td className="p-3 text-right text-slate-400 font-mono">{evo.n1}</td>
                                                                     <td className="p-3 text-right text-white font-mono font-bold">{evo.n}</td>
                                                                     {evo.n1Proj && (
-                                                                        <td className="p-3 text-right text-indigo-400 font-mono">{evo.n1Proj}</td>
+                                                                        <td className="p-3 text-right text-primary font-mono">{evo.n1Proj}</td>
                                                                     )}
                                                                     <td className={cn(
                                                                         "p-3 text-right font-bold font-mono",
@@ -489,14 +489,14 @@ export default function DiagnosticPage() {
                                             </div>
 
                                             {/* Recommendations */}
-                                            <div className="bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10">
-                                                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                            <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
+                                                <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
                                                     <Lightbulb className="w-3 h-3 fill-current" /> Recommandations
                                                 </h4>
                                                 <ul className="space-y-3">
                                                     {section.recommendations.map((r, i) => (
                                                         <li key={i} className="text-sm text-slate-300 flex gap-2 font-medium">
-                                                            <CheckCircle className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+                                                            <CheckCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                                                             {r}
                                                         </li>
                                                     ))}
@@ -514,12 +514,12 @@ export default function DiagnosticPage() {
                         <button
                             onClick={generateReport}
                             disabled={isGeneratingReport}
-                            className="p-6 glass-card rounded-2xl border border-slate-700/50 hover:border-indigo-500/50 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-6 glass-card rounded-2xl border border-slate-700/50 hover:border-primary/50 transition-all group text-left disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isGeneratingReport ? (
-                                <RefreshCw className="w-8 h-8 text-indigo-400 mb-3 animate-spin" />
+                                <RefreshCw className="w-8 h-8 text-primary mb-3 animate-spin" />
                             ) : (
-                                <Wand2 className="w-8 h-8 text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />
+                                <Wand2 className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
                             )}
                             <h4 className="font-bold text-white mb-1">
                                 {isGeneratingReport ? "Génération IA..." : "Générer Rapport Narratif IA"}
@@ -587,10 +587,10 @@ export default function DiagnosticPage() {
                         {/* Main Content */}
                         <div className="flex-1 flex flex-col print:block">
                             {/* Header */}
-                            <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex justify-between items-center print:hidden">
+                            <div className="p-6 bg-gradient-to-r from-primary to-primary text-white flex justify-between items-center print:hidden">
                                 <div>
                                     <h2 className="text-2xl font-black tracking-tight">RAPPORT DE DIAGNOSTIC FINANCIER</h2>
-                                    <p className="text-sm text-indigo-200 mt-1">Généré par intelligence artificielle - {new Date().toLocaleDateString('fr-FR')}</p>
+                                    <p className="text-sm text-primary-foreground/70 mt-1">Généré par intelligence artificielle - {new Date().toLocaleDateString('fr-FR')}</p>
                                 </div>
                                 <button
                                     onClick={() => setShowReport(false)}
@@ -712,7 +712,7 @@ export default function DiagnosticPage() {
                                     <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
                                         Imprimer
                                     </button>
-                                    <button onClick={() => window.print()} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
+                                    <button onClick={() => window.print()} className="px-6 py-2 bg-primary hover:brightness-110 text-white rounded-lg font-bold text-sm transition-colors flex items-center gap-2">
                                         <Download className="w-4 h-4" />
                                         Télécharger PDF
                                     </button>
@@ -766,7 +766,7 @@ function TOCItem({ number, title, indent = false }: { number: string; title: str
                 indent ? "pl-6 text-slate-400" : "text-slate-300 font-bold"
             )}
         >
-            <span className="text-indigo-400 mr-2">{number}</span>
+            <span className="text-primary mr-2">{number}</span>
             {title}
         </a>
     );
@@ -803,7 +803,7 @@ function EditableSection({ title, content, editMode, onChange, onRegenerate, sta
                 {editMode && (
                     <button
                         onClick={onRegenerate}
-                        className="px-3 py-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors"
+                        className="px-3 py-1 bg-primary hover:brightness-110 text-primary rounded-lg text-xs font-bold flex items-center gap-1 transition-colors"
                     >
                         <RefreshCw className="w-3 h-3" />
                         Régénérer
@@ -814,7 +814,7 @@ function EditableSection({ title, content, editMode, onChange, onRegenerate, sta
                 <textarea
                     value={content}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full min-h-[200px] p-4 border-2 border-indigo-300 rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-indigo-50/50"
+                    className="w-full min-h-[200px] p-4 border-2 border-primary rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary bg-primary/50"
                 />
             ) : (
                 <div className="text-sm leading-relaxed whitespace-pre-line text-slate-700">

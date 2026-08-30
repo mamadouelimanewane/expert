@@ -90,11 +90,11 @@ export default function OnboardingPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                             Nouveau Dossier
                         </span>
                     </div>
-                    <h2 className="page-title">Onboarding & <span className="text-indigo-400">KYC</span></h2>
+                    <h2 className="page-title">Onboarding & <span className="text-primary">KYC</span></h2>
                     <p className="page-subtitle">
                         Créez un nouveau dossier client en 3 étapes.
                     </p>
@@ -113,7 +113,7 @@ export default function OnboardingPage() {
                         <div className={cn(
                             "w-14 h-14 rounded-2xl flex items-center justify-center font-black transition-all duration-500",
                             step > s.num ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" :
-                            step === s.num ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-4 ring-indigo-600/20" :
+                            step === s.num ? "bg-primary text-white shadow-lg shadow-primary/30 ring-4 ring-primary/20" :
                             "bg-slate-800 text-slate-500 border border-slate-700"
                         )}>
                             {step > s.num ? <CheckCircle2 className="w-6 h-6" /> : s.num}
@@ -135,11 +135,11 @@ export default function OnboardingPage() {
                         <div className="grid grid-cols-2 gap-6">
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Raison Sociale</label>
-                                <input type="text" value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500" />
+                                <input type="text" value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary" />
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Forme Juridique</label>
-                                <select value={formData.formeJuridique} onChange={(e) => setFormData({ ...formData, formeJuridique: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 appearance-none">
+                                <select value={formData.formeJuridique} onChange={(e) => setFormData({ ...formData, formeJuridique: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary appearance-none">
                                     <option>SARL</option>
                                     <option>SA</option>
                                     <option>SAS</option>
@@ -148,26 +148,26 @@ export default function OnboardingPage() {
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Pays</label>
-                                <select value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500 appearance-none">
+                                <select value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary appearance-none">
                                     {PAYS.map((p) => <option key={p.code} value={p.code}>{p.label}</option>)}
                                 </select>
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Dirigeant (Bénéficiaire Effectif)</label>
-                                <input type="text" value={formData.dirigeant} onChange={(e) => setFormData({ ...formData, dirigeant: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500" />
+                                <input type="text" value={formData.dirigeant} onChange={(e) => setFormData({ ...formData, dirigeant: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary" />
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Email Contact</label>
-                                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500" />
+                                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary" />
                             </div>
                             <div>
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Téléphone</label>
-                                <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500" />
+                                <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-slate-900 border border-white/10 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-primary" />
                             </div>
                         </div>
 
                         <div className="flex justify-end pt-8 mt-8 border-t border-white/5">
-                            <button onClick={() => setStep(2)} disabled={!step1Valide} className="px-10 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-3 shadow-xl shadow-indigo-600/30">
+                            <button onClick={() => setStep(2)} disabled={!step1Valide} className="px-10 py-4 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-3 shadow-xl shadow-primary/30">
                                 Étape Suivante <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
@@ -190,7 +190,7 @@ export default function OnboardingPage() {
                                 type="checkbox"
                                 checked={diligenceEffectuee}
                                 onChange={(e) => setDiligenceEffectuee(e.target.checked)}
-                                className="w-5 h-5 mt-0.5 rounded border-slate-700 text-indigo-600 focus:ring-indigo-600 bg-slate-800"
+                                className="w-5 h-5 mt-0.5 rounded border-slate-700 text-primary focus:ring-primary bg-slate-800"
                             />
                             <span className="text-sm text-slate-300">
                                 J&apos;atteste avoir vérifié manuellement l&apos;identité du dirigeant ({formData.dirigeant || "non renseigné"})
@@ -206,7 +206,7 @@ export default function OnboardingPage() {
                                 onClick={() => setStep(3)}
                                 disabled={!diligenceEffectuee}
                                 className={cn("px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center gap-3",
-                                    diligenceEffectuee ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-600/30" : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                                    diligenceEffectuee ? "bg-primary hover:brightness-110 text-white shadow-xl shadow-primary/30" : "bg-slate-800 text-slate-500 cursor-not-allowed"
                                 )}
                             >
                                 Étape Suivante <ArrowRight className="w-4 h-4" />
@@ -234,7 +234,7 @@ export default function OnboardingPage() {
                                     <button onClick={() => router.push(`/clients/${clientCree.id}`)} className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest border border-white/10">
                                         Ouvrir le dossier
                                     </button>
-                                    <button onClick={() => router.push("/lettres-mission/new")} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                                    <button onClick={() => router.push("/lettres-mission/new")} className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                         <FileSignature className="w-4 h-4" /> Rédiger la lettre de mission
                                     </button>
                                 </div>

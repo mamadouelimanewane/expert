@@ -94,7 +94,7 @@ function DigitalOnboardingInner() {
 
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[350px] sm:h-[450px] lg:h-[600px] bg-primary/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
             </div>
 
             <div className="z-10 text-center mb-12">

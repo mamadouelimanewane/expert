@@ -136,7 +136,7 @@ export default function ConsolidationPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Layers className="w-6 h-6 text-indigo-500" /> Consolidation Multi-Sociétés
+            <Layers className="w-6 h-6 text-primary" /> Consolidation Multi-Sociétés
           </h2>
           <p className="page-subtitle">Périmètre de consolidation et éliminations intra-groupe réels</p>
         </div>
@@ -145,7 +145,7 @@ export default function ConsolidationPage() {
       {/* Progress Steps */}
       <div className="flex items-center justify-between bg-slate-900/40 p-6 rounded-[32px] border border-white/5 backdrop-blur-xl shadow-2xl relative">
         <div className="absolute top-1/2 left-10 right-10 h-1 bg-slate-800 -translate-y-1/2 z-0"></div>
-        <div className="absolute top-1/2 left-10 h-1 bg-indigo-500 -translate-y-1/2 z-0 transition-all duration-500" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
+        <div className="absolute top-1/2 left-10 h-1 bg-primary -translate-y-1/2 z-0 transition-all duration-500" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
 
         {[
           { num: 1, label: "Périmètre", icon: Building2 },
@@ -157,12 +157,12 @@ export default function ConsolidationPage() {
             <div className={cn(
               "w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all",
               step > s.num ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" :
-              step === s.num ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-110" :
+              step === s.num ? "bg-primary text-white shadow-lg shadow-primary/20 scale-110" :
               "bg-slate-800 text-slate-500 border border-slate-700"
             )}>
               {step > s.num ? <CheckCircle2 className="w-6 h-6" /> : <s.icon className="w-5 h-5" />}
             </div>
-            <p className={cn("text-xs font-bold mt-3 uppercase tracking-widest absolute top-12 whitespace-nowrap", step === s.num ? "text-indigo-400" : "text-slate-500")}>{s.label}</p>
+            <p className={cn("text-xs font-bold mt-3 uppercase tracking-widest absolute top-12 whitespace-nowrap", step === s.num ? "text-primary" : "text-slate-500")}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -172,7 +172,7 @@ export default function ConsolidationPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white">Périmètre de consolidation</h3>
-              <button onClick={() => setShowAddEntity(true)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold">+ Ajouter une entité</button>
+              <button onClick={() => setShowAddEntity(true)} className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-bold">+ Ajouter une entité</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {group.entities.map(entity => (
@@ -213,7 +213,7 @@ export default function ConsolidationPage() {
                   </div>
                   <label className={cn(
                     "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors",
-                    importEnCours === entity.id ? "bg-slate-700 text-slate-400" : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                    importEnCours === entity.id ? "bg-slate-700 text-slate-400" : "bg-primary hover:brightness-110 text-white"
                   )}>
                     <Upload className="w-4 h-4" /> {importEnCours === entity.id ? "Import…" : "Parcourir CSV"}
                     <input
@@ -241,7 +241,7 @@ export default function ConsolidationPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white">Éliminations des opérations intra-groupe</h3>
-              <button onClick={() => setShowAddElimination(true)} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold">+ Ajouter Élimination</button>
+              <button onClick={() => setShowAddElimination(true)} className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-bold">+ Ajouter Élimination</button>
             </div>
             <div className="overflow-x-auto">
               <table className="apix-table w-full text-left border-collapse">
@@ -262,8 +262,8 @@ export default function ConsolidationPage() {
                       <td className="py-4 text-sm text-slate-300">{e.type}</td>
                       <td className="py-4 text-sm font-bold text-white">{e.buyerEntity?.name || "—"}</td>
                       <td className="py-4 text-sm font-bold text-white">{e.sellerEntity?.name || "—"}</td>
-                      <td className="py-4 text-xs font-mono text-indigo-400">{e.debitAccount}</td>
-                      <td className="py-4 text-xs font-mono text-indigo-400">{e.creditAccount}</td>
+                      <td className="py-4 text-xs font-mono text-primary">{e.debitAccount}</td>
+                      <td className="py-4 text-xs font-mono text-primary">{e.creditAccount}</td>
                       <td className="py-4 text-sm font-black text-right text-white">{e.amount.toLocaleString()}</td>
                       <td className="py-4 text-right"><button onClick={() => removeElimination(e.id)} className="text-slate-500 hover:text-red-400"><X className="w-4 h-4" /></button></td>
                     </tr>
@@ -326,7 +326,7 @@ export default function ConsolidationPage() {
                   <tbody className="divide-y divide-white/5">
                     {comptesConsolides.map((c) => (
                       <tr key={c.compte}>
-                        <td className="py-3 text-xs font-mono text-indigo-400">{c.compte}</td>
+                        <td className="py-3 text-xs font-mono text-primary">{c.compte}</td>
                         <td className="py-3 text-sm text-slate-300">{c.libelle || "—"}</td>
                         <td className="py-3 text-sm text-right font-mono text-white">{c.debit.toLocaleString()}</td>
                         <td className="py-3 text-sm text-right font-mono text-white">{c.credit.toLocaleString()}</td>
@@ -357,7 +357,7 @@ export default function ConsolidationPage() {
                     {group.eliminations.map(e => (
                       <tr key={e.id}>
                         <td className="py-3 text-sm text-slate-300">{e.type}</td>
-                        <td className="py-3 text-xs font-mono text-indigo-400">{e.debitAccount} / {e.creditAccount}</td>
+                        <td className="py-3 text-xs font-mono text-primary">{e.debitAccount} / {e.creditAccount}</td>
                         <td className="py-3 text-sm text-right text-red-400">-{e.amount.toLocaleString()}</td>
                       </tr>
                     ))}
@@ -378,7 +378,7 @@ export default function ConsolidationPage() {
             <button onClick={() => setStep(step - 1)} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors">Précédent</button>
           )}
           {step < 4 && (
-            <button onClick={() => setStep(step + 1)} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors shadow-lg flex items-center gap-2">
+            <button onClick={() => setStep(step + 1)} className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors shadow-lg flex items-center gap-2">
               Suivant <ChevronRight className="w-4 h-4" />
             </button>
           )}
@@ -396,7 +396,7 @@ export default function ConsolidationPage() {
               <input placeholder="Nom de l'entité" value={entityForm.name} onChange={e => setEntityForm({ ...entityForm, name: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
               <input placeholder="RCCM" value={entityForm.rccm} onChange={e => setEntityForm({ ...entityForm, rccm: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
               <input placeholder="Pays" value={entityForm.country} onChange={e => setEntityForm({ ...entityForm, country: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
-              <button onClick={addEntity} disabled={!entityForm.name} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs">Ajouter</button>
+              <button onClick={addEntity} disabled={!entityForm.name} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs">Ajouter</button>
             </div>
           </div>
         </div>
@@ -424,7 +424,7 @@ export default function ConsolidationPage() {
                 <input placeholder="Compte crédit" value={elimForm.creditAccount} onChange={e => setElimForm({ ...elimForm, creditAccount: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
               </div>
               <input type="number" placeholder="Montant (FCFA)" value={elimForm.amount} onChange={e => setElimForm({ ...elimForm, amount: e.target.value })} className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
-              <button onClick={addElimination} disabled={!elimForm.debitAccount || !elimForm.creditAccount || !elimForm.amount} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs">Ajouter</button>
+              <button onClick={addElimination} disabled={!elimForm.debitAccount || !elimForm.creditAccount || !elimForm.amount} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs">Ajouter</button>
             </div>
           </div>
         </div>

@@ -178,11 +178,11 @@ export default function CreationMissionPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-8 border-b border-white/5">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-widest uppercase mb-4">
                         Mission Juridique
                     </div>
                     <h1 className="page-title-dark flex items-center gap-4">
-                        <Building2 className="w-10 h-10 text-indigo-500" />
+                        <Building2 className="w-10 h-10 text-primary" />
                         Guichet de Création
                     </h1>
                     <p className="page-subtitle-dark max-w-2xl">
@@ -205,7 +205,7 @@ export default function CreationMissionPage() {
                                     isCompleted
                                         ? "bg-emerald-500 border-emerald-500 text-white"
                                         : isCurrent
-                                          ? "bg-indigo-600 border-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+                                          ? "bg-primary border-primary text-white shadow-[0_0_20px_rgba(0, 107, 63,0.5)]"
                                           : "bg-slate-900 border-slate-700 text-slate-500"
                                 )}
                             >
@@ -230,7 +230,7 @@ export default function CreationMissionPage() {
                         <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <Fingerprint className="w-6 h-6 text-indigo-400" />
+                                    <Fingerprint className="w-6 h-6 text-primary" />
                                     Identité de la Société
                                 </h2>
                                 <p className="text-slate-400">Définissez la forme juridique et les caractéristiques principales.</p>
@@ -244,13 +244,13 @@ export default function CreationMissionPage() {
                                         className={cn(
                                             "cursor-pointer p-4 rounded-xl border transition-all hover:scale-[1.02]",
                                             formData.form === form.id
-                                                ? "bg-indigo-600/20 border-indigo-500 ring-1 ring-indigo-500"
+                                                ? "bg-primary/20 border-primary ring-1 ring-primary"
                                                 : "bg-slate-800/30 border-white/5 hover:bg-slate-800/50"
                                         )}
                                     >
                                         <div className="flex justify-between items-start mb-2">
                                             <span className="font-black text-lg text-white">{form.label}</span>
-                                            {formData.form === form.id && <CheckCircle2 className="w-5 h-5 text-indigo-400" />}
+                                            {formData.form === form.id && <CheckCircle2 className="w-5 h-5 text-primary" />}
                                         </div>
                                         <p className="text-xs text-slate-400 mb-2">{form.desc}</p>
                                         <div className="inline-block px-2 py-1 bg-slate-950 rounded text-[10px] text-slate-500 font-mono">
@@ -266,7 +266,7 @@ export default function CreationMissionPage() {
                                     <input
                                         type="text"
                                         placeholder="Ex: GLOBAL TECH SOLUTIONS"
-                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary transition-colors"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
@@ -275,7 +275,7 @@ export default function CreationMissionPage() {
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-slate-300">Pays</label>
                                         <select
-                                            className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-indigo-500"
+                                            className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-primary"
                                             value={formData.country}
                                             onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                                         >
@@ -289,7 +289,7 @@ export default function CreationMissionPage() {
                                         <input
                                             type="tel"
                                             placeholder="Ex: +225 07 00 00 00 00"
-                                            className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                                            className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary"
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                         />
@@ -300,7 +300,7 @@ export default function CreationMissionPage() {
                                     <input
                                         type="email"
                                         placeholder="Ex: contact@societe.com"
-                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     />
@@ -309,7 +309,7 @@ export default function CreationMissionPage() {
                                     <label className="text-sm font-bold text-slate-300">Objet Social (Résumé)</label>
                                     <textarea
                                         placeholder="Ex: Conseil en informatique, développement de logiciels..."
-                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors h-32 resize-none"
+                                        className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary transition-colors h-32 resize-none"
                                         value={formData.activity}
                                         onChange={(e) => setFormData({ ...formData, activity: e.target.value })}
                                     />
@@ -322,7 +322,7 @@ export default function CreationMissionPage() {
                         <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <Users className="w-6 h-6 text-indigo-400" />
+                                    <Users className="w-6 h-6 text-primary" />
                                     Associés & Dirigeants
                                 </h2>
                                 <p className="text-slate-400">Ajoutez les personnes physiques ou morales participant au capital.</p>
@@ -332,12 +332,12 @@ export default function CreationMissionPage() {
                                 <input
                                     type="text"
                                     placeholder="Nom complet"
-                                    className="bg-slate-900 border border-white/10 rounded-lg p-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                                    className="bg-slate-900 border border-white/10 rounded-lg p-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary"
                                     value={nouvelAssocie.name}
                                     onChange={(e) => setNouvelAssocie({ ...nouvelAssocie, name: e.target.value })}
                                 />
                                 <select
-                                    className="bg-slate-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500"
+                                    className="bg-slate-900 border border-white/10 rounded-lg p-3 text-white focus:outline-none focus:border-primary"
                                     value={nouvelAssocie.role}
                                     onChange={(e) => setNouvelAssocie({ ...nouvelAssocie, role: e.target.value })}
                                 >
@@ -351,13 +351,13 @@ export default function CreationMissionPage() {
                                     min={0}
                                     max={100}
                                     placeholder="%"
-                                    className="w-24 bg-slate-900 border border-white/10 rounded-lg p-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+                                    className="w-24 bg-slate-900 border border-white/10 rounded-lg p-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary"
                                     value={nouvelAssocie.percent}
                                     onChange={(e) => setNouvelAssocie({ ...nouvelAssocie, percent: Number(e.target.value) })}
                                 />
                                 <button
                                     onClick={ajouterAssocie}
-                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold transition-colors"
+                                    className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-lg font-bold transition-colors"
                                 >
                                     Ajouter
                                 </button>
@@ -369,7 +369,7 @@ export default function CreationMissionPage() {
                                 <div className="space-y-2">
                                     {formData.partners.map((p) => (
                                         <div key={p.id} className="bg-slate-950/50 rounded-xl p-4 border border-white/5 flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold shrink-0">
+                                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold shrink-0">
                                                 {p.name.slice(0, 2).toUpperCase()}
                                             </div>
                                             <div className="flex-1">
@@ -393,7 +393,7 @@ export default function CreationMissionPage() {
                         <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <Landmark className="w-6 h-6 text-indigo-400" />
+                                    <Landmark className="w-6 h-6 text-primary" />
                                     Capital & Dépôt
                                 </h2>
                                 <p className="text-slate-400">Configuration du capital social. Le dépôt réel s&apos;effectue auprès d&apos;un notaire ou d&apos;une banque.</p>
@@ -408,7 +408,7 @@ export default function CreationMissionPage() {
                                     </div>
                                     <input
                                         type="range"
-                                        className="w-full accent-indigo-500"
+                                        className="w-full accent-primary"
                                         min={formeChoisie.minCapital}
                                         max={100_000_000}
                                         step={100_000}
@@ -441,9 +441,9 @@ export default function CreationMissionPage() {
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center gap-4">
-                                <div className="p-3 bg-indigo-500/20 rounded-lg">
-                                    <Wallet className="w-6 h-6 text-indigo-400" />
+                            <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex items-center gap-4">
+                                <div className="p-3 bg-primary/20 rounded-lg">
+                                    <Wallet className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-white">Attestation de Dépôt de Capital</h4>
@@ -459,7 +459,7 @@ export default function CreationMissionPage() {
                         <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <ScrollText className="w-6 h-6 text-indigo-400" />
+                                    <ScrollText className="w-6 h-6 text-primary" />
                                     Projet de Statuts
                                 </h2>
                                 <p className="text-slate-400">
@@ -470,7 +470,7 @@ export default function CreationMissionPage() {
                             <button
                                 onClick={genererStatuts}
                                 disabled={statutsChargement}
-                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold transition-all flex items-center gap-2"
+                                className="px-6 py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-bold transition-all flex items-center gap-2"
                             >
                                 {statutsChargement ? (
                                     <>
@@ -499,7 +499,7 @@ export default function CreationMissionPage() {
                         <div className="glass-card p-8 rounded-3xl border border-white/5 bg-slate-900/40 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="space-y-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <CheckCircle2 className="w-6 h-6 text-indigo-400" />
+                                    <CheckCircle2 className="w-6 h-6 text-primary" />
                                     Finalisation
                                 </h2>
                                 <p className="text-slate-400">Créer le dossier client à partir des informations saisies.</p>
@@ -516,7 +516,7 @@ export default function CreationMissionPage() {
                                     </p>
                                     <button
                                         onClick={() => router.push(`/clients/${clientCree.id}`)}
-                                        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all"
+                                        className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-bold transition-all"
                                     >
                                         Ouvrir le dossier client
                                     </button>
@@ -525,7 +525,7 @@ export default function CreationMissionPage() {
                                 <button
                                     onClick={finaliser}
                                     disabled={loading}
-                                    className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2"
+                                    className="px-8 py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-primary/25 transition-all flex items-center gap-2"
                                 >
                                     {loading ? (
                                         <>
@@ -556,7 +556,7 @@ export default function CreationMissionPage() {
                             <button
                                 onClick={handleNext}
                                 disabled={!peutAvancer}
-                                className="ml-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2"
+                                className="ml-auto px-8 py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-primary/25 transition-all flex items-center gap-2"
                             >
                                 {step === "documents" ? "Finaliser le Dossier" : "Étape Suivante"}
                                 <ArrowRight className="w-4 h-4" />

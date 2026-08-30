@@ -105,7 +105,7 @@ export default function ProductionDashboard() {
 
             {/* Global KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <KpiCard icon={FileText} label="Missions Actives" value={totalMissions.toString()} color="text-indigo-400" />
+                <KpiCard icon={FileText} label="Missions Actives" value={totalMissions.toString()} color="text-primary" />
                 <KpiCard icon={Clock} label="Heures Saisies (Équipe)" value={totalHours.toString()} color="text-emerald-400" />
                 <KpiCard icon={Target} label="Avancement Budgétaire Moyen" value={avgAvancement !== null ? `${avgAvancement}%` : "—"} color="text-cyan-400" />
                 <KpiCard icon={AlertTriangle} label="Dossiers Bloqués" value={totalBlocked.toString()} color="text-rose-400" />

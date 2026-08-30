@@ -51,20 +51,20 @@ export default function HandbookPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Elite Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Book className="w-64 h-64 text-indigo-400" />
+                    <Book className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Documentation Elite
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Nexus <span className="text-indigo-400">Elite Handbook</span>
+                            Nexus <span className="text-primary">Elite Handbook</span>
                         </h2>
                         <p className="page-subtitle">
                             Le manuel d'exploitation complet (200+ pages) pour maîtriser chaque facette de l'intelligence Nexus.
@@ -75,7 +75,7 @@ export default function HandbookPage() {
                         <Link href="/documentation/full-manual/pdf-export" className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest border border-white/10 transition-all flex items-center gap-2">
                             <Printer className="w-4 h-4" /> Imprimer PDF Premium
                         </Link>
-                        <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/30 transition-all">
+                        <button className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 transition-all">
                             Mode Sombre Intégral
                         </button>
                     </div>
@@ -86,13 +86,13 @@ export default function HandbookPage() {
                 {/* Sidebar Navigation */}
                 <div className="lg:col-span-3 space-y-6">
                     <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 group-focus-within:text-indigo-400 transition-colors" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             placeholder="Rechercher un terme..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold text-white outline-none focus:border-indigo-500/50 transition-all"
+                            className="w-full bg-slate-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-xs font-bold text-white outline-none focus:border-primary/50 transition-all"
                         />
                     </div>
 
@@ -104,18 +104,18 @@ export default function HandbookPage() {
                                 className={cn(
                                     "w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all group",
                                     activeSection === section.id
-                                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
                                         : "text-slate-500 hover:bg-white/5 hover:text-white"
                                 )}
                             >
-                                <section.icon className={cn("w-5 h-5", activeSection === section.id ? "text-white" : "text-slate-600 group-hover:text-indigo-400")} />
+                                <section.icon className={cn("w-5 h-5", activeSection === section.id ? "text-white" : "text-slate-600 group-hover:text-primary")} />
                                 <span className="text-[11px] font-black uppercase tracking-widest">{section.title}</span>
                             </button>
                         ))}
                     </div>
 
-                    <Link href="/documentation/release-notes" className="block p-8 rounded-[32px] bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 hover:border-indigo-500/40 transition-colors">
-                        <History className="w-8 h-8 text-indigo-400 mb-4" />
+                    <Link href="/documentation/release-notes" className="block p-8 rounded-[32px] bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 hover:border-primary/40 transition-colors">
+                        <History className="w-8 h-8 text-primary mb-4" />
                         <h4 className="text-xs font-black text-white uppercase mb-2">Historique des versions</h4>
                         <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
                             Consulter le journal des mises à jour.
@@ -160,20 +160,20 @@ export default function HandbookPage() {
 
                                         <ul className="space-y-4">
                                             <li className="flex gap-4">
-                                                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                                <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
                                                 <span><strong>Ajouter Entité :</strong> Crée un coffre-fort numérique conforme aux normes de conservation de 10 ans.</span>
                                             </li>
                                             <li className="flex gap-4">
-                                                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                                <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
                                                 <span><strong>Organes de Gestion :</strong> Alerte automatique 6 mois avant l'expiration d'un mandat de commissaire aux comptes ou de DG.</span>
                                             </li>
                                         </ul>
 
-                                        <div className="mt-12 p-8 bg-indigo-500/10 border border-indigo-500/20 rounded-[40px]">
-                                            <h4 className="text-indigo-400 font-black uppercase text-xs mb-4 flex items-center gap-2">
+                                        <div className="mt-12 p-8 bg-primary/10 border border-primary/20 rounded-[40px]">
+                                            <h4 className="text-primary font-black uppercase text-xs mb-4 flex items-center gap-2">
                                                 <Zap className="w-4 h-4" /> Conseil IA Nexus
                                             </h4>
-                                            <p className="text-xs italic leading-relaxed text-indigo-200">
+                                            <p className="text-xs italic leading-relaxed text-primary-foreground/70">
                                                 "N'oubliez pas que pour les SAS OHADA, l'article 853-1 stipule une flexibilité maximale dans la rédaction des clauses de sortie. Utilisez notre générateur de clauses automatisé pour gagner du temps."
                                             </p>
                                         </div>
@@ -186,7 +186,7 @@ export default function HandbookPage() {
                                         <p>Nexus Risk intègre une solution de KYC (Know Your Customer) biométrique ultra-moderne pour sécuriser l'onboarding client.</p>
 
                                         <div className="bg-slate-950 p-6 rounded-3xl border border-white/5 my-8">
-                                            <code className="text-indigo-400 text-xs">
+                                            <code className="text-primary text-xs">
                                                 {"// Logique de vérification"}<br />
                                                 if (match_score {" > "} 0.95 && !sanction_list_hit) &#123;<br />
                                                 &nbsp;&nbsp;generate_integrity_cert();<br />
@@ -204,7 +204,7 @@ export default function HandbookPage() {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
                                             <div className="p-6 bg-slate-900/50 rounded-3xl border border-white/5">
-                                                <h4 className="text-indigo-400 font-bold text-xs uppercase mb-2">IA Match Bancaire</h4>
+                                                <h4 className="text-primary font-bold text-xs uppercase mb-2">IA Match Bancaire</h4>
                                                 <p className="text-[10px] text-slate-400">Rapprochement automatique des flux bancaires avec les factures de vente et d'achat avec un score de fiabilité.</p>
                                             </div>
                                             <div className="p-6 bg-slate-900/50 rounded-3xl border border-white/5">
@@ -215,11 +215,11 @@ export default function HandbookPage() {
 
                                         <ul className="space-y-4 text-sm">
                                             <li className="flex gap-4">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                                 <span><strong>Saisie OCR :</strong> Capturez vos factures par simple glisser-déposer.</span>
                                             </li>
                                             <li className="flex gap-4">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                                                 <span><strong>Lettrage Auto :</strong> Plus de 80% des comptes clients/fournisseurs lettrés sans intervention humaine.</span>
                                             </li>
                                         </ul>
@@ -245,7 +245,7 @@ export default function HandbookPage() {
                                         const nextIdx = (SECTIONS.findIndex(s => s.id === activeSection) + 1) % SECTIONS.length;
                                         setActiveSection(SECTIONS[nextIdx].id);
                                     }}
-                                    className="flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-black uppercase text-[10px] tracking-widest transition-all"
+                                    className="flex items-center gap-2 text-primary hover:text-primary-foreground/70 font-black uppercase text-[10px] tracking-widest transition-all"
                                 >
                                     Section Suivante <ChevronRight className="w-4 h-4" />
                                 </button>

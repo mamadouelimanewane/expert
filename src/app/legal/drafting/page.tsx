@@ -133,17 +133,17 @@ export default function LegalDraftingPage() {
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Gavel className="w-64 h-64 text-indigo-400" />
+                    <Gavel className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-4">
-                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                             Rédaction d&apos;Actes Assistée par IA
                         </span>
                     </div>
                     <h2 className="page-title">
-                        Nexus <span className="text-indigo-400">Legal Drafter</span>
+                        Nexus <span className="text-primary">Legal Drafter</span>
                     </h2>
                     <p className="page-subtitle">
                         Génère un projet d&apos;acte à partir des informations réellement enregistrées sur
@@ -173,7 +173,7 @@ export default function LegalDraftingPage() {
                         </select>
 
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
-                            <Search className="w-6 h-6 text-indigo-400" />
+                            <Search className="w-6 h-6 text-primary" />
                             Type d&apos;Acte
                         </h3>
 
@@ -185,18 +185,18 @@ export default function LegalDraftingPage() {
                                     className={cn(
                                         "w-full p-6 rounded-3xl border text-left transition-all flex items-start gap-4",
                                         selectedAct === act.id
-                                            ? "bg-indigo-600 border-indigo-400 shadow-xl shadow-indigo-900/20"
+                                            ? "bg-primary border-primary shadow-xl shadow-primary/20"
                                             : "bg-white/5 border-white/5 hover:bg-white/10"
                                     )}
                                 >
                                     <div className={cn("p-3 rounded-2xl", selectedAct === act.id ? "bg-white/10" : "bg-white/5")}>
-                                        <act.icon className={cn("w-5 h-5", selectedAct === act.id ? "text-white" : "text-indigo-400")} />
+                                        <act.icon className={cn("w-5 h-5", selectedAct === act.id ? "text-white" : "text-primary")} />
                                     </div>
                                     <div>
                                         <h4 className={cn("text-sm font-black uppercase tracking-tight", selectedAct === act.id ? "text-white" : "text-slate-200")}>
                                             {act.label}
                                         </h4>
-                                        <p className={cn("text-[10px] mt-1 font-medium leading-relaxed", selectedAct === act.id ? "text-indigo-100" : "text-slate-500")}>
+                                        <p className={cn("text-[10px] mt-1 font-medium leading-relaxed", selectedAct === act.id ? "text-primary-foreground/70" : "text-slate-500")}>
                                             {act.desc}
                                         </p>
                                     </div>
@@ -208,7 +208,7 @@ export default function LegalDraftingPage() {
                             <button
                                 onClick={handleDraft}
                                 disabled={isDrafting}
-                                className="w-full mt-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-indigo-600/30 disabled:opacity-50"
+                                className="w-full mt-10 py-5 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-primary/30 disabled:opacity-50"
                             >
                                 {isDrafting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                                 {isDrafting ? "Rédaction en cours…" : "Générer le Projet"}
@@ -234,8 +234,8 @@ export default function LegalDraftingPage() {
                     <div className="glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 shadow-2xl min-h-[350px] sm:h-[450px] lg:h-[600px] flex flex-col overflow-hidden">
                         <div className="p-8 border-b border-white/5 bg-muted flex justify-between items-center">
                             <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                                    <PenTool className="w-5 h-5 text-indigo-400" />
+                                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                                    <PenTool className="w-5 h-5 text-primary" />
                                 </div>
                                 <h3 className="text-xl font-black text-white uppercase tracking-tighter">Éditeur d&apos;Actes Juridiques</h3>
                             </div>
@@ -244,8 +244,8 @@ export default function LegalDraftingPage() {
                         <div className="flex-1 p-4 sm:p-8 lg:p-12 overflow-y-auto">
                             {isDrafting ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center animate-pulse">
-                                    <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
-                                        <Sparkles className="w-10 h-10 text-indigo-400" />
+                                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                                        <Sparkles className="w-10 h-10 text-primary" />
                                     </div>
                                     <h4 className="text-2xl font-black text-white uppercase mb-2">Rédaction en cours</h4>
                                 </div>

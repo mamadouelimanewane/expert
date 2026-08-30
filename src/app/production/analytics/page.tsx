@@ -44,7 +44,7 @@ export default function MissionBudgetPage() {
     if (!data) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -73,18 +73,18 @@ export default function MissionBudgetPage() {
             {/* Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <BarChart3 className="w-64 h-64 text-indigo-400" />
+                    <BarChart3 className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20 shadow-[0_0_15px_rgba(79,70,229,0.1)]">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20 shadow-[0_0_15px_rgba(79,70,229,0.1)]">
                                 GPAO & Analyse de Rentabilité
                             </span>
                         </div>
                         <h2 className="page-title leading-tight">
-                            Pilotage <span className="text-indigo-400">Budget vs Réalisé</span>
+                            Pilotage <span className="text-primary">Budget vs Réalisé</span>
                         </h2>
                         <p className="page-subtitle">
                             Visualisez la rentabilité de chaque mission en temps réel. Détectez les dépassements de temps avant qu'ils ne deviennent critiques.
@@ -94,7 +94,7 @@ export default function MissionBudgetPage() {
                     <div className="flex flex-col items-end gap-2">
                         <div className="text-right">
                             <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Consommation Moyenne</p>
-                            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-indigo-400">{avgConsumption !== null ? `${avgConsumption}%` : "—"}</h3>
+                            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary">{avgConsumption !== null ? `${avgConsumption}%` : "—"}</h3>
                         </div>
                     </div>
                 </div>
@@ -102,7 +102,7 @@ export default function MissionBudgetPage() {
 
             {/* Strategic KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <AnalyticStat icon={Briefcase} label="Missions Budgétées" value={totalMissions} color="text-indigo-400" />
+                <AnalyticStat icon={Briefcase} label="Missions Budgétées" value={totalMissions} color="text-primary" />
                 <AnalyticStat icon={Clock} label="Consommation Moyenne" value={avgConsumption !== null ? `${avgConsumption}%` : "—"} color="text-amber-400" />
                 <AnalyticStat icon={DollarSign} label="Budget Total Missions" value={`${(data.stats.totalBudget / 1_000_000).toFixed(1)}M FCFA`} color="text-emerald-400" />
                 <AnalyticStat icon={AlertTriangle} label="Missions en Alerte" value={data.stats.alertes} color="text-rose-400" />
@@ -120,7 +120,7 @@ export default function MissionBudgetPage() {
                                     placeholder="Rechercher..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64"
+                                    className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64"
                                 />
                             </div>
                             <button className="p-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-slate-400 transition-all border border-white/5">
@@ -139,7 +139,7 @@ export default function MissionBudgetPage() {
                                 <div key={budget.id} className="p-6 bg-white/[0.02] border border-white/5 rounded-3xl hover:bg-white/[0.04] transition-all group">
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
                                         <div className="col-span-1 md:col-span-1">
-                                            <h4 className="text-sm font-black text-white group-hover:text-indigo-400 transition-colors truncate uppercase">{budget.client}</h4>
+                                            <h4 className="text-sm font-black text-white group-hover:text-primary transition-colors truncate uppercase">{budget.client}</h4>
                                             <p className="text-[10px] text-slate-500 font-bold truncate uppercase">{budget.name}</p>
                                             <p className="text-[9px] text-slate-600 font-bold truncate uppercase mt-0.5">{budget.expert}</p>
                                         </div>
@@ -159,7 +159,7 @@ export default function MissionBudgetPage() {
                                                 <div
                                                     className={cn(
                                                         "h-full transition-all duration-1000",
-                                                        budget.status === "SAIN" ? "bg-indigo-500 shadow-[0_0_10px_rgba(79,70,229,0.3)]" :
+                                                        budget.status === "SAIN" ? "bg-primary shadow-[0_0_10px_rgba(79,70,229,0.3)]" :
                                                             budget.status === "ATTENTION" ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]" : "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]"
                                                     )}
                                                     style={{ width: `${Math.min(pct, 100)}%` }}
@@ -174,7 +174,7 @@ export default function MissionBudgetPage() {
                                                     {budget.budget > 0 ? `${(budget.budget / 1000).toFixed(0)}k F` : "—"}
                                                 </p>
                                             </div>
-                                            <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-indigo-400 transition-all translate-x-0 group-hover:translate-x-1" />
+                                            <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-primary transition-all translate-x-0 group-hover:translate-x-1" />
                                         </div>
                                     </div>
                                 </div>
@@ -227,7 +227,7 @@ function ExpertUsage({ name, hours, maxHours }: { name: string; hours: number; m
             </div>
             <div className="h-1.5 w-full bg-slate-800/80 rounded-full overflow-hidden p-[1px]">
                 <div
-                    className="h-full rounded-full transition-all duration-1000 bg-indigo-500"
+                    className="h-full rounded-full transition-all duration-1000 bg-primary"
                     style={{ width: `${pct}%` }}
                 />
             </div>

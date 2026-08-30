@@ -112,7 +112,7 @@ export default function OCRPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <ScanLine className="w-8 h-8 text-indigo-500" />
+                        <ScanLine className="w-8 h-8 text-primary" />
                         Smart Scan OCR
                     </h2>
                     <p className="page-subtitle">Numérisation et extraction automatique des pièces comptables par IA.</p>
@@ -143,16 +143,16 @@ export default function OCRPage() {
                     <div className={cn(
                         "border-2 border-dashed rounded-[32px] h-[300px] sm:h-[400px] lg:h-[500px] flex flex-col items-center justify-center text-center transition-all relative overflow-hidden group",
                         step === "scanning"
-                            ? "border-indigo-500 bg-slate-900/50"
+                            ? "border-primary bg-slate-900/50"
                             : step === "review"
                                 ? "border-emerald-500/50 bg-slate-900"
-                                : "border-slate-700 bg-slate-800/20 hover:bg-slate-800/40 hover:border-indigo-500/50 cursor-pointer shadow-inner"
+                                : "border-slate-700 bg-slate-800/20 hover:bg-slate-800/40 hover:border-primary/50 cursor-pointer shadow-inner"
                     )} onClick={step === "upload" ? handleUploadClick : undefined}>
 
                         {step === "upload" && (
                             <>
-                                <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 group-hover:bg-indigo-600 transition-all border border-white/5">
-                                    <Camera className="w-10 h-10 text-indigo-400 group-hover:text-white" />
+                                <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 group-hover:brightness-110 transition-all border border-white/5">
+                                    <Camera className="w-10 h-10 text-primary group-hover:text-white" />
                                 </div>
                                 <h3 className="text-2xl font-black text-white mb-2">Prendre une photo</h3>
                                 <p className="text-slate-500 max-w-sm font-medium">Ou glissez-déposez votre facture ici (PDF, JPG, PNG)</p>
@@ -165,18 +165,18 @@ export default function OCRPage() {
 
                         {step === "scanning" && (
                             <>
-                                <div className="absolute inset-0 bg-indigo-500/10 animate-pulse" />
-                                <div className="w-full h-1.5 bg-indigo-500 absolute top-0 animate-[scan_2s_ease-in-out_infinite]" style={{ boxShadow: "0 0 25px #6366f1" }} />
+                                <div className="absolute inset-0 bg-primary/10 animate-pulse" />
+                                <div className="w-full h-1.5 bg-primary absolute top-0 animate-[scan_2s_ease-in-out_infinite]" style={{ boxShadow: "0 0 25px #006B3F" }} />
 
                                 {previewUrl && (
                                     <img src={previewUrl} className="absolute inset-0 w-full h-full object-contain opacity-30 grayscale" alt="Scanning" />
                                 )}
 
-                                <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 relative z-10 shadow-2xl border border-indigo-500/30">
-                                    <Loader2 className="w-12 h-12 text-indigo-400 animate-spin" />
+                                <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 relative z-10 shadow-2xl border border-primary/30">
+                                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
                                 </div>
                                 <h3 className="text-2xl font-black text-white mb-2 relative z-10">Analyse IA en cours...</h3>
-                                <p className="text-indigo-300 font-bold uppercase tracking-widest text-xs relative z-10 animate-bounce">Extraction du commerçant, date et montants</p>
+                                <p className="text-primary-foreground/70 font-bold uppercase tracking-widest text-xs relative z-10 animate-bounce">Extraction du commerçant, date et montants</p>
                             </>
                         )}
 
@@ -234,7 +234,7 @@ export default function OCRPage() {
                                             type="text"
                                             value={extractedData.merchant}
                                             onChange={(e) => setExtractedData({ ...extractedData, merchant: e.target.value })}
-                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-indigo-500 rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
+                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                                     </div>
@@ -247,7 +247,7 @@ export default function OCRPage() {
                                             type="text"
                                             value={extractedData.date}
                                             onChange={(e) => setExtractedData({ ...extractedData, date: e.target.value })}
-                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-indigo-500 rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
+                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
                                     </div>
                                     <div className="group">
@@ -256,7 +256,7 @@ export default function OCRPage() {
                                             type="text"
                                             value={extractedData.invoiceNumber}
                                             onChange={(e) => setExtractedData({ ...extractedData, invoiceNumber: e.target.value })}
-                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-indigo-500 rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
+                                            className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
                                     </div>
                                 </div>
@@ -268,7 +268,7 @@ export default function OCRPage() {
                                             type="text"
                                             value={extractedData.total}
                                             onChange={(e) => setExtractedData({ ...extractedData, total: e.target.value })}
-                                            className="w-full bg-slate-800 border border-indigo-500/50 group-focus-within:border-indigo-400 rounded-2xl px-4 py-3 text-emerald-400 font-black text-lg transition-all outline-none shadow-lg shadow-indigo-500/5"
+                                            className="w-full bg-slate-800 border border-primary/50 group-focus-within:border-primary rounded-2xl px-4 py-3 text-emerald-400 font-black text-lg transition-all outline-none shadow-lg shadow-primary/5"
                                         />
                                     </div>
                                     <div className="group">
@@ -278,7 +278,7 @@ export default function OCRPage() {
                                                 type="text"
                                                 value={extractedData.tva}
                                                 onChange={(e) => setExtractedData({ ...extractedData, tva: e.target.value })}
-                                                className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-indigo-500 rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
+                                                className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                             />
                                         </div>
                                     </div>
@@ -295,8 +295,8 @@ export default function OCRPage() {
                                     </p>
                                 </div>
 
-                                <div className="mt-4 p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 shadow-inner">
-                                    <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                <div className="mt-4 p-5 rounded-2xl bg-primary/10 border border-primary/20 shadow-inner">
+                                    <label className="block text-[10px] font-black text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
                                         <ScanLine className="w-3.5 h-3.5" />
                                         Imputation Comptable (OHADA)
                                     </label>
@@ -312,7 +312,7 @@ export default function OCRPage() {
                             <div className="space-y-3 pt-4 mt-auto border-t border-white/5">
                                 <div className="flex items-center justify-between px-1">
                                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Options d'Export</label>
-                                    {isExporting && <Loader2 className="w-3 h-3 text-indigo-400 animate-spin" />}
+                                    {isExporting && <Loader2 className="w-3 h-3 text-primary animate-spin" />}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <button

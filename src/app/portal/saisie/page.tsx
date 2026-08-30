@@ -87,7 +87,7 @@ function SaisieSimplifieeInner() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10]">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ function SaisieSimplifieeInner() {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col justify-center space-y-3">
           <div>
-            <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-1">Portail Client — Cabinet 360</p>
+            <p className="text-xs font-black text-primary uppercase tracking-widest mb-1">Portail Client — Cabinet 360</p>
             <h2 className="page-title-dark mb-0">Votre Cahier<br />de Caisse Digital</h2>
           </div>
           <p className="page-subtitle-dark mb-0 max-w-md">
@@ -174,7 +174,7 @@ function SaisieSimplifieeInner() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ${
                 activeTab === tab.id
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                  ? "bg-primary text-white shadow-lg shadow-primary/30"
                   : "bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700"
               }`}
             >
@@ -201,10 +201,10 @@ function SaisieSimplifieeInner() {
                 {entries.map((entry, idx) => (
                   <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02]">
                     <td className="p-2">
-                      <input type="date" value={entry.date} onChange={(e) => handleUpdateRow(idx, "date", e.target.value)} className="w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" />
+                      <input type="date" value={entry.date} onChange={(e) => handleUpdateRow(idx, "date", e.target.value)} className="w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-primary outline-none" />
                     </td>
                     <td className="p-2">
-                      <input type="text" placeholder="Ex: Achat fournitures..." value={entry.libelle} onChange={(e) => handleUpdateRow(idx, "libelle", e.target.value)} className="w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" />
+                      <input type="text" placeholder="Ex: Achat fournitures..." value={entry.libelle} onChange={(e) => handleUpdateRow(idx, "libelle", e.target.value)} className="w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-primary outline-none" />
                     </td>
                     <td className="p-2">
                       <input type="number" placeholder="0" value={entry.entree} onChange={(e) => handleUpdateRow(idx, "entree", e.target.value)} className="w-full bg-emerald-900/20 border-none rounded-lg p-3 text-emerald-400 focus:ring-2 focus:ring-emerald-500 outline-none" />
@@ -219,17 +219,17 @@ function SaisieSimplifieeInner() {
           </div>
 
           {submitMessage && (
-            <p className="mt-4 text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-4 py-3">{submitMessage}</p>
+            <p className="mt-4 text-xs font-bold text-primary-foreground/70 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3">{submitMessage}</p>
           )}
 
           <div className="flex justify-between items-center mt-6">
-            <button onClick={handleAddRow} className="px-4 py-2 text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-2 text-sm transition-colors">
+            <button onClick={handleAddRow} className="px-4 py-2 text-primary hover:text-primary-foreground/70 font-bold flex items-center gap-2 text-sm transition-colors">
               <Plus className="w-4 h-4" /> Ajouter une ligne
             </button>
             <button
               onClick={handleSubmitForm}
               disabled={submitting}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-2 active:scale-95"
+              className="px-8 py-3 bg-primary hover:brightness-110 disabled:bg-slate-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary/30 flex items-center gap-2 active:scale-95"
             >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Envoyer au Cabinet
@@ -240,8 +240,8 @@ function SaisieSimplifieeInner() {
 
       {activeTab === "upload" && (
         <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-white/5 bg-slate-900/40 text-center">
-          <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Upload className="w-10 h-10 text-indigo-400" />
+          <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Upload className="w-10 h-10 text-primary" />
           </div>
           <h3 className="text-xl font-black text-white mb-2">Import de fichier Excel ou CSV</h3>
           <p className="text-slate-400 mb-6 max-w-md mx-auto text-sm">
@@ -258,9 +258,9 @@ function SaisieSimplifieeInner() {
       )}
 
       {activeTab === "ocr" && (
-        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-dashed border-indigo-500/30 bg-slate-900/40 text-center">
-          <div className="w-24 h-24 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-indigo-500/10">
-            <ScanLine className="w-10 h-10 text-indigo-400" />
+        <div className="glass-card rounded-[32px] p-4 sm:p-8 lg:p-12 border border-dashed border-primary/30 bg-slate-900/40 text-center">
+          <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-primary/10">
+            <ScanLine className="w-10 h-10 text-primary" />
           </div>
           <h3 className="text-xl font-black text-white mb-2">Scan de reçus et factures (OCR)</h3>
           <p className="text-slate-400 mb-6 max-w-md mx-auto text-sm">
@@ -280,7 +280,7 @@ function SaisieSimplifieeInner() {
 
 export default function SaisieSimplifiee() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0c10]"><Loader2 className="w-10 h-10 text-indigo-500 animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0c10]"><Loader2 className="w-10 h-10 text-primary animate-spin" /></div>}>
       <SaisieSimplifieeInner />
     </Suspense>
   );

@@ -148,7 +148,7 @@ export default async function CatalogMarketingPage() {
                 </div>
 
                 <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-indigo-500/20 blur-[100px] opacity-20" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-primary/20 blur-[100px] opacity-20" />
                     <div className="relative rounded-[40px] border border-white/10 bg-slate-900 shadow-2xl overflow-hidden aspect-video flex items-center justify-center">
                         <div className="p-4 sm:p-6 lg:p-10 text-center">
                             <Monitor className="w-20 h-20 text-teal-500/30 mx-auto mb-4" />
@@ -159,7 +159,7 @@ export default async function CatalogMarketingPage() {
             </div>
 
             {/* CTA */}
-            <div className="bg-gradient-to-br from-indigo-600 to-teal-700 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] p-20 text-center shadow-2xl shadow-teal-500/20">
+            <div className="bg-gradient-to-br from-primary to-teal-700 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] p-20 text-center shadow-2xl shadow-teal-500/20">
                 <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-white mb-6">Prêt à transformer votre carrière ?</h2>
                 <p className="text-teal-100 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
                     Accédez au catalogue de formations dès aujourd'hui.

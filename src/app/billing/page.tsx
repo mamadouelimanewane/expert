@@ -61,7 +61,7 @@ export default function BillingPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
+                        <Receipt className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
                         Facturation & Honoraires
                     </h2>
                     <p className="page-subtitle">Gérez vos factures et encaissements.</p>
@@ -153,7 +153,7 @@ export default function BillingPage() {
                 <div className="overflow-x-auto">
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                            <Loader2 className="w-10 h-10 text-primary animate-spin" />
                             <p className="text-slate-500 font-medium">Chargement des données financières...</p>
                         </div>
                     ) : (

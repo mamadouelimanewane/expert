@@ -133,7 +133,7 @@ export default function PortalByToken() {
     return (
       <div className="min-h-screen bg-[#0a0a12] flex items-center justify-center">
         <div className="text-center space-y-4 animate-pulse">
-          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mx-auto" />
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
           <p className="text-slate-400 text-sm">Chargement de votre portail…</p>
         </div>
       </div>
@@ -159,10 +159,10 @@ export default function PortalByToken() {
     <div className="min-h-screen bg-[#0a0a12] text-white">
 
       {/* Header portail */}
-      <header className="bg-gradient-to-r from-indigo-900/30 to-violet-900/20 border-b border-white/5">
+      <header className="bg-gradient-to-r from-primary/30 to-violet-900/20 border-b border-white/5">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xl font-black shadow-lg shadow-indigo-500/20">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center text-xl font-black shadow-lg shadow-primary/20">
               {clientName.charAt(0)}
             </div>
             <div>
@@ -197,7 +197,7 @@ export default function PortalByToken() {
           ] as const).map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition-all ${
-                tab === t.key ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-400 hover:text-white"
+                tab === t.key ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:text-white"
               }`}>
               <t.icon className="w-3.5 h-3.5" /> {t.label}
             </button>
@@ -212,7 +212,7 @@ export default function PortalByToken() {
           <>
             {/* Score & Stats */}
             <div className="grid sm:grid-cols-4 gap-4">
-              <div className="sm:col-span-2 bg-gradient-to-br from-indigo-600/20 to-violet-600/10 border border-indigo-500/20 rounded-[24px] p-6 flex items-center gap-6">
+              <div className="sm:col-span-2 bg-gradient-to-br from-primary/20 to-violet-600/10 border border-primary/20 rounded-[24px] p-6 flex items-center gap-6">
                 <div className="text-center">
                   <p className="text-6xl font-black tabular-nums" style={{ color: ratingColor }}>{score}</p>
                   <p className="text-lg font-black text-white mt-1">{rating}</p>
@@ -243,9 +243,9 @@ export default function PortalByToken() {
             <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-black flex items-center gap-2 text-sm">
-                  <FileText className="w-4 h-4 text-indigo-400" /> Mes Dernières Opérations
+                  <FileText className="w-4 h-4 text-primary" /> Mes Dernières Opérations
                 </h3>
-                <button onClick={() => setTab("saisie")} className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1">
+                <button onClick={() => setTab("saisie")} className="text-xs text-primary hover:text-primary-foreground/70 font-bold flex items-center gap-1">
                   Ajouter <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -253,7 +253,7 @@ export default function PortalByToken() {
                 <div className="text-center py-12">
                   <Upload className="w-10 h-10 text-slate-700 mx-auto mb-3" />
                   <p className="text-slate-500 text-sm">Aucune écriture pour le moment</p>
-                  <button onClick={() => setTab("saisie")} className="mt-3 text-indigo-400 text-xs font-bold">
+                  <button onClick={() => setTab("saisie")} className="mt-3 text-primary text-xs font-bold">
                     Commencer la saisie →
                   </button>
                 </div>
@@ -298,7 +298,7 @@ export default function PortalByToken() {
             {client.missions.length > 0 && (
               <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-6">
                 <h3 className="font-black flex items-center gap-2 text-sm mb-4">
-                  <Calendar className="w-4 h-4 text-indigo-400" /> Échéances Fiscales
+                  <Calendar className="w-4 h-4 text-primary" /> Échéances Fiscales
                 </h3>
                 <div className="space-y-2">
                   {client.missions.map((m: any) => (
@@ -323,7 +323,7 @@ export default function PortalByToken() {
           <div className="space-y-6">
             <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8">
               <h3 className="text-lg font-black mb-2 flex items-center gap-2">
-                <Upload className="w-5 h-5 text-indigo-400" /> Saisie Rapide
+                <Upload className="w-5 h-5 text-primary" /> Saisie Rapide
               </h3>
               <p className="text-slate-500 text-xs mb-6">Envoyez vos recettes et dépenses directement à votre cabinet. Zéro jargon comptable.</p>
 
@@ -348,17 +348,17 @@ export default function PortalByToken() {
                 {/* Champs */}
                 <div className="grid sm:grid-cols-3 gap-3">
                   <input type="date" value={quickEntry.date} onChange={e => setQuickEntry(p => ({ ...p, date: e.target.value }))}
-                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary" />
                   <input placeholder="Ex: Vente marchandises" value={quickEntry.libelle} onChange={e => setQuickEntry(p => ({ ...p, libelle: e.target.value }))}
-                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary" />
                   <input type="number" placeholder="Montant (FCFA)" value={quickEntry.montant} onChange={e => setQuickEntry(p => ({ ...p, montant: e.target.value }))}
-                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="bg-slate-800 border border-white/5 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
 
                 {submitError && <p className="text-xs text-rose-400">{submitError}</p>}
 
                 <button onClick={handleQuickSubmit} disabled={!quickEntry.libelle || !quickEntry.montant || sending}
-                  className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-black text-sm transition-colors flex items-center justify-center gap-2">
+                  className="w-full py-4 bg-primary hover:brightness-110 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-2xl font-black text-sm transition-colors flex items-center justify-center gap-2">
                   {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</> : <><Send className="w-4 h-4" /> Envoyer au cabinet</>}
                 </button>
               </div>
@@ -386,7 +386,7 @@ export default function PortalByToken() {
           <div className="space-y-4">
             <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-6">
               <h3 className="font-black flex items-center gap-2 text-sm mb-4">
-                <FileText className="w-4 h-4 text-indigo-400" /> Documents & Déclarations
+                <FileText className="w-4 h-4 text-primary" /> Documents & Déclarations
               </h3>
               {(!client.documents || client.documents.length === 0) ? (
                 <div className="text-center py-12">
@@ -404,8 +404,8 @@ export default function PortalByToken() {
                       rel="noreferrer"
                       className="flex items-center gap-3 p-4 bg-slate-800/40 hover:bg-slate-800/60 rounded-xl border border-white/5 transition-colors group cursor-pointer"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-primary group-hover:text-primary-foreground/70" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold truncate text-white">{d.originalName || d.fileName}</p>
@@ -421,10 +421,10 @@ export default function PortalByToken() {
             </div>
 
             {/* Infos portail */}
-            <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-5 flex items-start gap-3">
-              <Shield className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex items-start gap-3">
+              <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-indigo-400 font-bold text-xs">Portail sécurisé</p>
+                <p className="text-primary font-bold text-xs">Portail sécurisé</p>
                 <p className="text-slate-500 text-[10px] mt-0.5">
                   Votre portail est accessible uniquement via ce lien unique. Vos données sont chiffrées et protégées.
                   Portail créé le {client.portalCreatedAt ? new Date(client.portalCreatedAt).toLocaleDateString("fr-FR") : "—"}.

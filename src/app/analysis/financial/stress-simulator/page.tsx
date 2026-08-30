@@ -104,7 +104,7 @@ export default function CashFlowStressSimulatorPage() {
                                 step={10000000}
                                 unit="FCFA"
                                 onChange={setInvestment}
-                                color="bg-indigo-500"
+                                color="bg-primary"
                             />
                             <SliderControl
                                 label="Recrutements (Effectifs)"
@@ -174,9 +174,9 @@ export default function CashFlowStressSimulatorPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-8">
-                        <div className="p-8 rounded-[40px] bg-indigo-500/10 border border-indigo-500/20">
+                        <div className="p-8 rounded-[40px] bg-primary/10 border border-primary/20">
                             <h4 className="text-white font-black text-sm mb-4 flex items-center gap-2">
-                                <Target className="w-4 h-4 text-indigo-400" /> Recommandations OHADA
+                                <Target className="w-4 h-4 text-primary" /> Recommandations OHADA
                             </h4>
                             <ul className="space-y-3">
                                 <RecommendationItem text="Vérifier la quotité cessible en cas de recours à l'emprunt." />

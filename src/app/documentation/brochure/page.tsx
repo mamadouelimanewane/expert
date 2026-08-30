@@ -24,7 +24,7 @@ export default function BrochurePage() {
             <div className="fixed bottom-8 right-8 z-50 flex gap-3 print:hidden">
                 <button
                     onClick={handlePrint}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full font-bold shadow-2xl hover:bg-indigo-700 transition-all hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-full font-bold shadow-2xl hover:brightness-110 transition-all hover:scale-105 active:scale-95"
                 >
                     <Printer className="w-5 h-5" /> Imprimer / PDF
                 </button>
@@ -35,18 +35,18 @@ export default function BrochurePage() {
 
                 {/* Hero SECTION (Cover) */}
                 <div className="relative h-[29.7cm] flex flex-col justify-center items-center text-center p-20 bg-slate-900 overflow-hidden break-after-page">
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-900/20 via-slate-900 to-slate-900 z-0" />
-                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/10 blur-[120px] rounded-full" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 via-slate-900 to-slate-900 z-0" />
+                    <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
                     <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-500/10 blur-[120px] rounded-full" />
 
                     <div className="relative z-10 space-y-12">
                         <div className="flex flex-col items-center gap-6">
-                            <div className="w-24 h-24 bg-indigo-600 rounded-[30px] flex items-center justify-center shadow-2xl shadow-indigo-500/20">
+                            <div className="w-24 h-24 bg-primary rounded-[30px] flex items-center justify-center shadow-2xl shadow-primary/20">
                                 <span className="text-2xl sm:text-3xl lg:text-5xl font-black text-white">C</span>
                             </div>
                             <div className="space-y-2">
-                                <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white tracking-tighter">CABINET <span className="text-indigo-500">360</span></h1>
-                                <p className="text-indigo-400 font-bold uppercase tracking-[0.4em] text-xs">Innovation Comptable OHADA</p>
+                                <h1 className="text-xl sm:text-2xl lg:text-3xl sm:text-4xl lg:text-6xl font-black text-white tracking-tighter">CABINET <span className="text-primary">360</span></h1>
+                                <p className="text-primary font-bold uppercase tracking-[0.4em] text-xs">Innovation Comptable OHADA</p>
                             </div>
                         </div>
 
@@ -59,15 +59,15 @@ export default function BrochurePage() {
 
                         <div className="pt-10 flex gap-8 justify-center">
                             <div className="flex flex-col items-center gap-2">
-                                <ShieldCheck className="w-8 h-8 text-indigo-500" />
+                                <ShieldCheck className="w-8 h-8 text-primary" />
                                 <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">SYSCOHADA</span>
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                                <Cpu className="w-8 h-8 text-indigo-500" />
+                                <Cpu className="w-8 h-8 text-primary" />
                                 <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">Expert AI</span>
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                                <Globe className="w-8 h-8 text-indigo-500" />
+                                <Globe className="w-8 h-8 text-primary" />
                                 <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">UEMOA/CEMAC</span>
                             </div>
                         </div>
@@ -82,7 +82,7 @@ export default function BrochurePage() {
                 <div className="p-20 flex flex-col gap-16 min-h-[29.7cm] break-after-page text-slate-800">
                     <div className="flex justify-between items-start">
                         <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight flex items-center gap-4">
-                            <span className="w-2 h-10 bg-indigo-600 rounded-full" />
+                            <span className="w-2 h-10 bg-primary rounded-full" />
                             Notre Vision
                         </h3>
                         <div className="text-right">
@@ -147,7 +147,7 @@ export default function BrochurePage() {
 
                     <div className="mt-auto p-4 sm:p-6 lg:p-10 bg-white shadow-xl rounded-3xl border border-slate-200">
                         <div className="flex gap-8 items-center">
-                            <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-600">
+                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center text-primary">
                                 <ShieldCheck className="w-10 h-10" />
                             </div>
                             <div className="space-y-1">
@@ -168,12 +168,12 @@ export default function BrochurePage() {
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-10 pt-10 border-t border-white/10">
                             <div>
-                                <p className="text-indigo-500 font-bold uppercase tracking-widest text-[10px] mb-4">Contact</p>
+                                <p className="text-primary font-bold uppercase tracking-widest text-[10px] mb-4">Contact</p>
                                 <p className="text-lg">contact@cabinet360.com</p>
                                 <p className="text-slate-400">+221 33 000 00 00</p>
                             </div>
                             <div>
-                                <p className="text-indigo-500 font-bold uppercase tracking-widest text-[10px] mb-4">Bureaux</p>
+                                <p className="text-primary font-bold uppercase tracking-widest text-[10px] mb-4">Bureaux</p>
                                 <p className="text-lg">Dakar, Sénégal (Plateau)</p>
                                 <p className="text-slate-400">Abidjan, Côte d'Ivoire (Plateau)</p>
                             </div>
@@ -195,7 +195,7 @@ export default function BrochurePage() {
 function FeatureBlock({ title, desc, icon: Icon }: { title: string; desc: string; icon: any }) {
     return (
         <div className="space-y-4 group">
-            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-primary group-hover:brightness-110 group-hover:text-white transition-all">
                 <Icon className="w-6 h-6" />
             </div>
             <h4 className="text-xl font-bold">{title}</h4>
@@ -208,12 +208,12 @@ function ModuleRow({ title, items }: { title: string; items: string[] }) {
     return (
         <div className="space-y-4">
             <h4 className="text-lg font-bold text-slate-800 flex items-center gap-3">
-                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                <ArrowRight className="w-4 h-4 text-primary" />
                 {title}
             </h4>
             <div className="grid grid-cols-3 gap-4">
                 {items.map((item, i) => (
-                    <div key={i} className="p-4 bg-white rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:border-indigo-300 transition-colors">
+                    <div key={i} className="p-4 bg-white rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:border-primary transition-colors">
                         {item}
                     </div>
                 ))}

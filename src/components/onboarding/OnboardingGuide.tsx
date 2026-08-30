@@ -32,7 +32,7 @@ const STEPS: Step[] = [
         title: "Intelligence & Stratégie",
         desc: "Nouveau module BI et M&A : visualisez vos KPIs financiers et simulez des valorisations en temps réel.",
         icon: BarChart3,
-        color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20"
+        color: "text-primary bg-primary/10 border-primary/20"
     },
     {
         title: "Gouvernance & Juridique",
@@ -82,7 +82,7 @@ export function OnboardingGuide() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-500">
             <div className="w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[40px] shadow-2xl overflow-hidden relative group">
                 {/* Background FX */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
 
                 {/* Close Button */}
@@ -123,7 +123,7 @@ export function OnboardingGuide() {
                                         key={i}
                                         className={cn(
                                             "w-2.5 h-2.5 rounded-full transition-all duration-300",
-                                            i === currentStep ? "bg-indigo-500 w-8" : "bg-slate-700"
+                                            i === currentStep ? "bg-primary w-8" : "bg-slate-700"
                                         )}
                                     />
                                 ))}
@@ -131,7 +131,7 @@ export function OnboardingGuide() {
 
                             <button
                                 onClick={handleNext}
-                                className="group px-8 py-3 bg-white text-slate-950 font-black uppercase tracking-widest text-xs rounded-2xl flex items-center gap-2 hover:bg-indigo-50 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/10"
+                                className="group px-8 py-3 bg-white text-slate-950 font-black uppercase tracking-widest text-xs rounded-2xl flex items-center gap-2 hover:brightness-110 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/10"
                             >
                                 {currentStep === STEPS.length - 1 ? (
                                     <>Commencer <CheckCircle2 className="w-4 h-4 text-emerald-600" /></>

@@ -33,8 +33,8 @@ const DOCUMENT_TYPES = [
     icon: FileSpreadsheet, 
     title: "États Financiers (SYSCOHADA)", 
     desc: "Bilan et Compte de Résultat générés à partir de l'imputation IA.",
-    color: "text-indigo-400",
-    bg: "bg-indigo-500/10 border-indigo-500/20"
+    color: "text-primary",
+    bg: "bg-primary/10 border-primary/20"
   },
   { 
     id: "declaration-fiscale", 
@@ -109,8 +109,8 @@ export default function DocumentGenerationCenter() {
       
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-500/20 to-purple-600/10 border border-indigo-500/20 flex items-center justify-center shadow-xl shadow-indigo-500/10">
-          <FileCheck className="w-8 h-8 text-indigo-400" />
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/20 to-purple-600/10 border border-primary/20 flex items-center justify-center shadow-xl shadow-primary/10">
+          <FileCheck className="w-8 h-8 text-primary" />
         </div>
         <div>
           <h2 className="page-title">Générateur de Livrables</h2>
@@ -123,7 +123,7 @@ export default function DocumentGenerationCenter() {
         {/* Étape 1 : Sélection Client (Col 4) */}
         <div className="lg:col-span-4 space-y-4">
           <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">1</span> 
+            <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs">1</span> 
             Sélectionner la PMI
           </h3>
           
@@ -138,21 +138,21 @@ export default function DocumentGenerationCenter() {
                   className={cn(
                     "cursor-pointer p-4 rounded-2xl border transition-all flex items-center gap-3",
                     isSelected 
-                      ? "bg-indigo-600/10 border-indigo-500" 
+                      ? "bg-primary/10 border-primary" 
                       : "bg-slate-800/30 border-transparent hover:bg-slate-800/50"
                   )}
                 >
                   <div className={cn(
                     "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors",
-                    isSelected ? "bg-indigo-600" : "bg-slate-700"
+                    isSelected ? "bg-primary" : "bg-slate-700"
                   )}>
                     <Building2 className={cn("w-5 h-5", isSelected ? "text-white" : "text-slate-400")} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={cn("font-bold truncate text-sm", isSelected ? "text-indigo-400" : "text-white")}>{name}</p>
+                    <p className={cn("font-bold truncate text-sm", isSelected ? "text-primary" : "text-white")}>{name}</p>
                     <p className="text-[10px] text-slate-500 font-mono mt-0.5">{client.rccm || "RCCM NON DEFINI"}</p>
                   </div>
-                  {isSelected && <CheckCircle2 className="w-4 h-4 text-indigo-500" />}
+                  {isSelected && <CheckCircle2 className="w-4 h-4 text-primary" />}
                 </div>
               )
             })}
@@ -162,7 +162,7 @@ export default function DocumentGenerationCenter() {
         {/* Étape 2 : Type de Document (Col 8) */}
         <div className="lg:col-span-8 space-y-4">
           <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs">2</span> 
+            <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs">2</span> 
             Type de livrable
           </h3>
           
@@ -184,7 +184,7 @@ export default function DocumentGenerationCenter() {
                       <Icon className={cn("w-6 h-6", doc.color)} />
                     </div>
                     {isSelected && (
-                      <span className="px-2.5 py-1 bg-indigo-500/20 text-indigo-400 text-[9px] font-black uppercase rounded-lg border border-indigo-500/20">
+                      <span className="px-2.5 py-1 bg-primary/20 text-primary text-[9px] font-black uppercase rounded-lg border border-primary/20">
                         Sélectionné
                       </span>
                     )}
@@ -200,7 +200,7 @@ export default function DocumentGenerationCenter() {
           <div className={cn(
             "mt-8 p-6 rounded-[28px] border transition-all duration-500 flex flex-col sm:flex-row items-center justify-between gap-6",
             selectedClient && selectedDocType 
-              ? "bg-indigo-900/20 border-indigo-500/30 shadow-2xl shadow-indigo-500/10" 
+              ? "bg-primary/20 border-primary/30 shadow-2xl shadow-primary/10" 
               : "bg-slate-900/40 border-white/5 opacity-50 pointer-events-none"
           )}>
             <div>
@@ -211,7 +211,7 @@ export default function DocumentGenerationCenter() {
             <button 
               onClick={handleGenerate}
               disabled={isGenerating || !selectedClient || !selectedDocType}
-              className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-4 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
               Lancer la génération

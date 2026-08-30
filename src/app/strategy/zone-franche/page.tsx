@@ -74,9 +74,9 @@ export default function ZoneFranchePage() {
     <div className="space-y-8 animate-in fade-in duration-700">
 
       {/* Header */}
-      <div className="p-4 sm:p-8 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-gradient-to-br from-slate-900/80 to-indigo-950/30 border border-white/5 relative overflow-hidden">
+      <div className="p-4 sm:p-8 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-gradient-to-br from-slate-900/80 to-primary/30 border border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-          <Anchor className="w-64 h-64 text-indigo-400" />
+          <Anchor className="w-64 h-64 text-primary" />
         </div>
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-4">
@@ -85,7 +85,7 @@ export default function ZoneFranchePage() {
             </span>
           </div>
           <h2 className="page-title">
-            Simulateur Zone Franche <span className="text-indigo-400">UEMOA/CEMAC</span>
+            Simulateur Zone Franche <span className="text-primary">UEMOA/CEMAC</span>
           </h2>
           <p className="page-subtitle max-w-2xl">
             Calculez les avantages fiscaux et douaniers liés à l'implantation de votre entreprise dans les zones franches d'Afrique de l'Ouest et Centrale.
@@ -104,7 +104,7 @@ export default function ZoneFranchePage() {
               className={cn(
                 "w-full p-4 rounded-2xl border text-left transition-all",
                 selectedZone.id === zone.id
-                  ? "bg-indigo-600/10 border-indigo-500/40 shadow-lg"
+                  ? "bg-primary/10 border-primary/40 shadow-lg"
                   : "bg-slate-900/20 border-white/5 hover:border-white/10"
               )}
             >
@@ -160,7 +160,7 @@ export default function ZoneFranchePage() {
           {/* Simulateur */}
           <div className="apix-card">
             <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3">
-              <Calculator className="w-5 h-5 text-indigo-400" /> Simulation d'économies fiscales
+              <Calculator className="w-5 h-5 text-primary" /> Simulation d'économies fiscales
             </h3>
 
             <div className="mb-6">
@@ -171,7 +171,7 @@ export default function ZoneFranchePage() {
                 type="number"
                 value={chiffreAffaires}
                 onChange={e => { setChiffreAffaires(e.target.value); setShowSimulation(false); }}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
@@ -185,7 +185,7 @@ export default function ZoneFranchePage() {
                 max="100"
                 value={tauxMarge}
                 onChange={e => { setTauxMarge(e.target.value); setShowSimulation(false); }}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
               <p className="mt-1 text-[10px] text-slate-500">
                 Determine le resultat imposable, et donc l&apos;economie d&apos;impot.
@@ -201,7 +201,7 @@ export default function ZoneFranchePage() {
                 min="0"
                 value={importations}
                 onChange={e => { setImportations(e.target.value); setShowSimulation(false); }}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
               <p className="mt-1 text-[10px] text-slate-500">
                 Assiette de l&apos;economie de droits de douane.
@@ -210,14 +210,14 @@ export default function ZoneFranchePage() {
 
             <button
               onClick={() => setShowSimulation(true)}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-6"
+              className="w-full py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-6"
             >
               <Zap className="w-4 h-4" /> Calculer les économies
             </button>
 
             {showSimulation && (
               <div className="space-y-4 animate-in fade-in duration-500">
-                <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">
                       Resultat imposable retenu
@@ -230,7 +230,7 @@ export default function ZoneFranchePage() {
                     <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">
                       Economie IS ({simulation.tauxISDroitCommun}% &rarr; {simulation.tauxISZone}%)
                     </span>
-                    <span className="text-lg font-black text-indigo-400 tabular-nums">
+                    <span className="text-lg font-black text-primary tabular-nums">
                       {Math.round(simulation.economieIS).toLocaleString("fr-FR")} FCFA
                     </span>
                   </div>

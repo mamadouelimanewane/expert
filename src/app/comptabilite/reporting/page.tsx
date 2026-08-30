@@ -182,10 +182,10 @@ export default function ReportingAutomationPage() {
         <div className="space-y-8 animate-in fade-in duration-700 pb-20">
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <FilePieChart className="w-56 h-56 text-indigo-400" />
+                    <FilePieChart className="w-56 h-56 text-primary" />
                 </div>
                 <div className="relative z-10">
-                    <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                         Rapport de gestion
                     </span>
                     <h2 className="page-title">Génération de rapport</h2>
@@ -215,7 +215,7 @@ export default function ReportingAutomationPage() {
 
                         <div className="apix-card">
                             <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
-                                <Palette className="w-6 h-6 text-indigo-400" />
+                                <Palette className="w-6 h-6 text-primary" />
                                 Style du rapport
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -225,12 +225,12 @@ export default function ReportingAutomationPage() {
                                         onClick={() => setSelectedTemplate(tpl.id)}
                                         className={cn(
                                             "text-left p-5 rounded-2xl border transition-all",
-                                            selectedTemplate === tpl.id ? "bg-indigo-600/20 border-indigo-500/50" : "bg-white/5 border-white/5 hover:bg-white/10"
+                                            selectedTemplate === tpl.id ? "bg-primary/20 border-primary/50" : "bg-white/5 border-white/5 hover:bg-white/10"
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="font-bold text-white text-sm">{tpl.name}</h4>
-                                            {selectedTemplate === tpl.id && <CheckCircle2 className="w-4 h-4 text-indigo-400" />}
+                                            {selectedTemplate === tpl.id && <CheckCircle2 className="w-4 h-4 text-primary" />}
                                         </div>
                                         <p className="text-xs text-slate-500">{tpl.description}</p>
                                     </button>
@@ -270,7 +270,7 @@ export default function ReportingAutomationPage() {
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating || !clientId}
-                                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50"
+                                className="w-full py-5 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-[0.1em] text-xs flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/30 disabled:opacity-50"
                             >
                                 {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
                                 {isGenerating ? "Calcul en cours…" : "Générer le rapport"}
@@ -290,13 +290,13 @@ export default function ReportingAutomationPage() {
                             <button onClick={() => window.print()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs flex items-center gap-2">
                                 <Printer className="w-4 h-4" /> Imprimer
                             </button>
-                            <button disabled title="Export PDF non encore disponible" className="px-6 py-3 bg-white/50 text-indigo-950/50 rounded-xl font-bold text-xs flex items-center gap-2 cursor-not-allowed">
+                            <button disabled title="Export PDF non encore disponible" className="px-6 py-3 bg-white/50 text-primary/50 rounded-xl font-bold text-xs flex items-center gap-2 cursor-not-allowed">
                                 <Download className="w-4 h-4" /> Télécharger PDF
                             </button>
                             <button
                                 onClick={handleSendToClient}
                                 disabled={envoiEnCours}
-                                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2"
+                                className="px-6 py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2"
                             >
                                 <Mail className="w-4 h-4" /> {envoiEnCours ? "Envoi..." : "Envoyer au Client"}
                             </button>
@@ -311,7 +311,7 @@ export default function ReportingAutomationPage() {
                     <div className="bg-white rounded-[40px] shadow-2xl p-8 sm:p-12 lg:p-20 text-slate-900 space-y-12">
                         <div className="flex justify-between items-end border-b-2 border-slate-950 pb-8">
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-600 mb-2">Synthèse de Gestion</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mb-2">Synthèse de Gestion</p>
                                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 tracking-tighter">{nomClient}</h1>
                                 <p className="text-slate-500 font-bold mt-2">Situation mensuelle — {selectedPeriod}</p>
                             </div>
@@ -320,7 +320,7 @@ export default function ReportingAutomationPage() {
 
                         {inclureSyntheseIA && (
                             <div className="space-y-4">
-                                <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-indigo-600 pl-6 flex items-center gap-2">
+                                <h2 className="text-lg font-black uppercase tracking-widest border-l-4 border-primary pl-6 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" /> Résumé exécutif
                                 </h2>
                                 {syntheseNonConfiguree && (

@@ -76,7 +76,7 @@ export default function EmailAIPage() {
     if (loading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -93,14 +93,14 @@ export default function EmailAIPage() {
                     </p>
                 </div>
             ) : (
-                <div className="flex items-center justify-between gap-3 p-3 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl shrink-0">
-                    <p className="text-xs text-indigo-300">
+                <div className="flex items-center justify-between gap-3 p-3 bg-primary/5 border border-primary/20 rounded-2xl shrink-0">
+                    <p className="text-xs text-primary-foreground/70">
                         {syncMessage || "Boîte mail connectée — synchronisez pour récupérer les derniers messages."}
                     </p>
                     <button
                         onClick={handleSync}
                         disabled={syncing}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shrink-0"
+                        className="flex items-center gap-2 px-4 py-2 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shrink-0"
                     >
                         {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                         Synchroniser
@@ -112,7 +112,7 @@ export default function EmailAIPage() {
 
                 {/* Sidebar: Nav */}
                 <div className="w-16 md:w-56 flex flex-col gap-4">
-                    <button disabled title="Boîte mail non connectée" className="w-full bg-indigo-600/30 text-white/50 rounded-2xl p-3 flex items-center justify-center md:justify-start gap-3 cursor-not-allowed">
+                    <button disabled title="Boîte mail non connectée" className="w-full bg-primary/30 text-white/50 rounded-2xl p-3 flex items-center justify-center md:justify-start gap-3 cursor-not-allowed">
                         <Send className="w-5 h-5" />
                         <span className="font-bold hidden md:block">Nouveau Mail</span>
                     </button>
@@ -143,7 +143,7 @@ export default function EmailAIPage() {
                     <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex flex-col gap-3">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <input type="text" placeholder="Rechercher par expéditeur, sujet..." className="w-full bg-slate-800 border-none rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none" />
+                            <input type="text" placeholder="Rechercher par expéditeur, sujet..." className="w-full bg-slate-800 border-none rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none" />
                         </div>
                     </div>
 
@@ -159,14 +159,14 @@ export default function EmailAIPage() {
                                 onClick={() => setSelectedId(email.id)}
                                 className={cn(
                                     "p-4 border-b border-slate-800/50 cursor-pointer transition-all hover:bg-slate-800/30 relative group",
-                                    selectedId === email.id ? "bg-slate-800 border-l-2 border-l-indigo-500" : "bg-transparent border-l-2 border-l-transparent",
-                                    !email.read && "bg-indigo-500/[0.03]"
+                                    selectedId === email.id ? "bg-slate-800 border-l-2 border-l-primary" : "bg-transparent border-l-2 border-l-transparent",
+                                    !email.read && "bg-primary/[0.03]"
                                 )}
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <div className="flex items-center gap-2">
                                         <span className={cn("font-bold text-sm", !email.read ? "text-white" : "text-slate-400")}>{email.sender}</span>
-                                        {!email.read && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
+                                        {!email.read && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
                                     </div>
                                     <span className="text-[10px] text-slate-500">
                                         {new Date(email.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}
@@ -177,7 +177,7 @@ export default function EmailAIPage() {
                                 {email.tags.length > 0 && (
                                     <div className="mt-2 flex gap-1">
                                         {email.tags.map((t) => (
-                                            <span key={t} className="text-[8px] px-1.5 rounded uppercase font-bold border bg-indigo-500/10 text-indigo-400 border-indigo-500/20">{t}</span>
+                                            <span key={t} className="text-[8px] px-1.5 rounded uppercase font-bold border bg-primary/10 text-primary border-primary/20">{t}</span>
                                         ))}
                                     </div>
                                 )}
@@ -215,7 +215,7 @@ export default function EmailAIPage() {
                                 <div>
                                     <h2 className="text-2xl font-bold text-white mb-4">{selectedEmail.subject || "Sans objet"}</h2>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700">
+                                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-primary border border-slate-700">
                                             {selectedEmail.sender[0]}
                                         </div>
                                         <div>

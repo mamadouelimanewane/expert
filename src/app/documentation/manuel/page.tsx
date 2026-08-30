@@ -46,12 +46,12 @@ const SECTIONS = [
                     />
                 </div>
 
-                <div className="p-8 bg-indigo-500/10 border border-indigo-500/20 rounded-3xl space-y-4">
-                    <h4 className="flex items-center gap-2 font-bold text-indigo-400 uppercase text-xs tracking-widest">
+                <div className="p-8 bg-primary/10 border border-primary/20 rounded-3xl space-y-4">
+                    <h4 className="flex items-center gap-2 font-bold text-primary uppercase text-xs tracking-widest">
                         <PlayCircle className="w-4 h-4" /> Tutoriel Vidéo
                     </h4>
                     <p className="text-white font-bold text-xl">Découvrez l'interface en moins de 3 minutes.</p>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg font-bold hover:bg-indigo-600 transition-all">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-bold hover:brightness-110 transition-all">
                         Regarder la vidéo <ArrowRight className="w-4 h-4" />
                     </button>
                 </div>
@@ -74,7 +74,7 @@ const SECTIONS = [
 
                 <div className="space-y-6">
                     <div className="flex gap-4 items-start p-6 bg-white/5 rounded-2xl border border-white/5">
-                        <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 shrink-0">
+                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary shrink-0">
                             <Settings className="w-5 h-5" />
                         </div>
                         <div>
@@ -83,7 +83,7 @@ const SECTIONS = [
                         </div>
                     </div>
                     <div className="flex gap-4 items-start p-6 bg-white/5 rounded-2xl border border-white/5">
-                        <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400 shrink-0">
+                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary shrink-0">
                             <FileText className="w-5 h-5" />
                         </div>
                         <div>
@@ -161,7 +161,7 @@ export default function UserManualPage() {
             {/* Nav Sidebar */}
             <aside className="w-80 bg-[#13161c] border-r border-white/5 flex flex-col p-6 gap-8 overflow-y-auto">
                 <div className="flex flex-col items-center gap-4 py-6 border-b border-white/5">
-                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/20">
+                    <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-primary/20">
                         C
                     </div>
                     <div className="text-center">
@@ -175,7 +175,7 @@ export default function UserManualPage() {
                     <input
                         type="text"
                         placeholder="Rechercher une aide..."
-                        className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:border-indigo-500/50 transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/5 rounded-xl text-sm focus:border-primary/50 transition-all outline-none"
                     />
                 </div>
 
@@ -190,11 +190,11 @@ export default function UserManualPage() {
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
                                     isActive
-                                        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-500/20"
+                                        ? "bg-primary text-white shadow-xl shadow-primary/20"
                                         : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
                                 )}
                             >
-                                <Icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-indigo-400")} />
+                                <Icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-primary")} />
                                 <span className="font-bold text-sm">{section.title}</span>
                                 {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
                             </button>
@@ -202,15 +202,15 @@ export default function UserManualPage() {
                     })}
                 </nav>
 
-                <div className="mt-auto p-6 bg-indigo-600/10 border border-indigo-500/20 rounded-[30px] space-y-4">
+                <div className="mt-auto p-6 bg-primary/10 border border-primary/20 rounded-[30px] space-y-4">
                     <div className="flex items-center gap-3">
-                        <HelpCircle className="w-6 h-6 text-indigo-400" />
+                        <HelpCircle className="w-6 h-6 text-primary" />
                         <span className="font-bold text-white text-xs uppercase tracking-widest">En direct ?</span>
                     </div>
-                    <p className="text-[10px] text-indigo-200 uppercase font-bold tracking-widest leading-relaxed">
+                    <p className="text-[10px] text-primary-foreground/70 uppercase font-bold tracking-widest leading-relaxed">
                         Besoin d'aide immédiate pour une déclaration ?
                     </p>
-                    <button className="w-full py-3 bg-white text-indigo-600 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">
+                    <button className="w-full py-3 bg-white text-primary rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">
                         Chat avec un Expert
                     </button>
                 </div>
@@ -229,8 +229,8 @@ export default function UserManualPage() {
 
 function GuideStep({ number, title, desc }: { number: string; title: string; desc: string }) {
     return (
-        <div className="p-8 bg-[#13161c] border border-white/5 rounded-3xl space-y-4 hover:border-indigo-500/30 transition-colors">
-            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-indigo-500/20">{number}</span>
+        <div className="p-8 bg-[#13161c] border border-white/5 rounded-3xl space-y-4 hover:border-primary/30 transition-colors">
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-primary/20">{number}</span>
             <h4 className="text-xl font-bold text-white">{title}</h4>
             <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
         </div>

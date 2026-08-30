@@ -19,8 +19,8 @@ const SCENARIOS_ILLUSTRATIFS = [
         sector: "Industrie & Logistique",
         challenge: "Reporting mensuel trop lent et erreurs de rapprochement bancaire chroniques.",
         result: "Le module Core Accounting avec synchronisation API bancaire vise à réduire le temps de saisie et accélérer la clôture mensuelle.",
-        color: "text-indigo-400",
-        bg: "bg-indigo-500/10"
+        color: "text-primary",
+        bg: "bg-primary/10"
     },
     {
         id: "fintech",
@@ -44,7 +44,7 @@ export default function SuccessStoriesPage() {
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-1000">
             {/* Premium Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-8 lg:p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-8 lg:p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-24 opacity-5 pointer-events-none">
                     <TrendingUp className="w-80 h-80 text-white" />
                 </div>
@@ -54,10 +54,10 @@ export default function SuccessStoriesPage() {
                         <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-white/10">
                             Impact & Performance
                         </span>
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                     </div>
                     <h1 className="page-title">
-                        Scénarios <span className="text-indigo-400">Illustratifs</span>
+                        Scénarios <span className="text-primary">Illustratifs</span>
                     </h1>
                     <p className="page-subtitle">
                         Exemples types d&apos;usage de la plateforme par secteur — pas des témoignages de clients réels.
@@ -68,7 +68,7 @@ export default function SuccessStoriesPage() {
             {/* Scenarios Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {SCENARIOS_ILLUSTRATIFS.map((scenario) => (
-                    <div key={scenario.id} className="apix-card relative group overflow-hidden transition-all hover:border-indigo-500/30">
+                    <div key={scenario.id} className="apix-card relative group overflow-hidden transition-all hover:border-primary/30">
                         <div className="flex justify-between items-start mb-8 relative z-10">
                             <div>
                                 <span className={cn("px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest", scenario.bg, scenario.color)}>
@@ -80,7 +80,7 @@ export default function SuccessStoriesPage() {
 
                         <div className="grid grid-cols-1 gap-8 mb-10 relative z-10">
                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase text-indigo-400 tracking-[0.2em]">Problématique type</h4>
+                                <h4 className="text-[10px] font-black uppercase text-primary tracking-[0.2em]">Problématique type</h4>
                                 <p className="text-sm text-slate-400 leading-relaxed font-medium">{scenario.challenge}</p>
                             </div>
                             <div className="space-y-4">
@@ -95,10 +95,10 @@ export default function SuccessStoriesPage() {
             </div>
 
             {/* CTA */}
-            <div className="p-4 sm:p-8 lg:p-16 rounded-[60px] bg-gradient-to-r from-indigo-600 to-indigo-800 text-white flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-8 lg:gap-12 shadow-2xl shadow-indigo-600/20">
+            <div className="p-4 sm:p-8 lg:p-16 rounded-[60px] bg-gradient-to-r from-primary to-primary text-white flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-8 lg:gap-12 shadow-2xl shadow-primary/20">
                 <div className="max-w-xl text-center md:text-left">
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight mb-4 leading-none">Découvrez la plateforme</h2>
-                    <p className="text-indigo-100 font-medium">Explorez les modules du cabinet 360.</p>
+                    <p className="text-primary-foreground/70 font-medium">Explorez les modules du cabinet 360.</p>
                 </div>
             </div>
         </div>

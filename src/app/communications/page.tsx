@@ -64,7 +64,7 @@ export default function CommunicationPage() {
             <div className="w-20 glass-card rounded-2xl border border-slate-700/50 flex flex-col items-center py-6 gap-6 bg-slate-900/40">
                 <button
                     onClick={() => setActiveChannel("all")}
-                    className={cn("p-3 rounded-2xl transition-all", activeChannel === "all" ? "bg-indigo-600 shadow-lg shadow-indigo-600/20" : "hover:bg-slate-800 text-slate-500")}
+                    className={cn("p-3 rounded-2xl transition-all", activeChannel === "all" ? "bg-primary shadow-lg shadow-primary/20" : "hover:bg-slate-800 text-slate-500")}
                 >
                     <MessageSquare className="w-6 h-6 text-white" />
                 </button>
@@ -101,13 +101,13 @@ export default function CommunicationPage() {
                         <h2 className="text-xl font-bold text-white tracking-tight capitalize">
                             {activeChannel === "all" ? "Hub Central" : activeChannel === "campaign" ? "Campagnes" : activeChannel}
                         </h2>
-                        <span className="text-[10px] bg-indigo-600 px-2 py-0.5 rounded-full text-white font-bold">{filteredMessages.length}</span>
+                        <span className="text-[10px] bg-primary px-2 py-0.5 rounded-full text-white font-bold">{filteredMessages.length}</span>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto no-scrollbar">
                     {loading ? (
-                        <div className="py-20 flex justify-center"><div className="animate-spin h-8 w-8 border-b-2 border-indigo-500 rounded-full" /></div>
+                        <div className="py-20 flex justify-center"><div className="animate-spin h-8 w-8 border-b-2 border-primary rounded-full" /></div>
                     ) : activeChannel === "campaign" ? (
                         <div className="p-6 text-center">
                             <p className="text-xs text-slate-500 leading-relaxed">
@@ -121,8 +121,8 @@ export default function CommunicationPage() {
                                 onClick={() => setSelectedMessage(msg)}
                                 className={cn(
                                     "p-4 border-b border-slate-800/50 cursor-pointer transition-all hover:bg-slate-800/30 relative group",
-                                    selectedMessage?.id === msg.id ? "bg-slate-800/60 border-l-2 border-l-indigo-500 shadow-inner" : "border-l-2 border-l-transparent",
-                                    !msg.read && "bg-indigo-500/[0.03]"
+                                    selectedMessage?.id === msg.id ? "bg-slate-800/60 border-l-2 border-l-primary shadow-inner" : "border-l-2 border-l-transparent",
+                                    !msg.read && "bg-primary/[0.03]"
                                 )}
                             >
                                 <div className="flex justify-between items-start mb-1">
@@ -131,7 +131,7 @@ export default function CommunicationPage() {
                                             "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ring-1 ring-white/10",
                                             msg.type === "email" ? "bg-rose-500/10 text-rose-400" :
                                                 msg.type === "whatsapp" ? "bg-emerald-500/10 text-emerald-400" :
-                                                    msg.type === "teams" ? "bg-indigo-500/10 text-indigo-400" : "bg-white/10 text-white"
+                                                    msg.type === "teams" ? "bg-primary/10 text-primary" : "bg-white/10 text-white"
                                         )}>
                                             {msg.avatar}
                                         </div>
@@ -147,7 +147,7 @@ export default function CommunicationPage() {
                                 <h4 className={cn("text-xs mt-2 mb-1 truncate", !msg.read ? "text-slate-200 font-semibold" : "text-slate-400")}>{msg.subject}</h4>
                                 <p className="text-[11px] text-slate-500 line-clamp-1">{msg.preview}</p>
 
-                                {!msg.read && <div className="absolute right-4 bottom-4 w-2 h-2 rounded-full bg-indigo-500 shadow-lg shadow-indigo-500/50" />}
+                                {!msg.read && <div className="absolute right-4 bottom-4 w-2 h-2 rounded-full bg-primary shadow-lg shadow-primary/50" />}
                             </div>
                         ))
                     )}
@@ -161,7 +161,7 @@ export default function CommunicationPage() {
                         {/* Thread Header */}
                         <div className="p-6 border-b border-slate-700/50 flex justify-between items-center bg-slate-900/30">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-xl font-bold text-white shadow-xl">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary flex items-center justify-center text-xl font-bold text-white shadow-xl">
                                     {selectedMessage.avatar}
                                 </div>
                                 <div>
@@ -177,7 +177,7 @@ export default function CommunicationPage() {
                             </div>
                             <div className="flex gap-2">
                                 {selectedMessage.type === "teams" && (
-                                    <button className="px-4 py-2 bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                                    <button className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
                                         <Video className="w-4 h-4" /> Rejoindre Réunion
                                     </button>
                                 )}
@@ -209,7 +209,7 @@ export default function CommunicationPage() {
 
                         {/* Composer Container */}
                         <div className="p-6 bg-slate-900/50 border-t border-white/5">
-                            <div className="relative group bg-slate-800 border border-slate-700 rounded-3xl p-1 shadow-2xl focus-within:border-indigo-500/50 transition-all">
+                            <div className="relative group bg-slate-800 border border-slate-700 rounded-3xl p-1 shadow-2xl focus-within:border-primary/50 transition-all">
                                 <textarea
                                     value={replyText}
                                     onChange={(e) => setReplyText(e.target.value)}

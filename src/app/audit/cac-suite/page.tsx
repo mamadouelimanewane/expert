@@ -141,9 +141,9 @@ export default function CACSuitePage() {
 
     return (
         <div className="min-h-screen bg-[#0a0c10] text-slate-200 p-8 space-y-8 animate-in fade-in duration-500">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 bg-slate-900/40 rounded-[32px] px-10 border-t border-t-indigo-500/20 shadow-2xl">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-8 border-b border-white/5 bg-slate-900/40 rounded-[32px] px-10 border-t border-t-primary/20 shadow-2xl">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-indigo-500/20">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border border-primary/20">
                         <Microscope className="w-3 h-3" /> Suite Commissariat aux Comptes (CAC)
                     </div>
                     <h1 className="page-title-dark">
@@ -187,7 +187,7 @@ export default function CACSuitePage() {
                 <div className="lg:col-span-4 space-y-6">
                     <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-950/40">
                         <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-3">
-                            <Scale className="w-5 h-5 text-indigo-400" /> Seuils de signification
+                            <Scale className="w-5 h-5 text-primary" /> Seuils de signification
                         </h3>
                         <div className="space-y-3">
                             {seuils.map((base, i) => {
@@ -199,13 +199,13 @@ export default function CACSuitePage() {
                                         className={cn(
                                             "p-4 rounded-2xl border transition-all cursor-pointer",
                                             seuilRetenu === i
-                                                ? "bg-indigo-500/10 border-indigo-500/40"
+                                                ? "bg-primary/10 border-primary/40"
                                                 : "bg-slate-900/20 border-white/5 hover:bg-slate-900/40"
                                         )}
                                     >
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-xs text-slate-500 font-bold uppercase">{base.label}</span>
-                                            <span className="text-[10px] font-mono text-indigo-400">{base.taux}%</span>
+                                            <span className="text-[10px] font-mono text-primary">{base.taux}%</span>
                                         </div>
                                         <div className="flex justify-between items-end gap-2">
                                             <input
@@ -231,8 +231,8 @@ export default function CACSuitePage() {
                             })}
                         </div>
 
-                        <div className="mt-6 p-4 bg-indigo-600 rounded-2xl text-center shadow-lg shadow-indigo-600/20">
-                            <p className="text-[10px] text-indigo-200 font-black uppercase tracking-widest mb-1">Seuil retenu</p>
+                        <div className="mt-6 p-4 bg-primary rounded-2xl text-center shadow-lg shadow-primary/20">
+                            <p className="text-[10px] text-primary-foreground/70 font-black uppercase tracking-widest mb-1">Seuil retenu</p>
                             <div className="text-2xl font-black text-white">
                                 {Math.round(seuils[seuilRetenu].valeur * (seuils[seuilRetenu].taux / 100)).toLocaleString("fr-FR")} FCFA
                             </div>
@@ -300,7 +300,7 @@ export default function CACSuitePage() {
                             />
                             <button
                                 onClick={ajouterCircularisation}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2"
+                                className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-bold flex items-center gap-2"
                             >
                                 <Plus className="w-4 h-4" /> Ajouter
                             </button>
@@ -362,7 +362,7 @@ export default function CACSuitePage() {
 
                     <div className="p-8 bg-slate-950/60 border border-white/5 rounded-[32px]">
                         <h4 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
-                            <BarChart className="w-5 h-5 text-indigo-400" />
+                            <BarChart className="w-5 h-5 text-primary" />
                             Sondage statistique
                         </h4>
                         <p className="text-xs text-slate-400 leading-relaxed mb-4">

@@ -76,18 +76,18 @@ export default function FiscalMirrorPage() {
             {/* Elite Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Globe className="w-64 h-64 text-indigo-400" />
+                    <Globe className="w-64 h-64 text-primary" />
                 </div>
                 
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-6">
-                        <div className="px-4 py-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-indigo-500/20">
+                        <div className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.4em] rounded-full border border-primary/20">
                             Strategy Suite
                         </div>
                     </div>
 
                     <h1 className="page-title">
-                        Comparateur <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Fiscal</span>
+                        Comparateur <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400">Fiscal</span>
                     </h1>
                     <p className="page-subtitle max-w-2xl">
                         Comparez les cadres fiscaux de référence par pays pour éclairer vos choix d&apos;implantation.
@@ -126,7 +126,7 @@ export default function FiscalMirrorPage() {
                 <div className="lg:col-span-8 space-y-6">
                     <div className="apix-card">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-10 flex items-center gap-3">
-                            <Scale className="w-6 h-6 text-indigo-400" /> Profil Fiscal Comparatif
+                            <Scale className="w-6 h-6 text-primary" /> Profil Fiscal Comparatif
                         </h3>
 
                         <div className="space-y-4">
@@ -146,9 +146,9 @@ export default function FiscalMirrorPage() {
 
                 {/* Comparaison synthétique */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-indigo-500/10 to-transparent">
-                        <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
-                            <BrainCircuit className="w-8 h-8 text-indigo-400" />
+                    <div className="glass-card p-6 sm:p-10 rounded-3xl sm:rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-gradient-to-b from-primary/10 to-transparent">
+                        <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                            <BrainCircuit className="w-8 h-8 text-primary" />
                         </div>
                         <h4 className="text-xl font-black text-white uppercase mb-6">Écart de Charges Sociales</h4>
 
@@ -161,13 +161,13 @@ export default function FiscalMirrorPage() {
                                 <p className="text-sm text-slate-300 leading-relaxed">
                                     Les charges patronales sont plus basses de{" "}
                                     <span className="text-emerald-400 font-black">{Math.abs(dataA.social - dataB.social).toFixed(1)} point{Math.abs(dataA.social - dataB.social) >= 2 ? "s" : ""}</span>{" "}
-                                    au <span className="text-indigo-400 font-bold">{dataA.social < dataB.social ? dataA.name : dataB.name}</span> par rapport à{" "}
+                                    au <span className="text-primary font-bold">{dataA.social < dataB.social ? dataA.name : dataB.name}</span> par rapport à{" "}
                                     {dataA.social < dataB.social ? dataB.name : dataA.name}.
                                 </p>
                             )}
                         </div>
 
-                        <button disabled title="Non implémenté" className="w-full py-5 bg-indigo-600/50 text-white/50 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-not-allowed flex items-center justify-center gap-3">
+                        <button disabled title="Non implémenté" className="w-full py-5 bg-primary/50 text-white/50 rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-not-allowed flex items-center justify-center gap-3">
                             Télécharger l'Aide au Choix (non disponible) <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
@@ -198,7 +198,7 @@ function CountrySelector({ label, value, onChange, excluded }: any) {
                         className={cn(
                             "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shrink-0",
                             id === excluded ? "opacity-20 cursor-not-allowed" :
-                            value === id ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-white"
+                            value === id ? "bg-primary text-white shadow-xl" : "text-slate-500 hover:text-white"
                         )}
                     >
                         {COUNTRIES_DATA[id].name}
@@ -228,7 +228,7 @@ function MetricsRow({ label, a, b }: any) {
 function IncentiveCard({ country, advantages }: any) {
     return (
         <div className="apix-card">
-            <h4 className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mb-6">Leviers {country}</h4>
+            <h4 className="text-[10px] text-primary font-black uppercase tracking-widest mb-6">Leviers {country}</h4>
             <div className="space-y-3">
                 {advantages.map((adv: string, i: number) => (
                     <div key={i} className="flex items-center gap-3 text-xs font-bold text-slate-200">

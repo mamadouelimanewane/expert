@@ -13,7 +13,7 @@ export default function HandbookPDFExport() {
                     <p className="text-[11px] text-slate-400 mb-4">Pour obtenir la version PDF, utilisez le raccourci <kbd className="bg-white/10 px-1 rounded">Ctrl + P</kbd> et choisissez "Enregistrer au format PDF".</p>
                     <button
                         onClick={() => window.print()}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20">
+                        className="w-full py-3 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                         Imprimer le Handbook
                     </button>
                 </div>
@@ -123,8 +123,8 @@ export default function HandbookPDFExport() {
 
                         <div className="space-y-12">
                             <div>
-                                <h4 className="text-2xl font-black uppercase mb-4 text-indigo-600">Saisie et OCR Intelligent</h4>
-                                <p className="text-lg text-slate-700 italic border-l-4 border-indigo-200 pl-6">
+                                <h4 className="text-2xl font-black uppercase mb-4 text-primary">Saisie et OCR Intelligent</h4>
+                                <p className="text-lg text-slate-700 italic border-l-4 border-primary pl-6">
                                     "Réduction de 85% du temps de saisie manuelle via notre moteur de reconnaissance sémantique."
                                 </p>
                                 <p className="mt-4 text-slate-600 leading-relaxed">
@@ -133,25 +133,25 @@ export default function HandbookPDFExport() {
                             </div>
 
                             <div>
-                                <h4 className="text-2xl font-black uppercase mb-4 text-indigo-600">IA Match Bancaire</h4>
+                                <h4 className="text-2xl font-black uppercase mb-4 text-primary">IA Match Bancaire</h4>
                                 <p className="mt-4 text-slate-600 leading-relaxed">
                                     Une synchronisation directe avec vos comptes bancaires permet un rapprochement en temps réel. L'algorithme Nexus croise les libellés, les montants et les dates pour proposer des lettrages automatiques.
                                 </p>
                             </div>
 
                             <div className="bg-slate-900 text-white p-4 sm:p-6 lg:p-10 rounded-[40px]">
-                                <p className="font-black uppercase text-xs tracking-[0.3em] mb-4 text-indigo-400">Section Technique</p>
+                                <p className="font-black uppercase text-xs tracking-[0.3em] mb-4 text-primary">Section Technique</p>
                                 <h5 className="text-xl sm:text-2xl lg:text-3xl font-black mb-6 leading-tight">États Financiers Annueled</h5>
                                 <p className="text-slate-400 text-sm mb-8">Génération automatisée des états conformément au SYSCOHADA révisé (AUDCIF).</p>
                                 <ul className="space-y-4 font-sans font-bold">
                                     <li className="flex gap-4 items-center">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full" /> Bilan Actif / Passif
+                                        <div className="w-2 h-2 bg-primary rounded-full" /> Bilan Actif / Passif
                                     </li>
                                     <li className="flex gap-4 items-center">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full" /> Compte de Résultat
+                                        <div className="w-2 h-2 bg-primary rounded-full" /> Compte de Résultat
                                     </li>
                                     <li className="flex gap-4 items-center">
-                                        <div className="w-2 h-2 bg-indigo-500 rounded-full" /> TFT (Tableau Financier)
+                                        <div className="w-2 h-2 bg-primary rounded-full" /> TFT (Tableau Financier)
                                     </li>
                                 </ul>
                             </div>

@@ -111,7 +111,7 @@ export default function LettresMissionPage() {
     const getStatusColor = (status: string) => {
         switch (status) {
             case "SIGNEE": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-            case "ENVOYEE": return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+            case "ENVOYEE": return "bg-primary/10 text-primary border-primary/20";
             case "BROUILLON": return "bg-slate-700 text-slate-400 border-slate-600";
             case "EXPIREE": return "bg-rose-500/10 text-rose-400 border-rose-500/20";
             default: return "bg-slate-700 text-slate-400 border-slate-600";
@@ -142,13 +142,13 @@ export default function LettresMissionPage() {
             {/* Hero Header */}
             <div className="relative bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <FileSignature className="w-48 h-48 text-indigo-400" />
+                    <FileSignature className="w-48 h-48 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h2 className="page-title flex items-center gap-5">
-                            <div className="p-4 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-600/30">
+                            <div className="p-4 bg-gradient-to-br from-primary to-purple-600 rounded-3xl shadow-2xl shadow-primary/30">
                                 <FileSignature className="w-8 h-8 text-white" />
                             </div>
                             Lettres de Mission
@@ -161,7 +161,7 @@ export default function LettresMissionPage() {
                     <div className="flex gap-4">
                         <button
                             onClick={() => setShowNewModal(true)}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95"
                         >
                             <Plus className="w-5 h-5" /> Nouvelle Lettre
                         </button>
@@ -174,23 +174,23 @@ export default function LettresMissionPage() {
                 <StatCard label="Total Actives" value={String(totalActives)} color="text-white" />
                 <StatCard label="En Attente Signature" value={String(enAttenteSignature)} trend={enAttenteSignature > 0 ? "Suivi requis" : undefined} color="text-amber-400" />
                 <StatCard label={`Signées (${currentYear})`} value={String(signeesCetteAnnee)} color="text-emerald-400" />
-                <StatCard label="CA Contractualisé" value={(caContractualise / 1000000).toFixed(1)} unit="M FCFA" color="text-indigo-400" />
+                <StatCard label="CA Contractualisé" value={(caContractualise / 1000000).toFixed(1)} unit="M FCFA" color="text-primary" />
             </div>
 
             {/* Templates Quick Access */}
             <div className="apix-card">
                 <h3 className="text-white font-black text-xs uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-400" /> Modèles Pré-définis (OHADA)
+                    <Sparkles className="w-4 h-4 text-primary" /> Modèles Pré-définis (OHADA)
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {TEMPLATES.map((tpl, idx) => (
                         <button
                             key={idx}
                             onClick={() => setForm(f => ({ ...f, scope: tpl.name }))}
-                            className="p-6 bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-indigo-500/30 rounded-2xl transition-all group text-left"
+                            className="p-6 bg-slate-800/50 hover:bg-slate-800 border border-white/5 hover:border-primary/30 rounded-2xl transition-all group text-left"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <tpl.icon className="w-6 h-6 text-indigo-400" />
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <tpl.icon className="w-6 h-6 text-primary" />
                             </div>
                             <p className="text-white font-bold text-sm">{tpl.name}</p>
                             <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Conforme OHADA</p>
@@ -209,7 +209,7 @@ export default function LettresMissionPage() {
                                 onClick={() => setFilter(s)}
                                 className={cn(
                                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                    filter === s ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-800 text-slate-500 hover:text-white"
+                                    filter === s ? "bg-primary text-white shadow-lg" : "bg-slate-800 text-slate-500 hover:text-white"
                                 )}
                             >
                                 {s === "tous" ? "tous" : statusLabel(s.toUpperCase())}
@@ -224,13 +224,13 @@ export default function LettresMissionPage() {
                             placeholder="Rechercher une lettre..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                            className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none"
                         />
                     </div>
                 </div>
 
                 {loading ? (
-                    <div className="p-20 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>
+                    <div className="p-20 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
                 ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-left apix-table">
@@ -279,7 +279,7 @@ export default function LettresMissionPage() {
                                     <td className="px-8 py-6 text-right">
                                         <div className="flex justify-end gap-1">
                                             {lettre.status === "BROUILLON" && (
-                                                <button onClick={() => updateStatus(lettre.id, "ENVOYEE")} className="p-2.5 hover:bg-indigo-500/10 rounded-xl text-indigo-400 transition-all" title="Envoyer">
+                                                <button onClick={() => updateStatus(lettre.id, "ENVOYEE")} className="p-2.5 hover:brightness-110/10 rounded-xl text-primary transition-all" title="Envoyer">
                                                     <Send className="w-4 h-4" />
                                                 </button>
                                             )}
@@ -326,7 +326,7 @@ export default function LettresMissionPage() {
                                 <input type="number" placeholder="Honoraires (FCFA)" value={form.fees} onChange={e => setForm({ ...form, fees: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                                 <input placeholder="Nom du signataire" value={form.signatoryName} onChange={e => setForm({ ...form, signatoryName: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white" />
                             </div>
-                            <button onClick={handleCreate} disabled={saving} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+                            <button onClick={handleCreate} disabled={saving} className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
                                 {saving ? "Enregistrement…" : "Créer la lettre de mission"}
                             </button>
                         </div>

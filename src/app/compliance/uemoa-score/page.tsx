@@ -80,7 +80,7 @@ export default function UemoaScorePage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <ShieldAlert className="w-6 h-6 text-indigo-500" /> Score de Conformité (UEMOA/BCEAO)
+            <ShieldAlert className="w-6 h-6 text-primary" /> Score de Conformité (UEMOA/BCEAO)
           </h2>
           <p className="page-subtitle">Évaluation des risques légaux, fiscaux et réglementaires</p>
         </div>
@@ -103,7 +103,7 @@ export default function UemoaScorePage() {
           <button
             disabled
             title="La génération PDF de ce rapport n'est pas encore implémentée."
-            className="px-6 py-3 bg-indigo-600/40 text-white/50 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed"
+            className="px-6 py-3 bg-primary/40 text-white/50 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed"
           >
             <Download className="w-4 h-4" /> Rapport Conformité
           </button>

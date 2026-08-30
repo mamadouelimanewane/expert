@@ -55,7 +55,7 @@ const ROLE_LABELS: Record<string, string> = {
     ASSISTANT: "Assistant",
 };
 
-const MIX_COLORS = ["bg-indigo-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-purple-500"];
+const MIX_COLORS = ["bg-primary", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-purple-500"];
 
 export default function PartnerDashboard() {
     const [data, setData] = useState<PartnerData | null>(null);
@@ -65,7 +65,7 @@ export default function PartnerDashboard() {
     }, []);
 
     if (!data) {
-        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
     }
 
     return (
@@ -73,12 +73,12 @@ export default function PartnerDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <TrendingUp className="w-56 h-56 text-indigo-400" />
+                    <TrendingUp className="w-56 h-56 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <h2 className="page-title flex items-center gap-5">
-                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/40">
+                        <div className="p-4 bg-primary rounded-3xl shadow-2xl shadow-primary/40">
                             <Target className="w-10 h-10 text-white" />
                         </div>
                         Pilotage Associé
@@ -105,7 +105,7 @@ export default function PartnerDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StrategicCard title="Dossiers en Retard" value={String(data.cabinet.overdueMissions)} subtext="Missions dont l'échéance est dépassée" icon={AlertTriangle} color="text-rose-400" bgColor="bg-rose-500/10" />
                 <StrategicCard title="Heures Enregistrées (90j)" value={data.cabinet.hoursLogged90.toLocaleString("fr-FR")} subtext="Feuilles de temps sur 90 jours" icon={Activity} color="text-cyan-400" bgColor="bg-cyan-500/10" />
-                <StrategicCard title="Nouveaux Clients (90j)" value={String(data.cabinet.newClients90)} subtext={`${data.cabinet.newClientsTrend >= 0 ? "+" : ""}${data.cabinet.newClientsTrend} vs période précédente`} icon={Users} color="text-indigo-400" bgColor="bg-indigo-500/10" />
+                <StrategicCard title="Nouveaux Clients (90j)" value={String(data.cabinet.newClients90)} subtext={`${data.cabinet.newClientsTrend >= 0 ? "+" : ""}${data.cabinet.newClientsTrend} vs période précédente`} icon={Users} color="text-primary" bgColor="bg-primary/10" />
                 <StrategicCard title="Missions Actives" value={String(data.cabinet.activeMissions)} subtext="En cours actuellement" icon={Target} color="text-emerald-400" bgColor="bg-emerald-500/10" />
             </div>
 
@@ -114,7 +114,7 @@ export default function PartnerDashboard() {
                 <div className="lg:col-span-2 glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">
                     <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/40">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <Users className="w-5 h-5 text-indigo-400" />
+                            <Users className="w-5 h-5 text-primary" />
                             Performance de l'Équipe
                         </h3>
                     </div>
@@ -208,7 +208,7 @@ export default function PartnerDashboard() {
 
                     <div className="apix-card">
                         <h4 className="text-white font-black text-sm uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-indigo-400" /> Résumé Cabinet
+                            <Clock className="w-4 h-4 text-primary" /> Résumé Cabinet
                         </h4>
                         <div className="space-y-3 text-xs text-slate-400">
                             <div className="flex justify-between"><span>Missions actives</span><span className="text-white font-bold">{data.cabinet.activeMissions}</span></div>

@@ -70,7 +70,7 @@ function PortalDashboardInner() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0c10]">
-        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
@@ -135,7 +135,7 @@ function PortalDashboardInner() {
             </p>
           </div>
         </div>
-        <Link href={`/portal/saisie?token=${token}`} className="px-5 py-3 bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30 text-indigo-400 rounded-xl font-black text-xs transition-all flex items-center gap-2">
+        <Link href={`/portal/saisie?token=${token}`} className="px-5 py-3 bg-primary/20 border border-primary/30 hover:brightness-110/30 text-primary rounded-xl font-black text-xs transition-all flex items-center gap-2">
           <Smartphone className="w-4 h-4" /> Saisie Rapide
         </Link>
       </div>
@@ -206,7 +206,7 @@ function PortalDashboardInner() {
       {client.missions.length > 0 && (
         <div className="bg-slate-900/40 border border-white/5 rounded-[24px] p-6">
           <h3 className="font-black flex items-center gap-2 text-sm mb-4 text-white">
-            <Building2 className="w-4 h-4 text-indigo-400" /> Missions en Cours
+            <Building2 className="w-4 h-4 text-primary" /> Missions en Cours
           </h3>
           <div className="space-y-2">
             {client.missions.map((m: any) => (
@@ -226,7 +226,7 @@ function PortalDashboardInner() {
 
       {/* Actions rapides */}
       <div className="grid sm:grid-cols-2 gap-3">
-        <Link href={`/portal/saisie?token=${token}`} className="p-5 rounded-2xl border transition-all hover:scale-[1.02] group flex items-center gap-3 text-indigo-400 bg-indigo-500/10 border-indigo-500/20">
+        <Link href={`/portal/saisie?token=${token}`} className="p-5 rounded-2xl border transition-all hover:scale-[1.02] group flex items-center gap-3 text-primary bg-primary/10 border-primary/20">
           <Upload className="w-5 h-5 group-hover:scale-110 transition-transform" />
           <p className="font-black text-xs">Envoyer mes écritures</p>
         </Link>
@@ -241,7 +241,7 @@ function PortalDashboardInner() {
 
 export default function PortalDashboard() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0c10]"><Loader2 className="w-10 h-10 text-indigo-500 animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0a0c10]"><Loader2 className="w-10 h-10 text-primary animate-spin" /></div>}>
       <PortalDashboardInner />
     </Suspense>
   );

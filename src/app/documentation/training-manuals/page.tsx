@@ -25,9 +25,9 @@ const GUIDES = [
         subtitle: "Flux de travail 'Zéro Saisie' & SYSCOHADA",
         description: "Maîtrisez l'automatisation comptable, l'OCR et la révision digitale.",
         icon: Cpu,
-        color: "text-indigo-400",
-        bg: "bg-indigo-500/10",
-        border: "border-indigo-500/20",
+        color: "text-primary",
+        bg: "bg-primary/10",
+        border: "border-primary/20",
         duration: "4h 30m"
     },
     {
@@ -124,7 +124,7 @@ export default function TrainingManualsPage() {
     return (
         <div className="space-y-12 pb-20 animate-in fade-in duration-1000">
             {/* Premium Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-8 lg:p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-8 lg:p-12 rounded-[60px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-24 opacity-5 pointer-events-none">
                     <BookOpen className="w-80 h-80 text-white" />
                 </div>
@@ -135,10 +135,10 @@ export default function TrainingManualsPage() {
                             <span className="px-3 py-1 bg-white/5 text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-white/10">
                                 Service Après-Vente Elite
                             </span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                         </div>
                         <h1 className="page-title">
-                            Mastering <span className="text-indigo-400">Nexus Elite</span>
+                            Mastering <span className="text-primary">Nexus Elite</span>
                         </h1>
                         <p className="page-subtitle">
                             Accédez à nos manuels de formation premium. Des guides étape par étape conçus pour transformer vos équipes en experts de la donnée comptable et juridique.
@@ -163,7 +163,7 @@ export default function TrainingManualsPage() {
                         </div>
 
                         <div className="mb-8">
-                            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-indigo-400 transition-colors">
+                            <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2 group-hover:text-primary transition-colors">
                                 {guide.title}
                             </h3>
                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
@@ -192,16 +192,16 @@ export default function TrainingManualsPage() {
             </div>
 
             {/* Bottom Support Callout */}
-            <div className="p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-indigo-600 relative overflow-hidden shadow-2xl shadow-indigo-600/20">
+            <div className="p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] bg-primary relative overflow-hidden shadow-2xl shadow-primary/20">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-10">
                     <Zap className="w-64 h-64 text-white" />
                 </div>
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div>
                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white uppercase tracking-tight mb-2">Besoin d'une formation sur site ?</h2>
-                        <p className="text-indigo-100 font-medium opacity-80">Nos experts se déplacent dans vos bureaux pour des sessions de masterclass immersives.</p>
+                        <p className="text-primary-foreground/70 font-medium opacity-80">Nos experts se déplacent dans vos bureaux pour des sessions de masterclass immersives.</p>
                     </div>
-                    <button className="px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black uppercase tracking-widest text-[12px] hover:shadow-2xl transition-all h-fit whitespace-nowrap">
+                    <button className="px-10 py-5 bg-white text-primary rounded-2xl font-black uppercase tracking-widest text-[12px] hover:shadow-2xl transition-all h-fit whitespace-nowrap">
                         Réserver un Expert
                     </button>
                 </div>

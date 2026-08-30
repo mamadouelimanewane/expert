@@ -68,7 +68,7 @@ const ICONE_TYPE: Record<TypeRequete, typeof FileQuestion> = {
 
 const STYLE_STATUT: Record<Statut, string> = {
     "À envoyer": "bg-amber-500/5 border-amber-500/20 text-amber-400",
-    "Envoyée": "bg-indigo-500/5 border-indigo-500/20 text-indigo-400",
+    "Envoyée": "bg-primary/5 border-primary/20 text-primary",
     "Réponse reçue": "bg-cyan-500/5 border-cyan-500/20 text-cyan-400",
     "Traitée": "bg-emerald-500/5 border-emerald-500/20 text-emerald-400",
 };
@@ -149,7 +149,7 @@ export default function CollaborationRequestsPage() {
 
     const metrics = [
         { label: "À envoyer", value: requetes.filter((r) => r.statut === "À envoyer").length, color: "text-amber-400", bg: "bg-amber-500/10", icon: Clock },
-        { label: "Réponse reçue", value: requetes.filter((r) => r.statut === "Réponse reçue").length, color: "text-indigo-400", bg: "bg-indigo-500/10", icon: MessageSquare },
+        { label: "Réponse reçue", value: requetes.filter((r) => r.statut === "Réponse reçue").length, color: "text-primary", bg: "bg-primary/10", icon: MessageSquare },
         { label: "Traitées", value: requetes.filter((r) => r.statut === "Traitée").length, color: "text-emerald-400", bg: "bg-emerald-500/10", icon: CheckCircle2 },
         { label: "Priorité haute", value: requetes.filter((r) => r.priorite === "Haute").length, color: "text-rose-400", bg: "bg-rose-500/10", icon: AlertCircle },
     ];
@@ -172,14 +172,14 @@ export default function CollaborationRequestsPage() {
                 </div>
                 <button
                     onClick={() => setFormOuvert((v) => !v)}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/25 flex items-center gap-2"
+                    className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/25 flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" /> Nouvelle Requête
                 </button>
             </div>
 
             {formOuvert && (
-                <div className="bg-slate-900/60 border border-indigo-500/20 rounded-3xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-slate-900/60 border border-primary/20 rounded-3xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <select value={nouvelle.clientId} onChange={(e) => setNouvelle((f) => ({ ...f, clientId: e.target.value }))} className="bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
                         <option value="">Sélectionner un client *</option>
                         {clients.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -198,7 +198,7 @@ export default function CollaborationRequestsPage() {
                     </select>
                     <div className="flex justify-end gap-3">
                         <button onClick={() => setFormOuvert(false)} className="px-4 py-2 text-xs font-bold text-slate-400">Annuler</button>
-                        <button onClick={ajouter} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black uppercase">Créer</button>
+                        <button onClick={ajouter} className="px-6 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-xs font-black uppercase">Créer</button>
                     </div>
                 </div>
             )}

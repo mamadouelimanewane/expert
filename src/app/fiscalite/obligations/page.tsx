@@ -123,7 +123,7 @@ export default function FiscalObligationsPage() {
 
             {chargement ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 </div>
             ) : (
                 <>

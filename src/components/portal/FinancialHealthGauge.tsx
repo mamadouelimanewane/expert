@@ -22,6 +22,10 @@ function getRatingConfig(rating: string) {
     case "AAA":
       return { label: "Excellent", color: "#10b981", bg: "from-emerald-500/20 to-emerald-600/5", border: "border-emerald-500/30", icon: Award, text: "text-emerald-400" };
     case "AA":
+      // Reste en indigo volontairement : AAA est déjà émeraude (couleur de marque),
+      // AA doit rester une teinte distincte pour que les 5 paliers (AAA/AA/A/B/C)
+      // restent visuellement différenciables — les remplacer tous par le vert de
+      // marque effacerait cette distinction.
       return { label: "Très Bon", color: "#6366f1", bg: "from-indigo-500/20 to-indigo-600/5", border: "border-indigo-500/30", icon: ShieldCheck, text: "text-indigo-400" };
     case "A":
       return { label: "Bon", color: "#3b82f6", bg: "from-blue-500/20 to-blue-600/5", border: "border-blue-500/30", icon: TrendingUp, text: "text-blue-400" };

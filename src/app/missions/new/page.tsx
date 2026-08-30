@@ -118,7 +118,7 @@ export default function NewMissionPage() {
                                         value={formData.title}
                                         onChange={handleChange}
                                         placeholder="Ex: Audit Financier Annuel 2026"
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -132,7 +132,7 @@ export default function NewMissionPage() {
                                         required
                                         value={formData.clientId}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm appearance-none"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm appearance-none"
                                     >
                                         <option value="" disabled>Sélectionner un client</option>
                                         {clients.map(client => (
@@ -151,7 +151,7 @@ export default function NewMissionPage() {
                                     required
                                     value={formData.type}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm appearance-none"
+                                    className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm appearance-none"
                                 >
                                     <option value="TENUE_COMPTABLE">Tenue Comptable</option>
                                     <option value="REVISION">Révision des Comptes</option>
@@ -173,7 +173,7 @@ export default function NewMissionPage() {
                                         name="deadline"
                                         value={formData.deadline}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                         style={{ colorScheme: 'dark' }}
                                     />
                                 </div>
@@ -189,7 +189,7 @@ export default function NewMissionPage() {
                                         value={formData.budget}
                                         onChange={handleChange}
                                         placeholder="Ex: 5000000"
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -206,7 +206,7 @@ export default function NewMissionPage() {
                                 onChange={handleChange}
                                 rows={4}
                                 placeholder="Détails de la mission, objectifs spécifiques, interlocuteurs..."
-                                className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                             />
                         </div>
                     </div>
@@ -222,7 +222,7 @@ export default function NewMissionPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 disabled:opacity-50"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary/30 flex items-center gap-3 disabled:opacity-50"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                             Créer la Mission

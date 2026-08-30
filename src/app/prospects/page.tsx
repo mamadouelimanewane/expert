@@ -33,7 +33,7 @@ interface Prospect {
 
 const PIPELINE_STAGES = [
     { id: "PROSPECT", label: "Prospects", color: "bg-slate-500" },
-    { id: "QUALIFIE", label: "Qualifiés", color: "bg-indigo-500" },
+    { id: "QUALIFIE", label: "Qualifiés", color: "bg-primary" },
     { id: "PROPOSITION", label: "Proposition", color: "bg-amber-500" },
     { id: "NEGOCIATION", label: "Négociation", color: "bg-purple-500" },
     { id: "GAGNE", label: "Gagnés", color: "bg-emerald-500" },
@@ -125,10 +125,10 @@ export default function ProspectsPage() {
 
                     <div className="flex gap-4">
                         <div className="p-1.5 bg-slate-800 border border-white/5 rounded-2xl flex gap-1">
-                            <button onClick={() => setViewMode("pipeline")} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", viewMode === "pipeline" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                            <button onClick={() => setViewMode("pipeline")} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", viewMode === "pipeline" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}>
                                 Pipeline
                             </button>
-                            <button onClick={() => setViewMode("list")} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", viewMode === "list" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
+                            <button onClick={() => setViewMode("list")} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", viewMode === "list" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}>
                                 Liste
                             </button>
                         </div>
@@ -190,7 +190,7 @@ export default function ProspectsPage() {
                         </h3>
                         <div className="relative w-80">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none" />
+                            <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none" />
                         </div>
                     </div>
 
@@ -241,7 +241,7 @@ export default function ProspectsPage() {
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex justify-end gap-1">
                                                 {prospect.telephone && (
-                                                    <a href={`tel:${prospect.telephone}`} className="p-2.5 hover:bg-indigo-500/10 rounded-xl text-indigo-400 transition-all" title="Appeler">
+                                                    <a href={`tel:${prospect.telephone}`} className="p-2.5 hover:brightness-110/10 rounded-xl text-primary transition-all" title="Appeler">
                                                         <Phone className="w-4 h-4" />
                                                     </a>
                                                 )}

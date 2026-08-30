@@ -113,7 +113,7 @@ export default function FecExportPage() {
         <button
           onClick={exporter}
           disabled={!clientId || exportEnCours}
-          className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all"
+          className="w-full py-4 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all"
         >
           {exportEnCours ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
           {exportEnCours ? "Génération…" : "Télécharger le FEC"}

@@ -101,7 +101,7 @@ export default function PracticeManagementPage() {
     return (
         <div className="space-y-8">
             <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30">
+                <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/30">
                     <LayoutDashboard className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -127,7 +127,7 @@ export default function PracticeManagementPage() {
                     value={executive ? `${(executive.kpis.caMois / 1_000_000).toFixed(1)}M FCFA` : "—"}
                     trend={executive ? `${executive.kpis.croissance >= 0 ? "+" : ""}${executive.kpis.croissance}%` : null}
                     trendUp={(executive?.kpis.croissance ?? 0) >= 0}
-                    color="text-indigo-400"
+                    color="text-primary"
                 />
                 <MetricCard
                     label="Marge moyenne pondérée"
@@ -151,12 +151,12 @@ export default function PracticeManagementPage() {
                 <div className="lg:col-span-2 apix-card">
                     <div className="flex justify-between items-center mb-8">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <Target className="w-5 h-5 text-indigo-400" />
+                            <Target className="w-5 h-5 text-primary" />
                             Rentabilité par mission (boni/mali)
                         </h3>
                         <a
                             href="/missions/boni-mali"
-                            className="text-xs font-bold text-indigo-400 hover:text-white transition-colors"
+                            className="text-xs font-bold text-primary hover:text-white transition-colors"
                         >
                             Voir tout
                         </a>

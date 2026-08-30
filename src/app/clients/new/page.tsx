@@ -94,25 +94,25 @@ export default function NewClientPage() {
                     <div>
                         <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">Client créé avec succès !</h2>
                         <p className="text-slate-400 mt-2">
-                            Le portail de <span className="text-indigo-400 font-bold">{createdName}</span> est prêt.
+                            Le portail de <span className="text-primary font-bold">{createdName}</span> est prêt.
                         </p>
                     </div>
 
                     {/* Lien Portail */}
-                    <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 space-y-4">
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 space-y-4">
                         <div className="flex items-center gap-2 justify-center">
-                            <ExternalLink className="w-4 h-4 text-indigo-400" />
-                            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">URL du Portail PMI</span>
+                            <ExternalLink className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-black text-primary uppercase tracking-widest">URL du Portail PMI</span>
                         </div>
 
                         <div className="bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-                            <code className="text-sm text-indigo-300 font-mono flex-1 truncate text-left">{portalUrl}</code>
+                            <code className="text-sm text-primary-foreground/70 font-mono flex-1 truncate text-left">{portalUrl}</code>
                             <button onClick={handleCopy}
                                 className={cn(
                                     "flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-black transition-all flex-shrink-0",
                                     copied
                                         ? "bg-emerald-600 text-white"
-                                        : "bg-indigo-600 hover:bg-indigo-500 text-white"
+                                        : "bg-primary hover:brightness-110 text-white"
                                 )}>
                                 {copied ? <><Check className="w-3.5 h-3.5" /> Copié !</> : <><Copy className="w-3.5 h-3.5" /> Copier</>}
                             </button>
@@ -130,7 +130,7 @@ export default function NewClientPage() {
                             Voir les clients
                         </button>
                         <button onClick={() => { setPortalUrl(null); setFormData({ type: "ENTREPRISE", companyName: "", firstName: "", lastName: "", email: "", phone: "", rccm: "", ninea: "", sector: "", country: "CI", city: "", address: "" }); }}
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs transition-colors shadow-lg shadow-indigo-500/20">
+                            className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black text-xs transition-colors shadow-lg shadow-primary/20">
                             Nouveau client
                         </button>
                     </div>
@@ -173,21 +173,21 @@ export default function NewClientPage() {
                             className={cn(
                                 "cursor-pointer p-4 rounded-2xl border-2 transition-all flex items-center gap-4 group",
                                 formData.type === "ENTREPRISE"
-                                    ? "bg-indigo-600/10 border-indigo-500"
+                                    ? "bg-primary/10 border-primary"
                                     : "bg-slate-800/50 border-transparent hover:border-slate-700"
                             )}
                         >
                             <div className={cn(
                                 "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                                formData.type === "ENTREPRISE" ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-400"
+                                formData.type === "ENTREPRISE" ? "bg-primary text-white" : "bg-slate-700 text-slate-400"
                             )}>
                                 <Building2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className={cn("font-bold", formData.type === "ENTREPRISE" ? "text-indigo-400" : "text-slate-300")}>Personne Morale</h3>
+                                <h3 className={cn("font-bold", formData.type === "ENTREPRISE" ? "text-primary" : "text-slate-300")}>Personne Morale</h3>
                                 <p className="text-xs text-slate-500">Société, SA, SARL, SAS...</p>
                             </div>
-                            {formData.type === "ENTREPRISE" && <CheckCircle2 className="w-5 h-5 text-indigo-500 ml-auto" />}
+                            {formData.type === "ENTREPRISE" && <CheckCircle2 className="w-5 h-5 text-primary ml-auto" />}
                         </div>
 
                         <div
@@ -231,7 +231,7 @@ export default function NewClientPage() {
                                             value={formData.companyName}
                                             onChange={handleChange}
                                             placeholder="Ex: Africa Tech Solutions"
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                            className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                         />
                                     </div>
                                 </div>
@@ -245,7 +245,7 @@ export default function NewClientPage() {
                                         name="firstName"
                                         value={formData.firstName}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -255,7 +255,7 @@ export default function NewClientPage() {
                                         name="lastName"
                                         value={formData.lastName}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -270,7 +270,7 @@ export default function NewClientPage() {
                                         value={formData.sector}
                                         onChange={handleChange}
                                         placeholder="Ex: BTP, IT, Négoce..."
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -283,7 +283,7 @@ export default function NewClientPage() {
                                         name="rccm"
                                         value={formData.rccm}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -293,7 +293,7 @@ export default function NewClientPage() {
                                         name="ninea"
                                         value={formData.ninea}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -314,7 +314,7 @@ export default function NewClientPage() {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -328,7 +328,7 @@ export default function NewClientPage() {
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full pl-10 pr-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -340,7 +340,7 @@ export default function NewClientPage() {
                                         name="country"
                                         value={formData.country}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm appearance-none"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm appearance-none"
                                     >
                                         <option value="CI">Côte d'Ivoire</option>
                                         <option value="SN">Sénégal</option>
@@ -359,7 +359,7 @@ export default function NewClientPage() {
                                         name="city"
                                         value={formData.city}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                        className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                     />
                                 </div>
                             </div>
@@ -371,7 +371,7 @@ export default function NewClientPage() {
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500 transition-all font-medium text-sm"
+                                    className="w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-primary transition-all font-medium text-sm"
                                 />
                             </div>
                         </div>
@@ -388,7 +388,7 @@ export default function NewClientPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 disabled:opacity-50"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary/30 flex items-center gap-3 disabled:opacity-50"
                         >
                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                             Enregistrer le Dossier

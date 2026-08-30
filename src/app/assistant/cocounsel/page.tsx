@@ -103,14 +103,14 @@ export default function CoCounselPage() {
             {/* Sidebar */}
             <div className="w-80 flex flex-col gap-6">
                 {/* Header Card */}
-                <div className="glass-card rounded-[32px] border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-transparent p-6">
+                <div className="glass-card rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-indigo-500/20 rounded-2xl">
-                            <Sparkles className="w-6 h-6 text-indigo-400" />
+                        <div className="p-3 bg-primary/20 rounded-2xl">
+                            <Sparkles className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                             <h3 className="text-lg font-black text-white">Nexus Counsel</h3>
-                            <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Assistant IA OHADA</p>
+                            <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Assistant IA OHADA</p>
                         </div>
                     </div>
                     <p className="text-xs text-slate-400 leading-relaxed">
@@ -128,14 +128,14 @@ export default function CoCounselPage() {
                                 onClick={() => handleQuickAction(action)}
                                 className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-left group"
                             >
-                                <div className="p-2 bg-white/5 rounded-lg group-hover:bg-indigo-500/20 transition-all">
-                                    <action.icon className="w-4 h-4 text-slate-400 group-hover:text-indigo-400" />
+                                <div className="p-2 bg-white/5 rounded-lg group-hover:brightness-110/20 transition-all">
+                                    <action.icon className="w-4 h-4 text-slate-400 group-hover:text-primary" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-slate-300 group-hover:text-white truncate">{action.label}</p>
                                     <p className="text-[10px] text-slate-500 uppercase">{action.category}</p>
                                 </div>
-                                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" />
+                                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
                             </button>
                         ))}
                     </div>
@@ -162,18 +162,18 @@ export default function CoCounselPage() {
                         >
                             <div className={cn(
                                 "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                                message.role === "user" ? "bg-indigo-600" : "bg-white/10"
+                                message.role === "user" ? "bg-primary" : "bg-white/10"
                             )}>
                                 {message.role === "user" ? (
                                     <User className="w-5 h-5 text-white" />
                                 ) : (
-                                    <Bot className="w-5 h-5 text-indigo-400" />
+                                    <Bot className="w-5 h-5 text-primary" />
                                 )}
                             </div>
                             <div className={cn(
                                 "max-w-3xl rounded-3xl p-6",
                                 message.role === "user"
-                                    ? "bg-indigo-600/20 border border-indigo-500/20 rounded-tr-none"
+                                    ? "bg-primary/20 border border-primary/20 rounded-tr-none"
                                     : "bg-slate-800/50 border border-white/5 rounded-tl-none"
                             )}>
                                 <div className="prose prose-invert prose-sm max-w-none">
@@ -220,13 +220,13 @@ export default function CoCounselPage() {
                     {isLoading && (
                         <div className="flex gap-4">
                             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-indigo-400 animate-pulse" />
+                                <Bot className="w-5 h-5 text-primary animate-pulse" />
                             </div>
                             <div className="bg-slate-800/50 border border-white/5 rounded-3xl rounded-tl-none p-6">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                                    <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                                    <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
                                 </div>
                             </div>
                         </div>
@@ -243,16 +243,16 @@ export default function CoCounselPage() {
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                                 placeholder="Posez votre question juridique ou fiscale..."
-                                className="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all pr-12"
+                                className="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all pr-12"
                             />
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                <Zap className="w-5 h-5 text-indigo-400 opacity-50" />
+                                <Zap className="w-5 h-5 text-primary opacity-50" />
                             </div>
                         </div>
                         <button
                             onClick={handleSend}
                             disabled={!inputValue.trim() || isLoading}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Send className="w-5 h-5" />
                         </button>

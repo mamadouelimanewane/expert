@@ -33,7 +33,7 @@ export default function TaxSimulatorPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Calculator className="w-6 h-6 text-indigo-500" /> Simulateur Fiscal OHADA
+            <Calculator className="w-6 h-6 text-primary" /> Simulateur Fiscal OHADA
           </h2>
           <p className="page-subtitle">Estimation des charges fiscales par pays (IS, TVA, Taxes Diverses)</p>
         </div>
@@ -55,11 +55,11 @@ export default function TaxSimulatorPage() {
                       onClick={() => setParams({...params, pays: c.id as any})}
                       className={cn(
                         "p-3 rounded-xl border flex items-center justify-between transition-all",
-                        params.pays === c.id ? "bg-indigo-500/20 border-indigo-500/50" : "bg-slate-950/50 border-white/5 hover:border-white/20"
+                        params.pays === c.id ? "bg-primary/20 border-primary/50" : "bg-slate-950/50 border-white/5 hover:border-white/20"
                       )}
                     >
                       <span className="text-sm font-bold text-white flex items-center gap-2"><span className="text-lg">{c.flag}</span> {c.name}</span>
-                      <span className="text-[10px] font-black text-indigo-400">{c.taxRate}</span>
+                      <span className="text-[10px] font-black text-primary">{c.taxRate}</span>
                     </button>
                   ))}
                 </div>
@@ -71,7 +71,7 @@ export default function TaxSimulatorPage() {
                   type="number" 
                   value={params.baseImposable} 
                   onChange={e => setParams({...params, baseImposable: Number(e.target.value)})}
-                  className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-lg font-black text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-lg font-black text-white focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
 
@@ -81,7 +81,7 @@ export default function TaxSimulatorPage() {
                   <select 
                     value={params.regime}
                     onChange={e => setParams({...params, regime: e.target.value as any})}
-                    className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
+                    className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary transition-colors appearance-none"
                   >
                     <option value="reel">Réel Normal</option>
                     <option value="simplifie">Réel Simplifié</option>
@@ -92,7 +92,7 @@ export default function TaxSimulatorPage() {
                   <select 
                     value={params.secteur}
                     onChange={e => setParams({...params, secteur: e.target.value as any})}
-                    className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
+                    className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary transition-colors appearance-none"
                   >
                     <option value="services">Prestation de Services</option>
                     <option value="commerce">Commerce Général</option>
@@ -103,7 +103,7 @@ export default function TaxSimulatorPage() {
 
               <button 
                 onClick={handleSimulate}
-                className="w-full mt-4 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg flex items-center justify-center gap-2"
+                className="w-full mt-4 py-4 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 <Calculator className="w-4 h-4" /> Lancer la Simulation
               </button>
@@ -128,7 +128,7 @@ export default function TaxSimulatorPage() {
                     </h3>
                     <p className="text-sm text-slate-400 mt-1">Estimation basée sur la législation en vigueur</p>
                   </div>
-                  <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                     {COUNTRIES.find(c => c.id === params.pays)?.flag} {COUNTRIES.find(c => c.id === params.pays)?.name}
                   </span>
                 </div>

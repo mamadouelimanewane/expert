@@ -156,12 +156,12 @@ export default function NeuralForensicsPage() {
             <div className="absolute top-0 left-0 right-0 z-20 p-6 pointer-events-none flex justify-between items-start">
                 <div className="pointer-events-auto">
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="p-3 bg-indigo-500/20 rounded-xl border border-indigo-500/30 backdrop-blur-sm shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-                            <Network className="w-6 h-6 text-indigo-400" />
+                        <div className="p-3 bg-primary/20 rounded-xl border border-primary/30 backdrop-blur-sm shadow-[0_0_20px_rgba(0, 107, 63,0.2)]">
+                            <Network className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                             <h1 className="page-title-dark flex items-center gap-2">
-                                SHERLOCK <span className="text-indigo-500">HOLMES</span> AI
+                                SHERLOCK <span className="text-primary">HOLMES</span> AI
                             </h1>
                             <p className="page-subtitle-dark">Enquête Numérique & Intelligence Open Source (OSINT)</p>
                         </div>
@@ -170,8 +170,8 @@ export default function NeuralForensicsPage() {
 
                 <div className="pointer-events-auto flex items-center gap-3">
                     <div className="glass-card px-4 py-2 rounded-lg border border-white/5 flex items-center gap-3 bg-slate-900/50 backdrop-blur">
-                        <Globe className="w-4 h-4 text-indigo-400" />
-                        <span className="text-xs text-indigo-300 font-bold uppercase tracking-wider">Données Cabinet (Prisma)</span>
+                        <Globe className="w-4 h-4 text-primary" />
+                        <span className="text-xs text-primary-foreground/70 font-bold uppercase tracking-wider">Données Cabinet (Prisma)</span>
                     </div>
                     <button
                         onClick={runNeuralScan}
@@ -190,7 +190,7 @@ export default function NeuralForensicsPage() {
             <div className="relative flex-1 bg-[radial-gradient(circle_at_center,#1e293b_0%,#020617_100%)] overflow-hidden">
                 {/* Grid Background */}
                 <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'linear-gradient(#6366f1 1px, transparent 1px), linear-gradient(90deg, #6366f1 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+                    style={{ backgroundImage: 'linear-gradient(#006B3F 1px, transparent 1px), linear-gradient(90deg, #006B3F 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                 />
 
                 {/* GRAPH MODE */}
@@ -256,7 +256,7 @@ export default function NeuralForensicsPage() {
                                     style={{ top: node.y, left: node.x }}
                                     className={cn(
                                         "absolute w-16 h-16 -ml-8 -mt-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500 z-10 border-2 shadow-2xl group animate-in zoom-in duration-300",
-                                        selectedNode?.id === node.id ? "ring-4 ring-indigo-500 ring-offset-4 ring-offset-slate-900 scale-110" : "hover:scale-110",
+                                        selectedNode?.id === node.id ? "ring-4 ring-primary ring-offset-4 ring-offset-slate-900 scale-110" : "hover:scale-110",
                                         node.risk === "critical" ? "bg-purple-950/80 border-purple-500 shadow-purple-900/50" :
                                             node.risk === "high" ? "bg-rose-950/80 border-rose-500 shadow-rose-900/50" :
                                                 node.risk === "medium" ? "bg-amber-950/80 border-amber-500 shadow-amber-900/50" :
@@ -338,14 +338,14 @@ export default function NeuralForensicsPage() {
                         <div className="flex-1 space-y-4">
                             <div className="flex items-center justify-between border-b border-white/5 pb-2">
                                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-indigo-400" />
+                                    <Globe className="w-4 h-4 text-primary" />
                                     Investigateur Web (OSINT)
                                 </h3>
                             </div>
 
                             {osintLogs.length === 0 && (
                                 <div className="p-6 border-2 border-dashed border-slate-700 rounded-xl flex flex-col items-center justify-center text-center space-y-4">
-                                    <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-2">
+                                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
                                         <FileSearch className="w-8 h-8" />
                                     </div>
                                     <p className="text-sm text-slate-400">
@@ -354,7 +354,7 @@ export default function NeuralForensicsPage() {
                                     <button
                                         onClick={launchSherlockInvestigation}
                                         disabled={isInvestigating}
-                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-indigo-600/20"
+                                        className="w-full py-3 bg-primary hover:brightness-110 disabled:opacity-50 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary/20"
                                     >
                                         {isInvestigating ? "Criblage en cours…" : "Cribler les listes de sanctions"}
                                     </button>
@@ -362,7 +362,7 @@ export default function NeuralForensicsPage() {
                             )}
 
                             {osintLogs.length > 0 && (
-                                <div className="bg-black/40 rounded-xl p-4 border border-indigo-500/30 font-mono text-xs space-y-2">
+                                <div className="bg-black/40 rounded-xl p-4 border border-primary/30 font-mono text-xs space-y-2">
                                     {osintLogs.map((log, i) => (
                                         <div key={i} className="flex gap-2 text-amber-300 animate-in slide-in-from-left-2 fade-in duration-300">
                                             <span className="opacity-50">{">"}</span>

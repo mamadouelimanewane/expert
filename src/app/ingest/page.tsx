@@ -164,7 +164,7 @@ export default function IngestPage() {
                         <div key={idx} className="flex items-center gap-2">
                             <div className={cn(
                                 "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                                isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30" :
+                                isActive ? "bg-primary text-white shadow-lg shadow-primary/30" :
                                     isDone ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-500"
                             )}>
                                 {isDone ? <Check className="w-4 h-4" /> : idx + 1}
@@ -189,7 +189,7 @@ export default function IngestPage() {
                             <select
                                 value={clientId}
                                 onChange={(e) => handleClientChange(e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500"
+                                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary"
                             >
                                 <option value="">— Sélectionner un client —</option>
                                 {clients.map((c) => (
@@ -207,7 +207,7 @@ export default function IngestPage() {
                                 onChange={(e) => setRawMessages(e.target.value)}
                                 rows={6}
                                 placeholder={"Ex:\nVendu 50000 de ciment\nPayé 10000 pour le transport\nAcheté du stock 25000"}
-                                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono resize-none"
+                                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono resize-none"
                             />
                             <p className="text-[11px] text-slate-500">
                                 Le moteur détecte automatiquement le sens (recette/dépense) et suggère les comptes OHADA correspondants.
@@ -222,7 +222,7 @@ export default function IngestPage() {
                             <button
                                 onClick={startProcessing}
                                 disabled={processing}
-                                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/25"
+                                className="px-6 py-2.5 bg-primary hover:brightness-110 disabled:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-primary/25"
                             >
                                 {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
                                 Lancer l'imputation
@@ -238,7 +238,7 @@ export default function IngestPage() {
                             <div>
                                 <h3 className="text-lg font-bold text-white">Revue des Écritures</h3>
                                 <p className="text-sm text-slate-400">
-                                    <span className="text-emerald-400 font-bold">{entries.length}</span> écriture(s) créée(s) dans le journal de <span className="text-indigo-400">{businessName}</span>
+                                    <span className="text-emerald-400 font-bold">{entries.length}</span> écriture(s) créée(s) dans le journal de <span className="text-primary">{businessName}</span>
                                 </p>
                             </div>
                             <button
@@ -274,16 +274,16 @@ export default function IngestPage() {
                                                 {(tx.entree > 0 ? tx.entree : tx.sortie).toLocaleString("fr-FR")} F
                                             </td>
                                             <td className="p-3">
-                                                <span className="text-xs text-indigo-300 font-mono">{tx.debitCompte}</span>
+                                                <span className="text-xs text-primary-foreground/70 font-mono">{tx.debitCompte}</span>
                                                 <span className="text-slate-600 mx-1">→</span>
-                                                <span className="text-xs text-indigo-300 font-mono">{tx.creditCompte}</span>
+                                                <span className="text-xs text-primary-foreground/70 font-mono">{tx.creditCompte}</span>
                                                 <p className="text-[10px] text-slate-500 mt-0.5">{tx.debitIntitule} / {tx.creditIntitule}</p>
                                             </td>
                                             <td className="p-3 text-center">
                                                 <div className={cn(
                                                     "px-2 py-0.5 rounded text-[10px] font-bold inline-block min-w-[3rem]",
                                                     tx.confidenceScore > 0.9 ? "bg-emerald-500/10 text-emerald-400" :
-                                                        tx.confidenceScore > 0.7 ? "bg-indigo-500/10 text-indigo-400" : "bg-rose-500/10 text-rose-400"
+                                                        tx.confidenceScore > 0.7 ? "bg-primary/10 text-primary" : "bg-rose-500/10 text-rose-400"
                                                 )}>
                                                     {Math.round(tx.confidenceScore * 100)}%
                                                 </div>
@@ -324,7 +324,7 @@ export default function IngestPage() {
                         <h3 className="text-2xl font-bold text-white mb-2">Importation Terminée</h3>
                         <p className="text-slate-400 mb-8">
                             <strong className="text-white">{entries.filter((e) => e.status === "APPROVED").length} écriture(s)</strong> validée(s) dans le journal de <br />
-                            <span className="text-indigo-400">{businessName}</span>.
+                            <span className="text-primary">{businessName}</span>.
                         </p>
                         <div className="flex gap-4">
                             <button

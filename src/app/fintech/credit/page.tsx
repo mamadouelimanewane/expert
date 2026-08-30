@@ -67,7 +67,7 @@ export default function DossierCreditAuto() {
   }, []);
 
   if (loading) {
-    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
   if (!client) {
@@ -138,7 +138,7 @@ export default function DossierCreditAuto() {
               const isActive = s.id === step;
               return (
                 <div key={s.id} className="flex items-center gap-2 flex-shrink-0">
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${isActive ? "bg-indigo-600 text-white" : isDone ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-800 text-slate-500"}`}>
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${isActive ? "bg-primary text-white" : isDone ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/20" : "bg-slate-800 text-slate-500"}`}>
                     {isDone ? <CheckCircle className="w-3.5 h-3.5" /> : <span className="w-4 h-4 rounded-full border-2 border-current flex items-center justify-center text-[9px]">{i + 1}</span>}
                     {s.label}
                   </div>
@@ -156,7 +156,7 @@ export default function DossierCreditAuto() {
               <div className="space-y-4">
                 <div className="p-5 bg-slate-900/40 border border-white/5 rounded-[24px]">
                   <h3 className="font-black text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-indigo-400" /> Indicateurs Financiers ({financialData.year})
+                    <TrendingUp className="w-4 h-4 text-primary" /> Indicateurs Financiers ({financialData.year})
                   </h3>
                   <div className="space-y-3">
                     {[
@@ -184,7 +184,7 @@ export default function DossierCreditAuto() {
                   </div>
                 </div>
 
-                <button onClick={() => setStep("montant")} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 active:scale-95">
+                <button onClick={() => setStep("montant")} className="w-full py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 active:scale-95">
                   Définir le Montant <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -207,7 +207,7 @@ export default function DossierCreditAuto() {
                   min={500000} max={Math.max(maxMontant, 500000)} step={500000}
                   value={montantDemande}
                   onChange={e => setMontantDemande(parseInt(e.target.value))}
-                  className="w-full accent-indigo-500"
+                  className="w-full accent-primary"
                 />
 
                 <div className="flex justify-between text-[10px] text-slate-600 font-bold">
@@ -220,7 +220,7 @@ export default function DossierCreditAuto() {
                   Capacité de remboursement estimée (40% EBITDA/12) : {Math.round((financialData.ebitda * 0.4) / 12).toLocaleString("fr-FR")} FCFA/mois
                 </div>
 
-                <button onClick={() => setStep("banque")} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95">
+                <button onClick={() => setStep("banque")} className="w-full py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95">
                   Choisir le Destinataire <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -241,11 +241,11 @@ export default function DossierCreditAuto() {
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
                 placeholder="Ex : Société Générale, Ecobank, BICICI..."
-                className="w-full p-4 rounded-2xl bg-slate-900/40 border border-white/5 text-white placeholder:text-slate-600 outline-none focus:border-indigo-500"
+                className="w-full p-4 rounded-2xl bg-slate-900/40 border border-white/5 text-white placeholder:text-slate-600 outline-none focus:border-primary"
               />
               <button
                 onClick={() => setStep("dossier")}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95"
+                className="w-full py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95"
               >
                 <FileText className="w-4 h-4" /> Générer le Récapitulatif
               </button>
@@ -256,8 +256,8 @@ export default function DossierCreditAuto() {
           {step === "dossier" && (
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="p-6 bg-slate-900/40 border border-white/5 rounded-[28px] flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-indigo-400" />
+                <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-white font-black text-lg">Récapitulatif du dossier</p>
@@ -267,7 +267,7 @@ export default function DossierCreditAuto() {
 
               <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-6 space-y-4">
                 <h3 className="font-black text-white flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-indigo-400" /> Demande de Crédit
+                  <FileText className="w-4 h-4 text-primary" /> Demande de Crédit
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {[
@@ -277,7 +277,7 @@ export default function DossierCreditAuto() {
                     { icon: Clock, label: "Destinataire", val: bankName || "Non renseigné" },
                   ].map(item => (
                     <div key={item.label} className="flex items-start gap-3 p-3 bg-slate-800/40 rounded-xl border border-white/5">
-                      <item.icon className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" />
+                      <item.icon className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="text-[10px] text-slate-500 uppercase tracking-widest">{item.label}</p>
                         <p className="text-sm font-bold text-white mt-0.5">{item.val}</p>

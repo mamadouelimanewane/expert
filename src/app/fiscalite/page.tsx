@@ -47,7 +47,7 @@ type Synthese = {
   dossiersRestants: number;
 };
 const TYPE_COLOR: Record<string, string> = {
-  TVA: "text-violet-400", IS: "text-indigo-400", SOCIAL: "text-emerald-400",
+  TVA: "text-violet-400", IS: "text-primary", SOCIAL: "text-emerald-400",
   BIC: "text-blue-400", RAS: "text-amber-400",
 };
 
@@ -298,15 +298,15 @@ export default function FiscaliteOhada() {
             )}
 
             {/* Lien liasse */}
-            <Link href="/comptabilite/liasse-fiscale" className="flex items-center justify-between p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl hover:bg-indigo-600/20 transition-all group">
+            <Link href="/comptabilite/liasse-fiscale" className="flex items-center justify-between p-5 bg-primary/10 border border-primary/20 rounded-2xl hover:brightness-110/20 transition-all group">
               <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-indigo-400" />
+                <FileText className="w-5 h-5 text-primary" />
                 <div>
                   <p className="font-black text-white text-sm">Générer la Liasse Fiscale OHADA</p>
                   <p className="text-[10px] text-slate-400">Bilan + Compte de Résultat + États annexés</p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors" />
+              <ArrowRight className="w-5 h-5 text-slate-500 group-hover:text-primary transition-colors" />
             </Link>
           </div>
         </div>
@@ -356,10 +356,10 @@ export default function FiscaliteOhada() {
               ))}
             </div>
 
-            <div className="p-5 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+            <div className="p-5 bg-primary/5 border border-primary/20 rounded-2xl flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="text-indigo-300 font-black text-xs">Recommandation IA</p>
+                <p className="text-primary-foreground/70 font-black text-xs">Recommandation IA</p>
                 <p className="text-slate-400 text-xs mt-1 leading-relaxed">
                   {beneficeNet > 0 && impotDu === cmbAmount
                     ? "⚠️ La CMB est supérieure à l'IS théorique. Envisagez d'optimiser vos charges déductibles ou de provisionner davantage avant clôture."
@@ -424,10 +424,10 @@ export default function FiscaliteOhada() {
                 return (
                   <div key={day} className={cn(
                     "min-h-[80px] rounded-2xl border p-2 transition-all",
-                    isToday ? "bg-indigo-600/20 border-indigo-500/40" :
+                    isToday ? "bg-primary/20 border-primary/40" :
                     evts.length > 0 ? "bg-slate-800/50 border-white/10" : "bg-slate-900/20 border-white/5"
                   )}>
-                    <span className={cn("text-sm font-black", isToday ? "text-indigo-400" : evts.length > 0 ? "text-white" : "text-slate-600")}>{day}</span>
+                    <span className={cn("text-sm font-black", isToday ? "text-primary" : evts.length > 0 ? "text-white" : "text-slate-600")}>{day}</span>
                     <div className="mt-1 space-y-1">
                       {evts.map((ev, idx) => (
                         <div key={idx} className={cn(

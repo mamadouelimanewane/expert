@@ -53,7 +53,7 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
     // Organisation en colonnes pour le Kanban (statuts du schéma Prisma)
     const columns = [
         { id: "todo", title: "À Faire / Draft", color: "bg-slate-500", status: "DRAFT" },
-        { id: "in-progress", title: "En Cours", color: "bg-indigo-500", status: "IN_PROGRESS" },
+        { id: "in-progress", title: "En Cours", color: "bg-primary", status: "IN_PROGRESS" },
         { id: "review", title: "Révision Expert", color: "bg-amber-500", status: "PENDING_REVIEW" },
         { id: "done", title: "Terminé / Archivé", color: "bg-emerald-500", status: "COMPLETED" }
     ];
@@ -68,7 +68,7 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Briefcase className="w-10 h-10 text-indigo-500" />
+                        <Briefcase className="w-10 h-10 text-primary" />
                         Management des Missions
                     </h2>
                     <p className="page-subtitle">Pilotage de la production comptable et suivi des échéances légales.</p>
@@ -82,10 +82,10 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                             name="q"
                             defaultValue={q}
                             placeholder="Rechercher une mission... (Entrée)"
-                            className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-2xl text-sm text-white focus:border-indigo-500 outline-none transition-all shadow-inner"
+                            className="w-full pl-11 pr-4 py-3 bg-slate-900/50 border border-white/5 rounded-2xl text-sm text-white focus:border-primary outline-none transition-all shadow-inner"
                         />
                     </form>
-                    <Link href="/missions/new" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-indigo-600/30 flex items-center gap-3 active:scale-95">
+                    <Link href="/missions/new" className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-primary/30 flex items-center gap-3 active:scale-95">
                         <Plus className="w-5 h-5" />
                         Nouvelle Mission
                     </Link>
@@ -115,13 +115,13 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                                 {/* Tasks List */}
                                 <div className="flex-1 bg-slate-900/40 rounded-[32px] p-3 space-y-4 overflow-y-auto border border-white/5 shadow-inner backdrop-blur-sm">
                                     {colMissions.length > 0 ? colMissions.map((mission: MissionWithRelations) => (
-                                        <div key={mission.id} className="group p-5 bg-slate-800/50 hover:bg-slate-800/80 rounded-2xl border border-white/5 hover:border-indigo-500/30 cursor-pointer transition-all shadow-lg hover:shadow-indigo-500/10 relative overflow-hidden">
+                                        <div key={mission.id} className="group p-5 bg-slate-800/50 hover:bg-slate-800/80 rounded-2xl border border-white/5 hover:border-primary/30 cursor-pointer transition-all shadow-lg hover:shadow-primary/10 relative overflow-hidden">
                                             {/* Accent Gradient */}
                                             <div className={cn("absolute top-0 left-0 w-1 h-full opacity-50", col.color)} />
 
                                             <div className="flex items-start justify-between mb-4">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 text-[8px] font-black uppercase tracking-widest border border-indigo-500/20">
+                                                    <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest border border-primary/20">
                                                         #{mission.id.slice(-4)}
                                                     </span>
                                                 </div>
@@ -130,7 +130,7 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                                                 </button>
                                             </div>
 
-                                            <h4 className="font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors text-sm sm:text-base leading-tight">{mission.title}</h4>
+                                            <h4 className="font-bold text-white mb-1 group-hover:text-primary-foreground/70 transition-colors text-sm sm:text-base leading-tight">{mission.title}</h4>
                                             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5">
                                                 <span className="w-1 h-1 bg-slate-600 rounded-full inline-block" />
                                                 {mission.client?.companyName}
@@ -163,7 +163,7 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                                     )}
 
                                     {/* Quick Add Button at bottom of column */}
-                                    <Link href="/missions/new" className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-400 hover:bg-white/5 transition-all flex items-center justify-center">
+                                    <Link href="/missions/new" className="w-full py-4 border border-dashed border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-primary hover:bg-white/5 transition-all flex items-center justify-center">
                                         + Nouvelle Mission
                                     </Link>
                                 </div>

@@ -107,7 +107,7 @@ export default function ClientSuccessRadar() {
 
             {/* Strategic KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <HealthStat icon={HeartPulse} label="Score Moyen Portfolio" value={data.kpis.avgScore ?? "—"} unit={data.kpis.avgScore !== null ? "/100" : ""} color="text-indigo-400" />
+                <HealthStat icon={HeartPulse} label="Score Moyen Portfolio" value={data.kpis.avgScore ?? "—"} unit={data.kpis.avgScore !== null ? "/100" : ""} color="text-primary" />
                 <HealthStat icon={ShieldAlert} label="Clients à Haut Risque" value={data.kpis.highRiskCount} color="text-rose-400" />
                 <HealthStat icon={Users} label="Prospects Qualifiés" value={data.kpis.qualifiedProspects} color="text-emerald-400" />
                 <HealthStat icon={Briefcase} label="Missions Actives" value={data.kpis.activeMissions} color="text-amber-400" />
@@ -125,7 +125,7 @@ export default function ClientSuccessRadar() {
                                     placeholder="Filtrer un client..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64"
+                                    className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64"
                                 />
                             </div>
                         </div>
@@ -146,12 +146,12 @@ export default function ClientSuccessRadar() {
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors uppercase">{client.name}</h4>
+                                            <h4 className="text-lg font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors uppercase">{client.name}</h4>
                                         </div>
                                         <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> interaction: {client.lastInteraction}</span>
                                             <span className="w-1 h-1 bg-slate-800 rounded-full" />
-                                            <span className="text-indigo-400">Next: {client.nextAction}</span>
+                                            <span className="text-primary">Next: {client.nextAction}</span>
                                         </div>
                                     </div>
 

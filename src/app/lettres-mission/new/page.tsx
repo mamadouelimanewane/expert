@@ -157,13 +157,13 @@ export default function NewLettreMissionPage() {
               onClick={() => setStep(s.n)}
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all",
-                step >= s.n ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-500"
+                step >= s.n ? "bg-primary text-white" : "bg-slate-800 text-slate-500"
               )}
             >
               {step > s.n ? <CheckCircle2 className="w-4 h-4" /> : s.n}
             </button>
             <span className={cn("text-xs font-bold hidden sm:block", step >= s.n ? "text-white" : "text-slate-500")}>{s.label}</span>
-            {i < 2 && <div className={cn("flex-1 h-px", step > s.n ? "bg-indigo-600" : "bg-slate-800")} />}
+            {i < 2 && <div className={cn("flex-1 h-px", step > s.n ? "bg-primary" : "bg-slate-800")} />}
           </div>
         ))}
       </div>
@@ -171,7 +171,7 @@ export default function NewLettreMissionPage() {
       {/* Step 1: Informations */}
       {step === 1 && (
         <div className="apix-card space-y-6">
-          <h3 className="text-lg font-black text-white flex items-center gap-3"><Building2 className="w-5 h-5 text-indigo-400" /> Informations Client & Mission</h3>
+          <h3 className="text-lg font-black text-white flex items-center gap-3"><Building2 className="w-5 h-5 text-primary" /> Informations Client & Mission</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -183,7 +183,7 @@ export default function NewLettreMissionPage() {
                   setForm({ ...form, clientId: id, clientName: clients.find(c => c.id === id)?.nom ?? "" });
                 }}
                 disabled={chargementClients}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors disabled:opacity-50"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors disabled:opacity-50"
               >
                 <option value="">
                   {chargementClients ? "Chargement du portefeuille..." : "Selectionnez un client"}
@@ -205,7 +205,7 @@ export default function NewLettreMissionPage() {
                 value={form.signataire}
                 onChange={e => setForm({ ...form, signataire: e.target.value })}
                 placeholder="M. Jean Kouassi, Expert-Comptable"
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function NewLettreMissionPage() {
                   className={cn(
                     "p-3 rounded-xl border flex flex-col items-center gap-2 transition-all text-center",
                     form.missionType === value
-                      ? "bg-indigo-600/20 border-indigo-500/50 text-indigo-400"
+                      ? "bg-primary/20 border-primary/50 text-primary"
                       : "bg-slate-800/30 border-white/5 text-slate-500 hover:border-white/10 hover:text-white"
                   )}
                 >
@@ -238,7 +238,7 @@ export default function NewLettreMissionPage() {
                 type="date"
                 value={form.startDate}
                 onChange={e => setForm({ ...form, startDate: e.target.value })}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
             <div>
@@ -247,7 +247,7 @@ export default function NewLettreMissionPage() {
                 type="date"
                 value={form.endDate}
                 onChange={e => setForm({ ...form, endDate: e.target.value })}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
           </div>
@@ -256,7 +256,7 @@ export default function NewLettreMissionPage() {
             <button
               onClick={() => setStep(2)}
               disabled={!form.clientId || !form.signataire}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Suivant →
             </button>
@@ -277,7 +277,7 @@ export default function NewLettreMissionPage() {
                 value={form.honoraires}
                 onChange={e => setForm({ ...form, honoraires: e.target.value })}
                 placeholder="150000"
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
             <div>
@@ -285,7 +285,7 @@ export default function NewLettreMissionPage() {
               <select
                 value={form.periodicite}
                 onChange={e => setForm({ ...form, periodicite: e.target.value })}
-                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               >
                 <option value="MENSUEL">Mensuel</option>
                 <option value="TRIMESTRIEL">Trimestriel</option>
@@ -303,15 +303,15 @@ export default function NewLettreMissionPage() {
               onChange={e => setForm({ ...form, description: e.target.value })}
               rows={4}
               placeholder="Tenue de comptabilité, établissement des déclarations fiscales mensuelles (TVA, IS), établissement des bulletins de paie..."
-              className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+              className="w-full bg-slate-800/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-primary transition-colors resize-none"
             />
           </div>
 
           {/* Aperçu montant */}
           {form.honoraires && (
-            <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-between">
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-between">
               <div>
-                <p className="text-xs text-indigo-400 font-black uppercase tracking-widest">Total annuel estimé</p>
+                <p className="text-xs text-primary font-black uppercase tracking-widest">Total annuel estimé</p>
                 <p className="text-2xl font-black text-white mt-1">
                   {(parseInt(form.honoraires) * (form.periodicite === "MENSUEL" ? 12 : form.periodicite === "TRIMESTRIEL" ? 4 : form.periodicite === "SEMESTRIEL" ? 2 : 1)).toLocaleString("fr-FR")} FCFA
                 </p>
@@ -338,7 +338,7 @@ export default function NewLettreMissionPage() {
             <button
               onClick={handleGenerate}
               disabled={!form.honoraires || envoi}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 flex items-center gap-2"
+              className="px-8 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all disabled:opacity-40 flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4" /> {envoi ? "Enregistrement…" : "Générer la Lettre"}
             </button>
@@ -365,7 +365,7 @@ export default function NewLettreMissionPage() {
           <div className="apix-card">
             <div className="max-w-2xl mx-auto bg-white text-slate-900 rounded-2xl p-8 sm:p-12 shadow-2xl text-sm leading-relaxed">
               <div className="text-center border-b border-slate-200 pb-6 mb-8">
-                <h1 className="text-xl font-black uppercase tracking-widest text-indigo-700">CABINET 360</h1>
+                <h1 className="text-xl font-black uppercase tracking-widest text-primary">CABINET 360</h1>
                 <p className="text-slate-500 text-xs mt-1">Expert-Comptable & Commissaire aux Comptes</p>
               </div>
 

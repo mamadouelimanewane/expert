@@ -93,7 +93,7 @@ export default function CapacityPlanningPage() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 py-6 border-b border-white/5">
                 <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-indigo-500/20">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold tracking-widest uppercase mb-4 border border-primary/20">
                         <Users className="w-3 h-3" /> Planification RH
                     </div>
                     <h1 className="page-title">
@@ -143,7 +143,7 @@ export default function CapacityPlanningPage() {
             {/* Répartition */}
             <div className="apix-card space-y-6">
                 <h3 className="font-bold text-white text-xl flex items-center gap-3">
-                    <BarChart3 className="w-5 h-5 text-indigo-400" />
+                    <BarChart3 className="w-5 h-5 text-primary" />
                     Répartition par collaborateur
                 </h3>
 

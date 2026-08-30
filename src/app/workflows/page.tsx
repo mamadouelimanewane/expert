@@ -45,7 +45,7 @@ const COLUMN_ICONS: Record<string, any> = {
 
 const COLUMN_STYLES: Record<string, string> = {
     DRAFT: "border-slate-800 bg-slate-900/10",
-    IN_PROGRESS: "border-indigo-500/10 bg-indigo-500/[0.02]",
+    IN_PROGRESS: "border-primary/10 bg-primary/[0.02]",
     PENDING_REVIEW: "border-amber-500/10 bg-amber-500/[0.02]",
     COMPLETED: "border-emerald-500/10 bg-emerald-500/[0.02]",
 };
@@ -153,7 +153,7 @@ function MissionCard({ mission }: { mission: WorkflowMission }) {
 
             <div className="mt-4 flex items-center justify-between">
                 <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-indigo-600 border border-slate-900 flex items-center justify-center text-[8px] font-black text-white">
+                    <div className="w-6 h-6 rounded-full bg-primary border border-slate-900 flex items-center justify-center text-[8px] font-black text-white">
                         {mission.collaborator[0] || "?"}
                     </div>
                 </div>

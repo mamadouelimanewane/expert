@@ -13,7 +13,7 @@ export default function WelcomePackPage() {
                     <p className="text-[11px] text-slate-400 mb-4">Exportez votre Welcome Pack personnalisé au format PDF via <kbd className="bg-white/10 px-1 rounded">Ctrl + P</kbd>.</p>
                     <button
                         onClick={() => window.print()}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20">
+                        className="w-full py-3 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                         Imprimer le Welcome Pack
                     </button>
                 </div>
@@ -22,7 +22,7 @@ export default function WelcomePackPage() {
             <div className="max-w-[210mm] mx-auto bg-white border-x border-slate-100">
                 {/* PAGE 1: WELCOME LETTER */}
                 <section className="h-[297mm] p-24 flex flex-col justify-between break-after-page relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 -mr-32 -mt-32 rounded-full blur-3xl" />
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 -mr-32 -mt-32 rounded-full blur-3xl" />
 
                     <div>
                         <div className="flex justify-between items-start mb-24">
@@ -41,7 +41,7 @@ export default function WelcomePackPage() {
                         <div className="space-y-12 max-w-2xl">
                             <h1 className="text-2xl sm:text-3xl lg:text-5xl font-sans font-black text-slate-900 tracking-tight leading-none uppercase">
                                 Bienvenue dans <br />
-                                <span className="text-indigo-600">l'Excellence 4.0</span>
+                                <span className="text-primary">l'Excellence 4.0</span>
                             </h1>
 
                             <p className="text-lg text-slate-700 leading-relaxed italic">
@@ -70,10 +70,10 @@ export default function WelcomePackPage() {
                             <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Cabinet Expert & Consulting OHADA</p>
                             <div className="flex gap-6 grayscale opacity-80">
                                 <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
-                                    <Globe className="w-3 h-3 text-indigo-600" /> Dakar - Abidjan - Cotonou
+                                    <Globe className="w-3 h-3 text-primary" /> Dakar - Abidjan - Cotonou
                                 </div>
                                 <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest">
-                                    <Mail className="w-3 h-3 text-indigo-600" /> expert@ohada.pro
+                                    <Mail className="w-3 h-3 text-primary" /> expert@ohada.pro
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@ export default function WelcomePackPage() {
                 {/* PAGE 2: QUICK START GUIDE (Visual) */}
                 <section className="h-[297mm] p-24 break-after-page bg-slate-50 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 rotate-12">
-                        <Rocket className="w-96 h-96 text-indigo-600" />
+                        <Rocket className="w-96 h-96 text-primary" />
                     </div>
 
                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-sans font-black uppercase tracking-tight mb-16 border-b-4 border-slate-900 pb-4 inline-block">Quick Start Guide</h2>
@@ -102,7 +102,7 @@ export default function WelcomePackPage() {
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
-                                        <item.icon className="w-4 h-4 text-indigo-600" />
+                                        <item.icon className="w-4 h-4 text-primary" />
                                         <h3 className="text-xl font-black uppercase text-slate-900">{item.title}</h3>
                                     </div>
                                     <p className="text-slate-500 font-serif leading-relaxed italic">{item.desc}</p>
@@ -116,8 +116,8 @@ export default function WelcomePackPage() {
                             <h4 className="text-xl font-bold mb-4">Besoin d'aide immédiate ?</h4>
                             <p className="text-slate-400 text-sm mb-8">Nos experts onboarding sont disponibles 24/7 via la messagerie sécurisée.</p>
                             <div className="flex gap-6 font-sans text-[10px] font-black uppercase tracking-widest">
-                                <span className="flex items-center gap-2 text-indigo-400"><ArrowRight className="w-4 h-4" /> Slack Élite</span>
-                                <span className="flex items-center gap-2 text-indigo-400"><ArrowRight className="w-4 h-4" /> Support Prioritaire</span>
+                                <span className="flex items-center gap-2 text-primary"><ArrowRight className="w-4 h-4" /> Slack Élite</span>
+                                <span className="flex items-center gap-2 text-primary"><ArrowRight className="w-4 h-4" /> Support Prioritaire</span>
                             </div>
                         </div>
                     </div>

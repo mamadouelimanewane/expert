@@ -13,7 +13,7 @@ interface ScoreEvolutionChartProps {
   height?: number;
 }
 
-export function ScoreEvolutionChart({ data, color = "#6366f1", height = 120 }: ScoreEvolutionChartProps) {
+export function ScoreEvolutionChart({ data, color = "#006B3F", height = 120 }: ScoreEvolutionChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

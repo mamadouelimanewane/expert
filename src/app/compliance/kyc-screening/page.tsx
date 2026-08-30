@@ -168,7 +168,7 @@ export default function KycScreeningPage() {
             <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden">
                 <div className="p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-900/60">
                     <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-indigo-400" />
+                        <Globe className="w-5 h-5 text-primary" />
                         Portefeuille ({resultats.length})
                     </h3>
                     <div className="relative">
@@ -178,7 +178,7 @@ export default function KycScreeningPage() {
                             value={recherche}
                             onChange={(e) => setRecherche(e.target.value)}
                             placeholder="Rechercher une entité…"
-                            className="bg-slate-950 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-indigo-500"
+                            className="bg-slate-950 border border-white/5 rounded-xl pl-10 pr-4 py-2 text-sm text-white w-64 focus:outline-none focus:border-primary"
                         />
                     </div>
                 </div>

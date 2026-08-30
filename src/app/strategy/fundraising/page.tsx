@@ -227,7 +227,7 @@ function ResearchDossierSection() {
             <div className="lg:col-span-2 space-y-6">
                 <div className="apix-card">
                     <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-3">
-                        <ShieldCheck className="w-5 h-5 text-indigo-400" />
+                        <ShieldCheck className="w-5 h-5 text-primary" />
                         Checklist Due Diligence
                     </h3>
                     <div className="space-y-4">
@@ -387,7 +387,7 @@ function PitchSimulatorSection() {
                         <div key={idx} className={cn("flex", m.role === 'user' ? "justify-end" : "justify-start")}>
                             <div className={cn(
                                 "max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed",
-                                m.role === 'user' ? "bg-indigo-600 text-white shadow-xl" : "bg-slate-800 text-slate-300"
+                                m.role === 'user' ? "bg-primary text-white shadow-xl" : "bg-slate-800 text-slate-300"
                             )}>
                                 {m.text}
                             </div>

@@ -182,17 +182,17 @@ export default function HealthReportPage() {
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', 'Segoe UI', sans-serif; background: white; color: #1e293b; padding: 40px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 3px solid #6366f1; padding-bottom: 20px; }
-        .logo { font-size: 24px; font-weight: 900; color: #6366f1; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 3px solid #006B3F; padding-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 900; color: #006B3F; }
         .date { color: #94a3b8; font-size: 12px; }
         .title { font-size: 22px; font-weight: 900; margin: 20px 0; }
         .section { margin: 24px 0; }
-        .section-title { font-size: 14px; font-weight: 800; color: #6366f1; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-left: 4px solid #6366f1; padding-left: 12px; }
+        .section-title { font-size: 14px; font-weight: 800; color: #006B3F; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-left: 4px solid #006B3F; padding-left: 12px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .metric { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
         .metric-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
         .metric-value { font-size: 24px; font-weight: 900; margin-top: 4px; }
-        .score-box { text-align: center; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border-radius: 20px; padding: 32px; margin: 24px 0; }
+        .score-box { text-align: center; background: linear-gradient(135deg, #006B3F, #009639); color: white; border-radius: 20px; padding: 32px; margin: 24px 0; }
         .score-number { font-size: 64px; font-weight: 900; }
         .rating { font-size: 28px; font-weight: 900; margin-top: 8px; }
         .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 10px; }
@@ -249,7 +249,7 @@ export default function HealthReportPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <FileText className="w-8 h-8 text-indigo-500" />
+                        <FileText className="w-8 h-8 text-primary" />
                         Rapport de Santé Financière
                     </h2>
                     <p className="page-subtitle">Score calculé à partir des données réellement enregistrées</p>
@@ -279,7 +279,7 @@ export default function HealthReportPage() {
                                 }}
                                 className={`p-4 rounded-2xl border text-left transition-all ${
                                     clientId === c.id
-                                        ? "bg-indigo-600/20 border-indigo-500/30 ring-2 ring-indigo-500/20"
+                                        ? "bg-primary/20 border-primary/30 ring-2 ring-primary/20"
                                         : "bg-slate-800/40 border-white/5 hover:border-white/10"
                                 }`}
                             >
@@ -309,10 +309,10 @@ export default function HealthReportPage() {
 
             {selectedClient && (
                 <div ref={reportRef} className="bg-slate-900/40 border border-white/5 rounded-[28px] overflow-hidden">
-                    <div className="bg-gradient-to-r from-indigo-600/20 to-violet-600/10 p-8 border-b border-white/5">
+                    <div className="bg-gradient-to-r from-primary/20 to-violet-600/10 p-8 border-b border-white/5">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div>
-                                <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.2em] mb-2">
+                                <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mb-2">
                                     Rapport de Santé Financière
                                 </p>
                                 <h3 className="text-2xl font-black text-white">{selectedClient.name}</h3>
@@ -326,7 +326,7 @@ export default function HealthReportPage() {
                                 <button
                                     onClick={recalculer}
                                     disabled={calcul}
-                                    className="mt-2 flex items-center gap-1.5 text-[10px] text-indigo-400 hover:text-indigo-300 font-bold uppercase disabled:opacity-50"
+                                    className="mt-2 flex items-center gap-1.5 text-[10px] text-primary hover:text-primary-foreground/70 font-bold uppercase disabled:opacity-50"
                                 >
                                     <RefreshCw className={`w-3 h-3 ${calcul ? "animate-spin" : ""}`} />
                                     {calcul ? "Calcul…" : "Recalculer le score"}
@@ -346,7 +346,7 @@ export default function HealthReportPage() {
                         ) : (
                             <>
                                 <div className="flex items-center gap-8 flex-wrap">
-                                    <div className="bg-gradient-to-br from-indigo-600/30 to-violet-600/20 border border-indigo-500/20 rounded-[24px] p-8 text-center shrink-0">
+                                    <div className="bg-gradient-to-br from-primary/30 to-violet-600/20 border border-primary/20 rounded-[24px] p-8 text-center shrink-0">
                                         <p className="text-7xl font-black tabular-nums" style={{ color: couleur }}>
                                             {score}
                                         </p>
@@ -384,7 +384,7 @@ export default function HealthReportPage() {
                                 </div>
 
                                 <div>
-                                    <p className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <p className="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <BarChart2 className="w-4 h-4" /> Facteurs du score
                                     </p>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -444,7 +444,7 @@ export default function HealthReportPage() {
                 <div className="flex gap-3 flex-wrap">
                     <button
                         onClick={handlePrint}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-xs transition-colors shadow-lg shadow-indigo-500/20"
+                        className="flex items-center gap-2 px-6 py-3.5 bg-primary hover:brightness-110 text-white rounded-2xl font-black text-xs transition-colors shadow-lg shadow-primary/20"
                     >
                         <Printer className="w-4 h-4" /> Imprimer / Exporter PDF
                     </button>

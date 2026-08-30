@@ -456,7 +456,7 @@ export default function TPEClientPortalPage() {
             {/* Envoyer une dépense */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-5 flex flex-col items-start gap-3 active:scale-95 transition-transform shadow-lg shadow-indigo-200 text-left"
+              className="relative overflow-hidden bg-gradient-to-br from-primary to-primary rounded-2xl p-5 flex flex-col items-start gap-3 active:scale-95 transition-transform shadow-lg shadow-primary text-left"
             >
               <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
                 <Camera size={22} className="text-white" />
@@ -530,7 +530,7 @@ export default function TPEClientPortalPage() {
             <h2 className="text-slate-700 font-bold text-base flex items-center gap-2">
               🧾 Mes dernières dépenses
             </h2>
-            <button className="text-indigo-600 text-xs font-semibold flex items-center gap-0.5 hover:text-indigo-800 transition-colors">
+            <button className="text-primary text-xs font-semibold flex items-center gap-0.5 hover:text-primary transition-colors">
               Tout voir <ChevronRight size={14} />
             </button>
           </div>
@@ -606,15 +606,15 @@ export default function TPEClientPortalPage() {
         </div>
 
         {/* ── Tip Banner ───────────────────────────────────────────────── */}
-        <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-2xl px-5 py-4 flex items-start gap-3">
-          <TrendingUp size={22} className="text-indigo-500 shrink-0 mt-0.5" />
+        <div className="bg-gradient-to-r from-primary to-violet-50 border border-primary rounded-2xl px-5 py-4 flex items-start gap-3">
+          <TrendingUp size={22} className="text-primary shrink-0 mt-0.5" />
           <div>
-            <p className="text-indigo-800 font-semibold text-sm">Conseil du mois 💡</p>
-            <p className="text-indigo-600 text-xs mt-1 leading-relaxed">
+            <p className="text-primary font-semibold text-sm">Conseil du mois 💡</p>
+            <p className="text-primary text-xs mt-1 leading-relaxed">
               Vos charges ont augmenté de 12% ce mois. Votre comptable vous a préparé des
               recommandations pour optimiser vos coûts.
             </p>
-            <button className="mt-2 text-indigo-700 text-xs font-bold underline underline-offset-2">
+            <button className="mt-2 text-primary text-xs font-bold underline underline-offset-2">
               Voir les recommandations →
             </button>
           </div>

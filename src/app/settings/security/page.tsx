@@ -50,12 +50,12 @@ export default function SecuritySovereigntyPage() {
             {/* Hero Section */}
             <div className="relative p-4 sm:p-8 lg:p-12 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <ShieldCheck className="w-64 h-64 text-indigo-400" />
+                    <ShieldCheck className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 max-w-3xl">
                     <h2 className="page-title">
-                        Sécurité & <span className="text-indigo-400">Journal d&apos;audit</span>
+                        Sécurité & <span className="text-primary">Journal d&apos;audit</span>
                     </h2>
                     <p className="page-subtitle">
                         Traçabilité des actions effectuées dans l&apos;application.
@@ -78,18 +78,18 @@ export default function SecuritySovereigntyPage() {
                             label="Transport"
                             title="HTTPS / TLS"
                             desc="Chiffrement en transit standard pour toutes les requêtes."
-                            color="text-indigo-400"
+                            color="text-primary"
                         />
                     </div>
 
                     <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3">
-                            <History className="w-6 h-6 text-indigo-400" />
+                            <History className="w-6 h-6 text-primary" />
                             Journal d&apos;Audit
                         </h3>
                         {chargement ? (
                             <div className="flex justify-center py-10">
-                                <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                                <Loader2 className="w-6 h-6 text-primary animate-spin" />
                             </div>
                         ) : logs.length === 0 ? (
                             <p className="text-sm text-slate-500 text-center py-10">Aucune action journalisée pour le moment.</p>
@@ -141,9 +141,9 @@ function AuditRow({ action, entity, user, time }: { action: string; entity: stri
     return (
         <div className="flex items-center justify-between p-4 rounded-2xl border border-white/5 hover:bg-white/[0.02] transition-all group">
             <div className="flex items-center gap-4">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(0, 107, 63,0.5)]" />
                 <div>
-                    <p className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">{action} — {entity}</p>
+                    <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">{action} — {entity}</p>
                     <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{user}</p>
                 </div>
             </div>

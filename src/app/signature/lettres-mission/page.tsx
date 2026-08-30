@@ -94,7 +94,7 @@ export default function SignaturePage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <PenTool className="w-6 h-6 text-indigo-500" /> E-Signature Intégrée
+            <PenTool className="w-6 h-6 text-primary" /> E-Signature Intégrée
           </h2>
           <p className="page-subtitle">Signez numériquement vos lettres de mission (empreinte d'intégrité, pas une signature qualifiée)</p>
         </div>
@@ -117,12 +117,12 @@ export default function SignaturePage() {
                   className={cn(
                     "p-4 rounded-2xl border transition-all cursor-pointer group",
                     selectedDoc?.id === doc.id
-                      ? "bg-indigo-500/10 border-indigo-500/30"
+                      ? "bg-primary/10 border-primary/30"
                       : "bg-slate-800/30 border-white/5 hover:bg-slate-800/50"
                   )}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <p className={cn("text-sm font-bold", selectedDoc?.id === doc.id ? "text-indigo-400" : "text-white")}>{doc.client}</p>
+                    <p className={cn("text-sm font-bold", selectedDoc?.id === doc.id ? "text-primary" : "text-white")}>{doc.client}</p>
                     <span className={cn(
                       "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest",
                       doc.status === 'En attente' ? "bg-amber-500/10 text-amber-400" :
@@ -144,7 +144,7 @@ export default function SignaturePage() {
         <div className="lg:col-span-7">
           {!selectedDoc ? (
             <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 min-h-[600px] flex items-center justify-center text-slate-500 text-sm">
-              Aucune lettre de mission disponible. Créez-en une depuis <a href="/lettres-mission/new" className="text-indigo-400 underline ml-1">Nouvelle lettre de mission</a>.
+              Aucune lettre de mission disponible. Créez-en une depuis <a href="/lettres-mission/new" className="text-primary underline ml-1">Nouvelle lettre de mission</a>.
             </div>
           ) : (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} key={selectedDoc.id} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl min-h-[600px] flex flex-col">
@@ -154,7 +154,7 @@ export default function SignaturePage() {
                 <h3 className="text-xl font-black text-white">{selectedDoc.reference}</h3>
                 <p className="text-sm font-medium text-slate-400 mt-1">{selectedDoc.client} • {selectedDoc.id}</p>
               </div>
-              <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl">
+              <div className="p-3 bg-primary/10 text-primary rounded-xl">
                 <FileText className="w-6 h-6" />
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function SignaturePage() {
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors flex items-center gap-2">
+                  <button className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors flex items-center gap-2">
                     <Download className="w-4 h-4" /> Télécharger Copie
                   </button>
                 </div>
@@ -220,7 +220,7 @@ export default function SignaturePage() {
                   <button
                     onClick={handleValidateSignature}
                     disabled={!signatureData || isSigning}
-                    className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 shadow-xl shadow-indigo-600/30"
+                    className="px-8 py-4 bg-primary hover:brightness-110 disabled:bg-primary/50 disabled:cursor-not-allowed text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3 shadow-xl shadow-primary/30"
                   >
                     {isSigning ? "Validation en cours..." : "Valider la Signature"}
                     {!isSigning && <Check className="w-4 h-4" />}

@@ -12,7 +12,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, trend, trendUp, icon: Icon, color = "indigo" }: StatCardProps) {
     const colorStyles = {
-        indigo: "from-indigo-500/20 to-indigo-600/5 text-indigo-400 border-indigo-500/20",
+        indigo: "from-primary/20 to-primary/5 text-primary border-primary/20",
         cyan: "from-cyan-500/20 to-cyan-600/5 text-cyan-400 border-cyan-500/20",
         purple: "from-purple-500/20 to-purple-600/5 text-purple-400 border-purple-500/20",
         emerald: "from-emerald-500/20 to-emerald-600/5 text-emerald-400 border-emerald-500/20",
@@ -47,7 +47,7 @@ export function StatCard({ title, value, trend, trendUp, icon: Icon, color = "in
             {/* Background decoration */}
             <div className={cn(
                 "absolute -right-6 -bottom-6 w-24 h-24 rounded-full blur-2xl opacity-20",
-                color === "indigo" && "bg-indigo-500",
+                color === "indigo" && "bg-primary",
                 color === "cyan" && "bg-cyan-500",
                 color === "purple" && "bg-purple-500",
                 color === "emerald" && "bg-emerald-500",

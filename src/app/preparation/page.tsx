@@ -188,7 +188,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     <select
                         value={selectedClient}
                         onChange={(e) => setSelectedClient(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-indigo-500 font-medium"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:outline-none focus:border-primary font-medium"
                     >
                         {clients.map(c => <option key={c.id}>{c.name}</option>)}
                     </select>
@@ -215,7 +215,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                 className={cn(
                                     "p-3 rounded-xl border cursor-pointer transition-all group relative",
                                     selectedDoc?.id === doc.id
-                                        ? "bg-slate-800 border-indigo-500"
+                                        ? "bg-slate-800 border-primary"
                                         : "bg-transparent border-transparent hover:bg-slate-800/50"
                                 )}
                             >
@@ -242,7 +242,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                 </div>
 
                                 {selectedDoc?.id === doc.id && (
-                                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-indigo-500 rounded-r-xl" />
+                                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-primary rounded-r-xl" />
                                 )}
                             </div>
                         ))}
@@ -450,8 +450,8 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport de Mission"}</h4>
                     <p className="text-xs text-slate-500 mt-1">Générer rapport final IA</p>
                 </button>
-                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
-                    <Zap className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all text-left group">
+                    <Zap className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Rapprochement Auto</h4>
                     <p className="text-xs text-slate-500 mt-1">IA vs Comptabilité</p>
                 </button>
@@ -570,8 +570,8 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport de Coûts IA"}</h4>
                     <p className="text-xs text-slate-500 mt-1">Générer rapport de rentabilité</p>
                 </button>
-                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
-                    <Download className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all text-left group">
+                    <Download className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Exporter Fiches Coûts</h4>
                     <p className="text-xs text-slate-500 mt-1">PDF individuel par produit</p>
                 </button>
@@ -585,7 +585,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             <div className="flex justify-between items-start">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Layers className="w-7 h-7 text-indigo-400" />
+                        <Layers className="w-7 h-7 text-primary" />
                         Comptabilité Analytique par Centre
                     </h2>
                     <p className="page-subtitle">Analyse de rentabilité par centre de responsabilité</p>
@@ -595,7 +595,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                         <Wrench className="w-4 h-4" />
                         Clés de Répartition
                     </button>
-                    <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow-lg shadow-indigo-500/25 flex items-center gap-2">
+                    <button className="px-4 py-2 bg-primary hover:brightness-110 text-white rounded-lg font-bold shadow-lg shadow-primary/25 flex items-center gap-2">
                         <Plus className="w-4 h-4" />
                         Nouveau Centre
                     </button>
@@ -615,7 +615,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             <div className="glass-card rounded-2xl border border-slate-700/50 overflow-hidden">
                 <div className="p-4 bg-slate-900/50 border-b border-slate-700/50">
                     <h3 className="font-bold text-white flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-indigo-400" />
+                        <BarChart3 className="w-4 h-4 text-primary" />
                         Tableau de Bord Analytique par Centre
                     </h3>
                 </div>
@@ -639,7 +639,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                             )}
                             {MOCK_CENTERS.map((center) => (
                                 <tr key={center.id} className="border-b border-slate-800/30 hover:bg-slate-800/20 transition-colors">
-                                    <td className="p-4 text-sm font-mono text-indigo-400">{center.code}</td>
+                                    <td className="p-4 text-sm font-mono text-primary">{center.code}</td>
                                     <td className="p-4 text-sm text-white font-medium">{center.name}</td>
                                     <td className="p-4 text-center">
                                         <span className={cn(
@@ -691,8 +691,8 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
 
             {/* Actions Footer */}
             <div className="grid grid-cols-3 gap-4">
-                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
-                    <TrendingUp className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all text-left group">
+                    <TrendingUp className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Simulation Seuil</h4>
                     <p className="text-xs text-slate-500 mt-1">Calculer point mort par centre</p>
                 </button>
@@ -705,8 +705,8 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                     <h4 className="font-bold text-white text-sm">{isGeneratingMissionReport ? "Génération..." : "Rapport Analytique IA"}</h4>
                     <p className="text-xs text-slate-500 mt-1">Générer synthèse de performance</p>
                 </button>
-                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all text-left group">
-                    <Save className="w-6 h-6 text-indigo-400 mb-2 group-hover:scale-110 transition-transform" />
+                <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all text-left group">
+                    <Save className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Clôtures Périodiques</h4>
                     <p className="text-xs text-slate-500 mt-1">Figer les résultats du mois</p>
                 </button>
@@ -757,19 +757,19 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white rounded-3xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                         {/* Modal Header */}
-                        <div className="bg-indigo-900 p-6 text-white flex justify-between items-center">
+                        <div className="bg-primary p-6 text-white flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                    <ClipboardList className="w-6 h-6 text-indigo-300" />
+                                <div className="p-2 bg-primary/20 rounded-lg">
+                                    <ClipboardList className="w-6 h-6 text-primary-foreground/70" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold">{missionReport.title}</h3>
-                                    <p className="text-indigo-300 text-sm">Mission effectuée pour {selectedClient} • Mai 2024</p>
+                                    <p className="text-primary-foreground/70 text-sm">Mission effectuée pour {selectedClient} • Mai 2024</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 bg-indigo-800/50 px-3 py-1.5 rounded-full border border-indigo-700">
-                                    <span className="text-xs font-medium text-indigo-200">Mode Édition</span>
+                                <div className="flex items-center gap-2 bg-primary/50 px-3 py-1.5 rounded-full border border-primary">
+                                    <span className="text-xs font-medium text-primary-foreground/70">Mode Édition</span>
                                     <button
                                         onClick={() => setIsEditMode(!isEditMode)}
                                         className={cn(
@@ -785,7 +785,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                                 </div>
                                 <button
                                     onClick={() => setShowMissionReport(false)}
-                                    className="p-2 hover:bg-indigo-800 rounded-full transition-colors"
+                                    className="p-2 hover:brightness-110 rounded-full transition-colors"
                                 >
                                     <Plus className="w-6 h-6 rotate-45" />
                                 </button>
@@ -874,13 +874,13 @@ function EditableMissionSection({ title, content, editMode, onChange }: {
     return (
         <section className="space-y-4">
             <div className="flex justify-between items-center">
-                <h4 className="text-lg font-bold text-slate-900 border-l-4 border-indigo-500 pl-4">{title}</h4>
+                <h4 className="text-lg font-bold text-slate-900 border-l-4 border-primary pl-4">{title}</h4>
             </div>
             {editMode ? (
                 <textarea
                     value={content}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full min-h-[150px] p-4 bg-indigo-50/30 border border-indigo-100 rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-700"
+                    className="w-full min-h-[150px] p-4 bg-primary/30 border border-primary rounded-xl text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary text-slate-700"
                 />
             ) : (
                 <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
@@ -898,7 +898,7 @@ function MissionTypeButton({ icon: Icon, label, active, onClick }: any) {
             className={cn(
                 "px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all",
                 active
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                    ? "bg-primary text-white shadow-lg shadow-primary/25"
                     : "bg-transparent text-slate-400 hover:bg-slate-800"
             )}
         >
@@ -919,7 +919,7 @@ function StatCard({ icon: Icon, label, value, trend, color }: {
         cyan: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
         emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
         amber: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-        indigo: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+        indigo: "text-primary bg-primary/10 border-primary/20",
         rose: "text-rose-400 bg-rose-500/10 border-rose-500/20",
     };
 
@@ -961,7 +961,7 @@ function CostBreakdownBar({ label, value, color }: { label: string; value: numbe
 function TOCItem({ number, title }: { number: string; title: string }) {
     return (
         <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-white hover:shadow-sm cursor-pointer transition-all">
-            <span className="font-bold text-indigo-500 w-4">{number}.</span>
+            <span className="font-bold text-primary w-4">{number}.</span>
             <span>{title}</span>
         </div>
     );

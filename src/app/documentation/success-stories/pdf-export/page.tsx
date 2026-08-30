@@ -21,7 +21,7 @@ export default function SuccessStoriesPDF() {
                     <p className="text-[11px] text-slate-400 mb-4">Exportez vos Success Stories au format PDF via <kbd className="bg-white/10 px-1 rounded">Ctrl + P</kbd>.</p>
                     <button
                         onClick={() => window.print()}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20">
+                        className="w-full py-3 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-primary/20">
                         Imprimer les Success Stories
                     </button>
                 </div>
@@ -43,9 +43,9 @@ export default function SuccessStoriesPDF() {
                         <div className="space-y-6">
                             <h1 className="text-8xl font-sans font-black tracking-tight leading-[0.85] uppercase">
                                 Études de <br />
-                                <span className="text-indigo-400">Succès</span>
+                                <span className="text-primary">Succès</span>
                             </h1>
-                            <div className="h-2 w-48 bg-indigo-500" />
+                            <div className="h-2 w-48 bg-primary" />
                             <p className="text-xl sm:text-2xl lg:text-3xl text-slate-300 max-w-xl font-serif italic pt-10">
                                 Analyse des performances et transformations digitales au sein de la zone OHADA.
                             </p>
@@ -67,7 +67,7 @@ export default function SuccessStoriesPDF() {
                 {/* PAGE 2: SCÉNARIO ILLUSTRATIF */}
                 <section className="min-h-[297mm] p-24 break-after-page">
                     <div className="flex items-center gap-4 mb-16">
-                        <span className="text-indigo-600 font-sans font-black uppercase text-xs tracking-[0.3em]">Scénario Illustratif</span>
+                        <span className="text-primary font-sans font-black uppercase text-xs tracking-[0.3em]">Scénario Illustratif</span>
                         <div className="flex-1 h-[1px] bg-slate-100" />
                     </div>
 
@@ -79,7 +79,7 @@ export default function SuccessStoriesPDF() {
 
                         <div className="col-span-7 space-y-12">
                             <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
+                                <h3 className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
                                     <Zap className="w-4 h-4" /> Problématique type
                                 </h3>
                                 <p className="text-base leading-relaxed text-slate-600">
@@ -88,7 +88,7 @@ export default function SuccessStoriesPDF() {
                             </div>
 
                             <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
+                                <h3 className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
                                     <ShieldCheck className="w-4 h-4" /> Réponse de la plateforme
                                 </h3>
                                 <p className="text-base leading-relaxed text-slate-600">

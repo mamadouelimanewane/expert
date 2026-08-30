@@ -40,7 +40,7 @@ export default function ExecutiveDashboardPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-6 backdrop-blur-xl shadow-2xl">
           <div className="flex justify-between items-start mb-4">
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">CA du Mois</p>
-            <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><DollarSign className="w-4 h-4" /></div>
+            <div className="p-2 bg-primary/10 rounded-lg text-primary"><DollarSign className="w-4 h-4" /></div>
           </div>
           <p className="text-3xl font-black text-white">{(data.kpis.caMois / 1000000).toFixed(1)}M <span className="text-sm text-slate-400">FCFA</span></p>
           <p className={cn("text-xs mt-1", data.kpis.croissance >= 0 ? "text-emerald-400" : "text-red-400")}>{data.kpis.croissance >= 0 ? "+" : ""}{data.kpis.croissance}% vs mois dernier</p>
@@ -100,9 +100,9 @@ export default function ExecutiveDashboardPage() {
                 <p className="text-2xl font-black text-slate-300">{data.pipeline.prospects}</p>
                 <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Prospects</p>
               </div>
-              <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 text-center">
-                <p className="text-2xl font-black text-indigo-400">{data.pipeline.enCours}</p>
-                <p className="text-[10px] font-bold text-indigo-400/70 uppercase mt-1">En Cours</p>
+              <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 text-center">
+                <p className="text-2xl font-black text-primary">{data.pipeline.enCours}</p>
+                <p className="text-[10px] font-bold text-primary/70 uppercase mt-1">En Cours</p>
               </div>
               <div className="p-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 text-center">
                 <p className="text-2xl font-black text-amber-400">{data.pipeline.revision}</p>
@@ -118,7 +118,7 @@ export default function ExecutiveDashboardPage() {
           {/* Rentabilité Collaborateurs */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl overflow-hidden">
             <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-              <Users className="w-5 h-5 text-indigo-400" /> Rentabilité Collaborateurs
+              <Users className="w-5 h-5 text-primary" /> Rentabilité Collaborateurs
             </h3>
             <div className="overflow-x-auto">
               <table className="apix-table w-full text-left border-collapse">
@@ -143,7 +143,7 @@ export default function ExecutiveDashboardPage() {
                           <span className="text-sm font-medium text-emerald-400">{collab.billable}%</span>
                         </div>
                       </td>
-                      <td className="py-4 text-sm font-bold text-indigo-400 text-right">
+                      <td className="py-4 text-sm font-bold text-primary text-right">
                         {(collab.ca / 1000000).toFixed(1)}M FCFA
                       </td>
                     </tr>

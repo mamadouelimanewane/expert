@@ -184,7 +184,7 @@ export function Sidebar() {
             {/* Mobile Header / Toggle */}
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-card border-b border-border/50 flex items-center justify-between px-6 z-[60]">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
                         <span className="font-bold text-white text-lg">C</span>
                     </div>
                     <h1 className="text-lg font-bold">CABINET 360</h1>
@@ -211,7 +211,7 @@ export function Sidebar() {
             )}>
                 {/* Logo Section (Desktop only or keep for mobile drawer) */}
                 <div className="p-6 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
                         <span className="font-bold text-white text-lg">C</span>
                     </div>
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-slate-400">
@@ -292,7 +292,7 @@ export function Sidebar() {
 
                     {/* Compact User Profile & Actions */}
                     <div className="flex items-center gap-2 px-1">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 shadow-sm border border-white/10">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shrink-0 shadow-sm border border-white/10">
                             <span className="font-bold text-[10px] text-white">
                                 {session?.user?.name ? session.user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase() : "ME"}
                             </span>
@@ -325,16 +325,16 @@ export function Sidebar() {
             <div className="lg:hidden fixed bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe-area-bottom">
                 {isFabOpen && (
                     <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <button className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100">
+                        <button className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <ScanLine className="w-4 h-4" /> Scanner Facture
                         </button>
                         <button 
                             onClick={startNexusGo}
-                            className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100"
+                            className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary"
                         >
                             <Mic className="w-4 h-4" /> Note Vocale IA
                         </button>
-                        <button className="flex items-center gap-3 bg-white text-indigo-600 px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-indigo-500/40 border border-indigo-100">
+                        <button className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <PlusCircle className="w-4 h-4" /> Nouvelle Mission
                         </button>
                     </div>
@@ -345,7 +345,7 @@ export function Sidebar() {
                         "w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-95",
                         isFabOpen 
                             ? "bg-slate-900 text-white rotate-45" 
-                            : "bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-indigo-600/40 hover:shadow-indigo-600/60"
+                            : "bg-gradient-to-br from-primary to-violet-700 text-white shadow-primary/40 hover:shadow-primary/60"
                     )}
                 >
                     <Plus className={cn("w-7 h-7 transition-transform", isFabOpen ? "rotate-0" : "rotate-0")} />
@@ -355,20 +355,20 @@ export function Sidebar() {
             {/* Nexus-Go Voice Overlay */}
             {isVoiceActive && (
                 <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
-                    <div className="absolute inset-0 bg-indigo-950/95 backdrop-blur-2xl" onClick={() => setIsVoiceActive(false)} />
+                    <div className="absolute inset-0 bg-primary/95 backdrop-blur-2xl" onClick={() => setIsVoiceActive(false)} />
                     
                     <div className="relative z-10 flex flex-col items-center text-center space-y-12 max-w-sm">
                         <div className="w-32 h-32 relative">
-                            <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-20" />
-                            <div className="absolute inset-0 bg-indigo-500 rounded-full animate-pulse opacity-40" />
-                            <div className="relative w-full h-full bg-indigo-600 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(99,102,241,0.5)]">
+                            <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-20" />
+                            <div className="absolute inset-0 bg-primary rounded-full animate-pulse opacity-40" />
+                            <div className="relative w-full h-full bg-primary rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0, 107, 63,0.5)]">
                                 <Mic className="w-12 h-12 text-white" />
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Nexus-Go Active</h2>
-                            <p className="text-indigo-200/60 font-medium text-sm italic min-h-[3rem] leading-relaxed">
+                            <p className="text-primary-foreground/70/60 font-medium text-sm italic min-h-[3rem] leading-relaxed">
                                 &ldquo;{transcription}&rdquo;
                             </p>
                         </div>
@@ -382,7 +382,7 @@ export function Sidebar() {
                             </button>
                             <button 
                                 onClick={() => setIsVoiceActive(false)}
-                                className="px-8 py-4 bg-indigo-500 hover:bg-indigo-400 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-500/30 transition-all"
+                                className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 transition-all"
                             >
                                 Terminer
                             </button>

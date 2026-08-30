@@ -28,7 +28,7 @@ const RATING_COLOR: Record<string, string> = {
 
 const STAT_PILL: Record<string, string> = {
   AAA: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-  AA:  "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+  AA:  "text-primary bg-primary/10 border-primary/20",
   A:   "text-blue-400 bg-blue-500/10 border-blue-500/20",
   B:   "text-amber-400 bg-amber-500/10 border-amber-500/20",
   C:   "text-rose-400 bg-rose-500/10 border-rose-500/20",
@@ -102,7 +102,7 @@ export default function HealthScoreDashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <TrendingUp className="w-8 h-8 text-indigo-500" />
+            <TrendingUp className="w-8 h-8 text-primary" />
             Scores de Santé Financière
           </h2>
           <p className="page-subtitle">Vue globale · Évolution · Éligibilité Crédit</p>
@@ -122,7 +122,7 @@ export default function HealthScoreDashboard() {
       {/* Stats globales */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Score moyen cabinet", val: avgScore, unit: "/ 100", icon: TrendingUp, color: "text-indigo-400", bg: "bg-indigo-500/10 border-indigo-500/20" },
+          { label: "Score moyen cabinet", val: avgScore, unit: "/ 100", icon: TrendingUp, color: "text-primary", bg: "bg-primary/10 border-primary/20" },
           { label: "Clients éligibles crédit", val: eligible, unit: `/ ${clients.length}`, icon: Banknote, color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
           { label: "Scores AAA / AA", val: clients.filter(c => ["AAA","AA"].includes(c.rating)).length, unit: "clients", icon: Award, color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
           { label: "Score C (Alertes)", val: clients.filter(c => c.rating === "C").length, unit: "clients", icon: AlertTriangle, color: "text-rose-400", bg: "bg-rose-500/10 border-rose-500/20" },
@@ -143,13 +143,13 @@ export default function HealthScoreDashboard() {
           <input
             value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Rechercher un client…"
-            className="w-full bg-slate-800 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full bg-slate-800 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
           {["ALL", "AAA", "AA", "A", "B", "C"].map(r => (
             <button key={r} onClick={() => setFilterRating(r)}
-              className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${filterRating === r ? "bg-indigo-600 text-white border-indigo-500" : "bg-slate-800 text-slate-400 border-white/5 hover:text-white"}`}>
+              className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${filterRating === r ? "bg-primary text-white border-primary" : "bg-slate-800 text-slate-400 border-white/5 hover:text-white"}`}>
               {r === "ALL" ? "Tous" : r}
             </button>
           ))}
@@ -267,7 +267,7 @@ export default function HealthScoreDashboard() {
                   <td className="p-4">
                     {client.eligible && (
                       <Link href="/fintech/credit"
-                        className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/20 text-indigo-400 rounded-xl text-xs font-black transition-colors w-fit">
+                        className="flex items-center gap-1.5 px-4 py-2 bg-primary/20 hover:brightness-110/30 border border-primary/20 text-primary rounded-xl text-xs font-black transition-colors w-fit">
                         Dossier Crédit <ArrowRight className="w-3 h-3" />
                       </Link>
                     )}

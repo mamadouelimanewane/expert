@@ -265,7 +265,7 @@ export default function InformelPage() {
             <header className="flex flex-col gap-2 border-b border-border/50 pb-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl">
+                        <div className="p-2 bg-primary/10 text-primary rounded-xl">
                             <FileDigit className="w-6 h-6" />
                         </div>
                         <div>
@@ -277,11 +277,11 @@ export default function InformelPage() {
                         <a
                             href="/api/comptabilite/tpe-template"
                             download
-                            className="flex items-center gap-2 px-4 py-2 border border-indigo-500/30 text-indigo-500 hover:bg-indigo-500/10 rounded-xl text-sm font-bold transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 border border-primary/30 text-primary hover:brightness-110/10 rounded-xl text-sm font-bold transition-colors"
                         >
                             <FileSpreadsheet className="w-4 h-4" /> Télécharger Modèle Excel
                         </a>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-sm font-bold text-indigo-500">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-bold text-primary">
                             <Building2 className="w-4 h-4" /> Module BPO Actif
                         </div>
                     </div>
@@ -295,10 +295,10 @@ export default function InformelPage() {
                     onDragLeave={() => setDragging(false)}
                     onDrop={handleDrop}
                     className={`glass-card rounded-3xl border-2 border-dashed p-4 sm:p-8 lg:p-12 flex flex-col items-center justify-center text-center space-y-6 transition-all duration-300
-                        ${dragging ? 'border-indigo-500 bg-indigo-500/10 scale-[1.01]' : 'border-indigo-500/30 bg-indigo-500/5'}`}
+                        ${dragging ? 'border-primary bg-primary/10 scale-[1.01]' : 'border-primary/30 bg-primary/5'}`}
                 >
-                    <div className={`p-5 rounded-3xl transition-colors ${dragging ? 'bg-indigo-500/20' : 'bg-indigo-500/10'}`}>
-                        <CloudUpload className={`w-12 h-12 transition-colors ${dragging ? 'text-indigo-400' : 'text-indigo-500'}`} />
+                    <div className={`p-5 rounded-3xl transition-colors ${dragging ? 'bg-primary/20' : 'bg-primary/10'}`}>
+                        <CloudUpload className={`w-12 h-12 transition-colors ${dragging ? 'text-primary' : 'text-primary'}`} />
                     </div>
                     <div>
                         <h2 className="text-2xl font-black mb-2">
@@ -313,13 +313,13 @@ export default function InformelPage() {
                         <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center gap-2 px-6 py-3 border border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 rounded-xl text-sm font-bold transition-colors"
+                            className="flex items-center gap-2 px-6 py-3 border border-primary/40 text-primary hover:brightness-110/10 rounded-xl text-sm font-bold transition-colors"
                         >
                             <Upload className="w-4 h-4" /> Choisir un Fichier (.xlsx / .csv)
                         </button>
                         <button
                             onClick={() => processData(DEMO_DATA, 'Boutique Diallo & Frères')}
-                            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 transition-all"
                         >
                             <Sparkles className="w-4 h-4" /> Simuler avec des données exemples
                         </button>
@@ -332,8 +332,8 @@ export default function InformelPage() {
             {processing && (
                 <div className="apix-card flex flex-col items-center justify-center text-center space-y-6">
                     <div className="relative">
-                        <div className="w-20 h-20 rounded-full border-4 border-indigo-500/20 animate-spin border-t-indigo-500"></div>
-                        <Sparkles className="w-8 h-8 text-indigo-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                        <div className="w-20 h-20 rounded-full border-4 border-primary/20 animate-spin border-t-primary"></div>
+                        <Sparkles className="w-8 h-8 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                     </div>
                     <div>
                         <h2 className="text-xl font-black mb-2">Moteur OHADA en cours…</h2>
@@ -387,7 +387,7 @@ export default function InformelPage() {
                             {isBalanced ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                             {isBalanced ? `Débit = Crédit ✓ (${f(totalMouvements)} FCFA)` : 'Déséquilibré !'}
                         </div>
-                        <div className="px-4 py-2 rounded-full text-sm font-bold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                        <div className="px-4 py-2 rounded-full text-sm font-bold bg-primary/10 text-primary border border-primary/20">
                             {journal.length} écritures générées · {balance.length} comptes mouvementés
                         </div>
                         {savedCount !== null && (
@@ -409,7 +409,7 @@ export default function InformelPage() {
                             {TABS.map((tab, i) => (
                                 <button key={i} onClick={() => setActiveTab(i)}
                                     className={`flex items-center gap-2 px-6 py-4 text-sm font-bold transition-colors border-b-2 whitespace-nowrap
-                                        ${activeTab === i ? 'border-indigo-500 text-indigo-500 bg-indigo-500/5' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                                        ${activeTab === i ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
                                     {i === 0 && <FileDigit className="w-4 h-4" />}
                                     {i === 1 && <BookOpen className="w-4 h-4" />}
                                     {i === 2 && <BarChart2 className="w-4 h-4" />}
@@ -422,12 +422,12 @@ export default function InformelPage() {
                                     Nouveau Fichier
                                 </button>
                                 <button onClick={saveToDatabase} disabled={saving || savedCount !== null}
-                                    className="flex items-center gap-1 text-xs px-3 py-2 border border-indigo-500/40 text-indigo-500 hover:bg-indigo-500/10 rounded-lg font-bold transition-colors disabled:opacity-50">
+                                    className="flex items-center gap-1 text-xs px-3 py-2 border border-primary/40 text-primary hover:brightness-110/10 rounded-lg font-bold transition-colors disabled:opacity-50">
                                     {saving ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                                     {saving ? 'Sauvegarde…' : savedCount !== null ? 'Sauvegardé ✓' : 'Sauvegarder en base'}
                                 </button>
                                 <button onClick={exportToProduction} disabled={exporting || exported || savedCount === null}
-                                    className="flex items-center gap-1 text-xs px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold shadow shadow-indigo-500/20 transition-all disabled:opacity-50">
+                                    className="flex items-center gap-1 text-xs px-3 py-2 bg-primary hover:brightness-110 text-white rounded-lg font-bold shadow shadow-primary/20 transition-all disabled:opacity-50">
                                     {exporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ArrowRight className="w-3 h-3" />}
                                     {exported ? 'En Production ✓' : 'Déverser en Production'}
                                 </button>
@@ -470,7 +470,7 @@ export default function InformelPage() {
                         {/* Onglet 1 : Brouillard OHADA */}
                         {activeTab === 1 && (
                             <div className="overflow-x-auto">
-                                <div className="px-6 py-2 bg-indigo-500/5 border-b border-indigo-500/20 flex items-center gap-2 text-xs text-indigo-500 font-bold">
+                                <div className="px-6 py-2 bg-primary/5 border-b border-primary/20 flex items-center gap-2 text-xs text-primary font-bold">
                                     <Sparkles className="w-3 h-3" /> Généré par le Moteur OHADA — Référentiel SYSCOHADA / UEMOA
                                 </div>
                                 <table className="apix-table text-sm">
@@ -505,7 +505,7 @@ export default function InformelPage() {
                                     <tfoot className="bg-muted/20 border-t-2 border-border/50 font-black">
                                         <tr>
                                             <td colSpan={6} className="px-4 py-3 text-xs uppercase text-muted-foreground">Total Mouvements (Débit = Crédit)</td>
-                                            <td className="px-4 py-3 text-right text-indigo-500">{f(totalMouvements)}</td>
+                                            <td className="px-4 py-3 text-right text-primary">{f(totalMouvements)}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

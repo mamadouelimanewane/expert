@@ -63,12 +63,12 @@ export default function GovernancePage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/40 p-8 rounded-[40px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <Scale className="w-40 h-40 text-indigo-400" />
+                    <Scale className="w-40 h-40 text-primary" />
                 </div>
 
                 <div className="relative z-10">
                     <h2 className="page-title flex items-center gap-4">
-                        <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-600/30">
+                        <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/30">
                             <Gavel className="w-8 h-8 text-white" />
                         </div>
                         Gouvernance & Juridique
@@ -82,7 +82,7 @@ export default function GovernancePage() {
                     <button disabled title="Non implémenté" className="px-6 py-3 bg-slate-800/50 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-2 cursor-not-allowed">
                         <BookOpen className="w-4 h-4" /> Registres Numériques
                     </button>
-                    <button disabled title="Non implémenté" className="px-6 py-3 bg-indigo-600/30 text-indigo-300/50 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed">
+                    <button disabled title="Non implémenté" className="px-6 py-3 bg-primary/30 text-primary-foreground/70/50 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 cursor-not-allowed">
                         <Plus className="w-4 h-4" /> Créer un Acte
                     </button>
                 </div>
@@ -118,13 +118,13 @@ export default function GovernancePage() {
                     </div>
                 </div>
 
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-indigo-600 shadow-xl shadow-indigo-600/20">
+                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-primary shadow-xl shadow-primary/20">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="p-3 bg-white/10 rounded-2xl text-white">
                             <FileText className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-[10px] text-indigo-100 font-black uppercase tracking-widest">Sociétés Suivies</p>
+                            <p className="text-[10px] text-primary-foreground/70 font-black uppercase tracking-widest">Sociétés Suivies</p>
                             <h3 className="text-2xl font-black text-white">{entities.length}</h3>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ export default function GovernancePage() {
                         onClick={() => setSelectedTab(tab.id as any)}
                         className={cn(
                             "px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-3",
-                            selectedTab === tab.id ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" : "text-slate-500 hover:text-slate-200"
+                            selectedTab === tab.id ? "bg-primary text-white shadow-xl shadow-primary/20" : "text-slate-500 hover:text-slate-200"
                         )}
                     >
                         <tab.icon className="w-4 h-4" />
@@ -174,7 +174,7 @@ export default function GovernancePage() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Rechercher une société..."
-                            className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                            className="w-full bg-slate-800/50 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-primary/50 outline-none"
                         />
                     </div>
                 </div>
@@ -200,7 +200,7 @@ export default function GovernancePage() {
                                 <tr key={entity.id} className="hover:bg-white/[0.02] transition-colors group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-indigo-400 group-hover:scale-110 transition-transform">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-xs font-black text-primary group-hover:scale-110 transition-transform">
                                                 {entity.name[0]}
                                             </div>
                                             <span className="font-bold text-white block">{entity.name}</span>

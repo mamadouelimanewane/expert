@@ -74,7 +74,7 @@ export default function PdfGeneratorPage() {
                                     onClick={() => setSelectedType(t.id)}
                                     className={cn(
                                         "w-full text-left p-4 rounded-2xl border transition-all",
-                                        selectedType === t.id ? "bg-indigo-600/20 border-indigo-500/50" : "bg-slate-950/50 border-white/5 hover:border-white/20"
+                                        selectedType === t.id ? "bg-primary/20 border-primary/50" : "bg-slate-950/50 border-white/5 hover:border-white/20"
                                     )}
                                 >
                                     <p className="text-sm font-bold text-white">{t.name}</p>
@@ -97,7 +97,7 @@ export default function PdfGeneratorPage() {
                         {destination ? (
                             <Link
                                 href={destination.href}
-                                className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/30"
+                                className="w-full mt-6 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/30"
                             >
                                 {destination.label} <ArrowRight className="w-4 h-4" />
                             </Link>
@@ -115,7 +115,7 @@ export default function PdfGeneratorPage() {
                 <div className="lg:col-span-7">
                     <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
                         <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-indigo-400" /> {activeTemplate.name}
+                            <FileText className="w-5 h-5 text-primary" /> {activeTemplate.name}
                         </h3>
                         <p className="text-slate-400 text-sm leading-relaxed">{activeTemplate.description}</p>
 

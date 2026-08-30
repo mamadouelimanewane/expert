@@ -84,7 +84,7 @@ export default function AuditDossierPage() {
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <FolderCheck className="w-6 h-6 text-indigo-500" /> Dossier de Travail Numérique
+            <FolderCheck className="w-6 h-6 text-primary" /> Dossier de Travail Numérique
           </h2>
           <div className="flex items-center gap-4 text-slate-400 text-sm font-medium mt-2">
             <span className="px-2 py-1 bg-slate-800 rounded-md text-white">{data.mission.name}</span>
@@ -99,14 +99,14 @@ export default function AuditDossierPage() {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Avancement Global</p>
             <div className="flex items-center gap-3">
               <div className="w-32 h-2 bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-500" style={{ width: `${data.globalProgress}%` }}></div>
+                <div className="h-full bg-primary" style={{ width: `${data.globalProgress}%` }}></div>
               </div>
               <span className="text-sm font-bold text-white">{data.globalProgress}%</span>
             </div>
           </div>
           <button
             onClick={() => setShowFinalReport(true)}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+            className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
           >
             <FileText className="w-4 h-4" /> Rapport Final
           </button>
@@ -125,7 +125,7 @@ export default function AuditDossierPage() {
                 className={cn(
                   "w-full flex items-center justify-between p-3 rounded-xl transition-all text-sm",
                   activeSection === sec.id
-                    ? "bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 font-bold"
+                    ? "bg-primary/20 border border-primary/30 text-primary font-bold"
                     : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
                 )}
               >
@@ -169,15 +169,15 @@ export default function AuditDossierPage() {
                     <div className="flex-1 space-y-3">
                       <div className="flex justify-between items-start gap-4">
                         <p className={cn("text-sm font-medium", item.status === 'TERMINE' ? "text-slate-300 line-through opacity-70" : "text-white")}>{item.description}</p>
-                        <span className="px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-md text-[10px] font-black uppercase tracking-widest shrink-0">{STATUS_LABEL[item.status]}</span>
+                        <span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-[10px] font-black uppercase tracking-widest shrink-0">{STATUS_LABEL[item.status]}</span>
                       </div>
 
                       <div className="flex gap-4">
-                        <div className="flex-1 flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-white/5 focus-within:border-indigo-500 transition-colors">
+                        <div className="flex-1 flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-white/5 focus-within:border-primary transition-colors">
                           <LinkIcon className="w-4 h-4 text-slate-500" />
                           <input type="text" defaultValue={item.ref} onBlur={e => updateItemField(item.id, "ref", e.target.value)} placeholder="Ref. pièce justificative" className="bg-transparent border-none text-xs text-white focus:outline-none w-full" />
                         </div>
-                        <div className="flex-[2] flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-white/5 focus-within:border-indigo-500 transition-colors">
+                        <div className="flex-[2] flex items-center gap-2 bg-slate-900 rounded-xl px-3 py-2 border border-white/5 focus-within:border-primary transition-colors">
                           <MessageSquare className="w-4 h-4 text-slate-500" />
                           <input type="text" defaultValue={item.comment} onBlur={e => updateItemField(item.id, "comment", e.target.value)} placeholder="Commentaire d'audit" className="bg-transparent border-none text-xs text-white focus:outline-none w-full" />
                         </div>
@@ -220,9 +220,9 @@ export default function AuditDossierPage() {
                 value={noteInput}
                 onChange={e => setNoteInput(e.target.value)}
                 placeholder="Note de synthèse globale..."
-                className="flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                className="flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors"
               />
-              <button onClick={() => setConclusion(sectionInfo?.conclusion || "SATISFAISANT")} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
+              <button onClick={() => setConclusion(sectionInfo?.conclusion || "SATISFAISANT")} className="px-6 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
                 Enregistrer
               </button>
             </div>
@@ -237,7 +237,7 @@ export default function AuditDossierPage() {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-slate-900 border border-white/10 rounded-[32px] p-8 max-w-3xl w-full shadow-2xl max-h-[85vh] flex flex-col">
               <div className="flex justify-between items-center mb-6 shrink-0">
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  <FileText className="w-6 h-6 text-indigo-400" /> Synthèse du Dossier d'Audit
+                  <FileText className="w-6 h-6 text-primary" /> Synthèse du Dossier d'Audit
                 </h3>
                 <button onClick={() => setShowFinalReport(false)} className="text-slate-400 hover:text-white p-2">✕</button>
               </div>

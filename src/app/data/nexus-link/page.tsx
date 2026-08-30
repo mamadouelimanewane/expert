@@ -16,9 +16,9 @@ export default function DataLinkPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Network className="w-64 h-64 text-indigo-400" />
+                    <Network className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
@@ -29,7 +29,7 @@ export default function DataLinkPage() {
                             </span>
                         </div>
                         <h2 className="page-title leading-tight uppercase">
-                            Nexus <span className="text-indigo-400">Data Link</span>
+                            Nexus <span className="text-primary">Data Link</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Ce module est conçu pour relier des données disparates (registres, cadastre, télécoms) via un fournisseur tiers de linking de données (type LinkID) afin d'identifier bénéficiaires effectifs et réseaux cachés.
@@ -53,7 +53,7 @@ export default function DataLinkPage() {
                 <div className="lg:col-span-4 space-y-6">
                     <div className="apix-card">
                         <h3 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-                            <Cpu className="w-5 h-5 text-indigo-400" /> Configuration du Moteur
+                            <Cpu className="w-5 h-5 text-primary" /> Configuration du Moteur
                         </h3>
                         <div className="space-y-6">
                             <div className="space-y-4">
@@ -89,7 +89,7 @@ export default function DataLinkPage() {
                             <button
                                 disabled
                                 title="Intégration LinkID non configurée"
-                                className="w-full py-4 bg-indigo-600/30 text-white/50 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 cursor-not-allowed"
+                                className="w-full py-4 bg-primary/30 text-white/50 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 cursor-not-allowed"
                             >
                                 <Zap className="w-5 h-5" />
                                 Lancer Data Link (non disponible)

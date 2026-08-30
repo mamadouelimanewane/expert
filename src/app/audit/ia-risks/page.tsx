@@ -86,7 +86,7 @@ export default function IARiskAuditPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Fingerprint className="w-8 h-8 text-indigo-400" />
+                        <Fingerprint className="w-8 h-8 text-primary" />
                         Cartographie des Risques IA
                     </h2>
                     <p className="page-subtitle">Analyse prédictive et ciblage des zones à risque pour l'audit légal.</p>
@@ -95,7 +95,7 @@ export default function IARiskAuditPage() {
                 <button
                     onClick={startAnalysis}
                     disabled={analyzing}
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                    className="px-6 py-3 bg-gradient-to-r from-primary to-purple-600 hover:from-primary hover:to-purple-500 text-white rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                 >
                     {analyzing ? (
                         <Zap className="w-5 h-5 animate-spin" />
@@ -127,9 +127,9 @@ export default function IARiskAuditPage() {
                             <div className="h-64 flex items-center justify-center">
                                 <div className="space-y-4 w-full max-w-xs">
                                     <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-500 animate-[loading_2s_infinite]" style={{ width: '40%' }} />
+                                        <div className="h-full bg-primary animate-[loading_2s_infinite]" style={{ width: '40%' }} />
                                     </div>
-                                    <p className="text-center text-xs text-indigo-400 font-medium">Scan du Grand Livre en cours...</p>
+                                    <p className="text-center text-xs text-primary font-medium">Scan du Grand Livre en cours...</p>
                                 </div>
                             </div>
                         )}
@@ -159,7 +159,7 @@ export default function IARiskAuditPage() {
                                                 "rounded-full border-2 flex items-center justify-center font-bold absolute",
                                                 r.score > 70 ? "bg-rose-500/20 border-rose-500/50 text-rose-400 text-xs w-20 h-20 top-10 right-10 animate-pulse" :
                                                     r.score > 40 ? "bg-amber-500/20 border-amber-500/50 text-amber-400 text-[10px] w-16 h-16 top-20 left-40" :
-                                                        "bg-indigo-500/20 border-indigo-500/50 text-indigo-400 text-[10px] w-12 h-12 bottom-20 left-20"
+                                                        "bg-primary/20 border-primary/50 text-primary text-[10px] w-12 h-12 bottom-20 left-20"
                                             )}
                                         >
                                             {r.category.slice(0, 6).toUpperCase()}
@@ -208,7 +208,7 @@ export default function IARiskAuditPage() {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start mb-1">
-                                                <h4 className="font-bold transition-colors group-hover:text-indigo-400 leading-none">{risk.label}</h4>
+                                                <h4 className="font-bold transition-colors group-hover:text-primary leading-none">{risk.label}</h4>
                                                 <span className="text-[10px] uppercase font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">{risk.category}</span>
                                             </div>
                                             <p className="text-xs text-slate-500">{risk.observations}</p>
@@ -225,9 +225,9 @@ export default function IARiskAuditPage() {
 
                 {/* Right Sidebar: AI Sampling Generator */}
                 <div className="space-y-6">
-                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 bg-gradient-to-br from-slate-900 to-indigo-900/20">
+                    <div className="glass-card rounded-2xl p-6 border border-slate-700/50 bg-gradient-to-br from-slate-900 to-primary/20">
                         <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                            <Search className="w-5 h-5 text-indigo-400" />
+                            <Search className="w-5 h-5 text-primary" />
                             Générateur de Sondages
                         </h3>
                         <p className="text-xs text-slate-400 leading-relaxed">

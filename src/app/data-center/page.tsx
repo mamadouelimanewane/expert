@@ -76,18 +76,18 @@ export default function DataCenterPage() {
             {/* Header Premium - Data Center */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <Database className="w-64 h-64 text-indigo-400" />
+                    <Database className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Nexus Data Engine
                             </span>
                         </div>
                         <h2 className="page-title leading-tight uppercase">
-                            Centre de <span className="text-indigo-400">Données & Ingestion</span>
+                            Centre de <span className="text-primary">Données & Ingestion</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Importez vos écritures comptables, FEC et balances. Historique et statistiques basés sur les documents réellement enregistrés au cabinet.
@@ -105,7 +105,7 @@ export default function DataCenterPage() {
 
             {/* Storage & Health Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <DataKpiCard title="Stockage Utilisé" value={kpis ? formatBytes(kpis.totalStorageBytes) : "—"} trend="Documents indexés" icon={HardDrive} color="text-indigo-400" />
+                <DataKpiCard title="Stockage Utilisé" value={kpis ? formatBytes(kpis.totalStorageBytes) : "—"} trend="Documents indexés" icon={HardDrive} color="text-primary" />
                 <DataKpiCard title="Lignes Traitées (OCR)" value={kpis ? kpis.totalRows.toLocaleString("fr-FR") : "—"} trend="Cumul détecté" icon={Activity} color="text-emerald-400" />
                 <DataKpiCard title="Taux de Traitement Réussi" value={kpis && kpis.successRatePct !== null ? `${kpis.successRatePct}%` : "—"} trend="Hors erreurs OCR" icon={ShieldCheck} color="text-cyan-400" />
                 <DataKpiCard title="Datasets Actifs" value={kpis ? kpis.totalDatasets : "—"} trend="Documents indexés" icon={Layers} color="text-amber-400" />
@@ -116,12 +116,12 @@ export default function DataCenterPage() {
                 <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl flex flex-col">
                     <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/60">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                            <FileSpreadsheet className="w-6 h-6 text-indigo-400" />
+                            <FileSpreadsheet className="w-6 h-6 text-primary" />
                             Historique des Ingestions
                         </h3>
                         <div className="flex gap-2 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                            <input placeholder="Filtrer..." className="bg-slate-950/50 border border-white/5 rounded-2xl pl-12 pr-6 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64" />
+                            <input placeholder="Filtrer..." className="bg-slate-950/50 border border-white/5 rounded-2xl pl-12 pr-6 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64" />
                         </div>
                     </div>
 
@@ -141,7 +141,7 @@ export default function DataCenterPage() {
                                 {isLoading ? (
                                     <tr>
                                         <td colSpan={5} className="px-8 py-20 text-center">
-                                            <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin mx-auto mb-4" />
+                                            <RefreshCw className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
                                             <p className="text-slate-400 font-bold">Chargement des documents...</p>
                                         </td>
                                     </tr>
@@ -163,7 +163,7 @@ export default function DataCenterPage() {
                                         <tr key={data.id} className="hover:bg-white/[0.02] transition-colors group">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="p-2.5 bg-slate-800 rounded-xl border border-white/5 text-slate-400 group-hover:text-indigo-400 transition-colors">
+                                                    <div className="p-2.5 bg-slate-800 rounded-xl border border-white/5 text-slate-400 group-hover:text-primary transition-colors">
                                                         <FileCode className="w-5 h-5" />
                                                     </div>
                                                     <div>
@@ -174,7 +174,7 @@ export default function DataCenterPage() {
                                             </td>
                                             <td className="px-6 py-6 text-center text-xs font-black text-slate-400">{data.type}</td>
                                             <td className="px-6 py-6 text-center">
-                                                <span className="text-indigo-400 font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
+                                                <span className="text-primary font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
                                                 <p className="text-[8px] text-slate-600 font-black uppercase">Lignes</p>
                                             </td>
                                             <td className="px-6 py-6 text-xs text-slate-500 font-bold">{data.date}</td>
@@ -184,7 +184,7 @@ export default function DataCenterPage() {
                                                         "text-[10px] font-black uppercase px-2 py-0.5 rounded border",
                                                         data.status === "Importé" || data.status === "Prêt" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                                                             data.status === "Erreur" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
-                                                                "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                                "bg-primary/10 text-primary border-primary/20"
                                                     )}>{data.status}</span>
                                                     <button className="p-2 text-slate-700 hover:text-rose-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
@@ -201,7 +201,7 @@ export default function DataCenterPage() {
                 <div className="lg:col-span-4 space-y-8">
                     <div className="apix-card">
                         <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-tighter">
-                            <RefreshCw className="w-6 h-6 text-indigo-400" />
+                            <RefreshCw className="w-6 h-6 text-primary" />
                             Connecteurs Directs
                         </h3>
                         <div className="space-y-4">

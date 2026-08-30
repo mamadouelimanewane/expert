@@ -108,7 +108,7 @@ export default function RelancesPage() {
                         <p className="text-xs text-slate-400">{inv.invoiceNumber}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-black text-indigo-400">{inv.amount.toLocaleString('fr-FR')} F</p>
+                        <p className="text-sm font-black text-primary">{inv.amount.toLocaleString('fr-FR')} F</p>
                         <p className="text-[10px] text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded-full inline-block mt-1">+{inv.daysOverdue} jrs</p>
                       </div>
                     </div>
@@ -120,11 +120,11 @@ export default function RelancesPage() {
                         "w-full mt-4 py-2.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2",
                         success === inv.id 
                           ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
-                          : "bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border border-indigo-500/30"
+                          : "bg-primary/20 hover:brightness-110/40 text-primary border border-primary/30"
                       )}
                     >
                       {sending === inv.id ? (
-                        <div className="w-4 h-4 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                       ) : success === inv.id ? (
                         <><CheckCircle2 className="w-4 h-4" /> {sendResult != null && sendResult.id === inv.id && sendResult.emailSent ? "E-mail envoyé" : "Tracé"}</>
                       ) : (
@@ -190,7 +190,7 @@ export default function RelancesPage() {
                   <Mail className="w-4 h-4" /> Template Email (Relance 1)
                 </label>
                 <textarea 
-                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 min-h-[120px]"
+                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-slate-300 focus:outline-none focus:border-primary min-h-[120px]"
                   defaultValue="Bonjour {{client.name}},\n\nSauf erreur ou omission de notre part, la facture {{invoice.number}} d'un montant de {{invoice.amount}} FCFA arrivée à échéance le {{invoice.dueDate}} reste impayée.\n\nMerci de procéder au règlement dans les meilleurs délais."
                 ></textarea>
               </div>
@@ -200,7 +200,7 @@ export default function RelancesPage() {
                   <MessageCircle className="w-4 h-4" /> Template WhatsApp (Relance 2)
                 </label>
                 <textarea 
-                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 min-h-[100px]"
+                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 text-sm text-slate-300 focus:outline-none focus:border-primary min-h-[100px]"
                   defaultValue="Bonjour {{client.name}}, Cabinet 360 vous rappelle que votre facture {{invoice.number}} de {{invoice.amount}} FCFA est en retard. Merci de régulariser la situation rapidement. 🔗 Lien de paiement: {{invoice.link}}"
                 ></textarea>
               </div>
@@ -208,7 +208,7 @@ export default function RelancesPage() {
             
             <div className="mt-8 flex justify-end gap-4">
               <button onClick={() => setShowConfig(false)} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors">Annuler</button>
-              <button onClick={() => setShowConfig(false)} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors shadow-xl shadow-indigo-600/30">Enregistrer</button>
+              <button onClick={() => setShowConfig(false)} className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-colors shadow-xl shadow-primary/30">Enregistrer</button>
             </div>
           </motion.div>
         </div>

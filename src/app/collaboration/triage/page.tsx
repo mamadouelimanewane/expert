@@ -203,7 +203,7 @@ function TriageItem({ item }: { item: ElementTriage }) {
 
             <div className="flex items-center gap-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {item.assignee && (
-                    <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[8px] font-bold text-white" title={`Assigné à ${item.assignee}`}>EP</div>
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[8px] font-bold text-white" title={`Assigné à ${item.assignee}`}>EP</div>
                 )}
                 <button className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white"><Star className="w-4 h-4" /></button>
                 <button className="p-1.5 hover:bg-white/10 rounded text-slate-400 hover:text-white"><Clock className="w-4 h-4" /></button>

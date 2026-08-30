@@ -79,7 +79,7 @@ export default function EDepotPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <UploadCloud className="w-6 h-6 text-indigo-500" /> E-Dépôt DGI Centralisé
+            <UploadCloud className="w-6 h-6 text-primary" /> E-Dépôt DGI Centralisé
           </h2>
           <p className="page-subtitle">Télétransmission directe aux administrations fiscales</p>
         </div>
@@ -113,7 +113,7 @@ export default function EDepotPage() {
                 filteredDecls.map(d => (
                   <div key={d.id} className="p-5 bg-slate-800/30 border border-white/5 rounded-2xl flex items-center justify-between group hover:bg-slate-800/50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                         <FileText className="w-5 h-5" />
                       </div>
                       <div>
@@ -130,7 +130,7 @@ export default function EDepotPage() {
                       
                       <button
                         onClick={() => { setSelectedDecl(d); setSubmitError(null); }}
-                        className="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20"
+                        className="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-primary hover:brightness-110 text-white shadow-lg shadow-primary/20"
                       >
                         Déposer
                       </button>
@@ -181,11 +181,11 @@ export default function EDepotPage() {
 
                     <div className="space-y-3">
                       <label className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-white/5">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 text-indigo-600 focus:ring-indigo-500 bg-slate-950" />
+                        <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 text-primary focus:ring-primary bg-slate-950" />
                         <span className="text-sm text-slate-300">Validation par l'expert confirmée</span>
                       </label>
                       <label className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-xl border border-white/5">
-                        <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 text-indigo-600 focus:ring-indigo-500 bg-slate-950" />
+                        <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 text-primary focus:ring-primary bg-slate-950" />
                         <span className="text-sm text-slate-300">Mandat de prélèvement valide</span>
                       </label>
                     </div>
@@ -198,7 +198,7 @@ export default function EDepotPage() {
                     <button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                      className="w-full py-4 bg-primary hover:brightness-110 disabled:bg-primary/50 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
                     >
                       {isSubmitting ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Vérification en cours...</>

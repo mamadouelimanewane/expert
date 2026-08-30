@@ -56,7 +56,7 @@ type Synthese = {
 const STATUT_STYLE: Record<MissionRentabilite["statut"], string> = {
     BONI: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     MALI: "bg-rose-500/10 text-rose-400 border-rose-500/20",
-    EQUILIBRE: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    EQUILIBRE: "bg-primary/10 text-primary border-primary/20",
     INDETERMINE: "bg-slate-800 text-slate-400 border-white/10",
 };
 
@@ -114,18 +114,18 @@ export default function BoniMaliPage() {
             {/* Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-12 opacity-5 pointer-events-none">
-                    <TrendingUp className="w-64 h-64 text-indigo-400" />
+                    <TrendingUp className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Gestion interne &amp; boni-mali
                             </span>
                         </div>
                         <h2 className="page-title">
-                            Analyse de <span className="text-indigo-400">rentabilité dossier</span>
+                            Analyse de <span className="text-primary">rentabilité dossier</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Coût interne réel (temps saisi × coût horaire) comparé au budget
@@ -185,7 +185,7 @@ export default function BoniMaliPage() {
                     title="Missions budgétées"
                     value={String(synthese?.nbMissions ?? 0)}
                     icon={Clock}
-                    color="text-indigo-400"
+                    color="text-primary"
                 />
                 <KpiCard
                     title="Boni cumulé"
@@ -212,7 +212,7 @@ export default function BoniMaliPage() {
                 <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-slate-900/60">
                     <div className="flex items-center gap-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <BarChart3 className="w-5 h-5 text-indigo-400" />
+                            <BarChart3 className="w-5 h-5 text-primary" />
                             Performance par dossier
                         </h3>
                         <div className="flex gap-2">
@@ -223,7 +223,7 @@ export default function BoniMaliPage() {
                                     className={cn(
                                         "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                                         filtre === tag
-                                            ? "bg-indigo-600 text-white"
+                                            ? "bg-primary text-white"
                                             : "bg-slate-800 text-slate-500 hover:text-white"
                                     )}
                                 >
@@ -239,7 +239,7 @@ export default function BoniMaliPage() {
                             value={recherche}
                             onChange={(e) => setRecherche(e.target.value)}
                             placeholder="Filtrer par client ou mission…"
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-primary/50 outline-none"
                         />
                     </div>
                 </div>
@@ -273,11 +273,11 @@ export default function BoniMaliPage() {
                                 visibles.map((m) => (
                                     <tr
                                         key={m.missionId}
-                                        className="hover:bg-indigo-600/5 transition-colors group"
+                                        className="hover:brightness-110/5 transition-colors group"
                                     >
                                         <td className="px-8 py-6">
                                             <div>
-                                                <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">
+                                                <span className="font-bold text-white block group-hover:text-primary transition-colors">
                                                     {m.client}
                                                 </span>
                                                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">

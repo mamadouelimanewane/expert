@@ -71,13 +71,13 @@ export default function KycIntelligenceHub() {
             {/* Header Premium - KYC/AML */}
             <div className="bg-slate-900/40 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-4 sm:p-8 lg:p-16 opacity-5 pointer-events-none">
-                    <Fingerprint className="w-64 h-64 text-indigo-400" />
+                    <Fingerprint className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Compliance & LCB/FT
                             </span>
                             <span className="px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-amber-500/20">
@@ -85,7 +85,7 @@ export default function KycIntelligenceHub() {
                             </span>
                         </div>
                         <h2 className="page-title">
-                            KYC <span className="text-indigo-400">Intelligence Hub</span>
+                            KYC <span className="text-primary">Intelligence Hub</span>
                         </h2>
                         <p className="page-subtitle">
                             Registre de conformité client basé sur les dossiers réels du cabinet (statut KYC, identifiants réglementaires).
@@ -96,7 +96,7 @@ export default function KycIntelligenceHub() {
 
             {/* KYC KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <KycStatCard title="Total Dossiers" value={kpis ? kpis.total : "—"} icon={Users} color="text-indigo-400" />
+                <KycStatCard title="Total Dossiers" value={kpis ? kpis.total : "—"} icon={Users} color="text-primary" />
                 <KycStatCard title="Dossiers Invalides" value={kpis ? kpis.invalidCount : "—"} icon={Flag} color="text-rose-400" />
                 <KycStatCard title="Non Renseignés" value={kpis ? kpis.pendingCount : "—"} icon={AlertCircle} color="text-amber-400" />
                 <KycStatCard title="Couverture KYC Validée" value={kpis && kpis.coveragePct !== null ? kpis.coveragePct : "—"} unit={kpis && kpis.coveragePct !== null ? "%" : ""} icon={ShieldCheck} color="text-emerald-400" />
@@ -107,17 +107,17 @@ export default function KycIntelligenceHub() {
                 <div className="lg:col-span-8 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl flex flex-col">
                     <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900/40">
                         <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                            <Activity className="w-6 h-6 text-indigo-400" />
+                            <Activity className="w-6 h-6 text-primary" />
                             Registre des Contrôles Clients
                         </h3>
                         <div className="flex gap-2">
                             <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 group-focus-within:text-indigo-400 transition-colors" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4 group-focus-within:text-primary transition-colors" />
                                 <input
                                     placeholder="Rechercher client..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="bg-slate-950/50 border border-white/5 rounded-2xl pl-12 pr-6 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64 transition-all"
+                                    className="bg-slate-950/50 border border-white/5 rounded-2xl pl-12 pr-6 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64 transition-all"
                                 />
                             </div>
                         </div>
@@ -126,7 +126,7 @@ export default function KycIntelligenceHub() {
                     <div className="flex-1 overflow-auto">
                         {loading ? (
                             <div className="py-24 flex items-center justify-center">
-                                <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
                             </div>
                         ) : error ? (
                             <div className="py-24 flex flex-col items-center justify-center gap-3 text-center px-8">
@@ -155,7 +155,7 @@ export default function KycIntelligenceHub() {
                                                             {client.name[0]}
                                                         </div>
                                                         <div>
-                                                            <span className="font-bold text-slate-200 group-hover:text-indigo-400 transition-colors block">{client.name}</span>
+                                                            <span className="font-bold text-slate-200 group-hover:text-primary transition-colors block">{client.name}</span>
                                                             <span className="text-[10px] text-slate-500 font-bold uppercase">{client.country}</span>
                                                         </div>
                                                     </div>

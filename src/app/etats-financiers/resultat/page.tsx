@@ -105,7 +105,7 @@ export default function ResultatPage() {
                 </div>
             ) : loading ? (
                 <div className="flex h-64 items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                 </div>
             ) : (
             <>
@@ -144,8 +144,8 @@ export default function ResultatPage() {
                                     key={row.code ?? idx}
                                     className={clsx(
                                         "transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50",
-                                        row.isSIG ? "bg-indigo-50/30 font-bold dark:bg-indigo-900/10" : "text-slate-600 dark:text-slate-300",
-                                        resultatNet ? "border-t-2 border-slate-200 bg-indigo-50 text-base dark:border-slate-700 dark:bg-indigo-900/20" : ""
+                                        row.isSIG ? "bg-primary/30 font-bold dark:bg-primary/10" : "text-slate-600 dark:text-slate-300",
+                                        resultatNet ? "border-t-2 border-slate-200 bg-primary text-base dark:border-slate-700 dark:bg-primary/20" : ""
                                     )}
                                 >
                                     <td className="px-6 py-3 font-mono text-xs opacity-70">{row.code}</td>
@@ -154,7 +154,7 @@ export default function ResultatPage() {
                                     </td>
                                     <td className="px-6 py-3 text-right font-mono text-slate-900 dark:text-white">
                                         {resultatNet ?
-                                            <span className="text-indigo-600 dark:text-indigo-400">{(row.netN || 0).toLocaleString('fr-FR')}</span> :
+                                            <span className="text-primary dark:text-primary">{(row.netN || 0).toLocaleString('fr-FR')}</span> :
                                             (row.netN || 0).toLocaleString('fr-FR')
                                         }
                                     </td>

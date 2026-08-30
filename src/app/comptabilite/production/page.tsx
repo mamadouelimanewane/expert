@@ -130,12 +130,12 @@ export default function CollaborativeProductionPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                             All-in-One Production
                         </span>
                     </div>
                     <h2 className="page-title leading-tight">
-                        Production Comptable <span className="text-indigo-400">Collaborative</span>
+                        Production Comptable <span className="text-primary">Collaborative</span>
                     </h2>
                     <p className="page-subtitle">
                         Accédez aux flux financiers de vos clients en temps réel. Pennylane synchronise la gestion client et la production cabinet dans un outil unique.
@@ -147,7 +147,7 @@ export default function CollaborativeProductionPage() {
                         onClick={() => setActiveView("production")}
                         className={cn(
                             "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                            activeView === "production" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-foreground"
+                            activeView === "production" ? "bg-primary text-white shadow-xl" : "text-slate-500 hover:text-foreground"
                         )}
                     >
                         Production
@@ -156,7 +156,7 @@ export default function CollaborativeProductionPage() {
                         onClick={() => setActiveView("pilotage")}
                         className={cn(
                             "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
-                            activeView === "pilotage" ? "bg-indigo-600 text-white shadow-xl" : "text-slate-500 hover:text-foreground"
+                            activeView === "pilotage" ? "bg-primary text-white shadow-xl" : "text-slate-500 hover:text-foreground"
                         )}
                     >
                         Pilotage
@@ -166,7 +166,7 @@ export default function CollaborativeProductionPage() {
 
             {/* Real-time KPI Stream */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <KpiCard title="Écritures au journal" value={String(synthese?.total ?? 0)} icon={RefreshCw} color="text-indigo-400" />
+                <KpiCard title="Écritures au journal" value={String(synthese?.total ?? 0)} icon={RefreshCw} color="text-primary" />
                 <KpiCard title="Imputées par règle" value={String((synthese?.total ?? 0) - (synthese?.aQualifier ?? 0))} subtext="Compte déterminé" icon={Zap} color="text-amber-400" />
                 <KpiCard title="À qualifier" value={String(synthese?.aQualifier ?? 0)} subtext="En compte d'attente 471" icon={AlertCircle} color="text-rose-400" />
                 <KpiCard title="Validées" value={String(synthese?.validees ?? 0)} subtext="Exportées" icon={Clock} color="text-emerald-400" />
@@ -177,7 +177,7 @@ export default function CollaborativeProductionPage() {
                 <div className="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-6 bg-slate-900/60">
                     <div className="flex items-center gap-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <TableIcon className="w-5 h-5 text-indigo-400" />
+                            <TableIcon className="w-5 h-5 text-primary" />
                             Flux Financiers Multi-Dossiers
                         </h3>
                         <div className="flex gap-2">
@@ -187,7 +187,7 @@ export default function CollaborativeProductionPage() {
                                     onClick={() => setActiveTag(tag)}
                                     className={cn(
                                         "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                                        activeTag === tag ? "bg-indigo-600 text-white" : "bg-slate-800 text-slate-400 hover:text-white"
+                                        activeTag === tag ? "bg-primary text-white" : "bg-slate-800 text-slate-400 hover:text-white"
                                     )}
                                 >
                                     {tag}
@@ -203,7 +203,7 @@ export default function CollaborativeProductionPage() {
                                 placeholder="Rechercher un client, un montant..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500/50 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-primary/50 outline-none"
                             />
                         </div>
                     </div>
@@ -243,13 +243,13 @@ export default function CollaborativeProductionPage() {
                                     </td>
                                 </tr>
                             ) : fluxFiltre.map((flow) => (
-                                <tr key={flow.id} className="hover:bg-indigo-600/5 transition-colors group cursor-pointer">
+                                <tr key={flow.id} className="hover:brightness-110/5 transition-colors group cursor-pointer">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-mono font-bold text-slate-500">{flow.date}</span>
                                     </td>
                                     <td className="px-6 py-6">
                                         <div>
-                                            <span className="font-bold text-white block group-hover:text-indigo-400 transition-colors">{flow.client.nom}</span>
+                                            <span className="font-bold text-white block group-hover:text-primary transition-colors">{flow.client.nom}</span>
                                             <p className="text-[10px] text-slate-500 mt-1 truncate max-w-xs">{flow.libelle}</p>
                                             <div className="flex gap-1 mt-1">
                                                 <span className="text-[8px] px-1.5 py-0.5 bg-white/5 rounded text-slate-500 uppercase font-black font-mono">
@@ -299,10 +299,10 @@ export default function CollaborativeProductionPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="apix-card relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <PieChart className="w-32 h-32 text-indigo-400" />
+                        <PieChart className="w-32 h-32 text-primary" />
                     </div>
                     <h3 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
-                        <BarChart3 className="w-6 h-6 text-indigo-400" />
+                        <BarChart3 className="w-6 h-6 text-primary" />
                         Pilotage par Portefeuille
                     </h3>
                     <div className="space-y-6">
@@ -369,7 +369,7 @@ function KpiCard({ title, value, trend, subtext, icon: Icon, color }: any) {
     );
 }
 
-function PortfolioProgress({ client, progress, status, color = "bg-indigo-500" }: any) {
+function PortfolioProgress({ client, progress, status, color = "bg-primary" }: any) {
     return (
         <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold">

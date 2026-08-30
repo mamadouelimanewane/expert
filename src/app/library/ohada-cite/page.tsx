@@ -113,15 +113,15 @@ export default function OhadaCitePage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <Scale className="w-64 h-64 text-indigo-400" />
+                    <Scale className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Validation Juridique • OHADA
                             </span>
                             <span className="px-3 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-amber-500/20">
@@ -129,7 +129,7 @@ export default function OhadaCitePage() {
                             </span>
                         </div>
                         <h2 className="page-title uppercase">
-                            OHADA-<span className="text-indigo-400">Cite</span>
+                            OHADA-<span className="text-primary">Cite</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Validez automatiquement vos citations juridiques OHADA. Détection des textes abrogés, modifiés ou toujours en vigueur.
@@ -141,21 +141,21 @@ export default function OhadaCitePage() {
             {/* Document Input */}
             <div className="apix-card">
                 <h3 className="text-lg font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tighter">
-                    <FileText className="w-5 h-5 text-indigo-400" />
+                    <FileText className="w-5 h-5 text-primary" />
                     Collez votre texte juridique pour validation
                 </h3>
                 <textarea
                     value={documentText}
                     onChange={(e) => setDocumentText(e.target.value)}
                     placeholder="Collez ici votre contrat, acte ou mémoire pour valider toutes les références OHADA citées..."
-                    className="w-full h-40 bg-slate-800/50 border border-white/5 rounded-3xl px-6 py-4 text-sm text-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                    className="w-full h-40 bg-slate-800/50 border border-white/5 rounded-3xl px-6 py-4 text-sm text-slate-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
                 />
                 <div className="flex justify-between items-center mt-4">
                     <p className="text-[10px] text-slate-500">Formats supportés: Texte brut, références directes (ex: AUSCGIE Art. 347)</p>
                     <button
                         onClick={handleValidateDocument}
                         disabled={isValidating || !documentText.trim()}
-                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 disabled:opacity-50"
+                        className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 disabled:opacity-50"
                     >
                         {isValidating ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                         {isValidating ? "Validation..." : "Valider les Citations"}
@@ -222,7 +222,7 @@ export default function OhadaCitePage() {
             <div className="apix-card">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                        <BookMarked className="w-6 h-6 text-indigo-400" />
+                        <BookMarked className="w-6 h-6 text-primary" />
                         Références OHADA Détectées
                     </h3>
                     <div className="relative">
@@ -232,7 +232,7 @@ export default function OhadaCitePage() {
                             placeholder="Rechercher..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:ring-2 focus:ring-indigo-500 w-64"
+                            className="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:ring-2 focus:ring-primary w-64"
                         />
                     </div>
                 </div>

@@ -152,7 +152,7 @@ export default function BankingPage() {
                     <div className="p-6 border-b border-white/5 bg-slate-900/80 flex justify-between items-center">
                         <div>
                             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                                <CreditCard className="w-5 h-5 text-indigo-400" />
+                                <CreditCard className="w-5 h-5 text-primary" />
                                 Relevé Bancaire
                             </h3>
                             <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{pendingTxCount} en attente</p>
@@ -170,7 +170,7 @@ export default function BankingPage() {
                                 className={cn(
                                     "p-4 rounded-2xl border transition-all cursor-pointer",
                                     tx.status === "RECONCILED" ? "bg-emerald-500/5 border-emerald-500/20 opacity-50 cursor-not-allowed" : 
-                                    selectedTx === tx.id ? "bg-indigo-500/20 border-indigo-500/50" : "bg-white/5 border-white/5 hover:bg-white/10"
+                                    selectedTx === tx.id ? "bg-primary/20 border-primary/50" : "bg-white/5 border-white/5 hover:bg-white/10"
                                 )}
                             >
                                 <div className="flex justify-between items-start">

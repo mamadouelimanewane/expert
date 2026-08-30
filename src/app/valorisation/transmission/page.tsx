@@ -33,16 +33,16 @@ export default function ValorisationPage() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="page-title flex items-center gap-3">
-            <Briefcase className="w-6 h-6 text-indigo-500" /> Valorisation & Transmission
+            <Briefcase className="w-6 h-6 text-primary" /> Valorisation & Transmission
           </h2>
           <p className="page-subtitle">Outils d'évaluation d'entreprise multicritères</p>
         </div>
       </div>
 
       <div className="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl">
-        <button onClick={() => setActiveTab('dcf')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'dcf' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Méthode DCF</button>
-        <button onClick={() => setActiveTab('ebitda')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'ebitda' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Multiple EBITDA</button>
-        <button onClick={() => setActiveTab('anr')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'anr' ? "bg-indigo-600 text-white shadow-lg" : "text-slate-400 hover:text-white")}>Actif Net (ANR)</button>
+        <button onClick={() => setActiveTab('dcf')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'dcf' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Méthode DCF</button>
+        <button onClick={() => setActiveTab('ebitda')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'ebitda' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Multiple EBITDA</button>
+        <button onClick={() => setActiveTab('anr')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'anr' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Actif Net (ANR)</button>
         <button onClick={() => setActiveTab('synthese')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2", activeTab === 'synthese' ? "bg-emerald-600 text-white shadow-lg" : "text-emerald-400/70 hover:text-emerald-400")}>
           <BarChart2 className="w-4 h-4" /> Synthèse
         </button>
@@ -53,30 +53,30 @@ export default function ValorisationPage() {
           <motion.div key="dcf" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
               <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-indigo-400" /> Paramètres DCF
+                <TrendingUp className="w-5 h-5 text-primary" /> Paramètres DCF
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Chiffre d'Affaires N (FCFA)</label>
-                  <input type="number" value={dcfInputs.ca} onChange={e => setDcfInputs({...dcfInputs, ca: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <input type="number" value={dcfInputs.ca} onChange={e => setDcfInputs({...dcfInputs, ca: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Taux Croissance (%)</label>
-                    <input type="number" value={dcfInputs.croissance} onChange={e => setDcfInputs({...dcfInputs, croissance: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                    <input type="number" value={dcfInputs.croissance} onChange={e => setDcfInputs({...dcfInputs, croissance: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Taux Actualisation (%)</label>
-                    <input type="number" value={dcfInputs.actualisation} onChange={e => setDcfInputs({...dcfInputs, actualisation: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                    <input type="number" value={dcfInputs.actualisation} onChange={e => setDcfInputs({...dcfInputs, actualisation: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Horizon (Années)</label>
-                  <input type="number" value={dcfInputs.annees} onChange={e => setDcfInputs({...dcfInputs, annees: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" max="10" />
+                  <input type="number" value={dcfInputs.annees} onChange={e => setDcfInputs({...dcfInputs, annees: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" max="10" />
                 </div>
                 
-                <button onClick={runDCF} className="w-full mt-4 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                <button onClick={runDCF} className="w-full mt-4 py-4 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
                   <Calculator className="w-4 h-4" /> Calculer DCF
                 </button>
               </div>
@@ -87,7 +87,7 @@ export default function ValorisationPage() {
                 <div className="space-y-6">
                   <div className="text-center">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Valeur d'Entreprise Estimée</p>
-                    <p className="text-4xl font-black text-indigo-400">{Math.round(dcfResult.enterpriseValue).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
+                    <p className="text-4xl font-black text-primary">{Math.round(dcfResult.enterpriseValue).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 mt-8">
@@ -118,12 +118,12 @@ export default function ValorisationPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">EBITDA Normatif (FCFA)</label>
-                  <input type="number" value={ebitdaInputs.ebitda} onChange={e => setEbitdaInputs({...ebitdaInputs, ebitda: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <input type="number" value={ebitdaInputs.ebitda} onChange={e => setEbitdaInputs({...ebitdaInputs, ebitda: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Multiple Sectoriel (x)</label>
                   <div className="flex items-center gap-4 mt-1">
-                    <input type="range" min="2" max="15" step="0.5" value={ebitdaInputs.multiple} onChange={e => setEbitdaInputs({...ebitdaInputs, multiple: Number(e.target.value)})} className="flex-1 accent-indigo-500" />
+                    <input type="range" min="2" max="15" step="0.5" value={ebitdaInputs.multiple} onChange={e => setEbitdaInputs({...ebitdaInputs, multiple: Number(e.target.value)})} className="flex-1 accent-primary" />
                     <span className="text-lg font-black text-white w-12 text-right">{ebitdaInputs.multiple}x</span>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export default function ValorisationPage() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Actif (FCFA)</label>
-                  <input type="number" value={anrInputs.actif} onChange={e => setAnrInputs({...anrInputs, actif: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <input type="number" value={anrInputs.actif} onChange={e => setAnrInputs({...anrInputs, actif: Number(e.target.value)})} className="mt-1 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors" />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Dettes (FCFA)</label>
@@ -184,7 +184,7 @@ export default function ValorisationPage() {
                 <div className="w-px bg-white/10"></div>
                 <div className="text-left">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">DCF</p>
-                  <p className="text-lg font-bold text-indigo-400">{valDcf ? Math.round(valDcf).toLocaleString() : 'N/A'}</p>
+                  <p className="text-lg font-bold text-primary">{valDcf ? Math.round(valDcf).toLocaleString() : 'N/A'}</p>
                 </div>
               </div>
             </div>

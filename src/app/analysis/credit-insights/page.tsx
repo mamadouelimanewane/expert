@@ -72,7 +72,7 @@ export default function CreditInsightsPage() {
     };
 
     if (!data) {
-        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
     }
 
     const filteredScores = data.scores.filter((s) => s.entityName.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -80,20 +80,20 @@ export default function CreditInsightsPage() {
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-primary/20 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <TrendingUp className="w-64 h-64 text-indigo-400" />
+                    <TrendingUp className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Nexus Credit Insights
                             </span>
                         </div>
                         <h2 className="page-title uppercase">
-                            Nexus <span className="text-indigo-400">Credit Insights</span>
+                            Nexus <span className="text-primary">Credit Insights</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Scores de solvabilité calculés à partir des données comptables réelles (factures, journaux TPE, transactions mobile money).
@@ -103,7 +103,7 @@ export default function CreditInsightsPage() {
                     <button
                         onClick={load}
                         disabled={isRefreshing}
-                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95 disabled:opacity-50"
+                        className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95 disabled:opacity-50"
                     >
                         {isRefreshing ? <RefreshCw className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />} Actualiser
                     </button>
@@ -142,7 +142,7 @@ export default function CreditInsightsPage() {
                         <div className="apix-card">
                             <div className="flex justify-between items-start mb-12">
                                 <div className="flex items-center gap-6">
-                                    <div className="w-24 h-24 rounded-[32px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                    <div className="w-24 h-24 rounded-[32px] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                         {selectedScore.type === "individual" ? <Users className="w-12 h-12" /> : <Building2 className="w-12 h-12" />}
                                     </div>
                                     <div>
@@ -191,8 +191,8 @@ export default function CreditInsightsPage() {
                                     <div className="w-[25%] bg-emerald-500/40" />
                                 </div>
                                 <div className="absolute top-10 flex -translate-x-1/2 flex-col items-center" style={{ left: `${Math.min(100, (selectedScore.score / 1000) * 100)}%` }}>
-                                    <div className="w-1 h-6 bg-white shadow-xl shadow-indigo-500/50" />
-                                    <div className="mt-1 px-3 py-1 bg-white text-indigo-900 text-[10px] font-black uppercase rounded-md">Ce dossier</div>
+                                    <div className="w-1 h-6 bg-white shadow-xl shadow-primary/50" />
+                                    <div className="mt-1 px-3 py-1 bg-white text-primary text-[10px] font-black uppercase rounded-md">Ce dossier</div>
                                 </div>
                                 <div className="flex justify-between text-[8px] text-slate-500 font-black uppercase tracking-widest">
                                     <span>Haut Risque</span>
@@ -255,14 +255,14 @@ export default function CreditInsightsPage() {
                     <div className="lg:col-span-4 space-y-6">
                         <div className="apix-card">
                             <h4 className="text-sm font-black text-white mb-6 uppercase tracking-widest flex items-center gap-2">
-                                <Search className="w-4 h-4 text-indigo-400" /> Rechercher un dossier
+                                <Search className="w-4 h-4 text-primary" /> Rechercher un dossier
                             </h4>
                             <input
                                 type="text"
                                 placeholder="Nom du client..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs text-white focus:ring-2 focus:ring-primary outline-none"
                             />
                         </div>
 
@@ -278,12 +278,12 @@ export default function CreditInsightsPage() {
                                         onClick={() => setSelectedScore(s)}
                                         className={cn(
                                             "w-full flex items-center justify-between p-4 rounded-2xl transition-all",
-                                            selectedScore.id === s.id ? "bg-indigo-600 shadow-xl shadow-indigo-600/30" : "bg-white/5 hover:bg-white/10"
+                                            selectedScore.id === s.id ? "bg-primary shadow-xl shadow-primary/30" : "bg-white/5 hover:bg-white/10"
                                         )}
                                     >
                                         <div className="text-left">
                                             <p className={cn("text-xs font-black uppercase", selectedScore.id === s.id ? "text-white" : "text-slate-200")}>{s.entityName}</p>
-                                            <p className={cn("text-[9px] font-bold uppercase", selectedScore.id === s.id ? "text-indigo-200" : "text-slate-500")}>{new Date(s.evaluatedAt).toLocaleDateString("fr-FR")}</p>
+                                            <p className={cn("text-[9px] font-bold uppercase", selectedScore.id === s.id ? "text-primary-foreground/70" : "text-slate-500")}>{new Date(s.evaluatedAt).toLocaleDateString("fr-FR")}</p>
                                         </div>
                                         <span className={cn("text-lg font-black", selectedScore.id === s.id ? "text-white" : getScoreColor(s.riskCategory))}>{s.score}</span>
                                     </button>
@@ -294,7 +294,7 @@ export default function CreditInsightsPage() {
                         {/* Info Card - honest note */}
                         <div className="apix-card">
                             <div className="flex items-start gap-4">
-                                <Info className="w-6 h-6 text-indigo-400 shrink-0" />
+                                <Info className="w-6 h-6 text-primary shrink-0" />
                                 <p className="text-xs text-slate-400 leading-relaxed">
                                     Calcul automatique non disponible sur cette page — les scores affichés proviennent des données comptables existantes (factures, journaux TPE, transactions mobile money), calculés via le module Scoring Fintech.
                                 </p>

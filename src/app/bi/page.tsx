@@ -261,7 +261,7 @@ export default async function BusinessIntelligencePage() {
         <div className="apix-card">
           <div className="flex justify-between items-center mb-8">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">Échéances Fiscales Récentes</h3>
-            <Link href="/declarations" className="text-[10px] font-black uppercase tracking-widest text-[#006B3F] hover:text-[#004b2c] transition-colors dark:text-indigo-400">Voir le calendrier complet</Link>
+            <Link href="/declarations" className="text-[10px] font-black uppercase tracking-widest text-[#006B3F] hover:text-[#004b2c] transition-colors dark:text-primary">Voir le calendrier complet</Link>
           </div>
 
           <div className="space-y-4">
@@ -272,7 +272,7 @@ export default async function BusinessIntelligencePage() {
                     {task.client?.country || "CI"}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold text-slate-800 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-indigo-400 transition-colors truncate">
+                    <p className="font-bold text-slate-800 dark:text-white group-hover:text-[#006B3F] dark:group-hover:text-primary transition-colors truncate">
                       {task.client?.companyName || "Client inconnu"}
                     </p>
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{task.type} - {task.period}</p>

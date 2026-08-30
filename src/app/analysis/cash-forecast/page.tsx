@@ -87,7 +87,7 @@ export default function CashForecastPage() {
                 </button>
                 <button 
                   onClick={() => setActiveScenario('realiste')}
-                  className={cn("px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all", activeScenario === 'realiste' ? "bg-indigo-500/20 text-indigo-400" : "text-slate-500 hover:text-slate-300")}
+                  className={cn("px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all", activeScenario === 'realiste' ? "bg-primary/20 text-primary" : "text-slate-500 hover:text-slate-300")}
                 >
                   Réaliste
                 </button>
@@ -125,7 +125,7 @@ export default function CashForecastPage() {
                         "w-full rounded-t-sm transition-all",
                         pt.cash < 0 ? "bg-red-500/50" : 
                         activeScenario === 'optimiste' ? "bg-emerald-500/50 group-hover:bg-emerald-400" :
-                        activeScenario === 'realiste' ? "bg-indigo-500/50 group-hover:bg-indigo-400" :
+                        activeScenario === 'realiste' ? "bg-primary/50 group-hover:brightness-110" :
                         "bg-amber-500/50 group-hover:bg-amber-400"
                       )}
                     ></motion.div>
@@ -167,7 +167,7 @@ export default function CashForecastPage() {
                         <td className="py-4 text-sm text-slate-400">{ev.date}</td>
                         <td className="py-4 text-sm font-medium text-white">{ev.libelle}</td>
                         <td className="py-4 text-sm font-bold text-emerald-400 text-right">+{(ev.encaissement).toLocaleString()} F</td>
-                        <td className="py-4 text-sm font-bold text-indigo-400 text-right">{(ev.solde).toLocaleString()} F</td>
+                        <td className="py-4 text-sm font-bold text-primary text-right">{(ev.solde).toLocaleString()} F</td>
                       </tr>
                     ))}
                   </tbody>
@@ -180,7 +180,7 @@ export default function CashForecastPage() {
         <div className="lg:col-span-4 space-y-6">
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
             <h3 className="text-lg font-black text-white flex items-center gap-2 mb-6">
-              <Brain className="w-5 h-5 text-indigo-400" /> Analyse
+              <Brain className="w-5 h-5 text-primary" /> Analyse
             </h3>
 
             <div className="space-y-6 mb-8">

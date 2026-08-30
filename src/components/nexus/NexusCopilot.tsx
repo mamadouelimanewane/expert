@@ -51,7 +51,7 @@ export function NexusCopilot() {
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     "flex items-center justify-center rounded-full transition-all duration-500 shadow-[0_0_30px_rgba(79,70,229,0.5)]",
-                    isOpen ? "w-14 h-14 bg-slate-800 text-slate-400 rotate-90 scale-0 opacity-0" : "w-16 h-16 bg-indigo-600 text-white hover:scale-110 rotate-0 scale-100 opacity-100"
+                    isOpen ? "w-14 h-14 bg-slate-800 text-slate-400 rotate-90 scale-0 opacity-0" : "w-16 h-16 bg-primary text-white hover:scale-110 rotate-0 scale-100 opacity-100"
                 )}
             >
                 <Sparkles className="w-7 h-7" />
@@ -62,26 +62,26 @@ export function NexusCopilot() {
                 className={cn(
                     "fixed sm:absolute bottom-0 right-0 sm:bottom-0 sm:right-0",
                     "w-screen sm:w-[400px] h-[85dvh] sm:h-[600px]",
-                    "bg-slate-900/95 backdrop-blur-2xl border border-indigo-500/20",
+                    "bg-slate-900/95 backdrop-blur-2xl border border-primary/20",
                     "rounded-t-[40px] sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden",
                     "transition-all duration-500 origin-bottom-right",
                     isOpen ? "scale-100 opacity-100" : "scale-50 opacity-0 pointer-events-none"
                 )}
             >
                 {/* Header */}
-                <div className="p-6 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-b border-white/5 flex justify-between items-center relative overflow-hidden">
+                <div className="p-6 bg-gradient-to-r from-primary/20 to-purple-600/20 border-b border-white/5 flex justify-between items-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <Bot className="w-32 h-32" />
                     </div>
                     <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                        <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
                             <Sparkles className="w-6 h-6 text-white" />
                         </div>
                         <div>
                             <h3 className="font-black text-white text-lg tracking-tight">Nexus Copilot</h3>
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest">En ligne</span>
+                                <span className="text-[10px] text-primary-foreground/70 font-bold uppercase tracking-widest">En ligne</span>
                             </div>
                         </div>
                     </div>
@@ -96,11 +96,11 @@ export function NexusCopilot() {
                         <div key={msg.id} className={cn("flex w-full", msg.role === "user" ? "justify-end" : "justify-start")}>
                             <div className={cn(
                                 "max-w-[85%] rounded-3xl p-4 text-sm",
-                                msg.role === "user" ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-slate-800 text-slate-200 rounded-tl-sm border border-white/5"
+                                msg.role === "user" ? "bg-primary text-white rounded-tr-sm" : "bg-slate-800 text-slate-200 rounded-tl-sm border border-white/5"
                             )}>
                                 {msg.text}
                                 {msg.action && (
-                                    <button className="mt-3 w-full py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-2 border border-indigo-500/30">
+                                    <button className="mt-3 w-full py-2 bg-primary/20 hover:brightness-110/30 text-primary-foreground/70 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-2 border border-primary/30">
                                         <CheckCircle2 className="w-4 h-4" /> {msg.action}
                                     </button>
                                 )}
@@ -110,9 +110,9 @@ export function NexusCopilot() {
                     {isTyping && (
                         <div className="flex w-full justify-start">
                             <div className="bg-slate-800 text-slate-400 rounded-3xl rounded-tl-sm px-4 py-3 border border-white/5 flex gap-2 items-center">
-                                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" />
-                                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce delay-100" />
-                                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce delay-200" />
+                                <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                                <span className="w-2 h-2 rounded-full bg-primary animate-bounce delay-100" />
+                                <span className="w-2 h-2 rounded-full bg-primary animate-bounce delay-200" />
                             </div>
                         </div>
                     )}
@@ -127,15 +127,15 @@ export function NexusCopilot() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSend()}
                             placeholder="Demandez à Nexus IA..."
-                            className="w-full bg-slate-800 border border-white/10 rounded-2xl pl-4 pr-24 py-4 text-sm text-white focus:outline-none focus:border-indigo-500 shadow-inner"
+                            className="w-full bg-slate-800 border border-white/10 rounded-2xl pl-4 pr-24 py-4 text-sm text-white focus:outline-none focus:border-primary shadow-inner"
                         />
                         <div className="absolute right-2 flex gap-1">
-                            <button className="p-2 text-slate-500 hover:text-indigo-400 transition-colors">
+                            <button className="p-2 text-slate-500 hover:text-primary transition-colors">
                                 <Paperclip className="w-5 h-5" />
                             </button>
                             <button 
                                 onClick={handleSend}
-                                className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors shadow-lg shadow-indigo-600/30"
+                                className="p-2 bg-primary hover:brightness-110 text-white rounded-xl transition-colors shadow-lg shadow-primary/30"
                             >
                                 <Send className="w-5 h-5" />
                             </button>

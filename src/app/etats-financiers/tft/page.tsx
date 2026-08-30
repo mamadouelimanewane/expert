@@ -128,7 +128,7 @@ export default function TFTPage() {
                 </div>
             ) : loading ? (
                 <div className="flex h-64 items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                 </div>
             ) : erreur ? (
                 <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
@@ -152,7 +152,7 @@ export default function TFTPage() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <TFTSection title="Exploitation" lignes={tft.exploitation} color="bg-indigo-600" />
+                        <TFTSection title="Exploitation" lignes={tft.exploitation} color="bg-primary" />
                         <TFTSection title="Investissement" lignes={tft.investissement} color="bg-amber-600" />
                         <TFTSection title="Financement" lignes={tft.financement} color="bg-emerald-600" />
                     </div>

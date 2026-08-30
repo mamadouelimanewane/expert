@@ -41,7 +41,7 @@ export default function TierAnalysisPage() {
     }, []);
 
     if (!data) {
-        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>;
+        return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
     }
 
     const filtered = data.tiers.filter((t) => t.name.toLowerCase().includes(search.toLowerCase()));
@@ -66,7 +66,7 @@ export default function TierAnalysisPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="page-title flex items-center gap-3">
-                        <Users className="w-8 h-8 text-indigo-400" />
+                        <Users className="w-8 h-8 text-primary" />
                         Analyse des Comptes Tiers
                     </h2>
                     <p className="page-subtitle">Balance âgée des comptes clients, calculée à partir des factures réelles.</p>
@@ -100,13 +100,13 @@ export default function TierAnalysisPage() {
             <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
                 <button
                     onClick={() => setActiveTab("analyse")}
-                    className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all", activeTab === "analyse" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                    className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all", activeTab === "analyse" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
                 >
                     Analyse Détail Tiers
                 </button>
                 <button
                     onClick={() => setActiveTab("rapport")}
-                    className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all", activeTab === "rapport" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                    className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all", activeTab === "rapport" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
                 >
                     Rapport de Synthèse
                 </button>
@@ -122,7 +122,7 @@ export default function TierAnalysisPage() {
                                 placeholder="Rechercher un compte..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-slate-800 border-none rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-primary outline-none"
                             />
                         </div>
                         <div className="flex gap-2">
@@ -155,7 +155,7 @@ export default function TierAnalysisPage() {
                                                     {tier.name[0]}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-white group-hover:text-indigo-400 transition-colors">{tier.name}</p>
+                                                    <p className="font-bold text-white group-hover:text-primary transition-colors">{tier.name}</p>
                                                     <p className="text-[10px] text-slate-500">{tier.invoiceCount} facture(s)</p>
                                                 </div>
                                             </div>
@@ -205,7 +205,7 @@ export default function TierAnalysisPage() {
                 <div className="glass-card rounded-3xl border border-slate-700/50 flex flex-col min-h-[350px] overflow-hidden bg-slate-900/30">
                     <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
                         <h3 className="font-bold text-white flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-indigo-400" />
+                            <FileText className="w-5 h-5 text-primary" />
                             Rapport de Synthèse (calculé sur données réelles)
                         </h3>
                     </div>

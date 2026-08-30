@@ -108,18 +108,18 @@ export default function ProposalsHub() {
             {/* Header */}
             <div className="bg-slate-900/60 p-4 sm:p-6 lg:p-10 rounded-[20px] sm:rounded-[36px] lg:rounded-[50px] border border-white/5 relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none">
-                    <FileText className="w-64 h-64 text-indigo-400" />
+                    <FileText className="w-64 h-64 text-primary" />
                 </div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20">
+                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">
                                 Commercial & Contract Management
                             </span>
                         </div>
                         <h2 className="page-title leading-tight uppercase">
-                            Lettres de <span className="text-indigo-400">Mission & Devis</span>
+                            Lettres de <span className="text-primary">Mission & Devis</span>
                         </h2>
                         <p className="page-subtitle max-w-2xl">
                             Suivez vos propositions commerciales réelles et générez de nouvelles lettres de mission.
@@ -129,7 +129,7 @@ export default function ProposalsHub() {
                     <div className="flex gap-4">
                         <button
                             onClick={() => setView(view === "list" ? "builder" : "list")}
-                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95"
+                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95"
                         >
                             {view === "list" ? <><Plus className="w-5 h-5" /> Nouvelle Proposition</> : <><History className="w-5 h-5" /> Voir l'historique</>}
                         </button>
@@ -141,7 +141,7 @@ export default function ProposalsHub() {
                 <>
                     {/* Quick Stats (réelles) */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <PropStat icon={Zap} label="Taux de Conversion" value={`${tauxConversion}%`} color="text-indigo-400" />
+                        <PropStat icon={Zap} label="Taux de Conversion" value={`${tauxConversion}%`} color="text-primary" />
                         <PropStat icon={Clock} label="En attente signature" value={String(pendingCount)} color="text-amber-400" />
                         <PropStat icon={CheckCircle2} label="Signées" value={String(signedCount)} color="text-emerald-400" />
                         <PropStat icon={CreditCard} label="Pipeline Commercial" value={`${(pipelineValue / 1000000).toFixed(1)}M`} unit=" F" color="text-cyan-400" />
@@ -154,7 +154,7 @@ export default function ProposalsHub() {
                                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Propositions</h3>
                                 <div className="relative">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-                                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-indigo-500/50 outline-none w-64" />
+                                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="bg-slate-800/80 border border-white/5 rounded-2xl pl-11 pr-4 py-3 text-xs text-white focus:ring-1 focus:ring-primary/50 outline-none w-64" />
                                 </div>
                             </div>
 
@@ -164,12 +164,12 @@ export default function ProposalsHub() {
                                         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-3 mb-2">
-                                                    <h4 className="text-base font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{clientName(prop.client)}</h4>
+                                                    <h4 className="text-base font-black text-white uppercase tracking-tight group-hover:text-primary transition-colors">{clientName(prop.client)}</h4>
                                                     <span className={cn(
                                                         "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border",
                                                         prop.type === "AUDIT" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                                                             prop.type === "LEGAL" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                                                                "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                                "bg-primary/10 text-primary border-primary/20"
                                                     )}>
                                                         {TYPE_LABEL[prop.type]}
                                                     </span>
@@ -189,7 +189,7 @@ export default function ProposalsHub() {
                                                 <span className={cn(
                                                     "px-3 py-1 rounded-full text-[9px] font-black uppercase border",
                                                     prop.status === "SIGNED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                                                        prop.status === "SENT" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
+                                                        prop.status === "SENT" ? "bg-primary/10 text-primary border-primary/20" :
                                                             "bg-slate-700/10 text-slate-500 border-slate-700/20"
                                                 )}>
                                                     {STATUS_LABEL[prop.status]}
@@ -244,7 +244,7 @@ export default function ProposalsHub() {
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Client</label>
                                 <div className="relative">
                                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                                    <select value={builderClientId} onChange={e => setBuilderClientId(e.target.value)} className="w-full bg-slate-800/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none">
+                                    <select value={builderClientId} onChange={e => setBuilderClientId(e.target.value)} className="w-full bg-slate-800/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm text-white focus:ring-2 focus:ring-primary/50 outline-none">
                                         <option value="">Sélectionner un client…</option>
                                         {clients.map(c => <option key={c.id} value={c.id}>{c.companyName || `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim()}</option>)}
                                     </select>
@@ -260,7 +260,7 @@ export default function ProposalsHub() {
                                             onClick={() => setSelectedTemplate(t)}
                                             className={cn(
                                                 "p-6 rounded-3xl border text-center transition-all",
-                                                selectedTemplate === t ? "bg-indigo-600/10 border-indigo-500 text-white shadow-xl" : "bg-white/5 border-white/5 text-slate-500 hover:bg-white/10"
+                                                selectedTemplate === t ? "bg-primary/10 border-primary text-white shadow-xl" : "bg-white/5 border-white/5 text-slate-500 hover:bg-white/10"
                                             )}
                                         >
                                             <FileText className="w-6 h-6 mx-auto mb-3" />
@@ -272,18 +272,18 @@ export default function ProposalsHub() {
 
                             <div>
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Titre de la proposition</label>
-                                <input value={builderTitle} onChange={e => setBuilderTitle(e.target.value)} placeholder="Ex: Tenue Comptable & Reporting Périodique" className="w-full bg-slate-800/50 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none" />
+                                <input value={builderTitle} onChange={e => setBuilderTitle(e.target.value)} placeholder="Ex: Tenue Comptable & Reporting Périodique" className="w-full bg-slate-800/50 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-primary/50 outline-none" />
                             </div>
 
                             <div>
                                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Montant (FCFA)</label>
-                                <input type="number" value={builderAmount} onChange={e => setBuilderAmount(e.target.value)} placeholder="3500000" className="w-full bg-slate-800/50 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none" />
+                                <input type="number" value={builderAmount} onChange={e => setBuilderAmount(e.target.value)} placeholder="3500000" className="w-full bg-slate-800/50 border border-white/10 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-primary/50 outline-none" />
                             </div>
 
                             <button
                                 onClick={handleCreate}
                                 disabled={saving || !builderClientId || !builderTitle}
-                                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-3"
+                                className="w-full py-5 bg-primary hover:brightness-110 disabled:opacity-40 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl shadow-primary/30 flex items-center justify-center gap-3"
                             >
                                 <Send className="w-4 h-4" /> {saving ? "Création…" : "Créer la Proposition"}
                             </button>
@@ -291,7 +291,7 @@ export default function ProposalsHub() {
 
                         <div className="bg-slate-950/50 border border-white/5 rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] p-4 sm:p-6 lg:p-10 flex flex-col items-center justify-center text-center">
                             <div className="w-full max-w-sm aspect-[1/1.414] bg-white rounded-xl shadow-2xl relative p-8 text-slate-900 text-left">
-                                <div className="border-b-4 border-indigo-600 pb-4 mb-6">
+                                <div className="border-b-4 border-primary pb-4 mb-6">
                                     <h4 className="font-black text-xl">LETTRE DE MISSION</h4>
                                     <p className="text-[10px] font-bold text-slate-500">{selectedTemplate || "Type de mission"}</p>
                                 </div>

@@ -93,30 +93,30 @@ export default function ClientsPage() {
                 <div className="flex gap-2 p-1 bg-slate-900 border border-white/10 rounded-2xl self-start sm:self-auto">
                     <button
                         onClick={() => setViewMode("grid")}
-                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "grid" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "grid" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
                     >
                         <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                     <button
                         onClick={() => setViewMode("list")}
-                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "list" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "list" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
                     >
                         <List className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                 </div>
 
                 <div className="flex-1 w-full max-w-2xl relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 group-focus-within:text-indigo-400 transition-colors" />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
                         placeholder="Rechercher par nom, RCCM, ville..."
-                        className="w-full pl-14 pr-6 py-3 sm:py-4 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all shadow-inner text-sm"
+                        className="w-full pl-14 pr-6 py-3 sm:py-4 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner text-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
 
-                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-600/30 active:scale-95">
+                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95">
                     <Briefcase className="w-4 h-4" /> Nouveau Dossier
                 </a>
             </div>
@@ -124,7 +124,7 @@ export default function ClientsPage() {
             {/* Main Content */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
-                    <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
                     <p className="text-slate-500 font-medium">Chargement de votre portefeuille...</p>
                 </div>
             ) : filteredClients.length === 0 ? (
@@ -160,7 +160,7 @@ export default function ClientsPage() {
                                         <div className={cn(
                                             "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-lg",
                                             client.type === "ENTREPRISE"
-                                                ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                                ? "bg-primary/10 text-primary border-primary/20"
                                                 : "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
                                         )}>
                                             {client.type === "ENTREPRISE" ? <Building2 className="w-6 h-6" /> : <Users className="w-6 h-6" />}
@@ -201,12 +201,12 @@ export default function ClientsPage() {
 
                                 {/* Lien Portail PMI */}
                                 {(client as any).portalToken && (client as any).portalEnabled && (
-                                    <div className="flex items-center gap-2 p-2.5 bg-indigo-500/5 border border-indigo-500/15 rounded-xl relative z-10">
-                                        <ExternalLink className="w-3 h-3 text-indigo-400 flex-shrink-0" />
-                                        <span className="text-[10px] text-indigo-400 font-bold flex-1 truncate">Portail actif</span>
+                                    <div className="flex items-center gap-2 p-2.5 bg-primary/5 border border-primary/15 rounded-xl relative z-10">
+                                        <ExternalLink className="w-3 h-3 text-primary flex-shrink-0" />
+                                        <span className="text-[10px] text-primary font-bold flex-1 truncate">Portail actif</span>
                                         <button
                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); copyPortalLink((client as any).portalToken, client.id); }}
-                                            className="flex items-center gap-1 px-2 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 rounded-lg text-indigo-400 text-[9px] font-black transition-colors"
+                                            className="flex items-center gap-1 px-2 py-1 bg-primary/20 hover:brightness-110/30 rounded-lg text-primary text-[9px] font-black transition-colors"
                                         >
                                             {copiedId === client.id ? <><Check className="w-3 h-3" /> Copié!</> : <><Copy className="w-3 h-3" /> Copier URL</>}
                                         </button>
@@ -231,11 +231,11 @@ export default function ClientsPage() {
                     })}
 
                     {/* Add Client Card */}
-                    <a href="/clients/new" className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-indigo-500/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
-                        <div className="w-16 h-16 rounded-full bg-slate-800 group-hover:bg-indigo-600 transition-colors flex items-center justify-center shadow-2xl">
+                    <a href="/clients/new" className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-primary/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
+                        <div className="w-16 h-16 rounded-full bg-slate-800 group-hover:brightness-110 transition-colors flex items-center justify-center shadow-2xl">
                             <Briefcase className="w-6 h-6 text-slate-400 group-hover:text-white" />
                         </div>
-                        <p className="text-[10px] font-black text-slate-500 group-hover:text-indigo-400 uppercase tracking-widest">Nouveau Dossier</p>
+                        <p className="text-[10px] font-black text-slate-500 group-hover:text-primary uppercase tracking-widest">Nouveau Dossier</p>
                     </a>
                 </div>
             ) : (
@@ -297,7 +297,7 @@ export default function ClientsPage() {
                                                     </td>
                                                     <td className="px-6 py-6 text-center">
                                                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900 rounded-full border border-white/5">
-                                                            <Globe className="w-3 h-3 text-indigo-400" />
+                                                            <Globe className="w-3 h-3 text-primary" />
                                                             <span className="text-[10px] font-bold text-slate-300">{client.country}</span>
                                                         </div>
                                                     </td>
@@ -339,8 +339,8 @@ export default function ClientsPage() {
             )}
 
             {/* Bandeau de synthèse bas de page */}
-            <div className="relative p-8 sm:p-12 rounded-[40px] bg-gradient-to-br from-slate-900 to-indigo-950/30 border border-white/5 overflow-hidden shadow-2xl mt-12 animate-in slide-in-from-bottom-10 duration-1000">
-                <div className="absolute -bottom-10 -left-10 p-20 opacity-10 bg-indigo-500 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative p-8 sm:p-12 rounded-[40px] bg-gradient-to-br from-slate-900 to-primary/30 border border-white/5 overflow-hidden shadow-2xl mt-12 animate-in slide-in-from-bottom-10 duration-1000">
+                <div className="absolute -bottom-10 -left-10 p-20 opacity-10 bg-primary rounded-full blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
                     <div className="text-center lg:text-left flex-1">
@@ -351,7 +351,7 @@ export default function ClientsPage() {
                     </div>
 
                     <div className="flex flex-wrap justify-center lg:justify-end gap-4 w-full lg:w-auto">
-                        <KPICard label="Clients Actifs" value={String(clients.filter((c) => c.isActive).length)} icon={Activity} color="text-indigo-400" />
+                        <KPICard label="Clients Actifs" value={String(clients.filter((c) => c.isActive).length)} icon={Activity} color="text-primary" />
                         <KPICard label="Portefeuille Total" value={String(clients.length)} icon={Users} color="text-emerald-400" />
                     </div>
                 </div>
@@ -390,7 +390,7 @@ function KPICard({ label, value, trend, icon: Icon, color }: KPICardProps) {
 }
 
 function ActionButton({ icon: Icon, href, title }: { icon: any; href?: string; title?: string }) {
-    const className = "p-2.5 rounded-xl bg-slate-800/50 text-slate-400 hover:bg-indigo-600 hover:text-white transition-all hover:scale-110 hover:shadow-lg border border-white/5";
+    const className = "p-2.5 rounded-xl bg-slate-800/50 text-slate-400 hover:brightness-110 hover:text-white transition-all hover:scale-110 hover:shadow-lg border border-white/5";
     if (!href) {
         return (
             <button disabled title={title || "Non disponible"} onClick={(e) => e.preventDefault()} className={cn(className, "opacity-40 cursor-not-allowed hover:bg-slate-800/50 hover:text-slate-400 hover:scale-100")}>

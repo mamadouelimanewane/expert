@@ -779,3 +779,67 @@ body {
   margin-bottom: 2rem;
   font-size: 1.1rem;
 }
+/* =============================================
+   TEXTE BLANC SUR FOND COLORÉ (boutons, pastilles actives)
+   Signalé sur le bouton "Production" actif de /comptabilite/production :
+   fond indigo correct, mais texte rendu noir au lieu de blanc — pas un
+   mauvais choix de couleur, le même bug de cascade que les écrans
+   sombres (.light .text-white { color: #0f172a !important } ci-dessus)
+   s'applique aussi ici, car cette règle générique ne sait pas distinguer
+   "texte blanc sur fond neutre remappé en clair" (le cas normal qu'elle
+   corrige) de "texte blanc sur fond réellement coloré" (bg-indigo-600,
+   bg-emerald-600...) où elle est fausse. 118 fichiers utilisent ce motif
+   fond-coloré + text-white (boutons primaires, pastilles de statut) —
+   tous rendaient un texte terne à contraste réduit. Spécificité à 3
+   classes (.light + fond + texte) pour l'emporter sur la règle
+   générique à 2 classes, sans la modifier. */
+.light .bg-indigo-500.text-white { color: #ffffff !important; }
+.light .bg-indigo-600.text-white { color: #ffffff !important; }
+.light .bg-indigo-700.text-white { color: #ffffff !important; }
+.light .bg-emerald-500.text-white { color: #ffffff !important; }
+.light .bg-emerald-600.text-white { color: #ffffff !important; }
+.light .bg-emerald-700.text-white { color: #ffffff !important; }
+.light .bg-amber-500.text-white { color: #ffffff !important; }
+.light .bg-amber-600.text-white { color: #ffffff !important; }
+.light .bg-amber-700.text-white { color: #ffffff !important; }
+.light .bg-rose-500.text-white { color: #ffffff !important; }
+.light .bg-rose-600.text-white { color: #ffffff !important; }
+.light .bg-rose-700.text-white { color: #ffffff !important; }
+.light .bg-blue-500.text-white { color: #ffffff !important; }
+.light .bg-blue-600.text-white { color: #ffffff !important; }
+.light .bg-blue-700.text-white { color: #ffffff !important; }
+.light .bg-red-500.text-white { color: #ffffff !important; }
+.light .bg-red-600.text-white { color: #ffffff !important; }
+.light .bg-red-700.text-white { color: #ffffff !important; }
+.light .bg-teal-500.text-white { color: #ffffff !important; }
+.light .bg-teal-600.text-white { color: #ffffff !important; }
+.light .bg-teal-700.text-white { color: #ffffff !important; }
+.light .bg-cyan-500.text-white { color: #ffffff !important; }
+.light .bg-cyan-600.text-white { color: #ffffff !important; }
+.light .bg-cyan-700.text-white { color: #ffffff !important; }
+.light .bg-violet-500.text-white { color: #ffffff !important; }
+.light .bg-violet-600.text-white { color: #ffffff !important; }
+.light .bg-violet-700.text-white { color: #ffffff !important; }
+.light .bg-purple-500.text-white { color: #ffffff !important; }
+.light .bg-purple-600.text-white { color: #ffffff !important; }
+.light .bg-purple-700.text-white { color: #ffffff !important; }
+.light .bg-sky-500.text-white { color: #ffffff !important; }
+.light .bg-sky-600.text-white { color: #ffffff !important; }
+.light .bg-sky-700.text-white { color: #ffffff !important; }
+.light .bg-orange-500.text-white { color: #ffffff !important; }
+.light .bg-orange-600.text-white { color: #ffffff !important; }
+.light .bg-orange-700.text-white { color: #ffffff !important; }
+.light .bg-green-500.text-white { color: #ffffff !important; }
+.light .bg-green-600.text-white { color: #ffffff !important; }
+.light .bg-green-700.text-white { color: #ffffff !important; }
+.light .bg-pink-500.text-white { color: #ffffff !important; }
+.light .bg-pink-600.text-white { color: #ffffff !important; }
+.light .bg-pink-700.text-white { color: #ffffff !important; }
+.light .bg-fuchsia-500.text-white { color: #ffffff !important; }
+.light .bg-fuchsia-600.text-white { color: #ffffff !important; }
+.light .bg-fuchsia-700.text-white { color: #ffffff !important; }
+/* bg-primary (vert de marque, ex-indigo remplacé partout dans l'app) a le
+   même besoin : sans cette règle, un bouton bg-primary + text-white
+   retombait dans exactement le même bug — repéré en vérifiant le bouton
+   "Production" juste après la conversion indigo → vert. */
+.light .bg-primary.text-white { color: #ffffff !important; }
