@@ -641,6 +641,25 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+/* Rotation de teintes sur la barre de pied — sans elle, les 260 cartes de
+   l application affichaient toutes le meme vert, la ou /comptabilite/production
+   alterne les couleurs. La rotation suit la position de la carte parmi ses
+   soeurs : dans une grille, les cartes voisines ont donc des barres
+   differentes. Ce n est qu un DEFAUT : une page qui donne un sens a ses
+   couleurs les impose en style inline (--panel-bar / --panel-border), qui
+   l emporte sur ces regles — c est ce qui fait que /comptabilite/production
+   garde son code ambre / rose / emeraude.
+   Palette tiree des couleurs de categories deja utilisees par le Hub /bi.
+   Deux teintes en sont volontairement exclues : l indigo (#6366f1), ecarte
+   de l application a la demande du cabinet, et le rouge franc, qui sur une
+   carte quelconque se lirait comme une alerte. */
+.apix-card:nth-child(6n + 1) { --panel-bar: rgba(0, 107, 63, 0.55);   --panel-border: rgba(0, 107, 63, 0.28); }
+.apix-card:nth-child(6n + 2) { --panel-bar: rgba(242, 148, 0, 0.55);  --panel-border: rgba(242, 148, 0, 0.28); }
+.apix-card:nth-child(6n + 3) { --panel-bar: rgba(8, 145, 178, 0.55);  --panel-border: rgba(8, 145, 178, 0.28); }
+.apix-card:nth-child(6n + 4) { --panel-bar: rgba(139, 92, 246, 0.55); --panel-border: rgba(139, 92, 246, 0.28); }
+.apix-card:nth-child(6n + 5) { --panel-bar: rgba(37, 99, 235, 0.55);  --panel-border: rgba(37, 99, 235, 0.28); }
+.apix-card:nth-child(6n + 6) { --panel-bar: rgba(219, 39, 119, 0.55); --panel-border: rgba(219, 39, 119, 0.28); }
+
 /* Boutons */
 .apix-btn {
   display: inline-flex;
