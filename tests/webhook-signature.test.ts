@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createHmac } from "crypto";
-import { verifierSignatureWebhook } from "@/lib/webhook-signature";
+import { verifierSignatureMeta, verifierSignatureWebhook } from "@/lib/webhook-signature";
 
 const SECRET = "secret-de-test-webhook";
 
@@ -137,5 +137,38 @@ describe("vérification de signature des webhooks de paiement", () => {
             );
             expect(res).toMatchObject({ ok: false, reason: "signature_invalide" });
         });
+    });
+});
+
+describe("vérification de signature du webhook WhatsApp (Meta)", () => {
+    const corps = '{"entry":[{"changes":[{"value":{"messages":[{"from":"221771234567"}]}}]}]}';
+
+    afterEach(() => {
+        delete process.env.WHATSAPP_APP_SECRET;
+    });
+
+    it("refuse tout message entrant quand WHATSAPP_APP_SECRET n'est pas configuré (fail closed)", () => {
+        const res = verifierSignatureMeta(corps, headers({ "x-hub-signature-256": `sha256=${hmac(corps)}` }));
+        expect(res).toMatchObject({ ok: false, status: 503, reason: "secret_webhook_non_configure" });
+    });
+
+    it("accepte une signature Meta valide au format sha256=<hex>", () => {
+        process.env.WHATSAPP_APP_SECRET = SECRET;
+        const res = verifierSignatureMeta(corps, headers({ "x-hub-signature-256": `sha256=${hmac(corps)}` }));
+        expect(res.ok).toBe(true);
+    });
+
+    it("refuse un corps injecté par un tiers sans signature", () => {
+        process.env.WHATSAPP_APP_SECRET = SECRET;
+        const res = verifierSignatureMeta(corps, headers({}));
+        expect(res).toMatchObject({ ok: false, status: 401, reason: "signature_absente" });
+    });
+
+    it("refuse un corps modifié après signature (écriture comptable altérée)", () => {
+        process.env.WHATSAPP_APP_SECRET = SECRET;
+        const signatureDOrigine = hmac(corps);
+        const corpsFalsifie = corps.replace("221771234567", "221770000000");
+        const res = verifierSignatureMeta(corpsFalsifie, headers({ "x-hub-signature-256": `sha256=${signatureDOrigine}` }));
+        expect(res).toMatchObject({ ok: false, status: 401, reason: "signature_invalide" });
     });
 });

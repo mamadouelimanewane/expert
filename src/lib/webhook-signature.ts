@@ -101,3 +101,24 @@ export function verifierSignatureWebhook(
 
     return verifierGenerique(rawBody, headers.get("x-webhook-signature"), secret);
 }
+
+/**
+ * Vérifie l'authenticité d'un webhook Meta (WhatsApp Cloud API).
+ *
+ * Meta signe le corps brut en HMAC-SHA256 avec le secret de l'application et
+ * transmet le résultat dans `x-hub-signature-256` au format `sha256=<hex>`.
+ *
+ * Même politique que les paiements : fail closed. Cet endpoint est exempté du
+ * middleware de session (Meta n'a pas de compte chez nous) ; sans signature
+ * vérifiée, n'importe qui pourrait injecter des écritures comptables dans le
+ * dossier d'un client réel et sonder le portefeuille clients du cabinet.
+ */
+export function verifierSignatureMeta(rawBody: string, headers: Headers): VerificationResult {
+    const secret = process.env.WHATSAPP_APP_SECRET;
+
+    if (!secret) {
+        return { ok: false, status: 503, reason: "secret_webhook_non_configure" };
+    }
+
+    return verifierGenerique(rawBody, headers.get("x-hub-signature-256"), secret);
+}

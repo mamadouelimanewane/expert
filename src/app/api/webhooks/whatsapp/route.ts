@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { processIncomingWhatsAppMessage } from '@/lib/whatsapp-processor';
+import { verifierSignatureMeta } from '@/lib/webhook-signature';
 
 /**
  * Webhook WhatsApp — reçoit les messages réels via l'API Meta Cloud (configuré
@@ -22,9 +23,34 @@ export async function GET(req: Request) {
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 }
 
+type MetaMessage = {
+  from?: string;
+  type?: string;
+  text?: { body?: string };
+};
+
+type MetaWebhookBody = {
+  entry?: Array<{ changes?: Array<{ value?: { messages?: MetaMessage[] } }> }>;
+};
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    // Corps brut indispensable : la signature Meta porte sur les octets reçus,
+    // pas sur un JSON re-sérialisé.
+    const rawBody = await req.text();
+
+    const verification = verifierSignatureMeta(rawBody, req.headers);
+    if (!verification.ok) {
+      console.warn(`[WhatsApp Webhook] Requête rejetée : ${verification.reason}`);
+      return NextResponse.json({ error: verification.reason }, { status: verification.status });
+    }
+
+    let body: MetaWebhookBody;
+    try {
+      body = JSON.parse(rawBody) as MetaWebhookBody;
+    } catch {
+      return NextResponse.json({ error: 'corps_invalide' }, { status: 400 });
+    }
 
     // Extraction du message WhatsApp (format Meta API)
     const entry = body?.entry?.[0];
@@ -38,6 +64,10 @@ export async function POST(req: Request) {
     const message = messages[0];
     const senderPhone = message.from; // numéro du client
     const messageType = message.type; // text, image, audio
+
+    if (!senderPhone) {
+      return NextResponse.json({ status: "no_messages" });
+    }
 
     const result = await processIncomingWhatsAppMessage({
       senderPhone,
