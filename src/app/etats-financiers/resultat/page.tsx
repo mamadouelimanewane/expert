@@ -125,15 +125,6 @@ export default function ResultatPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {resultatData.map((row, idx) => {
-                            if (row.isHeader) {
-                                return (
-                                    <tr key={idx} className="bg-slate-50/50 dark:bg-slate-900/30">
-                                        <td className="px-6 py-3 font-mono text-xs opacity-50">{row.code}</td>
-                                        <td colSpan={4} className="px-6 py-3 font-bold text-slate-800 dark:text-slate-200">{row.label}</td>
-                                    </tr>
-                                )
-                            }
-
                             const variation = (row.netN || 0) - (row.netN1 || 0);
                             const isPositive = variation >= 0;
                             // XI = résultat net de l'exercice, seul total de niveau supérieur.

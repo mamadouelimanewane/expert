@@ -63,7 +63,14 @@ function PrintResultatInner() {
                     {compteResultat.map((row, idx) => (
                         <tr key={idx} className={clsx(
                             row.isTotal ? "font-bold bg-slate-50" : "",
-                            row.level === 2 ? "bg-slate-200 text-[11px]" : ""
+                            // Soldes intermediaires de gestion (marge commerciale, valeur
+                            // ajoutee, EBE, resultat d exploitation...) : ce sont les reperes
+                            // de lecture d un compte de resultat. La version ecran les met
+                            // deja en evidence via isSIG ; cette version imprimee testait
+                            // row.level, un champ qui n existe sur aucune ligne renvoyee par
+                            // le moteur SYSCOHADA — la condition etait donc toujours fausse
+                            // et le document remis au client perdait ces reperes.
+                            row.isSIG ? "bg-slate-200 font-bold" : ""
                         )}>
                             <td className="border border-black px-1 py-1 text-center font-mono">{row.code}</td>
                             <td className="border border-black px-2 py-1">
