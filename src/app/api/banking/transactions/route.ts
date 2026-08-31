@@ -10,7 +10,8 @@ export async function GET(request: Request) {
         const transactions = await prisma.bankTransaction.findMany({
             include: {
                 invoice: {
-                    include: { client: true }
+                    // Objet Client brut = `portalToken` expose (cf. /api/clients/[id]).
+                    include: { client: { omit: { portalToken: true } } }
                 }
             },
             orderBy: {

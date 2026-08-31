@@ -8,7 +8,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     try {
         const { id } = await params;
-        const client = await prisma.client.findUnique({ where: { id } });
+        // `portalToken` vaut authentification au portail client : quiconque le
+        // detient ouvre le dossier complet sans session ni mot de passe, et la
+        // revocation d un compte staff ne l invalide pas. La route liste voisine
+        // l excluait deja ; cette route detail renvoyait l objet brut, donc le
+        // jeton — y compris vers les trois pages d impression d etats financiers
+        // qui n appellent cet endpoint que pour lire une raison sociale, faisant
+        // transiter le secret dans le navigateur de chaque collaborateur.
+        const client = await prisma.client.findUnique({
+            where: { id },
+            omit: { portalToken: true },
+        });
         if (!client) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }

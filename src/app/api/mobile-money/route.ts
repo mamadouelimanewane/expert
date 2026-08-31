@@ -18,7 +18,8 @@ export async function GET(request: Request) {
 
         const transactions = await prisma.mobileMoneyTransaction.findMany({
             where,
-            include: { client: true },
+            // Objet Client brut = `portalToken` expose (cf. /api/clients/[id]).
+            include: { client: { omit: { portalToken: true } } },
             orderBy: { transactionDate: "desc" },
             take: 100
         });
