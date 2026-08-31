@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontant } from "@/lib/validation";
+import { WRITE_ROLES } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
     try {
@@ -87,6 +88,12 @@ export async function POST(request: NextRequest) {
     }
 }
 
+const STATUTS_DEPENSE = ["EN_ATTENTE", "APPROUVEE", "REJETEE", "REMBOURSEE"];
+
+// Statuts qui engagent financièrement le cabinet : ils relèvent d'une
+// validation hiérarchique, pas du déclarant.
+const STATUTS_VALIDATION = ["APPROUVEE", "REMBOURSEE"];
+
 export async function PATCH(request: NextRequest) {
     try {
         const session = await AuthService.getSession();
@@ -99,6 +106,38 @@ export async function PATCH(request: NextRequest) {
 
         if (!id || !status) {
             return NextResponse.json({ error: "id et status requis" }, { status: 400 });
+        }
+
+        if (!STATUTS_DEPENSE.includes(status)) {
+            return NextResponse.json({ error: "Statut inconnu." }, { status: 400 });
+        }
+
+        const existante = await prisma.expense.findUnique({
+            where: { id },
+            select: { id: true, userId: true },
+        });
+        if (!existante) {
+            return NextResponse.json({ error: "Note de frais introuvable." }, { status: 404 });
+        }
+
+        // Aucune séparation des tâches n'était appliquée ici : tout compte
+        // staff, y compris ASSISTANT et y compris le déclarant lui-même,
+        // pouvait passer n'importe quelle note de frais à APPROUVEE ou
+        // REMBOURSEE — `approvedById: session.id` enregistrant alors l'auteur
+        // comme son propre approbateur.
+        if (STATUTS_VALIDATION.includes(status)) {
+            if (!WRITE_ROLES.includes(session.role as (typeof WRITE_ROLES)[number])) {
+                return NextResponse.json(
+                    { error: "Seuls un expert, un collaborateur ou un administrateur peuvent valider une note de frais." },
+                    { status: 403 }
+                );
+            }
+            if (existante.userId === session.id) {
+                return NextResponse.json(
+                    { error: "Vous ne pouvez pas valider votre propre note de frais." },
+                    { status: 403 }
+                );
+            }
         }
 
         const expense = await prisma.expense.update({

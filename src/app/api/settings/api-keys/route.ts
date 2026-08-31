@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
+import { requireAdmin } from "@/lib/api-auth";
 import { randomBytes, createHash } from "crypto";
 
 // Sélection de champs sûre : jamais `hashedKey` (ni la clé en clair, qui
@@ -17,7 +17,16 @@ const SAFE_SELECT = {
   createdBy: { select: { firstName: true, lastName: true } },
 };
 
+// Une cle API donne un acces programmatique a l'ensemble des donnees du
+// cabinet : sa creation et sa revocation sont des actes d'administration.
+// Le GET n'effectuait aucune verification dans le handler (il ne dependait que
+// du middleware), et POST/PATCH acceptaient tout compte staff, y compris
+// ASSISTANT — qui pouvait donc emettre une cle ou revoquer celle d'un
+// integrateur en production.
 export async function GET() {
+  const { denied } = await requireAdmin();
+  if (denied) return denied;
+
   try {
     const [apiKeys, logs] = await Promise.all([
       prisma.apiKey.findMany({ select: SAFE_SELECT, orderBy: { createdAt: "desc" } }),
@@ -36,12 +45,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const session = await AuthService.getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+  const { session, denied } = await requireAdmin();
+  if (denied) return denied;
 
+  try {
     const body = await request.json();
     const { label, scopes } = body;
 
@@ -77,12 +84,10 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  try {
-    const session = await AuthService.getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+  const { denied } = await requireAdmin();
+  if (denied) return denied;
 
+  try {
     const body = await request.json();
     const { id } = body;
     if (!id) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { clientDuPortail } from "@/lib/portal-auth";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 const STATUT_VERS_KYC: Record<string, string> = {
@@ -16,8 +17,8 @@ export async function GET(request: NextRequest) {
     const token = new URL(request.url).searchParams.get("token");
     if (!token) return NextResponse.json({ error: "token requis" }, { status: 400 });
 
-    const client = await prisma.client.findFirst({ where: { portalToken: token } });
-    if (!client) return NextResponse.json({ error: "Portail introuvable." }, { status: 404 });
+    const client = await clientDuPortail(token);
+    if (!client) return NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
     if (!client.stripeIdentitySessionId) {
       return NextResponse.json({ status: null });
     }

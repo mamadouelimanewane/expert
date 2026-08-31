@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     ScanLine,
     UploadCloud,
@@ -19,18 +19,42 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Les pieces numerisees ici etaient enregistrees sans client : elles
+// n'apparaissaient dans aucun dossier, et l'export comptable qui suit
+// agregeait alors les documents de tout le portefeuille dans un seul fichier.
+// Le client est desormais choisi avant tout depot.
+type ClientOption = { id: string; name: string };
+
 export default function OCRPage() {
     const [step, setStep] = useState<"upload" | "scanning" | "review">("upload");
     const [extractedData, setExtractedData] = useState<any>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [clients, setClients] = useState<ClientOption[]>([]);
+    const [clientId, setClientId] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        fetch("/api/clients")
+            .then(res => res.json())
+            .then(data => {
+                setClients((data.clients || []).map((c: any) => ({
+                    id: c.id,
+                    name: c.companyName || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                })));
+            })
+            .catch(err => console.error("Failed to load clients", err));
+    }, []);
+
     const handleExport = async (format: 'excel' | 'fec') => {
+        if (!clientId) {
+            setError("Selectionnez le client concerne avant d'exporter.");
+            return;
+        }
         setIsExporting(true);
         try {
-            const response = await fetch(`/api/export?format=${format}`);
+            const response = await fetch(`/api/export?format=${format}&clientId=${clientId}`);
             if (!response.ok) throw new Error("Export failed");
 
             const blob = await response.blob();
@@ -69,6 +93,7 @@ export default function OCRPage() {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("type", "FACTURE");
+            formData.append("clientId", clientId);
 
             const response = await fetch("/api/documents", {
                 method: "POST",
@@ -104,6 +129,10 @@ export default function OCRPage() {
     };
 
     const handleUploadClick = () => {
+        if (!clientId) {
+            setError("Selectionnez le client concerne avant de numeriser une piece.");
+            return;
+        }
         fileInputRef.current?.click();
     };
 
@@ -117,6 +146,16 @@ export default function OCRPage() {
                     </h2>
                     <p className="page-subtitle">Numérisation et extraction automatique des pièces comptables par IA.</p>
                 </div>
+                <select
+                    value={clientId}
+                    onChange={(e) => { setClientId(e.target.value); setError(null); }}
+                    className="apix-input min-w-[220px] text-sm"
+                >
+                    <option value="">Sélectionner un client…</option>
+                    {clients.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
             </div>
 
             {error && (

@@ -18,3 +18,22 @@ export async function getPortalClient(req: Request) {
 
   return client;
 }
+
+/**
+ * Même résolution, mais à partir d'un token déjà extrait par l'appelant
+ * (corps JSON d'un POST, paramètre d'URL nommé autrement…).
+ *
+ * Les routes d'onboarding interrogeaient `client.findFirst({ portalToken })`
+ * en direct, sans vérifier `portalEnabled` : le token d'un client dont le
+ * cabinet avait désactivé le portail — client sorti du portefeuille, ou token
+ * compromis — permettait toujours d'ouvrir une session de vérification
+ * d'identité ou d'enregistrer un mandat de prélèvement SEPA.
+ */
+export async function clientDuPortail(token: unknown) {
+  if (typeof token !== "string" || token.trim() === "") return null;
+
+  const client = await prisma.client.findFirst({ where: { portalToken: token } });
+  if (!client || !client.portalEnabled) return null;
+
+  return client;
+}

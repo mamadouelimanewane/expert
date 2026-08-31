@@ -12,11 +12,23 @@ export async function GET(request: Request) {
         const format = searchParams.get("format") || "excel"; // excel, fec
         const clientId = searchParams.get("clientId");
 
+        // Sans clientId, le filtre disparaissait et l'export agregeait les
+        // documents de TOUS les clients du cabinet dans un seul fichier
+        // comptable. Un FEC est par nature propre a une entite : le fichier
+        // produit etait inexploitable, et remis a un client il lui exposait les
+        // ecritures des autres.
+        if (!clientId || clientId.length !== 24) {
+            return NextResponse.json(
+                { error: "clientId requis : un export comptable porte sur un seul dossier." },
+                { status: 400 }
+            );
+        }
+
         // Récupérer les documents traités pour l'export
         const documents = await prisma.document.findMany({
             where: {
                 status: "PROCESSED",
-                ...(clientId ? { clientId } : {})
+                clientId,
             },
             orderBy: { createdAt: "desc" }
         });

@@ -9,6 +9,11 @@ import { AuditService } from '@/lib/audit';
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
+/** Valeurs de l'enum Prisma DocumentType. */
+const TYPES_DOCUMENT = [
+    'FACTURE', 'RELEVE_BANCAIRE', 'CONTRAT', 'RAPPORT', 'DECLARATION', 'PIECE_IDENTITE', 'AUTRE',
+];
+
 export async function POST(request: NextRequest) {
     try {
         const session = await AuthService.getSession();
@@ -26,6 +31,22 @@ export async function POST(request: NextRequest) {
                 { error: 'No file provided' },
                 { status: 400 }
             );
+        }
+
+        // `isValidObjectId` etait declare mais jamais appele, et `documentType`
+        // partait en base sans liste blanche : une valeur hors enum ou un
+        // clientId mal forme faisait echouer le create APRES l'ecriture du
+        // fichier sur disque, laissant un fichier orphelin dans uploads/ et un
+        // 500 generique. Une chaine vide, elle, produisait un document sans
+        // client, enregistre avec success: true et invisible dans le dossier.
+        if (!TYPES_DOCUMENT.includes(documentType)) {
+            return NextResponse.json(
+                { error: `Type de document inconnu : ${documentType}.` },
+                { status: 400 }
+            );
+        }
+        if (clientId && !isValidObjectId(clientId)) {
+            return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
         }
 
         // Validation du type de fichier
@@ -89,9 +110,20 @@ export async function POST(request: NextRequest) {
 
         // Traiter le document avec OCR si c'est une facture
         let ocrResult = null;
+        // `document` est l'objet cree plus haut, avec status 'PROCESSING' : les
+        // mises a jour qui suivent ne le rechargeaient pas, si bien que la
+        // reponse annoncait toujours PROCESSING — et, sur echec de l'OCR,
+        // success: true avec ocrResult: null, impossible a distinguer d'un OCR
+        // reussi. Le statut final est desormais suivi explicitement.
+        let statutFinal: 'PROCESSING' | 'PROCESSED' | 'ERROR' = 'PROCESSING';
+        let erreurOcr: string | null = null;
         if (documentType === 'FACTURE' && file.type.startsWith('image/')) {
             try {
                 ocrResult = await processUploadedInvoice(filePath);
+                statutFinal = ocrResult.success ? 'PROCESSED' : 'ERROR';
+                if (!ocrResult.success) {
+                    erreurOcr = "L'extraction OCR n'a pas abouti sur ce document.";
+                }
 
                 // Mettre à jour le document avec les données OCR
                 await prisma.document.update({
@@ -114,6 +146,8 @@ export async function POST(request: NextRequest) {
                 });
             } catch (ocrError) {
                 console.error('❌ OCR Error:', ocrError);
+                statutFinal = 'ERROR';
+                erreurOcr = ocrError instanceof Error ? ocrError.message : 'Erreur OCR inconnue.';
                 await prisma.document.update({
                     where: { id: document.id },
                     data: {
@@ -123,6 +157,7 @@ export async function POST(request: NextRequest) {
             }
         } else {
             // Marquer comme traité si pas de OCR nécessaire
+            statutFinal = 'PROCESSED';
             await prisma.document.update({
                 where: { id: document.id },
                 data: {
@@ -132,15 +167,16 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({
-            success: true,
+            success: statutFinal !== 'ERROR',
             document: {
                 id: document.id,
                 fileName: document.fileName,
                 fileUrl: document.fileUrl,
                 type: document.type,
-                status: document.status,
+                status: statutFinal,
             },
             ocrResult,
+            ...(erreurOcr ? { error: erreurOcr } : {}),
         });
     } catch (error) {
         console.error('❌ Upload error:', error);
