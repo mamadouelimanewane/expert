@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
     try {
@@ -34,6 +35,53 @@ export async function GET(request: NextRequest) {
     }
 }
 
+/**
+ * Crée la lettre de mission en lui attribuant sa référence séquentielle.
+ *
+ * La référence était auparavant dérivée d'un `count()` : deux créations
+ * simultanées obtenaient la même, et une suppression la réattribuait à un
+ * second document — deux contrats distincts portaient alors LM-2026-004.
+ *
+ * Elle est désormais dérivée du plus grand numéro déjà attribué (une
+ * suppression ne peut plus faire réattribuer une référence utilisée) et
+ * `EngagementLetter.reference` porte une contrainte `@unique`, doublée d'un
+ * index unique en base. La course résiduelle — deux créations concomitantes —
+ * est rattrapée par un nouvel essai, comme pour les numéros de facture, plutôt
+ * que par une erreur 500 renvoyée à l'utilisateur.
+ */
+async function creerLettreAvecReference(
+    data: Omit<Prisma.EngagementLetterUncheckedCreateInput, "reference">
+) {
+    const year = new Date().getFullYear();
+
+    const derniere = await prisma.engagementLetter.findFirst({
+        where: { reference: { startsWith: `LM-${year}-` } },
+        orderBy: { reference: "desc" },
+        select: { reference: true },
+    });
+    const dernierNumero = derniere ? Number(derniere.reference.split("-").pop()) : 0;
+    const base = Number.isFinite(dernierNumero) ? dernierNumero : 0;
+
+    for (let tentative = 0; tentative < 5; tentative++) {
+        const reference = `LM-${year}-${String(base + 1 + tentative).padStart(3, "0")}`;
+        try {
+            return await prisma.engagementLetter.create({
+                data: { ...data, reference },
+                include: {
+                    client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
+                    mission: { select: { id: true, title: true } },
+                    createdBy: { select: { id: true, firstName: true, lastName: true } },
+                },
+            });
+        } catch (error) {
+            // P2002 = violation de contrainte d'unicité
+            if ((error as { code?: string })?.code !== "P2002") throw error;
+        }
+    }
+
+    throw new Error("Impossible d'attribuer une référence de lettre de mission unique après 5 tentatives");
+}
+
 export async function POST(request: NextRequest) {
     try {
         const session = await AuthService.getSession();
@@ -53,46 +101,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: honoraires.raison }, { status: 400 });
         }
 
-        const year = new Date().getFullYear();
-        // La reference etait derivee d'un count() : deux creations simultanees
-        // obtenaient la meme (et une suppression la reattribuait a un second
-        // document). Elle est desormais derivee du plus grand numero deja
-        // attribue : une suppression ne peut plus faire reattribuer une
-        // reference deja utilisee. Le champ ne portant pas de contrainte
-        // @unique au schema, deux creations vraiment concomitantes restent
-        // possibles — a verrouiller par un index unique lors d'une prochaine
-        // migration.
-        const derniere = await prisma.engagementLetter.findFirst({
-            where: { reference: { startsWith: `LM-${year}-` } },
-            orderBy: { reference: "desc" },
-            select: { reference: true },
-        });
-        const dernierNumero = derniere ? Number(derniere.reference.split("-").pop()) : 0;
-        const reference = `LM-${year}-${String((Number.isFinite(dernierNumero) ? dernierNumero : 0) + 1).padStart(3, "0")}`;
-
-        const letter = await prisma.engagementLetter.create({
-            data: {
-                reference,
-                scope,
-                fees: honoraires.valeur,
-                clientId,
-                missionId: missionId || null,
-                signatoryName: signatoryName || null,
-                status: "BROUILLON",
-                createdById: session.id,
-            },
-            include: {
-                client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
-                mission: { select: { id: true, title: true } },
-                createdBy: { select: { id: true, firstName: true, lastName: true } },
-            },
+        const letter = await creerLettreAvecReference({
+            scope,
+            fees: honoraires.valeur,
+            clientId,
+            missionId: missionId || null,
+            signatoryName: signatoryName || null,
+            status: "BROUILLON",
+            createdById: session.id,
         });
 
         await AuditService.log({
             action: "CREATE",
             entity: "ENGAGEMENT_LETTER",
             entityId: letter.id,
-            details: `Lettre de mission créée : ${reference}`,
+            details: `Lettre de mission créée : ${letter.reference}`,
         });
 
         return NextResponse.json({ letter }, { status: 201 });

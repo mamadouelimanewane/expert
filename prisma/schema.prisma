@@ -1557,7 +1557,7 @@ enum EngagementLetterStatus {
 
 model EngagementLetter {
   id            String                 @id @default(auto()) @map("_id") @db.ObjectId
-  reference     String
+  reference     String                 @unique
   scope         String
   fees          Float?
   status        EngagementLetterStatus @default(BROUILLON)
