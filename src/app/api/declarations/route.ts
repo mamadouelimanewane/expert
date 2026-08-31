@@ -57,7 +57,10 @@ export async function GET(request: NextRequest) {
                 type: d.type as string,
                 month: d.period,
                 country: d.client.country,
-                amountToPay: d.amount ? d.amount.toLocaleString() : "0",
+                // TaxDeclaration.amount est optionnel : un montant non encore
+                // calcule (null) s'affichait « 0 », indiscernable d'une
+                // declaration reellement a zero.
+                amountToPay: d.amount === null || d.amount === undefined ? null : d.amount.toLocaleString("fr-FR"),
                 status: d.status === "VALIDATED" ? "payee" : (d.status === "SUBMITTED" ? "teletransmise" : (d.status === "PENDING" ? "validation" : "a_preparer")),
                 deadline: new Date(d.dueDate).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short' }),
                 risk
@@ -69,7 +72,23 @@ export async function GET(request: NextRequest) {
             where: { status: { in: ['DRAFT', 'PENDING', 'SUBMITTED'] } }
         });
 
-        const nextDeadline = declarations.length > 0 ? new Date(declarations[0].dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : 'N/A';
+        // `declarations` est trie par dueDate croissante mais sans filtre de date
+        // ni de statut : declarations[0] etait la plus ANCIENNE echeance jamais
+        // enregistree, deja validee le plus souvent. Une TVA de janvier 2024
+        // deja payee figeait donc le KPI sur « 15 JANVIER ». Le KPI variait de
+        // surcroit avec le filtre de statut de la liste, ce qui n'a pas de sens
+        // pour un indicateur global.
+        const prochaine = await prisma.taxDeclaration.findFirst({
+            where: {
+                dueDate: { gte: new Date() },
+                status: { in: ['DRAFT', 'PENDING'] },
+            },
+            orderBy: { dueDate: 'asc' },
+            select: { dueDate: true },
+        });
+        const nextDeadline = prochaine
+            ? new Date(prochaine.dueDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+            : 'N/A';
 
         return NextResponse.json({ 
             declarations: formatted,

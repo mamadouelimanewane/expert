@@ -33,6 +33,10 @@ export class DiagnosticService {
 
         // --- SECTION 1: STRUCTURE ---
         const autonomyRatio = latest.totalBilan > 0 ? (latest.equity / latest.totalBilan) : 0;
+        const variationFondsPropres =
+            previous && previous.equity > 0
+                ? `${latest.equity >= previous.equity ? "+" : ""}${Math.round(((latest.equity - previous.equity) / previous.equity) * 100)}%`
+                : null;
         const structureScore = autonomyRatio > 0.4 ? 85 : autonomyRatio > 0.2 ? 60 : 35;
         
         const structureSection: DiagnosticSection = {
@@ -40,15 +44,29 @@ export class DiagnosticService {
             score: structureScore,
             status: structureScore >= 75 ? "excellent" : structureScore >= 50 ? "correct" : "critique",
             findings: [
-                `Fonds propres représentant ${Math.round(autonomyRatio * 100)}% du total bilan.`,
-                latest.equity >= (previous?.equity || 0) ? "Structure de capital solide et en progression." : "Érosion légère des fonds propres détectée."
+                latest.totalBilan > 0
+                    ? `Fonds propres représentant ${Math.round(autonomyRatio * 100)}% du total bilan.`
+                    : "Total bilan non renseigné : l'autonomie financière n'a pas pu être calculée.",
+                previous === null
+                    ? "Aucun exercice antérieur enregistré : l'évolution des fonds propres n'a pas pu être appréciée."
+                    : latest.equity >= previous.equity
+                        ? "Structure de capital solide et en progression."
+                        : "Érosion des fonds propres constatée par rapport à l'exercice précédent."
             ],
             recommendations: [
                 structureScore < 60 ? "Procéder à une augmentation de capital." : "Maintenir la politique actuelle de mise en réserve.",
                 "Optimiser la structure de la dette long terme."
             ],
             metrics: [
-                { label: "Autonomie Financière", value: `${Math.round(autonomyRatio * 100)}%`, trend: latest.equity > (previous?.equity || 0) ? "+2%" : "-1%" }
+                {
+                    label: "Autonomie Financière",
+                    value: latest.totalBilan > 0 ? `${Math.round(autonomyRatio * 100)}%` : "Indéterminée",
+                    // La tendance affichait "+2%" ou "-1%" selon un simple booléen
+                    // (fonds propres en hausse ou non) : un pourcentage inventé,
+                    // présenté comme une métrique. Elle n'est renseignée que si
+                    // l'exercice précédent existe et porte des fonds propres non nuls.
+                    trend: variationFondsPropres ?? undefined,
+                }
             ]
         };
 
@@ -61,8 +79,17 @@ export class DiagnosticService {
             score: perfScore,
             status: perfScore >= 75 ? "excellent" : perfScore >= 50 ? "correct" : "critique",
             findings: [
-                `Marge nette établie à ${Math.round(marginRatio * 1000) / 10}%.`,
-                latest.ca > (previous?.ca || 0) ? `Croissance du CA de ${Math.round(((latest.ca - (previous?.ca || 0)) / (previous?.ca || 1)) * 100)}%.` : "Décroissance de l'activité."
+                latest.ca > 0
+                    ? `Marge nette établie à ${Math.round(marginRatio * 1000) / 10}%.`
+                    : "Chiffre d'affaires non renseigné : la marge nette n'a pas pu être calculée.",
+                // La croissance divisait par `previous?.ca || 1` : sans exercice
+                // antérieur, un CA de 50 000 000 FCFA s'affichait en croissance
+                // de 5 000 000 000 %.
+                previous === null || previous.ca <= 0
+                    ? "Aucun exercice antérieur exploitable : l'évolution du chiffre d'affaires n'a pas pu être calculée."
+                    : latest.ca > previous.ca
+                        ? `Croissance du CA de ${Math.round(((latest.ca - previous.ca) / previous.ca) * 100)}%.`
+                        : `Repli du CA de ${Math.abs(Math.round(((latest.ca - previous.ca) / previous.ca) * 100))}%.`
             ],
             recommendations: [
                 perfScore < 50 ? "Auditer les charges fixes (Personnel, Loyers)." : "Poursuivre le développement commercial.",
@@ -81,8 +108,10 @@ export class DiagnosticService {
             score: complianceScore,
             status: complianceScore >= 75 ? "excellent" : complianceScore >= 50 ? "correct" : "critique",
             findings: [
-                lateDeclarations > 0 ? `${lateDeclarations} déclarations en retard détectées.` : "Aucun retard de déclaration majeur.",
-                "Risque de redressement fiscal estimé comme modéré."
+                // « Risque de redressement fiscal estimé comme modéré. » figurait
+                // ici en dur, renvoyé quel que soit le dossier : aucune analyse
+                // ne le produisait.
+                lateDeclarations > 0 ? `${lateDeclarations} déclarations en retard détectées.` : "Aucun retard de déclaration majeur."
             ],
             recommendations: [
                 lateDeclarations > 0 ? "Régulariser les déclarations PENDING immédiatement." : "Maintenir la veille fiscale active.",
@@ -99,7 +128,11 @@ export class DiagnosticService {
             status: treasuryScore >= 75 ? "excellent" : treasuryScore >= 50 ? "correct" : "critique",
             findings: [
                 `Trésorerie nette de ${latest.netCash.toLocaleString()} FCFA.`,
-                `BFR représentant ${Math.round((latest.bfr / latest.ca) * 365)} jours de CA.`
+                // Sans garde, un CA à 0 (valeur par défaut du modèle) produisait
+                // littéralement « BFR représentant NaN jours de CA. »
+                latest.ca > 0
+                    ? `BFR représentant ${Math.round((latest.bfr / latest.ca) * 365)} jours de CA.`
+                    : "Chiffre d'affaires non renseigné : le BFR n'a pas pu être exprimé en jours de CA."
             ],
             recommendations: [
                 latest.bfr > (latest.ca * 0.2) ? "Mettre en place un affacturage." : "Gestion saine du besoin en fonds de roulement.",
@@ -114,8 +147,8 @@ export class DiagnosticService {
                 year: d.year.toString(),
                 ca: d.ca,
                 resultatNet: d.netResult,
-                fondsPropresPct: Math.round((d.equity / d.totalBilan) * 100),
-                bfr: Math.round((d.bfr / d.ca) * 365),
+                fondsPropresPct: d.totalBilan > 0 ? Math.round((d.equity / d.totalBilan) * 100) : null,
+                bfr: d.ca > 0 ? Math.round((d.bfr / d.ca) * 365) : null,
                 tresorerie: d.netCash
             }))
         };

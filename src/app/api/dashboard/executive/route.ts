@@ -12,9 +12,13 @@ export async function GET() {
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const in3Days = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-    const [invoicesThisMonth, invoicesPrevMonth, allInvoices, missions, upcomingDeclarations, staff, totalClients] = await Promise.all([
-      prisma.invoice.findMany({ where: { issueDate: { gte: startOfMonth } } }),
-      prisma.invoice.findMany({ where: { issueDate: { gte: startOfPrevMonth, lt: startOfMonth } } }),
+    // Les brouillons et les factures annulees entraient dans le CA du mois et
+    // dans la croissance affichee au comite de direction.
+    const CA_STATUTS = ["SENT", "OVERDUE", "PAID"] as const;
+
+    const [invoicesThisMonth, invoicesPrevMonth, allInvoices, missions, upcomingDeclarations, staff, totalClients, saisiesTemps] = await Promise.all([
+      prisma.invoice.findMany({ where: { issueDate: { gte: startOfMonth }, status: { in: [...CA_STATUTS] } } }),
+      prisma.invoice.findMany({ where: { issueDate: { gte: startOfPrevMonth, lt: startOfMonth }, status: { in: [...CA_STATUTS] } } }),
       prisma.invoice.findMany(),
       prisma.mission.findMany({
         include: { client: { select: { companyName: true, firstName: true, lastName: true } }, timeEntries: { select: { duration: true, invoiceId: true } } },
@@ -26,7 +30,22 @@ export async function GET() {
       }),
       prisma.user.findMany({ where: { role: { in: ["EXPERT", "COLLABORATOR", "ASSISTANT"] }, isActive: true } }),
       prisma.client.count({ where: { isActive: true } }),
+      // Les heures etaient lues sur les missions ASSIGNEES au collaborateur, et
+      // non sur ses propres saisies : sur une mission assignee a A, les 40 h
+      // saisies par B etaient portees au compte de A, qui affichait 50 h quand
+      // B affichait 0. Le taux de facturation et le CA par collaborateur
+      // heritaient de la meme erreur. /api/dashboard/partner faisait deja le
+      // calcul correctement, d'ou deux tableaux de bord discordants.
+      prisma.timeEntry.findMany({ select: { userId: true, duration: true, invoiceId: true } }),
     ]);
+
+    const tempsParCollaborateur = new Map<string, { heures: number; facturees: number }>();
+    for (const t of saisiesTemps) {
+      const cumul = tempsParCollaborateur.get(t.userId) || { heures: 0, facturees: 0 };
+      cumul.heures += t.duration;
+      if (t.invoiceId) cumul.facturees += t.duration;
+      tempsParCollaborateur.set(t.userId, cumul);
+    }
 
     const caMois = invoicesThisMonth.reduce((s, i) => s + i.total, 0);
     const caPrevMois = invoicesPrevMonth.reduce((s, i) => s + i.total, 0);
@@ -65,13 +84,12 @@ export async function GET() {
 
     const collaborateurs = staff.map(u => {
       const assignedMissions = missions.filter(m => m.assignedToId === u.id);
-      const hours = assignedMissions.reduce((s, m) => s + m.timeEntries.reduce((s2, t) => s2 + t.duration, 0), 0);
-      const totalEntries = assignedMissions.flatMap(m => m.timeEntries);
+      const cumul = tempsParCollaborateur.get(u.id) || { heures: 0, facturees: 0 };
+      const hours = cumul.heures;
       // Taux facturable réel : part des heures effectivement rattachées à une facture
       // (TimeEntry.invoiceId). Remplace l'ancien binaire 100%/0% ("TimeEntry n'a pas de
       // flag facturable dédié" — inexact : invoiceId est ce flag).
-      const heuresFacturees = totalEntries.filter(t => t.invoiceId).reduce((s, t) => s + t.duration, 0);
-      const billable = hours > 0 ? Math.round((heuresFacturees / hours) * 100) : 0;
+      const billable = hours > 0 ? Math.round((cumul.facturees / hours) * 100) : 0;
       const ca = assignedMissions.reduce((s, m) => s + (m.fixedPrice || (m.hourlyRate ? m.hourlyRate * (m.estimatedHours || 0) : 0)), 0);
       return {
         id: u.id,

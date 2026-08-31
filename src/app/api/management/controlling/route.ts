@@ -20,11 +20,37 @@ export async function GET() {
     const now = new Date();
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    const [invoicesYTD, missions, staff] = await Promise.all([
-      prisma.invoice.findMany({ where: { issueDate: { gte: startOfYear } } }),
-      prisma.mission.findMany({ include: { timeEntries: { select: { duration: true } } } }),
+    // Le filtre de statut manquait : les factures DRAFT (jamais emises) et
+    // CANCELLED (annulees) entraient dans le « CA realise » de l'annee et dans
+    // la courbe mensuelle. Une facture de 10 M FCFA emise puis annulee restait
+    // comptee. /api/invoices, lui, somme sur PAID puis SENT/OVERDUE : les deux
+    // ecrans affichaient donc des CA divergents a partir des memes factures.
+    const [invoicesYTD, missions, staff, tempsYTD] = await Promise.all([
+      prisma.invoice.findMany({
+        where: { issueDate: { gte: startOfYear }, status: { in: ["SENT", "OVERDUE", "PAID"] } },
+      }),
+      prisma.mission.findMany(),
       prisma.user.findMany({ where: { role: { in: ["EXPERT", "COLLABORATOR", "ASSISTANT"] }, isActive: true } }),
+      // Les heures etaient additionnees depuis les missions ASSIGNEES au
+      // collaborateur, et non depuis ses propres saisies : sur une mission
+      // assignee a A, les 40 h saisies par B etaient portees au compte de A.
+      // Elles n'etaient de plus bornees par aucune date, alors que le taux
+      // d'occupation les rapporte a un mois type.
+      prisma.timeEntry.groupBy({
+        by: ["userId"],
+        where: { date: { gte: startOfYear } },
+        _sum: { duration: true },
+      }),
     ]);
+
+    const heuresParCollaborateur = new Map(
+      tempsYTD.map(t => [t.userId, t._sum.duration ?? 0])
+    );
+
+    // Base de reference : 160 h par mois ecoule depuis le 1er janvier
+    // (hypothese temps plein, faute de capacite contractuelle en base).
+    const moisEcoules = now.getMonth() + 1;
+    const capaciteYTD = moisEcoules * 160;
 
     const caRealise = invoicesYTD.reduce((s, i) => s + i.total, 0);
 
@@ -48,10 +74,9 @@ export async function GET() {
 
     const collaborators = staff.map(u => {
       const assigned = missions.filter(m => m.assignedToId === u.id);
-      const hours = assigned.reduce((s, m) => s + m.timeEntries.reduce((s2, t) => s2 + t.duration, 0), 0);
+      const hours = heuresParCollaborateur.get(u.id) ?? 0;
       const valeur = assigned.reduce((s, m) => s + (m.fixedPrice || (m.hourlyRate ? m.hourlyRate * (m.estimatedHours || 0) : 0)), 0);
-      // Occupation estimée sur une base de 160h/mois (hypothèse temps plein), faute de capacité contractuelle en base.
-      const occupation = Math.min(100, Math.round((hours / 160) * 100));
+      const occupation = capaciteYTD > 0 ? Math.min(100, Math.round((hours / capaciteYTD) * 100)) : 0;
       return {
         id: u.id,
         name: `${u.firstName} ${u.lastName}`,

@@ -48,7 +48,18 @@ export async function GET(request: NextRequest) {
     }
 
     const latest = Array.from(latestByClient.values());
-    const previous = Array.from(previousByClient.values());
+
+    // Les totaux N et N-1 etaient sommes sur deux populations differentes :
+    // `latest` contient un exercice pour CHAQUE entite du perimetre, `previous`
+    // seulement pour celles qui en ont au moins deux. Sur un groupe de trois
+    // entites a 200 M chacune dont une seule dispose d'un exercice N-1, le KPI
+    // « CA Consolide (Groupe) » affichait +200 % de croissance alors que la
+    // seule entite comparable etait stable. La variation est desormais calculee
+    // sur le seul perimetre comparable — les entites presentes des deux cotes —
+    // et ce perimetre est renvoye pour que l'interface puisse l'indiquer.
+    const idsComparables = Array.from(previousByClient.keys());
+    const latestComparable = idsComparables.map(id => latestByClient.get(id)!);
+    const previous = idsComparables.map(id => previousByClient.get(id)!);
 
     const sum = (arr: typeof latest, key: "ca" | "netResult" | "equity" | "totalBilan" | "netCash") => arr.reduce((s, r) => s + r[key], 0);
 
@@ -64,6 +75,17 @@ export async function GET(request: NextRequest) {
     const totalBilanPrev = sum(previous, "totalBilan");
     const netCashPrev = sum(previous, "netCash");
 
+    // Cote N du perimetre comparable, seul terme opposable a caPrev & co.
+    const caComparable = sum(latestComparable, "ca");
+    const netResultComparable = sum(latestComparable, "netResult");
+    const equityComparable = sum(latestComparable, "equity");
+    const totalBilanComparable = sum(latestComparable, "totalBilan");
+    const netCashComparable = sum(latestComparable, "netCash");
+
+    const netMarginComparable = caComparable !== 0 ? (netResultComparable / caComparable) * 100 : null;
+    const financialAutonomyComparable =
+      totalBilanComparable !== 0 ? (equityComparable / totalBilanComparable) * 100 : null;
+
     const netMargin = caLatest !== 0 ? round((netResultLatest / caLatest) * 100) : null;
     const netMarginPrev = caPrev !== 0 ? (netResultPrev / caPrev) * 100 : null;
     const financialAutonomy = totalBilanLatest !== 0 ? round((equityLatest / totalBilanLatest) * 100) : null;
@@ -73,24 +95,24 @@ export async function GET(request: NextRequest) {
       {
         label: "CA Consolidé (Groupe)",
         value: `${round(caLatest / 1000000, 1)}M FCFA`,
-        changePct: caPrev !== 0 ? round(((caLatest - caPrev) / caPrev) * 100, 1) : null,
+        changePct: caPrev !== 0 ? round(((caComparable - caPrev) / caPrev) * 100, 1) : null,
       },
       {
         label: "Marge Nette (Groupe)",
         value: netMargin !== null ? `${netMargin}%` : "—",
-        changePct: (netMargin !== null && netMarginPrev !== null) ? round(netMargin - netMarginPrev, 1) : null,
+        changePct: (netMarginComparable !== null && netMarginPrev !== null) ? round(netMarginComparable - netMarginPrev, 1) : null,
         isPointsDelta: true,
       },
       {
         label: "Autonomie Financière (Groupe)",
         value: financialAutonomy !== null ? `${financialAutonomy}%` : "—",
-        changePct: (financialAutonomy !== null && financialAutonomyPrev !== null) ? round(financialAutonomy - financialAutonomyPrev, 1) : null,
+        changePct: (financialAutonomyComparable !== null && financialAutonomyPrev !== null) ? round(financialAutonomyComparable - financialAutonomyPrev, 1) : null,
         isPointsDelta: true,
       },
       {
         label: "Trésorerie Nette (Groupe)",
         value: `${round(netCashLatest / 1000000, 1)}M FCFA`,
-        changePct: netCashPrev !== 0 ? round(((netCashLatest - netCashPrev) / netCashPrev) * 100, 1) : null,
+        changePct: netCashPrev !== 0 ? round(((netCashComparable - netCashPrev) / netCashPrev) * 100, 1) : null,
       },
     ];
 
@@ -153,6 +175,9 @@ export async function GET(request: NextRequest) {
       entityCount: group?.entities.length ?? 0,
       usingFallbackScope,
       kpis,
+      // Perimetre reellement comparable d'une periode a l'autre : les
+      // variations ci-dessus ne portent que sur ces entites.
+      perimetreComparaison: { entitesComparees: idsComparables.length, entitesTotal: latestByClient.size },
       monthlySeries,
       insights,
       documents: documents.map((d) => ({

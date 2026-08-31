@@ -53,10 +53,21 @@ export async function POST(request: NextRequest) {
         }
 
         const year = new Date().getFullYear();
-        const countThisYear = await prisma.missionOrder.count({
+        // La reference etait derivee d'un count() : deux creations simultanees
+        // obtenaient la meme (et une suppression la reattribuait a un second
+        // document). Elle est desormais derivee du plus grand numero deja
+        // attribue : une suppression ne peut plus faire reattribuer une
+        // reference deja utilisee. Le champ ne portant pas de contrainte
+        // @unique au schema, deux creations vraiment concomitantes restent
+        // possibles — a verrouiller par un index unique lors d'une prochaine
+        // migration.
+        const derniere = await prisma.missionOrder.findFirst({
             where: { reference: { startsWith: `OM-${year}-` } },
+            orderBy: { reference: "desc" },
+            select: { reference: true },
         });
-        const reference = `OM-${year}-${String(countThisYear + 1).padStart(3, "0")}`;
+        const dernierNumero = derniere ? Number(derniere.reference.split("-").pop()) : 0;
+        const reference = `OM-${year}-${String((Number.isFinite(dernierNumero) ? dernierNumero : 0) + 1).padStart(3, "0")}`;
 
         const missionOrder = await prisma.missionOrder.create({
             data: {

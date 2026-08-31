@@ -46,7 +46,8 @@ export default function EDepotPage() {
           country: d.country || "SN",
           client: d.client,
           type: `${d.type} — ${d.month}`,
-          amount: d.amountToPay ?? "0",
+          // null = montant non encore calcule, distinct d'un montant nul.
+          amount: d.amountToPay ?? "—",
           deadline: d.deadline || "—",
           status: d.status,
         }));
@@ -131,7 +132,7 @@ export default function EDepotPage() {
                     
                     <div className="flex items-center gap-8">
                       <div className="text-right">
-                        <p className="text-sm font-black text-white">{d.amount} FCFA</p>
+                        <p className="text-sm font-black text-white">{d.amount === "—" ? "Montant non calculé" : `${d.amount} FCFA`}</p>
                         <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Avant le {d.deadline}</p>
                       </div>
                       

@@ -33,8 +33,8 @@ interface YearData {
     year: string;
     ca: number;
     resultatNet: number;
-    fondsPropresPct: number;
-    bfr: number;
+    fondsPropresPct: number | null;
+    bfr: number | null;
     tresorerie: number;
 }
 
@@ -330,8 +330,8 @@ export default function DiagnosticPage() {
                                             <div className="space-y-3">
                                                 <MetricRow label="CA" value={year.ca.toLocaleString("fr-FR")} />
                                                 <MetricRow label="Résultat Net" value={year.resultatNet.toLocaleString("fr-FR")} />
-                                                <MetricRow label="Fonds Propres" value={`${year.fondsPropresPct}%`} />
-                                                <MetricRow label="BFR (jours)" value={year.bfr.toString()} />
+                                                <MetricRow label="Fonds Propres" value={year.fondsPropresPct === null ? "—" : `${year.fondsPropresPct}%`} />
+                                                <MetricRow label="BFR (jours)" value={year.bfr === null ? "—" : year.bfr.toString()} />
                                                 <MetricRow label="Trésorerie" value={year.tresorerie.toLocaleString("fr-FR")} />
                                             </div>
                                         </div>
