@@ -34,6 +34,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, messageId: result.messageId });
   } catch (error) {
     console.error("[API Email Send] Error:", error);
-    return NextResponse.json({ error: "Échec de l'envoi de l'e-mail." }, { status: 500 });
+    // La raison réelle est renvoyée à l'appelant : cet endpoint exige déjà une
+    // session staff, et un message générique rend l'échec indiagnosticable —
+    // impossible de distinguer un mot de passe refusé (EAUTH) d'un port
+    // bloqué (ETIMEDOUT) ou d'un serveur injoignable (ECONNREFUSED) sans
+    // accès aux journaux du serveur. Les erreurs SMTP ne contiennent jamais
+    // le mot de passe, seulement un code et le message du serveur distant.
+    const reason = error instanceof Error ? error.message : "Erreur inconnue";
+    const code = (error as { code?: string })?.code;
+    return NextResponse.json(
+      {
+        error: "Échec de l'envoi de l'e-mail.",
+        reason,
+        code: code ?? null,
+      },
+      { status: 500 }
+    );
   }
 }
