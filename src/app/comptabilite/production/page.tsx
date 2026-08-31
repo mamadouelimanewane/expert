@@ -173,7 +173,7 @@ export default function CollaborativeProductionPage() {
             </div>
 
             {/* Main Production Table (PENNYLANE STYLE) */}
-            <div className="apix-panel overflow-hidden" style={{ ["--panel-30" as any]: "#006B3F30", ["--panel-40" as any]: "#006B3F40", padding: 0 }}>
+            <div className="apix-panel overflow-hidden" style={{ ["--panel-bar" as any]: "#006B3F8C", ["--panel-border" as any]: "#006B3F40", padding: 0 }}>
                 <div className="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-6 bg-slate-900/60">
                     <div className="flex items-center gap-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -297,7 +297,7 @@ export default function CollaborativeProductionPage() {
 
             {/* 360 Client View Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="apix-panel relative overflow-hidden group" style={{ ["--panel-30" as any]: "#006B3F30", ["--panel-40" as any]: "#006B3F40" }}>
+                <div className="apix-panel relative overflow-hidden group" style={{ ["--panel-bar" as any]: "#006B3F8C", ["--panel-border" as any]: "#006B3F40" }}>
                     <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                         <PieChart className="w-32 h-32 text-primary" />
                     </div>
@@ -322,7 +322,7 @@ export default function CollaborativeProductionPage() {
                     </div>
                 </div>
 
-                <div className="apix-panel" style={{ ["--panel-30" as any]: "#f59e0b30", ["--panel-40" as any]: "#f59e0b40" }}>
+                <div className="apix-panel" style={{ ["--panel-bar" as any]: "#f59e0b8C", ["--panel-border" as any]: "#f59e0b40" }}>
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-amber-400" />
                         Écritures à qualifier
@@ -350,7 +350,7 @@ function KpiCard({ title, value, trend, subtext, icon: Icon, color, accent = "#0
     return (
         <div
             className="apix-panel group transition-all"
-            style={{ ["--panel-30" as any]: accent + "30", ["--panel-40" as any]: accent + "40" }}
+            style={{ ["--panel-bar" as any]: accent + "8C", ["--panel-border" as any]: accent + "40" }}
         >
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform shadow-xl", color)}>
