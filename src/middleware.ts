@@ -132,7 +132,18 @@ export default withAuth(
       pathname === "/login" ||
       pathname === "/";
 
-    if (isSensitiveRoute && method === "POST" && isBotUserAgent(ua)) {
+    // Les webhooks entrants sont des appels machine à machine : ils sont
+    // authentifiés par signature HMAC, contrôle bien plus fort qu'un
+    // User-Agent. Or `isBotUserAgent` considère bot toute requête SANS UA, et
+    // plusieurs fournisseurs de paiement n'en envoient pas : leur notification
+    // était rejetée en 403 avant même d'atteindre la vérification de signature,
+    // sans trace exploitable — un paiement encaissé, une facture jamais soldée.
+    // Le filtre UA ne doit donc pas s'appliquer ici.
+    const isWebhookEntrant =
+      pathname.startsWith("/api/webhooks/") ||
+      pathname === "/api/payments/webhook";
+
+    if (isSensitiveRoute && !isWebhookEntrant && method === "POST" && isBotUserAgent(ua)) {
       return botResponse("bot_user_agent");
     }
 
