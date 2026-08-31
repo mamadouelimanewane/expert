@@ -612,13 +612,33 @@ body {
   font-size: 1.1rem;
 }
 
-/* Card apix-pap : radius-lg (20px), padding 1.5rem, ombre légère */
+/* Carte de contenu — traitement "carte de visite" du Hub /bi étendu à
+   toute l'application : filet coloré + barre épaisse de 4px en pied.
+   (Auparavant : carte plate apix-pap, rayon 20px, simple ombre grise.)
+   Couleur d'accent par défaut = vert de marque ; une page peut la
+   surcharger via --panel-bar / --panel-border en style inline, comme le
+   fait /comptabilite/production pour coder ses indicateurs par couleur.
+   Rayon 14px et opacités identiques aux cartes du Hub, pour que les deux
+   familles de cartes se lisent comme un seul système. */
 .apix-card {
   background: var(--card);
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 1.5rem;
+  box-shadow: 0 4px 0 var(--panel-bar, rgba(0, 107, 63, 0.55)), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--panel-border, rgba(0, 107, 63, 0.28));
+}
+
+.dark .apix-card {
+  background: #1e293b;
+  box-shadow: 0 4px 0 var(--panel-bar, rgba(0, 107, 63, 0.55)), 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Une carte imbriquée dans une autre ne rejoue pas la barre de pied :
+   deux reliefs empilés se liraient comme une erreur d affichage. */
+.apix-card .apix-card,
+.apix-panel .apix-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border);
 }
 
 /* Boutons */
