@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 import { requireStaff } from "@/lib/api-auth";
+import { normaliserDateISO } from "@/lib/validation";
 
 // GET: Récupérer tous les journaux TPE sauvegardés
 export async function GET() {
@@ -46,12 +47,32 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
 
+        // TpeJournal.date est une chaine ecrite telle quelle. L'export FEC la
+        // compare ensuite lexicographiquement et la met en forme via new Date() :
+        // une ligne saisie « 15/01/2026 » sortait de la periode demandee sans
+        // signalement, ou produisait une colonne EcritureDate vide dans le
+        // fichier remis a l'administration. Les dates sont donc normalisees ici,
+        // et une date illisible fait rejeter le lot entier.
+        const datesNormalisees = journal.map((line: any) => normaliserDateISO(line?.date));
+        const lignesSansDate = datesNormalisees
+            .map((d: string | null, i: number) => (d === null ? i + 1 : null))
+            .filter((n: number | null): n is number => n !== null);
+        if (lignesSansDate.length > 0) {
+            return NextResponse.json(
+                {
+                    error: "Date illisible sur certaines lignes : aucune écriture n'a été enregistrée.",
+                    lignes: lignesSansDate,
+                },
+                { status: 400 }
+            );
+        }
+
         // Bulk insert all journal lines
         const result = await prisma.tpeJournal.createMany({
-            data: journal.map((line: any) => ({
+            data: journal.map((line: any, index: number) => ({
                 periode: periode || 'PERIODE-INCONNUE',
                 businessName: businessName || client.companyName || 'Commerçant',
-                date: line.date,
+                date: datesNormalisees[index] as string,
                 libelle: line.libelle,
                 entree: line.entree || 0,
                 sortie: line.sortie || 0,

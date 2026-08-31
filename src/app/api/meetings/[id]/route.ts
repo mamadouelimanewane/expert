@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { estIntrouvable } from "@/lib/api-auth";
 
 export async function PATCH(
   request: NextRequest,
@@ -34,6 +35,9 @@ export async function PATCH(
 
     return NextResponse.json({ meeting });
   } catch (error) {
+    if (estIntrouvable(error)) {
+      return NextResponse.json({ error: "Réunion introuvable." }, { status: 404 });
+    }
     console.error("Erreur PATCH meetings/[id]:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

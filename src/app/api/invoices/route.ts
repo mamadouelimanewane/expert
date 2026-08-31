@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import type { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/api-auth";
+import { requireStaff, estIntrouvable } from "@/lib/api-auth";
 import { parsePagination, reponsePaginee } from "@/lib/pagination";
 import { invoiceCreateSchema, invoiceUpdateSchema, parseBody } from "@/lib/validation";
 
@@ -145,6 +145,9 @@ export async function PATCH(request: Request) {
 
         return NextResponse.json({ invoice });
     } catch (error: any) {
+        if (estIntrouvable(error)) {
+            return NextResponse.json({ error: "Facture introuvable." }, { status: 404 });
+        }
         console.error("Invoice PATCH error:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }

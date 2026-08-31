@@ -75,3 +75,19 @@ export function requireAdmin(): Promise<Granted | Denied> {
 export function requireWriteAccess(): Promise<Granted | Denied> {
     return requireStaff(WRITE_ROLES);
 }
+
+/**
+ * Vrai si l'erreur Prisma est un P2025 : « An operation failed because it
+ * depends on one or more records that were required but not found. »
+ *
+ * Les PATCH qui mettent a jour par identifiant renvoyaient un 500
+ * « Erreur serveur » quand l'identifiant n'existait pas, ce qui rend le
+ * diagnostic trompeur cote appelant comme cote journalisation.
+ */
+export function estIntrouvable(error: unknown): boolean {
+    return (
+        typeof error === "object" &&
+        error !== null &&
+        (error as { code?: string }).code === "P2025"
+    );
+}

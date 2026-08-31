@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
+import { estIntrouvable } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
     try {
@@ -126,6 +127,9 @@ export async function PATCH(request: NextRequest) {
 
         return NextResponse.json({ missionOrder });
     } catch (error) {
+        if (estIntrouvable(error)) {
+            return NextResponse.json({ error: "Ordre de mission introuvable." }, { status: 404 });
+        }
         console.error("Erreur PATCH mission-orders:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }

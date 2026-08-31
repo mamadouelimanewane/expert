@@ -243,3 +243,58 @@ export function analyserMontantOptionnel(
     }
     return analyserMontant(brut, options);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Normalisation des dates d'écriture.
+//
+// `TpeJournal.date` est une chaîne (ligne brute du client), écrite telle quelle
+// par plusieurs points d'entrée. L'export FEC la compare ensuite
+// lexicographiquement (`date: { gte, lte }`) et la met en forme via `new Date()` :
+// une écriture saisie « 15/01/2026 » sortait donc de la période demandée sans
+// aucun signalement, ou produisait une colonne EcritureDate vide dans un fichier
+// remis à l'administration.
+//
+// Toutes les dates sont donc ramenées à « AAAA-MM-JJ » à l'écriture, et une date
+// illisible fait rejeter la ligne au lieu d'être acceptée puis perdue.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ISO = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/;
+const JOUR_MOIS_ANNEE = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/;
+
+function assembler(annee: string, mois: string, jour: string): string | null {
+    const a = Number(annee);
+    const m = Number(mois);
+    const j = Number(jour);
+    if (m < 1 || m > 12 || j < 1 || j > 31) return null;
+
+    const d = new Date(Date.UTC(a, m - 1, j));
+    // Rejette les dates qui « débordent » (31 février → 3 mars).
+    if (d.getUTCFullYear() !== a || d.getUTCMonth() !== m - 1 || d.getUTCDate() !== j) return null;
+
+    return `${annee.padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(j).padStart(2, "0")}`;
+}
+
+/** Ramène une date saisie à « AAAA-MM-JJ », ou `null` si elle est illisible. */
+export function normaliserDateISO(brut: unknown): string | null {
+    if (brut instanceof Date) {
+        return isNaN(brut.getTime()) ? null : brut.toISOString().substring(0, 10);
+    }
+    if (typeof brut !== "string") return null;
+
+    const valeur = brut.trim();
+    if (valeur === "") return null;
+
+    const iso = ISO.exec(valeur);
+    if (iso) return assembler(iso[1], iso[2], iso[3]);
+
+    const jma = JOUR_MOIS_ANNEE.exec(valeur);
+    if (jma) return assembler(jma[3], jma[2], jma[1]);
+
+    // Chaîne ISO complète avec heure (« 2026-01-15T10:30:00Z »).
+    if (/^\d{4}-\d{2}-\d{2}T/.test(valeur)) {
+        const d = new Date(valeur);
+        return isNaN(d.getTime()) ? null : d.toISOString().substring(0, 10);
+    }
+
+    return null;
+}

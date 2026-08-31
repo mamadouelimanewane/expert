@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getPortalClient } from '@/lib/portal-auth';
-import { analyserMontantOptionnel } from '@/lib/validation';
+import { analyserMontantOptionnel, normaliserDateISO } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
@@ -39,6 +39,12 @@ export async function POST(req: Request) {
         continue;
       }
 
+      const dateISO = normaliserDateISO(entry.date);
+      if (dateISO === null) {
+        lignesRejetees.push(`Ligne ${numero} (${libelle}) : date illisible « ${entry.date ?? ""} ».`);
+        continue;
+      }
+
       const entree = analyserMontantOptionnel(entry.entree, { min: 0 });
       if (!entree.ok) {
         lignesRejetees.push(`Ligne ${numero} (${libelle}) : entrée — ${entree.raison}`);
@@ -61,7 +67,7 @@ export async function POST(req: Request) {
       tpeJournals.push({
         periode,
         businessName,
-        date: typeof entry.date === "string" ? entry.date : "",
+        date: dateISO,
         libelle,
         entree: montantEntree,
         sortie: montantSortie,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { AccountingEngine } from "@/lib/accounting-engine";
-import { analyserMontant } from "@/lib/validation";
+import { analyserMontant, normaliserDateISO } from "@/lib/validation";
 
 // Import d'écritures depuis un export externe (Wave, CSV générique...).
 //
@@ -112,6 +112,14 @@ export async function POST(request: Request) {
             // "recette", ou un champ absent. Un export dont la colonne type est
             // en majuscules passait ainsi la totalité des encaissements au
             // débit des charges, TVA déductible comprise.
+            const dateISO = tx.date === undefined || tx.date === null || tx.date === ""
+                ? new Date().toISOString().substring(0, 10)
+                : normaliserDateISO(tx.date);
+            if (dateISO === null) {
+                lignesRejetees.push(`Ligne ${numero} (${libelle}) : date illisible « ${tx.date} ».`);
+                continue;
+            }
+
             const sens = String(tx.type ?? "").trim().toLowerCase();
             const isRecette = SENS_RECETTE.has(sens);
             if (!isRecette && !SENS_DEPENSE.has(sens)) {
@@ -133,7 +141,7 @@ export async function POST(request: Request) {
                 lignesJournal.push({
                     periode: periodeRetenue,
                     businessName,
-                    date: tx.date || new Date().toISOString().substring(0, 10),
+                    date: dateISO,
                     libelle: couples.length > 1 ? `${libelle} (${index + 1}/${couples.length})` : libelle,
                     entree: index === 0 && isRecette ? montant : 0,
                     sortie: index === 0 && !isRecette ? montant : 0,

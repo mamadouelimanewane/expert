@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyserMontant, analyserMontantOptionnel } from "@/lib/validation";
+import { analyserMontant, analyserMontantOptionnel, normaliserDateISO } from "@/lib/validation";
 
 const valeur = (brut: unknown) => {
     const r = analyserMontant(brut);
@@ -67,5 +67,33 @@ describe("analyserMontantOptionnel", () => {
 
     it("lit une valeur présente", () => {
         expect(analyserMontantOptionnel("2 000 000")).toEqual({ ok: true, valeur: 2000000 });
+    });
+});
+
+describe("normaliserDateISO", () => {
+    it("accepte le format ISO", () => {
+        expect(normaliserDateISO("2026-01-15")).toBe("2026-01-15");
+        expect(normaliserDateISO("2026-1-5")).toBe("2026-01-05");
+        expect(normaliserDateISO("2026/01/15")).toBe("2026-01-15");
+    });
+
+    it("ramène le format français à l'ISO", () => {
+        // Ces dates sortaient silencieusement de la période demandée dans le FEC.
+        expect(normaliserDateISO("15/01/2026")).toBe("2026-01-15");
+        expect(normaliserDateISO("5-1-2026")).toBe("2026-01-05");
+        expect(normaliserDateISO("15.01.2026")).toBe("2026-01-15");
+    });
+
+    it("accepte une chaîne ISO horodatée et un objet Date", () => {
+        expect(normaliserDateISO("2026-01-15T10:30:00.000Z")).toBe("2026-01-15");
+        expect(normaliserDateISO(new Date(Date.UTC(2026, 0, 15)))).toBe("2026-01-15");
+    });
+
+    it("refuse une date illisible ou impossible", () => {
+        expect(normaliserDateISO("31/02/2026")).toBeNull();
+        expect(normaliserDateISO("le 15 janvier")).toBeNull();
+        expect(normaliserDateISO("")).toBeNull();
+        expect(normaliserDateISO(undefined)).toBeNull();
+        expect(normaliserDateISO(new Date("nawak"))).toBeNull();
     });
 });

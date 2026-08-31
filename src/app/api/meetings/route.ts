@@ -49,6 +49,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Champs requis manquants (title, startTime, endTime)" }, { status: 400 });
     }
 
+    // Le connecteur MongoDB de Prisma n'applique pas d'integrite
+    // referentielle a l'ecriture : un clientId au format ObjectId valide
+    // mais inexistant (client supprime, onglet reste ouvert) etait ecrit tel
+    // quel. L'enregistrement devenait orphelin — invisible dans toutes les
+    // vues filtrees par client, mais compte dans les totaux globaux.
+    if (clientId) {
+      const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+      if (!client) {
+        return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
+      }
+    }
+
     const meeting = await prisma.meeting.create({
       data: {
         title,
