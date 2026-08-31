@@ -80,20 +80,45 @@ export type ResultatCriblage = {
   correspondances: { nom: string; detail: string }[];
 };
 
+/**
+ * Vrai si `aiguille` apparaît dans `meule` comme une suite de MOTS ENTIERS.
+ *
+ * La comparaison se faisait auparavant par simple sous-chaîne, ce qui
+ * produisait des faux positifs sur les noms sanctionnés courts : l'entité
+ * « ROC » ressortait sur « AEROCARIBBEAN » (aé-ROC-aribbean) et « ULA » sur
+ * « Boulangerie du Plateau SA » (bo-ULA-ngerie) — un client parfaitement
+ * légitime signalé comme sanctionné. En LCB-FT ce bruit est dangereux : à
+ * force d'alertes injustifiées, les vraies correspondances finissent par
+ * être écartées sans examen.
+ */
+export function contientMotsEntiers(meule: string, aiguille: string): boolean {
+  if (!aiguille || !meule) return false;
+  return ` ${meule} `.includes(` ${aiguille} `);
+}
+
+/** Règle de correspondance entre un nom criblé et une entrée de liste. */
+export function correspondNom(nomEntree: string, nomCible: string): boolean {
+  const entree = normaliser(nomEntree);
+  const cible = normaliser(nomCible);
+  if (!entree || !cible) return false;
+
+  // Le nom criblé contient l'entité sanctionnée (ou l'inverse), en mots entiers.
+  if (contientMotsEntiers(entree, cible) || contientMotsEntiers(cible, entree)) return true;
+
+  // Sinon : tous les mots significatifs du nom criblé figurent dans l'entrée
+  // (couvre les inversions d'ordre, ex. « Dupont Jean » vs « Jean Dupont »).
+  const tokensCible = cible.split(" ").filter((t) => t.length > 2);
+  if (tokensCible.length === 0) return false;
+  const tokensEntree = entree.split(" ");
+  return tokensCible.every((t) => tokensEntree.includes(t));
+}
+
 async function cribleOFAC(nom: string): Promise<ResultatCriblage> {
   try {
     const entries = await chargerOFAC();
-    const cible = normaliser(nom);
-    const tokensCible = cible.split(" ").filter((t) => t.length > 2);
 
     const correspondances = entries
-      .filter((e) => {
-        const nomNormalise = normaliser(e.nom);
-        if (nomNormalise.includes(cible) || cible.includes(nomNormalise)) return true;
-        const tokensEntree = nomNormalise.split(" ");
-        const communs = tokensCible.filter((t) => tokensEntree.includes(t));
-        return tokensCible.length > 0 && communs.length === tokensCible.length;
-      })
+      .filter((e) => correspondNom(e.nom, nom))
       .slice(0, 10)
       .map((e) => ({ nom: e.nom, detail: `${e.type || "Type non précisé"} — Programme ${e.programme || "non précisé"} (SDN #${e.entNum})` }));
 
