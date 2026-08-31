@@ -30,11 +30,23 @@ export async function GET(request: Request) {
         const paysFiltre = searchParams.get("pays")?.trim().toUpperCase() || null;
 
         const maintenant = new Date();
-        const annee = Number(searchParams.get("annee")) || maintenant.getUTCFullYear();
-        const mois =
-            searchParams.get("mois") !== null
-                ? Number(searchParams.get("mois"))
-                : maintenant.getUTCMonth();
+
+        // `?mois=abc` donnait NaN, d'ou une Invalid Date dont le .toISOString()
+        // levait une RangeError ressortant en 500 « Erreur serveur » ; `?mois=99`
+        // fabriquait la periode « 2026-100 », qui ne correspond a rien et
+        // renvoyait tous les compteurs a zero comme si le cabinet etait a jour.
+        const anneeBrute = searchParams.get("annee");
+        const moisBrut = searchParams.get("mois");
+
+        const annee = anneeBrute === null || anneeBrute === "" ? maintenant.getUTCFullYear() : Number(anneeBrute);
+        const mois = moisBrut === null || moisBrut === "" ? maintenant.getUTCMonth() : Number(moisBrut);
+
+        if (!Number.isInteger(annee) || annee < 2000 || annee > 2100) {
+            return NextResponse.json({ error: "Paramètre `annee` invalide." }, { status: 400 });
+        }
+        if (!Number.isInteger(mois) || mois < 0 || mois > 11) {
+            return NextResponse.json({ error: "Paramètre `mois` invalide (0 à 11)." }, { status: 400 });
+        }
 
         const periode = periodeDe(annee, mois);
 

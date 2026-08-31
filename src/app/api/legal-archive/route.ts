@@ -31,6 +31,8 @@ export async function GET() {
   }
 }
 
+const TAILLE_MAX_OCTETS = 25 * 1024 * 1024;
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -38,6 +40,15 @@ export async function POST(req: Request) {
 
     if (!file) {
       return NextResponse.json({ error: "Fichier requis" }, { status: 400 });
+    }
+
+    // Le fichier est entierement charge en memoire pour le calcul d'empreinte :
+    // sans plafond, un depot volumineux suffit a faire tomber la fonction.
+    if (file.size > TAILLE_MAX_OCTETS) {
+      return NextResponse.json(
+        { error: `Fichier trop volumineux (maximum ${TAILLE_MAX_OCTETS / (1024 * 1024)} Mo).` },
+        { status: 413 }
+      );
     }
 
     const session = await AuthService.getSession();

@@ -164,7 +164,10 @@ export async function GET(request: NextRequest) {
 
     // ── Rapports statutaires réels (modèle Document) ──
     const documents = await prisma.document.findMany({
-      where: { clientId: scopeClientIds.length > 0 ? { in: scopeClientIds } : undefined, type: { in: ["RAPPORT", "DECLARATION"] } },
+      // `undefined` faisait disparaitre le filtre : sur un perimetre vide, les
+      // « rapports statutaires du groupe » listaient les documents de n'importe
+      // quel client. `{ in: [] }` ne renvoie rien, ce qui est le resultat juste.
+      where: { clientId: { in: scopeClientIds }, type: { in: ["RAPPORT", "DECLARATION"] } },
       orderBy: { createdAt: "desc" },
       take: 5,
       select: { id: true, originalName: true, fileUrl: true, createdAt: true, type: true },

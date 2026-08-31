@@ -16,7 +16,14 @@ export async function POST(req: Request) {
     const { denied } = await requireStaff();
     if (denied) return denied;
 
-  const body = await req.json();
+  // `await req.json()` etait hors du try : un corps mal forme remontait en
+  // exception non capturee, donc en 500 generique de Next.
+  let body: { content?: unknown; fileName?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Corps JSON invalide" }, { status: 400 });
+  }
   const { content, fileName } = body;
 
   if (!content || typeof content !== "string") {

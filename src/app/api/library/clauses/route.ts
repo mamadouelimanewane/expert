@@ -106,10 +106,15 @@ export async function GET() {
     if (denied) return denied;
 
   try {
+    // Amorcage idempotent : le test « catalogue vide » suivi d'une insertion,
+    // hors transaction et sans contrainte @unique sur title, dupliquait tout le
+    // catalogue lorsque deux premiers chargements arrivaient en meme temps.
     let clauses = await prisma.legalClause.findMany({ orderBy: { title: "asc" } });
 
-    if (clauses.length === 0) {
-      await prisma.legalClause.createMany({ data: SEED_CLAUSES });
+    const titresConnus = new Set(clauses.map(c => c.title));
+    const manquantes = SEED_CLAUSES.filter(c => !titresConnus.has(c.title));
+    if (manquantes.length > 0) {
+      await prisma.legalClause.createMany({ data: manquantes });
       clauses = await prisma.legalClause.findMany({ orderBy: { title: "asc" } });
     }
 

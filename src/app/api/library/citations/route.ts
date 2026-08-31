@@ -54,10 +54,18 @@ export async function GET() {
     if (denied) return denied;
 
   try {
+    // L'amorcage du catalogue etait declenche par ce GET : une route de lecture
+    // ecrivait donc en base, et ni LegalCitation.reference ni LegalClause.title
+    // ne portant de contrainte @unique, deux premiers chargements simultanes
+    // dupliquaient l'integralite du catalogue (test puis insertion, hors
+    // transaction). L'amorcage est desormais idempotent : seules les references
+    // absentes sont inserees.
     let citations = await prisma.legalCitation.findMany({ orderBy: { reference: "asc" } });
 
-    if (citations.length === 0) {
-      await prisma.legalCitation.createMany({ data: SEED_CITATIONS });
+    const referencesConnues = new Set(citations.map(c => c.reference));
+    const manquantes = SEED_CITATIONS.filter(c => !referencesConnues.has(c.reference));
+    if (manquantes.length > 0) {
+      await prisma.legalCitation.createMany({ data: manquantes });
       citations = await prisma.legalCitation.findMany({ orderBy: { reference: "asc" } });
     }
 
