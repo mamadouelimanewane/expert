@@ -843,3 +843,29 @@ body {
    retombait dans exactement le même bug — repéré en vérifiant le bouton
    "Production" juste après la conversion indigo → vert. */
 .light .bg-primary.text-white { color: #ffffff !important; }
+
+/* =============================================
+   PANNEAU "CARTE DE VISITE" — même traitement visuel que les
+   cartes du Hub /bi (.apix-hub-card) : bordure colorée + barre
+   épaisse de 4px en pied, qui donne le relief demandé.
+   Différence : .apix-hub-card est une carte de NAVIGATION
+   (cursor: pointer, soulèvement au survol) ; .apix-panel est un
+   panneau de CONTENU statique — même relief, sans les affordances
+   de clic qui seraient trompeuses sur un bloc non cliquable.
+   La couleur d'accent se passe en variables inline sur l'élément
+   (--panel-30 / --panel-40), comme le Hub le fait déjà par module. */
+.apix-panel {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 0 var(--panel-30, rgba(0, 107, 63, 0.2)), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--panel-40, rgba(0, 107, 63, 0.28));
+}
+
+.dark .apix-panel {
+  background: #1e293b;
+  box-shadow: 0 4px 0 var(--panel-30, rgba(0, 107, 63, 0.2)), 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

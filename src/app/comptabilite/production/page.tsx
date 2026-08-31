@@ -166,14 +166,14 @@ export default function CollaborativeProductionPage() {
 
             {/* Real-time KPI Stream */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <KpiCard title="Écritures au journal" value={String(synthese?.total ?? 0)} icon={RefreshCw} color="text-primary" />
-                <KpiCard title="Imputées par règle" value={String((synthese?.total ?? 0) - (synthese?.aQualifier ?? 0))} subtext="Compte déterminé" icon={Zap} color="text-amber-400" />
-                <KpiCard title="À qualifier" value={String(synthese?.aQualifier ?? 0)} subtext="En compte d'attente 471" icon={AlertCircle} color="text-rose-400" />
-                <KpiCard title="Validées" value={String(synthese?.validees ?? 0)} subtext="Exportées" icon={Clock} color="text-emerald-400" />
+                <KpiCard title="Écritures au journal" value={String(synthese?.total ?? 0)} icon={RefreshCw} color="text-primary" accent="#006B3F" />
+                <KpiCard title="Imputées par règle" value={String((synthese?.total ?? 0) - (synthese?.aQualifier ?? 0))} subtext="Compte déterminé" icon={Zap} color="text-amber-400" accent="#f59e0b" />
+                <KpiCard title="À qualifier" value={String(synthese?.aQualifier ?? 0)} subtext="En compte d'attente 471" icon={AlertCircle} color="text-rose-400" accent="#f43f5e" />
+                <KpiCard title="Validées" value={String(synthese?.validees ?? 0)} subtext="Exportées" icon={Clock} color="text-emerald-400" accent="#10b981" />
             </div>
 
             {/* Main Production Table (PENNYLANE STYLE) */}
-            <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/40 overflow-hidden shadow-2xl">
+            <div className="apix-panel overflow-hidden" style={{ ["--panel-30" as any]: "#006B3F30", ["--panel-40" as any]: "#006B3F40", padding: 0 }}>
                 <div className="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-6 bg-slate-900/60">
                     <div className="flex items-center gap-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -297,7 +297,7 @@ export default function CollaborativeProductionPage() {
 
             {/* 360 Client View Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="apix-card relative overflow-hidden group">
+                <div className="apix-panel relative overflow-hidden group" style={{ ["--panel-30" as any]: "#006B3F30", ["--panel-40" as any]: "#006B3F40" }}>
                     <div className="absolute top-0 right-0 p-4 sm:p-6 lg:p-10 opacity-5 group-hover:opacity-10 transition-opacity">
                         <PieChart className="w-32 h-32 text-primary" />
                     </div>
@@ -322,7 +322,7 @@ export default function CollaborativeProductionPage() {
                     </div>
                 </div>
 
-                <div className="apix-card">
+                <div className="apix-panel" style={{ ["--panel-30" as any]: "#f59e0b30", ["--panel-40" as any]: "#f59e0b40" }}>
                     <h3 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
                         <Zap className="w-6 h-6 text-amber-400" />
                         Écritures à qualifier
@@ -346,9 +346,12 @@ export default function CollaborativeProductionPage() {
     );
 }
 
-function KpiCard({ title, value, trend, subtext, icon: Icon, color }: any) {
+function KpiCard({ title, value, trend, subtext, icon: Icon, color, accent = "#006B3F" }: any) {
     return (
-        <div className="apix-card group transition-all">
+        <div
+            className="apix-panel group transition-all"
+            style={{ ["--panel-30" as any]: accent + "30", ["--panel-40" as any]: accent + "40" }}
+        >
             <div className="flex justify-between items-start mb-6">
                 <div className={cn("p-4 rounded-2xl bg-white/5 group-hover:scale-110 transition-transform shadow-xl", color)}>
                     <Icon className="w-6 h-6" />
