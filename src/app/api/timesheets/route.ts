@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
+import { analyserMontant } from "@/lib/validation";
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
@@ -77,9 +78,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Mode démonstration — saisie désactivée' }, { status: 403 });
         }
 
+        const duree = analyserMontant(body.duration, { min: 0, max: 24 });
+        if (!duree.ok) {
+            return NextResponse.json({ error: duree.raison }, { status: 400 });
+        }
+
         const entry = await prisma.timeEntry.create({
             data: {
-                duration: parseFloat(body.duration),
+                duration: duree.valeur,
                 category: body.category,
                 description: body.description,
                 date: new Date(body.date),

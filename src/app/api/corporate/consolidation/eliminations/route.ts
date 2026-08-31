@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 import { requireStaff } from "@/lib/api-auth";
+import { analyserMontant } from "@/lib/validation";
 export async function POST(req: NextRequest) {
     const { denied } = await requireStaff();
     if (denied) return denied;
@@ -14,6 +15,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
     }
 
+    const montant = analyserMontant(amount);
+    if (!montant.ok) {
+      return NextResponse.json({ error: montant.raison }, { status: 400 });
+    }
+
     const elimination = await prisma.consolidationElimination.create({
       data: {
         groupId,
@@ -22,7 +28,7 @@ export async function POST(req: NextRequest) {
         sellerEntityId: sellerEntityId || undefined,
         debitAccount,
         creditAccount,
-        amount: parseFloat(amount),
+        amount: montant.valeur,
       },
     });
 

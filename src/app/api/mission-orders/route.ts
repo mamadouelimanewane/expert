@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
@@ -46,6 +47,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Champs requis manquants (objet, dates)" }, { status: 400 });
         }
 
+        const coutEstime = analyserMontantOptionnel(estimatedCost, { min: 0 });
+        if (!coutEstime.ok) {
+            return NextResponse.json({ error: coutEstime.raison }, { status: 400 });
+        }
+
         const year = new Date().getFullYear();
         const countThisYear = await prisma.missionOrder.count({
             where: { reference: { startsWith: `OM-${year}-` } },
@@ -59,7 +65,7 @@ export async function POST(request: NextRequest) {
                 destination: destination || null,
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
-                estimatedCost: estimatedCost ? parseFloat(estimatedCost) : null,
+                estimatedCost: coutEstime.valeur,
                 missionId: missionId || null,
                 status: "BROUILLON",
                 userId: session.id,

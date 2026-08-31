@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
@@ -64,13 +65,21 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Titre et client requis' }, { status: 400 });
         }
 
+        // Un budget saisi 1 500 000 etait enregistre a 1 FCFA, puis propage
+        // dans /missions/budget, /management/controlling et /missions/boni-mali ;
+        // un NaN y contaminait chaque total de portefeuille.
+        const budgetHonoraires = analyserMontantOptionnel(budget, { min: 0 });
+        if (!budgetHonoraires.ok) {
+            return NextResponse.json({ error: budgetHonoraires.raison }, { status: 400 });
+        }
+
         const mission = await prisma.mission.create({
             data: {
                 title,
                 clientId,
                 type: type || 'TENUE_COMPTABLE',
                 deadline: deadline ? new Date(deadline) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-                fixedPrice: budget ? parseFloat(budget) : null,
+                fixedPrice: budgetHonoraires.valeur,
                 description: description || null,
                 status: 'DRAFT',
                 startDate: new Date(),

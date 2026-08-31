@@ -82,9 +82,23 @@ export async function PATCH(request: Request) {
     if (denied) return denied;
 
     try {
-        const { periode } = await request.json();
+        const { periode, clientId } = await request.json().catch(() => ({}));
+
+        // Sans strictUndefinedChecks, Prisma retire purement et simplement un
+        // filtre valant undefined : un corps de requete sans periode transformait
+        // cet updateMany en export de TOUTES les ecritures PENDING de TOUS les
+        // clients. Et meme avec une periode valide, l'absence de portee client
+        // deversait en production les ecritures de tout le portefeuille pour ce
+        // mois-la. Les deux criteres sont desormais obligatoires et verifies.
+        if (typeof periode !== "string" || periode.trim() === "") {
+            return NextResponse.json({ error: "periode requise." }, { status: 400 });
+        }
+        if (typeof clientId !== "string" || clientId.length !== 24) {
+            return NextResponse.json({ error: "clientId requis." }, { status: 400 });
+        }
+
         const result = await prisma.tpeJournal.updateMany({
-            where: { periode, status: 'PENDING' },
+            where: { periode, clientId, status: 'PENDING' },
             data: { status: 'EXPORTED', exportedAt: new Date() }
         });
 

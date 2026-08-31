@@ -257,8 +257,19 @@ export class FintechService {
 
     /**
      * Gère les notifications asynchrones (webhooks) des fournisseurs.
+     *
+     * L'échec de mise à jour de la facture était auparavant avalé par un
+     * catch silencieux : l'appelant renvoyait alors un ACK au fournisseur,
+     * qui ne réessayait jamais. L'argent avait bougé, la facture restait
+     * SENT, et rien ne le signalait. Les erreurs techniques remontent donc
+     * désormais à l'appelant, qui répond en 5xx pour déclencher un nouvel
+     * essai côté fournisseur. Seule une facture introuvable est signalée
+     * sans exception : un nouvel essai n'y changerait rien.
      */
-    static async handleWebhook(provider: PaymentProvider, payload: Record<string, unknown>) {
+    static async handleWebhook(
+        provider: PaymentProvider,
+        payload: Record<string, unknown>
+    ): Promise<{ traite: boolean; raison?: string; invoiceId?: string }> {
         let invoiceId = "";
         let isSuccess = false;
 
@@ -273,27 +284,35 @@ export class FintechService {
             isSuccess = payload.status === "SUCCESSFUL";
         }
 
-        if (invoiceId && isSuccess) {
-            try {
-                await prisma.invoice.update({
-                    where: { id: invoiceId },
-                    data: {
-                        status: "PAID",
-                        paidDate: new Date(),
-                    },
-                });
-
-                await prisma.auditLog.create({
-                    data: {
-                        action: "PAYMENT_SUCCESS",
-                        entity: "Invoice",
-                        entityId: invoiceId,
-                        details: `Paiement ${provider} confirmé via Webhook`,
-                    },
-                });
-            } catch (error) {
-                console.error(`[Webhook] Error updating invoice ${invoiceId}:`, error);
-            }
+        if (!invoiceId || !isSuccess) {
+            return { traite: false, raison: "evenement_ignore", invoiceId: invoiceId || undefined };
         }
+
+        const facture = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { id: true } });
+        if (!facture) {
+            // Non rejouable : le fournisseur a encaissé pour une référence qui
+            // ne correspond à aucune facture. À traiter manuellement.
+            console.error(`[Webhook] Paiement ${provider} confirmé pour une facture introuvable : ${invoiceId}`);
+            return { traite: false, raison: "facture_introuvable", invoiceId };
+        }
+
+        await prisma.invoice.update({
+            where: { id: invoiceId },
+            data: {
+                status: "PAID",
+                paidDate: new Date(),
+            },
+        });
+
+        await prisma.auditLog.create({
+            data: {
+                action: "PAYMENT_SUCCESS",
+                entity: "Invoice",
+                entityId: invoiceId,
+                details: `Paiement ${provider} confirmé via Webhook`,
+            },
+        });
+
+        return { traite: true, invoiceId };
     }
 }

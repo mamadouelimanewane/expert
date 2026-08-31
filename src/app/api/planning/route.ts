@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 // Normalise n'importe quelle date vers le lundi 00:00:00 de sa semaine,
 // pour que toutes les allocations d'une même semaine partagent le même
@@ -73,12 +74,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { id, weekStart, dayOfWeek, durationHours, capacityHours, userId, taskId, missionId } = body;
 
+    const duree = analyserMontantOptionnel(durationHours, { min: 0, max: 24 });
+    if (!duree.ok) {
+      return NextResponse.json({ error: duree.raison }, { status: 400 });
+    }
+    const capacite = analyserMontantOptionnel(capacityHours, { min: 0, max: 24 });
+    if (!capacite.ok) {
+      return NextResponse.json({ error: capacite.raison }, { status: 400 });
+    }
+
     if (id) {
       const allocation = await prisma.resourceAllocation.update({
         where: { id },
         data: {
-          ...(durationHours !== undefined && { durationHours: parseFloat(durationHours) }),
-          ...(capacityHours !== undefined && { capacityHours: parseFloat(capacityHours) }),
+          ...(duree.valeur !== null && { durationHours: duree.valeur }),
+          ...(capacite.valeur !== null && { capacityHours: capacite.valeur }),
           ...(taskId !== undefined && { taskId: taskId || null }),
           ...(missionId !== undefined && { missionId: missionId || null }),
         },
@@ -94,8 +104,8 @@ export async function POST(request: NextRequest) {
       data: {
         weekStart: getMonday(new Date(weekStart)),
         dayOfWeek: parseInt(dayOfWeek, 10),
-        durationHours: parseFloat(durationHours),
-        capacityHours: capacityHours ? parseFloat(capacityHours) : 8,
+        durationHours: duree.valeur ?? 0,
+        capacityHours: capacite.valeur ?? 8,
         userId,
         taskId: taskId || null,
         missionId: missionId || null,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET() {
   try {
@@ -21,6 +22,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Le nom de l'entreprise est requis" }, { status: 400 });
     }
 
+    const valeur = analyserMontantOptionnel(valeurEstimee, { min: 0 });
+    if (!valeur.ok) {
+      return NextResponse.json({ error: valeur.raison }, { status: 400 });
+    }
+
     const session = await AuthService.getSession();
 
     const prospect = await prisma.prospect.create({
@@ -31,7 +37,7 @@ export async function POST(req: NextRequest) {
         telephone,
         secteur,
         source,
-        valeurEstimee: valeurEstimee ? parseFloat(valeurEstimee) : 0,
+        valeurEstimee: valeur.valeur ?? 0,
         prochainRdv: prochainRdv ? new Date(prochainRdv) : null,
         score: 20,
         createdById: session?.id && /^[0-9a-fA-F]{24}$/.test(session.id) ? session.id : null,

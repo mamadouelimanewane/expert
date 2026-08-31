@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 function clientName(c: { companyName: string | null; firstName: string | null; lastName: string | null } | null): string {
     if (!c) return "Client inconnu";
@@ -180,12 +181,17 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Champs requis manquants (titre, description, client)" }, { status: 400 });
         }
 
+        const impact = analyserMontantOptionnel(potentialImpact);
+        if (!impact.ok) {
+            return NextResponse.json({ error: impact.raison }, { status: 400 });
+        }
+
         const risk = await prisma.fiscalRisk.create({
             data: {
                 title,
                 description,
                 level: level || "MOYEN",
-                potentialImpact: potentialImpact ? parseFloat(potentialImpact) : null,
+                potentialImpact: impact.valeur,
                 clientId,
                 status: "IDENTIFIE",
             },

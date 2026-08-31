@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { analyserMontant } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
@@ -49,11 +50,16 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Champs requis manquants (libellé, montant, date)" }, { status: 400 });
         }
 
+        const montant = analyserMontant(amount, { min: 0 });
+        if (!montant.ok) {
+            return NextResponse.json({ error: montant.raison }, { status: 400 });
+        }
+
         const expense = await prisma.expense.create({
             data: {
                 label,
                 category: category || "AUTRE",
-                amount: parseFloat(amount),
+                amount: montant.valeur,
                 expenseDate: new Date(expenseDate),
                 missionId: missionId || null,
                 receiptUrl: receiptUrl || null,

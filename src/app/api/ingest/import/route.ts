@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { AccountingEngine } from "@/lib/accounting-engine";
+import { analyserMontant } from "@/lib/validation";
 
 // Import d'écritures depuis un export externe (Wave, CSV générique...).
 //
@@ -23,6 +24,15 @@ type TransactionImport = {
     amount: number;
     type: "income" | "expense";
 };
+
+// Sens comptable accepté pour la colonne `type` du fichier importé. Toute autre
+// valeur est refusée explicitement plutôt que traitée par défaut en dépense.
+const SENS_RECETTE = new Set([
+    "income", "recette", "recettes", "credit", "crédit", "in", "entree", "entrée", "encaissement", "vente",
+]);
+const SENS_DEPENSE = new Set([
+    "expense", "depense", "dépense", "depenses", "dépenses", "debit", "débit", "out", "sortie", "decaissement", "décaissement", "achat",
+]);
 
 export async function POST(request: Request) {
     const { denied } = await requireStaff();
@@ -71,13 +81,47 @@ export async function POST(request: Request) {
             status: string;
         }[] = [];
 
-        for (const tx of transactions) {
-            const montant = Math.abs(Number(tx.amount) || 0);
-            if (montant === 0 || !tx.libelle) continue;
+        const lignesRejetees: string[] = [];
 
-            const isRecette = tx.type === "income";
+        for (let i = 0; i < transactions.length; i++) {
+            const tx = transactions[i] ?? {};
+            const numero = i + 1;
+
+            const libelle = typeof tx.libelle === "string" ? tx.libelle.trim() : "";
+            if (!libelle) {
+                lignesRejetees.push(`Ligne ${numero} : libellé manquant.`);
+                continue;
+            }
+
+            // Number("1 250,00") vaut NaN, ramené à 0 par le `|| 0`, et la ligne
+            // était abandonnée sans trace pendant que la réponse annonçait
+            // `importees: transactions.length`.
+            const analyse = analyserMontant(tx.amount);
+            if (!analyse.ok) {
+                lignesRejetees.push(`Ligne ${numero} (${libelle}) : ${analyse.raison}`);
+                continue;
+            }
+            const montant = Math.abs(analyse.valeur);
+            if (montant === 0) {
+                lignesRejetees.push(`Ligne ${numero} (${libelle}) : montant nul.`);
+                continue;
+            }
+
+            // Le sens comptable n'était pas vérifié : `tx.type === "income"`
+            // traitait en DÉPENSE toute autre valeur — "INCOME", "credit",
+            // "recette", ou un champ absent. Un export dont la colonne type est
+            // en majuscules passait ainsi la totalité des encaissements au
+            // débit des charges, TVA déductible comprise.
+            const sens = String(tx.type ?? "").trim().toLowerCase();
+            const isRecette = SENS_RECETTE.has(sens);
+            if (!isRecette && !SENS_DEPENSE.has(sens)) {
+                lignesRejetees.push(
+                    `Ligne ${numero} (${libelle}) : sens de l'opération non reconnu « ${tx.type ?? ""} ».`
+                );
+                continue;
+            }
             const resultat = await AccountingEngine.processEntry(
-                tx.libelle,
+                libelle,
                 isRecette ? montant : 0,
                 isRecette ? 0 : montant,
                 clientId
@@ -90,7 +134,7 @@ export async function POST(request: Request) {
                     periode: periodeRetenue,
                     businessName,
                     date: tx.date || new Date().toISOString().substring(0, 10),
-                    libelle: couples.length > 1 ? `${tx.libelle} (${index + 1}/${couples.length})` : tx.libelle,
+                    libelle: couples.length > 1 ? `${libelle} (${index + 1}/${couples.length})` : libelle,
                     entree: index === 0 && isRecette ? montant : 0,
                     sortie: index === 0 && !isRecette ? montant : 0,
                     source: "IMPORT",
@@ -105,6 +149,18 @@ export async function POST(request: Request) {
             });
         }
 
+        if (lignesRejetees.length > 0) {
+            // Tout ou rien : un import partiel laisserait l'opérateur croire le
+            // fichier intégralement repris alors qu'il manquerait des opérations.
+            return NextResponse.json(
+                {
+                    error: "Certaines lignes n'ont pas pu être lues : aucune écriture n'a été enregistrée.",
+                    lignesRejetees,
+                },
+                { status: 400 }
+            );
+        }
+
         if (lignesJournal.length === 0) {
             return NextResponse.json({ error: "Aucune transaction exploitable après filtrage" }, { status: 400 });
         }
@@ -114,6 +170,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
             {
                 importees: transactions.length,
+                lignesRejetees: [],
                 ecritures: lignesJournal.length,
                 aQualifier,
                 periode: periodeRetenue,

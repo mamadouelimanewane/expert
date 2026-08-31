@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET() {
   try {
@@ -27,13 +28,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Titre et client requis" }, { status: 400 });
     }
 
+    const montant = analyserMontantOptionnel(amount, { min: 0 });
+    if (!montant.ok) {
+      return NextResponse.json({ error: montant.raison }, { status: 400 });
+    }
+
     const session = await AuthService.getSession();
 
     const proposal = await prisma.proposal.create({
       data: {
         title,
         type: type || "ACCOUNTING",
-        amount: amount ? parseFloat(amount) : 0,
+        amount: montant.valeur ?? 0,
         status: "DRAFT",
         clientId,
         expertId: session?.id && /^[0-9a-fA-F]{24}$/.test(session.id) ? session.id : null,

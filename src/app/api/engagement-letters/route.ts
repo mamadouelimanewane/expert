@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
@@ -47,6 +48,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Champs requis manquants (objet de mission, client)" }, { status: 400 });
         }
 
+        const honoraires = analyserMontantOptionnel(fees, { min: 0 });
+        if (!honoraires.ok) {
+            return NextResponse.json({ error: honoraires.raison }, { status: 400 });
+        }
+
         const year = new Date().getFullYear();
         const countThisYear = await prisma.engagementLetter.count({
             where: { reference: { startsWith: `LM-${year}-` } },
@@ -57,7 +63,7 @@ export async function POST(request: NextRequest) {
             data: {
                 reference,
                 scope,
-                fees: fees ? parseFloat(fees) : null,
+                fees: honoraires.valeur,
                 clientId,
                 missionId: missionId || null,
                 signatoryName: signatoryName || null,

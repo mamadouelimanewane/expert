@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
@@ -153,12 +154,17 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Champs requis manquants (titre, description, règle)" }, { status: 400 });
         }
 
+        const montant = analyserMontantOptionnel(amount);
+        if (!montant.ok) {
+            return NextResponse.json({ error: montant.raison }, { status: 400 });
+        }
+
         const alert = await prisma.fraudAlert.create({
             data: {
                 title,
                 description,
                 severity: severity || "MOYENNE",
-                amount: amount ? parseFloat(amount) : null,
+                amount: montant.valeur,
                 ruleTriggered,
                 clientId: clientId || null,
                 transactionId: transactionId || null,

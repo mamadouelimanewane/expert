@@ -52,13 +52,18 @@ export async function POST(request: Request) {
         }
 
         // Traitement du webhook
-        await FintechService.handleWebhook(provider, payload);
+        const resultat = await FintechService.handleWebhook(provider, payload);
 
-        return NextResponse.json({ status: "ACK" });
+        return NextResponse.json({ status: "ACK", ...resultat });
 
     } catch (error) {
         console.error("[Webhook API] Error:", error);
-        // Important: Toujours répondre avec 200 ou un statut accepté pour éviter les retries infinis si l'erreur est logicielle
-        return NextResponse.json({ error: "Erreur traitement webhook" }, { status: 200 });
+        // Un ACK en 200 sur une erreur de traitement fait perdre le paiement :
+        // le fournisseur considère la notification délivrée et ne la rejoue
+        // jamais, alors que la facture n'a pas été mise à jour. On répond donc
+        // en 500 pour déclencher un nouvel essai. Les cas non rejouables
+        // (événement ignoré, facture introuvable) ne lèvent pas d'exception et
+        // sortent en 200 avec leur raison.
+        return NextResponse.json({ error: "Erreur traitement webhook" }, { status: 500 });
     }
 }

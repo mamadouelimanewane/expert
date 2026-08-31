@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 
 import { requireStaff } from "@/lib/api-auth";
+import { analyserMontant, analyserMontantOptionnel } from "@/lib/validation";
 export async function GET(request: NextRequest) {
     const { denied } = await requireStaff();
     if (denied) return denied;
@@ -36,19 +37,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
     }
 
+    // parseFloat("1 500 000") vaut 1 : une immobilisation saisie au format
+    // d'affichage de l'application etait enregistree a 1 FCFA, et alimentait
+    // ensuite le plan d'amortissement.
+    const valeurAcquisition = analyserMontant(value, { min: 0 });
+    if (!valeurAcquisition.ok) {
+      return NextResponse.json({ error: valeurAcquisition.raison }, { status: 400 });
+    }
+    const valeurResiduelle = analyserMontantOptionnel(residualValue, { min: 0 });
+    if (!valeurResiduelle.ok) {
+      return NextResponse.json({ error: valeurResiduelle.raison }, { status: 400 });
+    }
+
     const asset = await prisma.fixedAsset.create({
       data: {
         code,
         label,
         category: category || "Non catégorisé",
         purchaseDate: new Date(purchaseDate),
-        value: parseFloat(value),
+        value: valeurAcquisition.valeur,
         location,
         clientId,
         status: "TO_VERIFY",
         depreciationMethod: depreciationMethod || "LINEAIRE",
         usefulLifeYears: usefulLifeYears ? parseInt(usefulLifeYears, 10) : null,
-        residualValue: residualValue ? parseFloat(residualValue) : 0,
+        residualValue: valeurResiduelle.valeur ?? 0,
         serviceDate: serviceDate ? new Date(serviceDate) : null,
       },
     });

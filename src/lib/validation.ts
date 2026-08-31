@@ -151,3 +151,95 @@ export const resetPasswordsSchema = z.object({
         .min(1, "Indiquez au moins une adresse")
         .max(50, "50 comptes au maximum par appel"),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Analyse des montants saisis.
+//
+// De nombreuses routes écrivaient `parseFloat(champ)` directement dans un
+// Float Prisma. Deux corruptions silencieuses en découlaient :
+//
+//   parseFloat("1 500 000") === 1     (arrêt au premier espace)
+//   parseFloat("abc")       === NaN   (valeur numérique JS valide, stockée
+//                                      telle quelle, qui contamine ensuite
+//                                      chaque reduce() d'agrégation)
+//
+// Or « 1 500 000 » et « 1.500.000 » sont exactement la manière dont
+// l'application elle-même affiche les montants en FCFA. Un budget de mission
+// ou des honoraires de lettre de mission pouvaient donc être enregistrés à
+// 1 FCFA sans qu'aucune erreur ne soit levée.
+//
+// `analyserMontant` accepte les formats réellement saisis (séparateurs de
+// milliers espace/point/virgule, décimale française) et refuse tout le reste
+// plutôt que de deviner.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MontantOk = { ok: true; valeur: number };
+export type MontantKo = { ok: false; raison: string };
+
+const MILLIERS_VIRGULE = /^[+-]?\d{1,3}(,\d{3})+$/;
+const MILLIERS_POINT = /^[+-]?\d{1,3}(\.\d{3})+$/;
+const NOMBRE_SIMPLE = /^[+-]?\d+(\.\d+)?$/;
+
+export function analyserMontant(
+    brut: unknown,
+    options: { min?: number; max?: number } = {}
+): MontantOk | MontantKo {
+    let valeur: number;
+
+    if (typeof brut === "number") {
+        if (!Number.isFinite(brut)) return { ok: false, raison: "Montant non numérique." };
+        valeur = brut;
+    } else if (typeof brut === "string") {
+        // Espaces ordinaires, insécables et fines insécables : tous utilisés
+        // comme séparateurs de milliers par les navigateurs francophones.
+        const nettoye = brut.replace(/[\s\u00a0\u202f']/g, "");
+        if (nettoye === "") return { ok: false, raison: "Montant absent." };
+
+        let normalise: string;
+        if (MILLIERS_VIRGULE.test(nettoye)) {
+            normalise = nettoye.replace(/,/g, "");
+        } else if (MILLIERS_POINT.test(nettoye)) {
+            normalise = nettoye.replace(/\./g, "");
+        } else if (nettoye.includes(",") && nettoye.includes(".")) {
+            // Les deux séparateurs : le dernier rencontré porte la décimale.
+            const decimale = nettoye.lastIndexOf(",") > nettoye.lastIndexOf(".") ? "," : ".";
+            const millier = decimale === "," ? "." : ",";
+            normalise = nettoye.split(millier).join("").replace(decimale, ".");
+        } else {
+            normalise = nettoye.replace(",", ".");
+        }
+
+        if (!NOMBRE_SIMPLE.test(normalise)) {
+            return { ok: false, raison: `Montant illisible : « ${brut} ».` };
+        }
+        valeur = Number(normalise);
+        if (!Number.isFinite(valeur)) return { ok: false, raison: "Montant non numérique." };
+    } else {
+        return { ok: false, raison: "Montant absent." };
+    }
+
+    if (options.min !== undefined && valeur < options.min) {
+        return { ok: false, raison: `Le montant doit être supérieur ou égal à ${options.min}.` };
+    }
+    if (options.max !== undefined && valeur > options.max) {
+        return { ok: false, raison: `Le montant doit être inférieur ou égal à ${options.max}.` };
+    }
+
+    return { ok: true, valeur };
+}
+
+/**
+ * Variante pour les champs optionnels : une valeur absente (undefined, null,
+ * chaîne vide) est acceptée et vaut `null`. Une valeur présente mais illisible
+ * reste refusée — c'est précisément ce que `champ ? parseFloat(champ) : null`
+ * laissait passer.
+ */
+export function analyserMontantOptionnel(
+    brut: unknown,
+    options: { min?: number; max?: number } = {}
+): { ok: true; valeur: number | null } | MontantKo {
+    if (brut === undefined || brut === null || (typeof brut === "string" && brut.trim() === "")) {
+        return { ok: true, valeur: null };
+    }
+    return analyserMontant(brut, options);
+}

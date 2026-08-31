@@ -237,14 +237,19 @@ export default function InformelPage() {
     };
 
     const exportToProduction = async () => {
+        if (!clientId) {
+            alert("Sélectionnez le client concerné : l'export ne doit déverser que ses écritures.");
+            return;
+        }
         setExporting(true);
         try {
             const res = await fetch('/api/comptabilite/tpe-journal', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ periode })
+                body: JSON.stringify({ periode, clientId })
             });
             const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Échec de l'export");
             setExported(true);
             alert(`✅ ${data.message}`);
         } catch {
