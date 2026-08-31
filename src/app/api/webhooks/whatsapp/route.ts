@@ -75,8 +75,11 @@ export async function POST(req: Request) {
       textBody: message.text?.body,
     });
 
-    if (result.status === "unknown_client") {
-      console.log(`[WhatsApp] Numéro inconnu: ${senderPhone}. Ignoré.`);
+    if (result.status !== "processed") {
+      // unknown_client : numéro inconnu du portefeuille.
+      // image_non_traitee / montant_absent : aucune écriture n'est créée, le
+      // client a été invité à préciser son message.
+      console.log(`[WhatsApp] Message non comptabilisé (${result.status}) — ${senderPhone}.`);
       return NextResponse.json(result);
     }
 

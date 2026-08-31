@@ -4,6 +4,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "./prisma";
 
+// Empreinte bcrypt d'une valeur qui n'est le mot de passe d'aucun compte :
+// elle sert uniquement a faire travailler bcrypt lorsque l'adresse saisie
+// n'existe pas, afin que la reponse prenne le meme temps.
+const EMPREINTE_LEURRE = "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -29,14 +34,19 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.isActive) {
-          throw new Error("Identifiants incorrects ou compte inactif");
-        }
+        // Le message d'echec ne doit pas distinguer « compte inexistant » de
+        // « mot de passe faux » : la version precedente repondait
+        // « Identifiants incorrects ou compte inactif » dans le premier cas et
+        // « Mot de passe incorrect » dans le second, ce qui permettait
+        // d'enumerer les adresses reellement inscrites depuis la page de
+        // connexion. Le hachage est de plus toujours execute, pour ne pas
+        // laisser le temps de reponse trahir l'existence du compte.
+        const ECHEC = "Identifiants incorrects ou compte inactif";
+        const empreinte = user?.password ?? EMPREINTE_LEURRE;
+        const motDePasseValide = await bcrypt.compare(credentials.password, empreinte);
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          throw new Error("Mot de passe incorrect");
+        if (!user || !user.isActive || !motDePasseValide) {
+          throw new Error(ECHEC);
         }
 
         return {

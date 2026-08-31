@@ -17,6 +17,62 @@ export type WhatsAppMessageType = "text" | "image";
  * configurée — une simulation ne doit jamais produire d'effet de bord réel
  * vers l'extérieur ni être confondue avec une véritable écriture comptable.
  */
+/**
+ * Montant porté par un message libre.
+ *
+ * L'expression précédente — `text.match(/(\d[\d\s,]*)/)` — retenait la
+ * PREMIÈRE suite de chiffres du message : « Vente 3 sacs de riz 45000 » était
+ * comptabilisée pour 3 FCFA, et « Le 15/03 vente 50000 » pour 15. Le
+ * `.replace(",", ".")` ne remplaçait par ailleurs que la première virgule.
+ *
+ * On retient désormais le plus grand nombre du message, qui est le montant
+ * dans la formulation usuelle (« achat 2 sacs ciment 12000 »), et `null`
+ * quand aucun nombre n'apparaît.
+ */
+export function extraireMontant(texte: string): number | null {
+  if (!texte) return null;
+
+  // Nombres avec séparateurs de milliers (espace, espace insécable, point) et
+  // décimale française ou anglaise.
+  const candidats = texte.match(/\d[\d\s\u00a0\u202f.,]*/g);
+  if (!candidats) return null;
+
+  let meilleur: number | null = null;
+
+  for (const brut of candidats) {
+    const nettoye = brut.replace(/[\s\u00a0\u202f]/g, "").replace(/[.,]$/, "");
+    if (nettoye === "") continue;
+
+    // Dernier séparateur suivi de 1 ou 2 chiffres = décimale ; sinon milliers.
+    const decimale = /[.,]\d{1,2}$/.test(nettoye);
+    let normalise: string;
+    if (decimale) {
+      const position = Math.max(nettoye.lastIndexOf("."), nettoye.lastIndexOf(","));
+      normalise = nettoye.slice(0, position).replace(/[.,]/g, "") + "." + nettoye.slice(position + 1);
+    } else {
+      normalise = nettoye.replace(/[.,]/g, "");
+    }
+
+    const valeur = Number(normalise);
+    if (!Number.isFinite(valeur) || valeur <= 0) continue;
+    if (meilleur === null || valeur > meilleur) meilleur = valeur;
+  }
+
+  return meilleur;
+}
+
+/** Envoie une réponse au client, sauf en simulation et si l'envoi est configuré. */
+async function repondreAuClient(telephone: string, simulate: boolean, message: string): Promise<boolean> {
+  if (simulate || !isWhatsAppConfigured()) return false;
+  try {
+    await sendWhatsAppMessage(telephone, message);
+    return true;
+  } catch (sendError) {
+    console.error("[WhatsApp] Échec de l'envoi de la confirmation:", sendError);
+    return false;
+  }
+}
+
 export async function processIncomingWhatsAppMessage(params: {
   senderPhone: string;
   messageType: WhatsAppMessageType;
@@ -30,25 +86,38 @@ export async function processIncomingWhatsAppMessage(params: {
     return { status: "unknown_client" as const };
   }
 
-  let libelle = "Opération via WhatsApp";
-  let montant = 0;
-  let isRecette = false;
-
-  if (messageType === "text") {
-    const text = textBody || "";
-    const amountMatch = text.match(/(\d[\d\s,]*)/);
-    if (amountMatch) {
-      montant = parseFloat(amountMatch[1].replace(/\s/g, "").replace(",", "."));
-    }
-    isRecette = /vente|encaissement|reçu|client|recette|payé par/i.test(text);
-    libelle = text.trim();
-  }
-
+  // Une image n'est pas traitée : aucun OCR n'est branché sur les pièces jointes
+  // WhatsApp. L'implémentation précédente créait malgré tout une écriture
+  // comptable à 0 FCFA dans le dossier du client, puis lui répondait
+  // « ✅ Écriture enregistrée ».
   if (messageType === "image") {
-    // En production : télécharger l'image, envoyer à l'OCR Engine.
-    libelle = "Facture via WhatsApp (OCR à traiter)";
-    montant = 0;
+    await repondreAuClient(
+      senderPhone,
+      simulate,
+      "📎 Photo bien reçue. Elle sera traitée manuellement par votre cabinet : "
+        + "aucune écriture n'a été enregistrée automatiquement."
+    );
+    return { status: "image_non_traitee" as const, clientId: client.id };
   }
+
+  const text = (textBody || "").trim();
+  const montant = extraireMontant(text);
+
+  // Sans montant identifiable, aucune écriture n'est créée : l'ancien code
+  // laissait `montant` à 0 et enregistrait une écriture nulle, confirmée au
+  // client comme une opération comptabilisée.
+  if (montant === null) {
+    await repondreAuClient(
+      senderPhone,
+      simulate,
+      "❓ Aucun montant n'a pu être identifié dans ce message. "
+        + "Renvoyez-le en précisant le montant, par exemple : « Vente 45000 »."
+    );
+    return { status: "montant_absent" as const, clientId: client.id };
+  }
+
+  const isRecette = /vente|encaissement|reçu|client|recette|payé par/i.test(text);
+  let libelle = text;
 
   if (simulate) {
     libelle = `[SIMULATION TEST] ${libelle}`;
@@ -93,23 +162,16 @@ export async function processIncomingWhatsAppMessage(params: {
   });
 
   // Une simulation ne doit jamais déclencher un vrai envoi WhatsApp au client.
-  const shouldReply = !simulate && isWhatsAppConfigured();
-  if (shouldReply) {
-    try {
-      const montantLabel = montant > 0 ? `${montant.toLocaleString("fr-FR")} FCFA` : "montant à préciser";
-      // Ne pas afficher « confiance 0 % » : quand l'imputation n'a pas pu être
-      // déterminée, on annonce une revue par le cabinet plutôt qu'un score.
-      const suffixe = accountingResult.requiresReview
-        ? "Imputation à confirmer par votre comptable."
-        : `Confiance : ${Math.round((accountingResult.confidence ?? 0) * 100)}%.`;
-      await sendWhatsAppMessage(
-        senderPhone,
-        `✅ Écriture enregistrée : "${libelle}" (${montantLabel}). ${suffixe}`
-      );
-    } catch (sendError) {
-      console.error("[WhatsApp] Échec de l'envoi de la confirmation:", sendError);
-    }
-  }
+  // Ne pas afficher « confiance 0 % » : quand l'imputation n'a pas pu être
+  // déterminée, on annonce une revue par le cabinet plutôt qu'un score.
+  const suffixe = accountingResult.requiresReview
+    ? "Imputation à confirmer par votre comptable."
+    : `Confiance : ${Math.round((accountingResult.confidence ?? 0) * 100)}%.`;
+  const shouldReply = await repondreAuClient(
+    senderPhone,
+    simulate,
+    `✅ Écriture enregistrée : "${libelle}" (${montant.toLocaleString("fr-FR")} FCFA). ${suffixe}`
+  );
 
   return {
     status: "processed" as const,
