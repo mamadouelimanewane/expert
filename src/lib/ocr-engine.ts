@@ -1,5 +1,6 @@
 import Tesseract from 'tesseract.js';
 import sharp from 'sharp';
+import { analyserMontant } from "./validation";
 
 export interface OCRResult {
     success: boolean;
@@ -125,12 +126,27 @@ export class OCREngine {
     }
 
     /**
-     * Parse un montant en enlevant les espaces et en convertissant en nombre
+     * Montant lu sur une facture numérisée.
+     *
+     * L'implémentation précédente faisait
+     * `amountStr.replace(/\s/g, '').replace(',', '.')` puis `parseFloat(...) || 0`.
+     * `.replace(',', '.')` ne remplace que la PREMIÈRE virgule : un montant
+     * « 1,250,000 » devenait « 1.250,000 », soit 1,25 après parseFloat — et un
+     * « 1.250.000,50 » devenait 1,25 également. Ces valeurs alimentent
+     * Document.ocrData, donc l'export comptable : une facture de 1 250 000 FCFA
+     * ressortait à 1,25 FCFA. Le `|| 0` transformait par ailleurs toute lecture
+     * ratée en montant nul, sans distinction possible.
+     *
+     * `analyserMontant` gère les séparateurs de milliers et la décimale
+     * française, et signale l'échec au lieu de renvoyer 0 : le champ reste alors
+     * vide, et validateInvoiceData() le remonte dans les avertissements.
      */
-    private static parseAmount(amountStr: string): number {
-        // Enlever les espaces, remplacer virgule par point
-        const cleaned = amountStr.replace(/\s/g, '').replace(',', '.');
-        return parseFloat(cleaned) || 0;
+    private static parseAmount(amountStr: string): number | undefined {
+        // La capture du texte OCR emporte souvent une ponctuation finale
+        // (« Total TTC : 1 250 000. ») : on la retire avant l'analyse.
+        const nettoye = amountStr.trim().replace(/[.,\s]+$/, "");
+        const resultat = analyserMontant(nettoye, { min: 0 });
+        return resultat.ok ? resultat.valeur : undefined;
     }
 
     /**
