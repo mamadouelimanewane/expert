@@ -12,11 +12,14 @@ import { cn } from "@/lib/utils";
 // rapport avec les données du cabinet. La trésorerie de départ et les
 // échéances proviennent désormais de /api/analysis/cash-forecast, calculées
 // à partir des transactions bancaires et des factures réellement enregistrées
-// (voir ce fichier route.ts pour le détail). Les scénarios optimiste/
-// réaliste/pessimiste restent un modèle de projection simplifié à hypothèses
-// fixes — un point de départ réel plutôt qu'une prédiction certaine — et
-// aucune charge récurrente (loyer, salaires, TVA) n'étant suivie par
-// l'application, ce n'est pas simulé.
+// (voir ce fichier route.ts pour le détail). Les trois courbes de scénario,
+// elles, restaient fabriquées : variation hebdomadaire fixe plus une
+// « volatilité » Math.sin(). Elles reposent désormais sur les seules factures
+// non soldées, positionnées à leur échéance, sous trois hypothèses de
+// recouvrement explicites — et le retard moyen employé est celui réellement
+// constaté sur les factures déjà payées du cabinet. Aucune charge récurrente
+// (loyer, salaires, TVA) n'étant suivie par l'application, aucun décaissement
+// n'est simulé : la bannière ci-dessous le dit à l'utilisateur.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function CashForecastPage() {
@@ -50,8 +53,23 @@ export default function CashForecastPage() {
           <h2 className="page-title flex items-center gap-3">
             <Activity className="w-6 h-6 text-emerald-500" /> Prévision de Trésorerie (J+90)
           </h2>
-          <p className="page-subtitle">Solde bancaire réel et factures clients à échoir, projetés sur trois scénarios simplifiés.</p>
+          <p className="page-subtitle">Solde bancaire réel et factures clients à échoir, projetés sur trois hypothèses de recouvrement.</p>
         </div>
+      </div>
+
+      {/* Ce que la projection ne couvre pas doit etre dit : sinon une courbe
+          qui ne descend jamais se lit comme une tresorerie saine. */}
+      <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-sm text-amber-200 space-y-1">
+        <p>
+          Projection d&apos;<strong>encaissements uniquement</strong> : aucune charge récurrente (loyer, salaires,
+          TVA, échéances fournisseurs) n&apos;est suivie par l&apos;application et donc aucune n&apos;est projetée.
+          Le solde affiché est un plafond, pas une prévision de trésorerie complète.
+        </p>
+        <p>
+          {data.hypotheses?.retardMesurable
+            ? `Hypothèse de retard de règlement : ${data.hypotheses.retardMoyenJours} jour(s), moyenne constatée sur ${data.hypotheses.facturesMesurees} facture(s) déjà payée(s).`
+            : "Aucune facture payée ne permet de mesurer le retard de règlement : le scénario réaliste se confond avec l'optimiste."}
+        </p>
       </div>
 
       {isCritical && (
@@ -61,7 +79,7 @@ export default function CashForecastPage() {
           </div>
           <div>
             <h4 className="text-red-400 font-black">Risque de rupture de trésorerie détecté</h4>
-            <p className="text-red-400/80 text-sm">Le scénario pessimiste prévoit un solde négatif le {data.criticals.criticalDate}. Veuillez consulter les recommandations.</p>
+            <p className="text-red-400/80 text-sm">Sur les seuls encaissements attendus, le scénario pessimiste (créances échues non recouvrées) laisse un solde négatif au {data.criticals.criticalDate}.</p>
           </div>
         </motion.div>
       )}

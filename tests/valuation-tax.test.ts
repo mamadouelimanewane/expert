@@ -6,7 +6,7 @@ import {
     ValorisationError,
 } from "@/lib/valuation-engine";
 import { simulateCorporateTax, REGLES_FISCALES, type TaxSimulation } from "@/lib/tax-simulator";
-import { detectCriticalPoints, generateForecast } from "@/lib/forecast-engine";
+import { detectCriticalPoints, projeterTresorerie, type EncaissementAttendu } from "@/lib/forecast-engine";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Valorisation — DCF
@@ -260,18 +260,27 @@ describe("CFCE et TVA", () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe("projection de trésorerie", () => {
+    const SANS_MESURE = { retardMoyenJours: null };
+    const echeances: EncaissementAttendu[] = [
+        { echeance: "2026-03-08", montant: 2_000_000, enRetard: false },
+        { echeance: "2026-02-01", montant: 3_000_000, enRetard: true },
+    ];
+    const depart = new Date("2026-03-01T00:00:00.000Z");
+
     it("produit treize points hebdomadaires", () => {
-        expect(generateForecast(5_000_000, "realiste")).toHaveLength(13);
+        expect(projeterTresorerie(5_000_000, [], "realiste", SANS_MESURE, depart)).toHaveLength(13);
     });
 
     it("part de la trésorerie de départ", () => {
-        expect(generateForecast(5_000_000, "realiste")[0].cash).toBe(5_000_000);
+        expect(projeterTresorerie(5_000_000, [], "realiste", SANS_MESURE, depart)[0].cash).toBe(5_000_000);
     });
 
     it("classe les scénarios dans l'ordre attendu", () => {
+        // L'ordre ne vient plus de coefficients arbitraires : le pessimiste
+        // écarte les créances déjà échues, donc encaisse strictement moins.
         const fin = (s: "optimiste" | "realiste" | "pessimiste") =>
-            generateForecast(5_000_000, s).at(-1)!.cash;
-        expect(fin("optimiste")).toBeGreaterThan(fin("realiste"));
+            projeterTresorerie(5_000_000, echeances, s, { retardMoyenJours: 14 }, depart).at(-1)!.cash;
+        expect(fin("optimiste")).toBeGreaterThanOrEqual(fin("realiste"));
         expect(fin("realiste")).toBeGreaterThan(fin("pessimiste"));
     });
 
@@ -288,7 +297,7 @@ describe("projection de trésorerie", () => {
     });
 
     it("ne signale aucune rupture quand la trésorerie reste positive", () => {
-        const r = detectCriticalPoints(generateForecast(500_000_000, "optimiste"));
+        const r = detectCriticalPoints(projeterTresorerie(500_000_000, echeances, "optimiste", SANS_MESURE, depart));
         expect(r.criticalDate).toBeNull();
     });
 

@@ -80,7 +80,19 @@ export default function ConnectorsPage() {
         setResultat(null);
         try {
             const contenu = await file.text();
-            const transactions = parseWaveCSV(contenu);
+            const { transactions, lignesRejetees } = parseWaveCSV(contenu);
+
+            // Les lignes illisibles etaient auparavant ramenees a 0 FCFA et
+            // importees comme des depenses : le releve entrait « avec succes »,
+            // ampute. On refuse desormais l'import entier en les listant.
+            if (lignesRejetees.length > 0) {
+                throw new Error(
+                    [
+                        `Fichier non importé — ${lignesRejetees.length} ligne(s) illisible(s) :`,
+                        ...lignesRejetees.slice(0, 10),
+                    ].join(String.fromCharCode(10))
+                );
+            }
 
             if (transactions.length === 0) {
                 throw new Error("Aucune ligne exploitable dans ce fichier (colonnes attendues : date, description, compte, montant).");
