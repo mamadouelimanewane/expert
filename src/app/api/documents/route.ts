@@ -25,6 +25,10 @@ export async function POST(request: NextRequest) {
         const file = formData.get('file') as File;
         const clientId = formData.get('clientId') as string;
         const documentType = formData.get('type') as string || 'FACTURE';
+        // Sens comptable de la piece : sans lui, l'export presumait un achat et
+        // imputait une facture de vente en charges avec TVA recuperable.
+        const sensBrut = formData.get('sens');
+        const sens = sensBrut === 'achat' || sensBrut === 'vente' ? sensBrut : null;
 
         if (!file) {
             return NextResponse.json(
@@ -47,6 +51,12 @@ export async function POST(request: NextRequest) {
         }
         if (clientId && !isValidObjectId(clientId)) {
             return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
+        }
+        if (documentType === 'FACTURE' && !sens) {
+            return NextResponse.json(
+                { error: "Précisez le sens de la facture : achat (fournisseur) ou vente (client)." },
+                { status: 400 }
+            );
         }
 
         // Validation du type de fichier
@@ -131,7 +141,7 @@ export async function POST(request: NextRequest) {
                     data: {
                         status: ocrResult.success ? 'PROCESSED' : 'ERROR',
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        ocrData: ocrResult as any,
+                        ocrData: { ...ocrResult, sens } as any,
                         ocrProcessedAt: new Date(),
                     },
                 });

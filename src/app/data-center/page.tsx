@@ -25,13 +25,13 @@ interface Dataset {
     size: string;
     date: string;
     status: "Importé" | "Traitement..." | "Erreur" | "Prêt";
-    rows: number;
+    rows: number | null;
 }
 
 interface Kpis {
     totalDatasets: number;
     totalStorageBytes: number;
-    totalRows: number;
+    totalRows: number | null;
     successRatePct: number | null;
 }
 
@@ -106,7 +106,7 @@ export default function DataCenterPage() {
             {/* Storage & Health Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <DataKpiCard title="Stockage Utilisé" value={kpis ? formatBytes(kpis.totalStorageBytes) : "—"} trend="Documents indexés" icon={HardDrive} color="text-primary" />
-                <DataKpiCard title="Lignes Traitées (OCR)" value={kpis ? kpis.totalRows.toLocaleString("fr-FR") : "—"} trend="Cumul détecté" icon={Activity} color="text-emerald-400" />
+                <DataKpiCard title="Lignes Traitées (OCR)" value={kpis && kpis.totalRows !== null ? kpis.totalRows.toLocaleString("fr-FR") : "—"} trend="Non mesuré à ce jour" icon={Activity} color="text-emerald-400" />
                 <DataKpiCard title="Taux de Traitement Réussi" value={kpis && kpis.successRatePct !== null ? `${kpis.successRatePct}%` : "—"} trend="Hors erreurs OCR" icon={ShieldCheck} color="text-cyan-400" />
                 <DataKpiCard title="Datasets Actifs" value={kpis ? kpis.totalDatasets : "—"} trend="Documents indexés" icon={Layers} color="text-amber-400" />
             </div>
@@ -174,7 +174,7 @@ export default function DataCenterPage() {
                                             </td>
                                             <td className="px-6 py-6 text-center text-xs font-black text-slate-400">{data.type}</td>
                                             <td className="px-6 py-6 text-center">
-                                                <span className="text-primary font-mono text-xs font-black">{data.rows.toLocaleString()}</span>
+                                                <span className="text-primary font-mono text-xs font-black">{data.rows === null ? "—" : data.rows.toLocaleString()}</span>
                                                 <p className="text-[8px] text-slate-600 font-black uppercase">Lignes</p>
                                             </td>
                                             <td className="px-6 py-6 text-xs text-slate-500 font-bold">{data.date}</td>

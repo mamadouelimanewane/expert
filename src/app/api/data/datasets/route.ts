@@ -29,14 +29,16 @@ export async function GET() {
             }),
             prisma.document.count(),
             prisma.document.aggregate({ _sum: { fileSize: true } }),
-            prisma.document.findMany({ select: { ocrData: true, status: true } }),
+            prisma.document.findMany({ select: { status: true } }),
         ]);
 
-        const totalRows = allForRows.reduce((sum, d) => {
-            const ocr = d.ocrData as any;
-            const entries = ocr && typeof ocr === 'object' && typeof ocr.entries === 'number' ? ocr.entries : 0;
-            return sum + entries;
-        }, 0);
+        // `ocrData.entries` n'existe pas : processUploadedInvoice() stocke
+        // { success, ocrText, confidence, invoiceData, validation, warnings }.
+        // Le compteur valait donc 0 pour toutes les pieces, et l'ecran affichait
+        // « Lignes Traitees (OCR) : 0 » comme un resultat mesure. Le nombre de
+        // lignes comptables extraites n'est nulle part en base : on ne l'invente
+        // pas, on l'affiche comme indisponible.
+        const totalRows: number | null = null;
         const errorCount = allForRows.filter(d => d.status === 'ERROR').length;
         const successRatePct = totalCount > 0 ? Math.round(((totalCount - errorCount) / totalCount) * 100) : null;
 
@@ -47,8 +49,7 @@ export async function GET() {
             size: (doc.fileSize / (1024 * 1024)).toFixed(1) + " MB",
             date: new Date(doc.createdAt).toLocaleDateString("fr-FR"),
             status: doc.status === "PROCESSED" ? "Prêt" : (doc.status === "PROCESSING" ? "Traitement..." : (doc.status === "ERROR" ? "Erreur" : "Importé")),
-            // Extract from JSON or rough estimation
-            rows: doc.ocrData && (doc.ocrData as any).entries ? (doc.ocrData as any).entries : 0
+            rows: null as number | null
         }));
 
         return NextResponse.json({

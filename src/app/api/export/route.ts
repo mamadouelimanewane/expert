@@ -33,8 +33,32 @@ export async function GET(request: Request) {
             orderBy: { createdAt: "desc" }
         });
 
+        // mapDocumentsToEntries signale desormais les pieces qu'il ne peut pas
+        // imputer (sens de facture inconnu, montant illisible, OCR absent).
+        // Les livrer en silence produirait un export comptable ampute.
+        const { entries, piecesEcartees } = ExportService.mapDocumentsToEntries(documents);
+
+        if (piecesEcartees.length > 0) {
+            return NextResponse.json(
+                {
+                    error:
+                        "Certaines pièces ne peuvent pas être imputées : l'export serait incomplet. " +
+                        "Complétez-les avant d'exporter.",
+                    piecesEcartees: piecesEcartees.slice(0, 20),
+                    total: piecesEcartees.length,
+                },
+                { status: 409 }
+            );
+        }
+
+        if (entries.length === 0) {
+            return NextResponse.json(
+                { error: "Aucune écriture exportable pour ce client." },
+                { status: 404 }
+            );
+        }
+
         if (format === "fec") {
-            const entries = ExportService.mapDocumentsToEntries(documents);
             const fecContent = ExportService.generateFEC(entries);
 
             return new Response(fecContent, {
@@ -45,7 +69,6 @@ export async function GET(request: Request) {
             });
         } else {
             // Excel par défaut
-            const entries = ExportService.mapDocumentsToEntries(documents);
             const excelBuffer = ExportService.generateExcel(entries, "Export_Comptable");
 
             return new Response(new Uint8Array(excelBuffer), {

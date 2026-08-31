@@ -33,6 +33,7 @@ export default function OCRPage() {
     const [isExporting, setIsExporting] = useState(false);
     const [clients, setClients] = useState<ClientOption[]>([]);
     const [clientId, setClientId] = useState<string>("");
+    const [sens, setSens] = useState<"achat" | "vente" | "">("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -94,6 +95,7 @@ export default function OCRPage() {
             formData.append("file", file);
             formData.append("type", "FACTURE");
             formData.append("clientId", clientId);
+            formData.append("sens", sens);
 
             const response = await fetch("/api/documents", {
                 method: "POST",
@@ -133,6 +135,10 @@ export default function OCRPage() {
             setError("Selectionnez le client concerne avant de numeriser une piece.");
             return;
         }
+        if (!sens) {
+            setError("Indiquez s'il s'agit d'une facture d'achat (fournisseur) ou de vente (client) : l'imputation en depend.");
+            return;
+        }
         fileInputRef.current?.click();
     };
 
@@ -146,16 +152,27 @@ export default function OCRPage() {
                     </h2>
                     <p className="page-subtitle">Numérisation et extraction automatique des pièces comptables par IA.</p>
                 </div>
-                <select
-                    value={clientId}
-                    onChange={(e) => { setClientId(e.target.value); setError(null); }}
-                    className="apix-input min-w-[220px] text-sm"
-                >
-                    <option value="">Sélectionner un client…</option>
-                    {clients.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
+                <div className="flex flex-wrap gap-2">
+                    <select
+                        value={clientId}
+                        onChange={(e) => { setClientId(e.target.value); setError(null); }}
+                        className="apix-input min-w-[220px] text-sm"
+                    >
+                        <option value="">Sélectionner un client…</option>
+                        {clients.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                    <select
+                        value={sens}
+                        onChange={(e) => { setSens(e.target.value as "achat" | "vente" | ""); setError(null); }}
+                        className="apix-input min-w-[200px] text-sm"
+                    >
+                        <option value="">Sens de la facture…</option>
+                        <option value="achat">Achat (fournisseur)</option>
+                        <option value="vente">Vente (client)</option>
+                    </select>
+                </div>
             </div>
 
             {error && (
