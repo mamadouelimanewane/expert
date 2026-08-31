@@ -7,12 +7,10 @@ import {
   Receipt, 
   PieChart, 
   Landmark, 
-  ChevronRight, 
   Building2, 
   CheckCircle2,
+  AlertTriangle,
   RefreshCw,
-  Eye,
-  Send,
   Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -67,7 +65,7 @@ export default function DocumentGenerationCenter() {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedDocType, setSelectedDocType] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedDocUrl, setGeneratedDocUrl] = useState<string | null>(null);
+  const [erreur, setErreur] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/clients")
@@ -81,7 +79,7 @@ export default function DocumentGenerationCenter() {
     if (!selectedClient || !selectedDocType) return;
     
     setIsGenerating(true);
-    setGeneratedDocUrl(null);
+    setErreur(null);
 
     try {
       const res = await fetch("/api/documents/generate", {
@@ -94,11 +92,12 @@ export default function DocumentGenerationCenter() {
       });
       
       const data = await res.json();
-      if (data.success) {
-        setGeneratedDocUrl(data.document.fileUrl);
-      }
+      // La route répond 501 + notConfigured tant qu'aucun moteur PDF n'est
+      // branché : on affiche ce refus au lieu d'un faux succès.
+      setErreur(data.error || "La génération n'a pas abouti.");
     } catch (error) {
       console.error("Erreur de génération", error);
+      setErreur("La génération n'a pas abouti.");
     } finally {
       setIsGenerating(false);
     }
@@ -219,28 +218,14 @@ export default function DocumentGenerationCenter() {
           </div>
 
           {/* Résultat */}
-          {generatedDocUrl && (
-            <div className="mt-6 p-8 bg-emerald-950/30 border border-emerald-500/30 rounded-[28px] animate-in slide-in-from-bottom-4 duration-500 text-center space-y-6">
-              <div className="w-16 h-16 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400">
-                <CheckCircle2 className="w-8 h-8" />
+          {erreur && (
+            <div className="mt-6 p-8 bg-amber-950/30 border border-amber-500/30 rounded-[28px] animate-in slide-in-from-bottom-4 duration-500 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-amber-500/20 rounded-full flex items-center justify-center text-amber-400">
+                <AlertTriangle className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-xl font-black text-white">Document généré</h3>
-                <p className="text-slate-400 text-sm mt-2">
-                  La génération automatique de documents n&apos;est pas encore branchée à un moteur réel ; ce
-                  document n&apos;a pas été publié sur le portail du client. Téléchargez-le et transmettez-le
-                  manuellement si besoin.
-                </p>
-              </div>
-              <div className="flex justify-center gap-4">
-                <a
-                  href={generatedDocUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-colors flex items-center gap-2"
-                >
-                  <Eye className="w-4 h-4" /> Prévisualiser
-                </a>
+                <h3 className="text-xl font-black text-white">Génération indisponible</h3>
+                <p className="text-slate-400 text-sm mt-2 max-w-xl mx-auto">{erreur}</p>
               </div>
             </div>
           )}

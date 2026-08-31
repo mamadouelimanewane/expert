@@ -49,6 +49,11 @@ export default function GovernanceHeatmapPage() {
             });
     }, []);
 
+    const toutesCellules = clients.flatMap(c => Object.values(c.status));
+    const cellulesInconnues = toutesCellules.filter(v => v === 'inconnu').length;
+    const cellulesVerifiees = toutesCellules.length - cellulesInconnues;
+    const cellulesConformes = toutesCellules.filter(v => v === 'valid').length;
+
     return (
         <div className="space-y-8 pb-20 animate-in fade-in duration-1000">
             {/* Header: Governance Command Center */}
@@ -80,6 +85,10 @@ export default function GovernanceHeatmapPage() {
                 </div>
             </div>
 
+            {/* L'indice ne porte que sur les controles reellement effectues : une
+                cellule "inconnu" (aucune verification enregistree) ne compte ni
+                au numerateur ni au denominateur, sinon un portefeuille jamais
+                controle afficherait 0 % comme un portefeuille non conforme. */}
             {/* Strategic KPI Summary — l'indice de conformité (auparavant fixe a 84%/+2.4%)
                 est desormais calcule sur les cellules reellement "valid" de la matrice
                 ci-dessous. Les trois autres cartes n'affichent plus de tendance
@@ -88,12 +97,12 @@ export default function GovernanceHeatmapPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <StatusStat
                     label="Indice de Conformité"
-                    value={clients.length === 0 ? "—" : Math.round((clients.flatMap(c => Object.values(c.status)).filter(v => v === 'valid').length / (clients.length * COLUMNS.length)) * 100)}
-                    unit={clients.length === 0 ? "" : "%"}
+                    value={cellulesVerifiees === 0 ? "—" : Math.round((cellulesConformes / cellulesVerifiees) * 100)}
+                    unit={cellulesVerifiees === 0 ? "" : "%"}
                     color="text-primary"
                 />
                 <StatusStat label="AG en Retard" value={clients.filter(c => c.status.ag === 'late').length} color="text-rose-400" />
-                <StatusStat label="Mandats Expirants" value={clients.filter(c => c.status.mandats === 'expiring').length} color="text-amber-400" />
+                <StatusStat label="Contrôles Non Faits" value={cellulesInconnues} color="text-slate-400" />
                 <StatusStat label="Clients 100% Green" value={clients.filter(c => Object.values(c.status).every(v => v === 'valid')).length} color="text-emerald-400" />
             </div>
 
@@ -106,6 +115,7 @@ export default function GovernanceHeatmapPage() {
                             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-500/80" /> Conforme</div>
                             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-amber-500/80" /> Attention</div>
                             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-rose-500/80" /> Critique</div>
+                            <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-slate-600" /> Non vérifié</div>
                         </div>
                     </div>
                 </div>
@@ -187,15 +197,18 @@ export default function GovernanceHeatmapPage() {
     );
 }
 
-function HeatmapCell({ status }: { status: "valid" | "expiring" | "late" | "invalid" }) {
+function HeatmapCell({ status }: { status: "valid" | "expiring" | "late" | "invalid" | "inconnu" }) {
     const config = {
         valid: { bg: "bg-emerald-500/10 border-emerald-500/30", dot: "bg-emerald-500 shadow-[0_0_8px_#10b981]" },
         expiring: { bg: "bg-amber-500/10 border-amber-500/30", dot: "bg-amber-500 shadow-[0_0_8px_#f59e0b]" },
         late: { bg: "bg-rose-500/10 border-rose-500/30", dot: "bg-rose-500 shadow-[0_0_8px_#ef4444]" },
         invalid: { bg: "bg-rose-900/20 border-rose-500/50", dot: "bg-rose-500 animate-pulse" },
+        inconnu: { bg: "bg-slate-800/40 border-white/5 border-dashed", dot: "bg-slate-600" },
     };
 
-    const cell = config[status] || config.valid;
+    // Repli sur "inconnu" et non sur "valid" : un statut non reconnu ne doit
+    // jamais s'afficher en vert.
+    const cell = config[status] || config.inconnu;
 
     return (
         <div className={cn("h-12 rounded-2xl border flex items-center justify-center transition-all hover:scale-[1.05] cursor-pointer", cell.bg)}>

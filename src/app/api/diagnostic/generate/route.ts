@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { DiagnosticService } from "@/lib/diagnostic";
 
 import { requireStaff } from "@/lib/api-auth";
@@ -10,20 +9,18 @@ export async function POST(request: Request) {
     try {
         const { clientId } = await request.json();
 
-        let targetClientId = clientId;
-        // Si pas d'ID valide, on prend le client SIB par défaut pour la démo
-        if (!targetClientId || targetClientId.length !== 24) {
-            const firstClient = await prisma.client.findFirst({
-                where: { companyName: { contains: "Ivoirienne" } }
-            });
-            targetClientId = firstClient?.id || null;
-        }
-
-        if (!targetClientId) {
+        // Un clientId absent ou mal forme basculait silencieusement sur un autre
+        // dossier (le premier client dont le nom contient "Ivoirienne"). Comme le
+        // diagnostic renvoye ne porte ni identifiant ni nom de client, la
+        // substitution etait indetectable : les chiffres d'une societe
+        // s'affichaient sous l'en-tete d'une autre, et pouvaient etre enchaines
+        // vers /api/diagnostic/report qui les redige au nom du client fourni par
+        // l'appelant.
+        if (typeof clientId !== "string" || clientId.length !== 24) {
             return NextResponse.json({ error: "ClientId requis" }, { status: 400 });
         }
 
-        const diagnostic = await DiagnosticService.getDiagnosticForClient(targetClientId);
+        const diagnostic = await DiagnosticService.getDiagnosticForClient(clientId);
 
         if (!diagnostic) {
             return NextResponse.json({ 

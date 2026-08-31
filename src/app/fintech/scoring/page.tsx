@@ -1,45 +1,78 @@
 ﻿"use client";
 
 import React, { useState, useEffect } from 'react';
-import { Coins, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Download, ExternalLink, RefreshCw } from 'lucide-react';
+import { Coins, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, ExternalLink, RefreshCw } from 'lucide-react';
+
+// Le score portait auparavant sur un client implicite (le premier retourne par
+// la base) : ni la page ni la reponse ne disaient de quel dossier il s'agissait.
+// Le client est desormais choisi explicitement et affiche.
+type ClientOption = { id: string; name: string };
 
 export default function CreditScoringPage() {
     const [scoreData, setScoreData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [evaluating, setEvaluating] = useState(false);
+    const [clients, setClients] = useState<ClientOption[]>([]);
+    const [clientId, setClientId] = useState<string>("");
+    const [message, setMessage] = useState<string | null>(null);
 
-    const fetchScore = async () => {
+    useEffect(() => {
+        fetch('/api/clients')
+            .then(res => res.json())
+            .then(data => {
+                const liste: ClientOption[] = (data.clients || []).map((c: any) => ({
+                    id: c.id,
+                    name: c.companyName || [c.firstName, c.lastName].filter(Boolean).join(" ") || "Client sans nom",
+                }));
+                setClients(liste);
+            })
+            .catch(err => console.error("Failed to load clients", err));
+    }, []);
+
+    const fetchScore = async (id: string) => {
+        if (!id) return;
+        setLoading(true);
+        setMessage(null);
         try {
-            const res = await fetch('/api/fintech/scoring');
-            if (res.ok) {
-                const data = await res.json();
-                setScoreData(data);
-            }
+            const res = await fetch(`/api/fintech/scoring?clientId=${id}`);
+            const data = await res.json();
+            setScoreData(res.ok ? data : null);
         } catch (error) {
             console.error("Failed to fetch score", error);
+            setScoreData(null);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchScore();
-    }, []);
+    const onSelectClient = (id: string) => {
+        setClientId(id);
+        setScoreData(null);
+        setMessage(null);
+        fetchScore(id);
+    };
 
     const evaluateScore = async () => {
+        if (!clientId) return;
         setEvaluating(true);
+        setMessage(null);
         try {
-            const res = await fetch('/api/fintech/scoring', { method: 'POST' });
+            const res = await fetch('/api/fintech/scoring', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clientId }),
+            });
+            const data = await res.json();
             if (res.ok) {
-                const data = await res.json();
-                // Simulate an AI thinking delay for visual effect
-                setTimeout(() => {
-                    setScoreData(data);
-                    setEvaluating(false);
-                }, 1500);
+                setScoreData(data);
+            } else {
+                setScoreData(null);
+                setMessage(data.error || "Le score n'a pas pu etre calcule.");
             }
         } catch (error) {
             console.error("Failed to evaluate score", error);
+            setMessage("Le score n'a pas pu etre calcule.");
+        } finally {
             setEvaluating(false);
         }
     };
@@ -64,15 +97,25 @@ export default function CreditScoringPage() {
                         <div className="p-2 bg-amber-500/10 text-amber-500 rounded-xl">
                             <Coins className="w-6 h-6" />
                         </div>
-                        <h1 className="page-title">Score Solvabilité IA</h1>
+                        <h1 className="page-title">Score Solvabilité</h1>
                     </div>
-                    <p className="page-subtitle">Évaluation automatique de la santé financière pour faciliter l'accès au crédit bancaire.</p>
+                    <p className="page-subtitle">Barème interne du cabinet, calculé sur les factures, le journal et les encaissements Mobile Money du client sélectionné.</p>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={evaluateScore} disabled={evaluating} className="flex items-center gap-2 px-4 py-2 border border-border/50 hover:bg-muted/50 rounded-xl text-sm font-bold transition-colors disabled:opacity-50">
-                        <RefreshCw className={`w-4 h-4 ${evaluating ? 'animate-spin text-amber-500' : ''}`} /> Recalculer via IA
+                <div className="flex flex-wrap gap-2 items-center">
+                    <select
+                        value={clientId}
+                        onChange={(e) => onSelectClient(e.target.value)}
+                        className="apix-input min-w-[220px] text-sm"
+                    >
+                        <option value="">Sélectionner un client…</option>
+                        {clients.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                    <button onClick={evaluateScore} disabled={evaluating || !clientId} className="flex items-center gap-2 px-4 py-2 border border-border/50 hover:bg-muted/50 rounded-xl text-sm font-bold transition-colors disabled:opacity-50">
+                        <RefreshCw className={`w-4 h-4 ${evaluating ? 'animate-spin text-amber-500' : ''}`} /> Recalculer
                     </button>
-                    <button disabled={!isEligible} className={`flex items-center gap-2 px-4 py-2 text-white rounded-xl text-sm font-bold shadow-lg transition-all ${isEligible ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-500/20' : 'bg-muted text-muted-foreground opacity-50'}`}>
+                    <button disabled title="Non implémenté : aucune intégration bancaire n'existe" className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-muted text-muted-foreground opacity-50 cursor-not-allowed">
                         Transmettre aux Banques <ExternalLink className="w-4 h-4" />
                     </button>
                 </div>
@@ -84,7 +127,7 @@ export default function CreditScoringPage() {
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <ShieldCheck className="w-32 h-32 text-amber-500" />
                     </div>
-                    <h2 className="text-sm font-bold text-muted-foreground mb-4 relative z-10">Score Global Nexus</h2>
+                    <h2 className="text-sm font-bold text-muted-foreground mb-4 relative z-10">Score global</h2>
                     
                     {loading ? (
                         <div className="h-48 flex items-center justify-center"><span className="animate-pulse">Chargement...</span></div>
@@ -117,7 +160,7 @@ export default function CreditScoringPage() {
 
                 {/* Facteurs d'analyse */}
                 <div className="lg:col-span-2 apix-card">
-                    <h3 className="text-lg font-bold mb-6">Détails de l'Analyse IA</h3>
+                    <h3 className="text-lg font-bold mb-6">Détail des facteurs</h3>
                     
                     {loading || evaluating ? (
                         <div className="space-y-6 opacity-50">
@@ -130,11 +173,20 @@ export default function CreditScoringPage() {
                         </div>
                     ) : scoreData ? (
                         <div className="space-y-6">
+                            {Array.isArray(scoreData.facteursIndetermines) && scoreData.facteursIndetermines.length > 0 && (
+                                <div className="flex items-start gap-2 text-xs text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>
+                                        Facteur(s) sans donnée sous-jacente, neutralisé(s) à 50/100 :{" "}
+                                        {scoreData.facteursIndetermines.join(", ")}. Le score n'en tient donc pas compte.
+                                    </span>
+                                </div>
+                            )}
                             {[
-                                { name: "Historique de paiement (TVA & Impôts)", score: factors.paymentHistory, color: factors.paymentHistory > 75 ? "bg-emerald-500" : "bg-amber-500" },
-                                { name: "Croissance du Chiffre d'Affaires (YoY)", score: factors.revenueGrowth, color: factors.revenueGrowth > 60 ? "bg-emerald-500" : "bg-amber-500" },
-                                { name: "Ratio d'endettement actuel", score: factors.debtRatio, color: factors.debtRatio > 50 ? "bg-emerald-500" : factors.debtRatio < 30 ? "bg-rose-500" : "bg-amber-500", warning: factors.debtRatio < 40 },
-                                { name: "Diversification Clientèle", score: factors.clientDiversification, color: factors.clientDiversification > 60 ? "bg-emerald-500" : "bg-rose-500", warning: factors.clientDiversification < 40 },
+                                { name: "Règlement des factures du cabinet", score: factors.paymentHistory, color: factors.paymentHistory > 75 ? "bg-emerald-500" : "bg-amber-500" },
+                                { name: "Évolution des encaissements (2 dernières périodes)", score: factors.revenueGrowth, color: factors.revenueGrowth > 60 ? "bg-emerald-500" : "bg-amber-500" },
+                                { name: "Part des entrées dans le flux du journal", score: factors.debtRatio, color: factors.debtRatio > 50 ? "bg-emerald-500" : factors.debtRatio < 30 ? "bg-rose-500" : "bg-amber-500", warning: factors.debtRatio < 40 },
+                                { name: "Canaux d'encaissement Mobile Money", score: factors.clientDiversification, color: factors.clientDiversification > 60 ? "bg-emerald-500" : "bg-rose-500", warning: factors.clientDiversification < 40 },
                             ].map((factor, i) => (
                                 <div key={i}>
                                     <div className="flex justify-between items-end mb-2">
@@ -155,7 +207,11 @@ export default function CreditScoringPage() {
                         </div>
                     ) : (
                         <div className="text-center py-10 text-muted-foreground">
-                            Aucun score calculé pour l'instant. Lancez une évaluation IA.
+                            {message
+                                ? message
+                                : clientId
+                                    ? "Aucun score enregistré pour ce client. Lancez un calcul."
+                                    : "Sélectionnez un client pour afficher son score."}
                         </div>
                     )}
                 </div>

@@ -21,15 +21,20 @@ export async function GET() {
             }
         });
 
-        // Mapping to match the Heatmap UI
+        // Les quatre champs de gouvernance sont optionnels au schema : ils valent
+        // null tant qu'aucun controle n'a ete fait. Les rabattre sur "valid"
+        // affichait comme conforme un client dont l'AG, les mandats, le depot des
+        // comptes ou surtout le KYC n'avaient jamais ete verifies — indiscernable
+        // d'un client reellement controle. "inconnu" est rendu en gris par la
+        // matrice et exclu de l'indice de conformite.
         const formattedClients = clients.map(c => ({
             id: c.id,
             name: c.companyName || "Client Sans Nom",
             status: {
-                ag: c.agStatus || "valid",
-                mandats: c.mandatStatus || "valid",
-                depot: c.depotComptesStatus || "valid",
-                kyc: c.kycStatus || "valid"
+                ag: c.agStatus || "inconnu",
+                mandats: c.mandatStatus || "inconnu",
+                depot: c.depotComptesStatus || "inconnu",
+                kyc: c.kycStatus || "inconnu"
             }
         }));
 

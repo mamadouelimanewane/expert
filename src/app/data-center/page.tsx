@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 interface Dataset {
     id: string;
     name: string;
-    type: "FEC" | "Grand Livre" | "Balance" | "Social";
+    type: string;
     size: string;
     date: string;
     status: "Importé" | "Traitement..." | "Erreur" | "Prêt";

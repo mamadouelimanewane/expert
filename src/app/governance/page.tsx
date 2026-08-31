@@ -195,7 +195,9 @@ export default function GovernancePage() {
                         <tbody className="divide-y divide-white/5">
                             {filtered.map((entity) => {
                                 const status = overallStatus(entity.status);
-                                const dot = (v: string) => v === "late" || v === "invalid" || v === "expired" ? "bg-rose-500" : v === "expiring" || v === "warning" ? "bg-amber-500" : "bg-emerald-500";
+                                // Le vert n'est plus le repli : "inconnu" (aucun controle
+                                // enregistre) s'affiche en gris, pas en conforme.
+                                const dot = (v: string) => v === "late" || v === "invalid" || v === "expired" ? "bg-rose-500" : v === "expiring" || v === "warning" ? "bg-amber-500" : v === "valid" ? "bg-emerald-500" : "bg-slate-600";
                                 return (
                                 <tr key={entity.id} className="hover:bg-white/[0.02] transition-colors group">
                                     <td className="px-8 py-6">
