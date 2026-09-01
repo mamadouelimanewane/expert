@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FintechService, PaymentProvider } from "@/lib/fintech";
 import { verifierSignatureWebhook } from "@/lib/webhook-signature";
+import { tracerWebhook } from "@/lib/webhook-trace";
 
 /**
  * Endpoint pour recevoir les notifications (hooks) des opérateurs
@@ -38,6 +39,11 @@ export async function POST(request: Request) {
         const verification = verifierSignatureWebhook(provider, rawBody, request.headers);
         if (!verification.ok) {
             console.warn(`[Webhook API] Signature refusée (${provider}) : ${verification.reason}`);
+            await tracerWebhook({
+                fournisseur: provider,
+                resultat: "REFUSE",
+                detail: `Notification de paiement refusée : ${verification.reason}`,
+            });
             return NextResponse.json(
                 { error: "Webhook non authentifié", reason: verification.reason },
                 { status: verification.status }
@@ -53,6 +59,15 @@ export async function POST(request: Request) {
 
         // Traitement du webhook
         const resultat = await FintechService.handleWebhook(provider, payload);
+
+        await tracerWebhook({
+            fournisseur: provider,
+            resultat: "ACCEPTE",
+            detail: resultat.traite
+                ? `Paiement rapproché de la facture ${resultat.invoiceId}`
+                : `Notification authentifiée non traitée : ${resultat.raison}`,
+            reference: resultat.invoiceId,
+        });
 
         return NextResponse.json({ status: "ACK", ...resultat });
 

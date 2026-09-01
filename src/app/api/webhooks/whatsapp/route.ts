@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { processIncomingWhatsAppMessage } from '@/lib/whatsapp-processor';
 import { verifierSignatureMeta } from '@/lib/webhook-signature';
+import { tracerWebhook } from '@/lib/webhook-trace';
 
 /**
  * Webhook WhatsApp — reçoit les messages réels via l'API Meta Cloud (configuré
@@ -42,8 +43,20 @@ export async function POST(req: Request) {
     const verification = verifierSignatureMeta(rawBody, req.headers);
     if (!verification.ok) {
       console.warn(`[WhatsApp Webhook] Requête rejetée : ${verification.reason}`);
+      await tracerWebhook({
+        fournisseur: "WhatsApp (Meta)",
+        resultat: "REFUSE",
+        detail: `Notification refusée : ${verification.reason}`,
+      });
       return NextResponse.json({ error: verification.reason }, { status: verification.status });
     }
+
+    // Signature valide : la notification vient bien de Meta.
+    await tracerWebhook({
+      fournisseur: "WhatsApp (Meta)",
+      resultat: "ACCEPTE",
+      detail: `Notification authentifiée reçue (${rawBody.length} octets)`,
+    });
 
     let body: MetaWebhookBody;
     try {
