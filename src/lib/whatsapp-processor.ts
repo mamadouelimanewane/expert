@@ -73,6 +73,59 @@ async function repondreAuClient(telephone: string, simulate: boolean, message: s
   }
 }
 
+/**
+ * Chiffres significatifs d'un numéro de téléphone.
+ *
+ * Meta transmet l'expéditeur au format international sans signe ni séparateur
+ * (« 221771234567 »), alors que les fiches clients portent le numéro tel qu'il
+ * a été saisi : « +221 77 123 45 67 », « +225 07 08 09 10 11 »… La recherche
+ * étant une comparaison de chaîne exacte, AUCUN client n'était reconnu et tout
+ * message entrant tombait en `unknown_client` : la réception WhatsApp était
+ * inopérante dès le premier vrai client.
+ */
+export function chiffresTelephone(brut: string | null | undefined): string {
+  return (brut ?? "").replace(/\D/g, "");
+}
+
+/**
+ * Retrouve le client propriétaire d'un numéro, quel que soit le format de
+ * saisie.
+ *
+ * Deux niveaux de comparaison :
+ *   1. tous les chiffres — « +221 77 123 45 67 » == « 221771234567 » ;
+ *   2. à défaut, les 9 derniers chiffres, pour les fiches saisies sans
+ *      indicatif pays (« 77 123 45 67 ») ; ce repli n'est retenu que s'il
+ *      désigne UN SEUL client, faute de quoi l'imputation serait un pari.
+ */
+export async function trouverClientParTelephone(telephone: string) {
+  const cible = chiffresTelephone(telephone);
+  if (cible.length < 8) return null;
+
+  const clients = await prisma.client.findMany({
+    where: { phone: { not: "" } },
+    select: { id: true, phone: true, companyName: true, firstName: true, lastName: true },
+  });
+
+  const exact = clients.filter((c) => chiffresTelephone(c.phone) === cible);
+  if (exact.length === 1) return exact[0];
+  if (exact.length > 1) {
+    console.warn(`[WhatsApp] ${exact.length} clients partagent le numéro ${cible} : message ignoré.`);
+    return null;
+  }
+
+  const suffixe = cible.slice(-9);
+  const partiels = clients.filter((c) => {
+    const chiffres = chiffresTelephone(c.phone);
+    return chiffres.length >= 9 && chiffres.slice(-9) === suffixe;
+  });
+
+  if (partiels.length === 1) return partiels[0];
+  if (partiels.length > 1) {
+    console.warn(`[WhatsApp] ${partiels.length} clients correspondent au numéro ${suffixe} : message ignoré.`);
+  }
+  return null;
+}
+
 export async function processIncomingWhatsAppMessage(params: {
   senderPhone: string;
   messageType: WhatsAppMessageType;
@@ -81,7 +134,7 @@ export async function processIncomingWhatsAppMessage(params: {
 }) {
   const { senderPhone, messageType, textBody, simulate = false } = params;
 
-  const client = await prisma.client.findFirst({ where: { phone: senderPhone } });
+  const client = await trouverClientParTelephone(senderPhone);
   if (!client) {
     return { status: "unknown_client" as const };
   }

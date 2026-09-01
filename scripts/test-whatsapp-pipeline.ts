@@ -14,7 +14,7 @@
  *   npx tsx scripts/test-whatsapp-pipeline.ts
  */
 import { PrismaClient } from "@prisma/client";
-import { processIncomingWhatsAppMessage } from "../src/lib/whatsapp-processor";
+import { processIncomingWhatsAppMessage, chiffresTelephone } from "../src/lib/whatsapp-processor";
 
 const prisma = new PrismaClient();
 
@@ -42,14 +42,25 @@ const CAS = [
 ];
 
 async function main() {
-    const client = await prisma.client.findFirst({
+    // Un numero partage par plusieurs clients est volontairement refuse par le
+    // processeur (imputer l'ecriture serait un pari) : le test doit donc porter
+    // sur un client dont le numero est unique.
+    const candidats = await prisma.client.findMany({
         where: { phone: { not: "" } },
         orderBy: { createdAt: "desc" },
         select: { id: true, phone: true, companyName: true, firstName: true, lastName: true },
     });
 
+    const occurrences = new Map<string, number>();
+    for (const c of candidats) {
+        const cle = chiffresTelephone(c.phone);
+        occurrences.set(cle, (occurrences.get(cle) ?? 0) + 1);
+    }
+
+    const client = candidats.find((c) => occurrences.get(chiffresTelephone(c.phone)) === 1);
+
     if (!client) {
-        console.error("Aucun client avec un numero de telephone : test impossible.");
+        console.error("Aucun client avec un numero de telephone unique : test impossible.");
         process.exitCode = 1;
         return;
     }
