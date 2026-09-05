@@ -53,7 +53,7 @@ interface ResponsiveTableProps {
 
 export function ResponsiveTable({ children, className }: ResponsiveTableProps) {
     return (
-        <div className={cn("overflow-x-auto -mx-4 sm:mx-0", className)}>
+        <div className={cn("table-responsive -mx-2 sm:mx-0 rounded-xl", className)}>
             <div className="inline-block min-w-full align-middle font-sans">
                 <div className="overflow-hidden">
                     {children}
@@ -79,9 +79,28 @@ export function ResponsiveDataList<T>({ data, renderCard, renderTable, className
             </div>
             
             {/* Cards for Mobile */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden space-y-3 sm:space-y-4">
                 {data.map((item, index) => renderCard(item, index))}
             </div>
         </div>
     );
 }
+
+interface ResponsiveStackProps {
+    children: ReactNode;
+    direction?: "column" | "responsive";
+    className?: string;
+}
+
+export function ResponsiveStack({ children, direction = "responsive", className }: ResponsiveStackProps) {
+    return (
+        <div className={cn(
+            "flex gap-3 sm:gap-4",
+            direction === "responsive" ? "flex-col sm:flex-row sm:items-center sm:justify-between" : "flex-col",
+            className
+        )}>
+            {children}
+        </div>
+    );
+}
+

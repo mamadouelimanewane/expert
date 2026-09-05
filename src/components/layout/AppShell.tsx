@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <Sidebar />
                 </div>
                 <main className="lg:pl-64 flex-1 min-h-dvh relative pt-16 lg:pt-0 overflow-x-hidden print:pl-0 print:pt-0 print:min-h-0">
-                    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-fade-in print:p-0 print:max-w-none print:space-y-0">
+                    <div className="p-3 sm:p-5 lg:p-8 max-w-7xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8 animate-fade-in print:p-0 print:max-w-none print:space-y-0">
                         {children}
                     </div>
                 </main>

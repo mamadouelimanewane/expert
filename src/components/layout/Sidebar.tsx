@@ -182,45 +182,47 @@ export function Sidebar() {
     return (
         <>
             {/* Mobile Header / Toggle */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-card border-b border-border/50 flex items-center justify-between px-6 z-[60]">
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-card border-b border-border/50 flex items-center justify-between px-4 sm:px-6 z-[60] pt-safe">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg">
-                        <span className="font-bold text-white text-lg">C</span>
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-md">
+                        <span className="font-bold text-white text-base">C</span>
                     </div>
-                    <h1 className="text-lg font-bold">CABINET 360</h1>
+                    <span className="text-base sm:text-lg font-bold tracking-tight">CABINET 360</span>
                 </div>
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="p-2 rounded-xl bg-primary/10 text-primary"
+                    className="p-2.5 rounded-xl bg-primary/10 text-primary active:scale-95 transition-transform"
+                    aria-label="Menu"
                 >
-                    {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
             </div>
 
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] lg:hidden"
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] lg:hidden animate-in fade-in duration-200"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
             <aside className={cn(
-                "fixed left-0 top-0 h-screen w-64 sidebar-container flex flex-col z-[58] transition-all duration-300 lg:translate-x-0",
+                "fixed left-0 top-0 h-screen w-72 max-w-[85vw] sm:w-64 sidebar-container flex flex-col z-[58] transition-all duration-300 lg:translate-x-0 pb-safe",
                 isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
             )}>
-                {/* Logo Section (Desktop only or keep for mobile drawer) */}
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20">
-                        <span className="font-bold text-white text-lg">C</span>
+                {/* Logo Section */}
+                <div className="p-4 sm:p-6 flex items-center gap-3 pt-safe">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
+                        <span className="font-bold text-white text-base">C</span>
                     </div>
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-slate-400">
+                    <span className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-slate-400">
                         CABINET 360
-                    </h1>
+                    </span>
                     {/* Close button inside sidebar for mobile */}
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="lg:hidden ml-auto p-1 text-muted-foreground"
+                        className="lg:hidden ml-auto p-1.5 text-muted-foreground hover:text-foreground rounded-lg"
+                        aria-label="Fermer le menu"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -322,7 +324,7 @@ export function Sidebar() {
             </aside>
 
             {/* Mobile Roaming FAB (Floating Action Button) */}
-            <div className="lg:hidden fixed bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe-area-bottom">
+            <div className="lg:hidden fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe">
                 {isFabOpen && (
                     <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <button className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
