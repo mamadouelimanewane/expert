@@ -124,7 +124,7 @@
     <div class="meta">
       <div><b>Date</b> 11 septembre 2026</div>
       <div><b>Dépôt</b> mamadouelimanewane/expert</div>
-      <div><b>Commits</b> a5433db → 829fc52 (29)</div>
+      <div><b>Commits</b> a5433db → 949a828 (32)</div>
       <div><b>Production</b> expert-pi.vercel.app</div>
       <div><b>Exécuté par</b> Claude Opus 5, session assistée</div>
     </div>
@@ -280,7 +280,7 @@
     <div class="sev"><span class="pill crit">Bloquant prod</span></div>
     <h4>Dépôt de pièce impossible en production</h4>
     <p>Le scan de facture écrivait dans <code>process.cwd()/uploads</code>, en lecture seule sur Vercel : chaque dépôt aurait échoué en production (EROFS) alors qu'il fonctionnait en local.</p>
-    <p class="fix">Dossier inscriptible résolu à l'exécution (<code>UPLOAD_DIR</code>, sinon <code>./uploads</code>, sinon <code>/tmp</code>) ; la relecture par IA renvoie le fichier depuis le navigateur pour ne pas dépendre du disque. Un stockage objet (Vercel Blob / S3) reste à prévoir pour conserver les pièces.</p>
+    <p class="fix">Stockage durable des pièces en GridFS sur MongoDB Atlas (aucun service supplémentaire), route de consultation authentifiée <code>/api/documents/[id]/fichier</code> — le lien « Voir » de la GED pointait sur <code>/uploads/</code>, jamais servi par Next.js (404). Vérifié : dépôt → OCR → relecture avec octets identiques.</p>
   </div></div>
   <div class="finding"><div class="id"><b>C-17</b>fonctionnel</div><div>
     <div class="sev"><span class="pill info">Fonctionnalité livrée</span></div>

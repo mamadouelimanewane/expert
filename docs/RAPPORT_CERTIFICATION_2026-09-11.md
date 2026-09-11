@@ -1,6 +1,6 @@
 # Certification Cabinet 360 — tests approfondis avant démonstration client
 
-**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → 829fc52 · **Prod** : expert-pi.vercel.app
+**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → 949a828 · **Prod** : expert-pi.vercel.app
 **Version complète (mise en page)** : `docs/RAPPORT_CERTIFICATION_2026-09-11.html`
 
 ## Verdict : apte à la démo, sous conditions
@@ -33,7 +33,7 @@ Conditions :
 | C-12 | Formulaire « Nouvelle facture » : `lineItems` envoyé, `lines` attendu → toute création échouait | Contrat aligné, lignes persistées, fiche `/billing/[id]` imprimable |
 | C-13 | Écritures saisies en « JUIN-2026 » jamais dans les états du mois (période non normalisée) | Normalisation AAAA-MM partout |
 | C-14 | Import de balance générale absent (page désactivée) | Import CSV/Excel + modèle BalanceImportee, prioritaire sur le journal dans bilan/résultat/TFT/liasse |
-| C-16 | Dépôt de pièce dans `process.cwd()/uploads`, en lecture seule sur Vercel → scan de facture impossible en production | Repli `/tmp` (`src/lib/uploads.ts`) ; la relecture IA renvoie le fichier depuis le navigateur ; stockage objet à prévoir |
+| C-16 | Dépôt de pièce dans `process.cwd()/uploads`, en lecture seule sur Vercel → scan de facture impossible en production | Stockage durable GridFS sur Atlas (`src/lib/stockage-pieces.ts`), route de lecture authentifiée `/api/documents/[id]/fichier` (le lien « Voir » de la GED ouvrait une 404) |
 | C-17 | Manuscrit illisible par Tesseract (cahiers de caisse, reçus, balances annotées) | Lecture par IA opt-in (Claude vision, sortie structurée, non-invention) sur l'import de balance et le scan de facture ; `scripts/test-vision-manuscrit.ts` |
 | C-15 | Balance imprimée (PDF scanné, photo) inexploitable | Reconstitution OCR (`src/lib/ocr-balance.ts`, `POST /api/comptabilite/balance/ocr`) : PDF natif / scanné / image, aperçu éditable, contrôle des totaux — 12/12 comptes sur image réelle |
 
