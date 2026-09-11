@@ -173,7 +173,7 @@ export default function BillingPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
-                                                <span className="font-medium text-white">{item.client?.companyName || "N/A"}</span>
+                                                <span className="font-medium text-white">{item.client?.companyName || [item.client?.firstName, item.client?.lastName].filter(Boolean).join(" ") || "Client supprimé"}</span>
                                                 <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 rounded text-slate-400 border border-slate-700 w-fit uppercase">Honoraires</span>
                                             </div>
                                         </td>
