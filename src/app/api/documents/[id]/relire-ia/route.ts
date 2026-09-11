@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { existsSync } from "fs";
-import { readFile } from "fs/promises";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 import { requireWriteAccess, requireStaff } from "@/lib/api-auth";
 import { lireFactureParVision, ocrDataDepuisFacture, visionConfiguree, MODELE_VISION } from "@/lib/ocr-vision";
-import { cheminPiece } from "@/lib/uploads";
+import { lirePiece } from "@/lib/stockage-pieces";
 
 // Une pièce manuscrite prend 15 à 40 s de lecture.
 export const maxDuration = 120;
@@ -37,7 +35,7 @@ export async function POST(request: Request, { params }: Params) {
     try {
         const { id } = await params;
         if (id.length !== 24) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
-        const document = await prisma.document.findUnique({ where: { id }, select: { id: true, fileName: true, originalName: true, mimeType: true, fileUrl: true, type: true, ocrData: true, clientId: true } });
+        const document = await prisma.document.findUnique({ where: { id }, select: { id: true, fileName: true, originalName: true, mimeType: true, fileUrl: true, storageKey: true, type: true, ocrData: true, clientId: true } });
         if (!document) return NextResponse.json({ error: "Pièce introuvable" }, { status: 404 });
 
         let fichier: Buffer | null = null;
@@ -50,8 +48,9 @@ export async function POST(request: Request, { params }: Params) {
             fichier = Buffer.from(await envoye.arrayBuffer());
             mimeType = envoye.type || mimeType;
             nom = envoye.name || nom;
-        } else if (existsSync(cheminPiece(document.fileName))) {
-            fichier = await readFile(cheminPiece(document.fileName));
+        } else {
+            const piece = await lirePiece(document.storageKey ?? document.fileName, document.storageKey ? "gridfs" : "disque");
+            if (piece) fichier = piece.contenu;
         }
         if (!fichier) {
             return NextResponse.json({ error: "Le fichier de la pièce n'est plus disponible sur le serveur : déposez-le à nouveau pour la lecture par IA." }, { status: 410 });

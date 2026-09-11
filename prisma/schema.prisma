@@ -418,6 +418,9 @@ model Document {
   fileSize     Int
   mimeType     String
   fileUrl      String
+  // Clé du fichier dans le stockage durable (GridFS) ; null pour les pièces
+  // antérieures au 11/09/2026, restées sur le disque du serveur.
+  storageKey   String?
 
   type   DocumentType   @default(AUTRE)
   status DocumentStatus @default(UPLOADED)

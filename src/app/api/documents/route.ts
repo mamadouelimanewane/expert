@@ -4,6 +4,8 @@ import { join } from 'path';
 import prisma from '@/lib/prisma';
 import { processUploadedInvoice } from '@/lib/ocr-engine';
 import { dossierUploads } from '@/lib/uploads';
+import { stockerPiece } from '@/lib/stockage-pieces';
+import { unlink } from 'fs/promises';
 
 // L'OCR d'une facture prend 5 à 30 s : au-delà des 10 s par défaut de Vercel
 // la fonction était coupée avant d'écrire le statut final du document.
@@ -81,17 +83,19 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Dossier inscriptible (UPLOAD_DIR, sinon ./uploads, sinon /tmp sur Vercel)
-        const uploadsDir = dossierUploads();
-
-        // Générer un nom de fichier unique
+        // Nom de fichier unique (identifiant de la pièce dans les journaux)
         const timestamp = Date.now();
         const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-        const filePath = join(uploadsDir, fileName);
-
-        // Sauvegarder le fichier
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
+
+        // Stockage durable (GridFS sur MongoDB Atlas). Le disque du serveur est
+        // en lecture seule sur Vercel et /tmp y est éphémère : une pièce y
+        // déposée n'était plus rouvrable quelques minutes plus tard.
+        const stockage = await stockerPiece(buffer, fileName, file.type, { originalName: file.name, clientId: clientId || null, type: documentType });
+
+        // L'OCR travaille sur un fichier : copie temporaire, supprimée ensuite.
+        const filePath = join(dossierUploads(), fileName);
         await writeFile(filePath, buffer);
 
         // Créer l'entrée dans la base de données
@@ -101,7 +105,8 @@ export async function POST(request: NextRequest) {
                 originalName: file.name,
                 fileSize: file.size,
                 mimeType: file.type,
-                fileUrl: `/uploads/${fileName}`,
+                storageKey: stockage.support === 'gridfs' ? stockage.cle : null,
+                fileUrl: '',  // renseignée ci-dessous avec l'identifiant
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 type: documentType as any,
                 status: 'PROCESSING',
@@ -109,6 +114,11 @@ export async function POST(request: NextRequest) {
                 uploadedById: session.id,
             },
         });
+
+        // Le fichier est servi par une route authentifiée (Next.js ne sert pas
+        // /uploads/ : le lien « Voir » de la GED ouvrait une 404).
+        await prisma.document.update({ where: { id: document.id }, data: { fileUrl: `/api/documents/${document.id}/fichier` } });
+        document.fileUrl = `/api/documents/${document.id}/fichier`;
 
         // Log action
         await AuditService.log({
@@ -177,6 +187,10 @@ export async function POST(request: NextRequest) {
             });
         }
 
+        // La copie temporaire n'est utile qu'à l'OCR ; la pièce durable est en
+        // GridFS. Sans stockage durable (pas de DATABASE_URL), on la garde.
+        if (stockage.support === 'gridfs') await unlink(filePath).catch(() => {});
+
         return NextResponse.json({
             success: statutFinal !== 'ERROR',
             document: {
@@ -232,7 +246,10 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        return NextResponse.json({ documents });
+        // Les pièces antérieures portent encore /uploads/<nom> (jamais servi) :
+        // toutes passent par la route authentifiée, qui répond 410 si le
+        // fichier n'existe plus.
+        return NextResponse.json({ documents: documents.map((d) => ({ ...d, fileUrl: `/api/documents/${d.id}/fichier` })) });
     } catch (error) {
         console.error('❌ Error fetching documents:', error);
         return NextResponse.json(

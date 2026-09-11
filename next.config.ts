@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
   // bundlé par Turbopack, ce chemin n'existe plus et la reconnaissance ne
   // rend jamais la main (documents figés en PROCESSING). sharp embarque des
   // binaires natifs. Les deux doivent rester résolus depuis node_modules.
-  serverExternalPackages: ["@prisma/client", "prisma", "tesseract.js", "sharp", "pdf-parse", "@napi-rs/canvas"],
+  serverExternalPackages: ["@prisma/client", "prisma", "tesseract.js", "sharp", "pdf-parse", "@napi-rs/canvas", "mongodb"],
   turbopack: {
     root: __dirname,
   },
