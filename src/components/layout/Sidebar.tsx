@@ -4,58 +4,36 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    LayoutDashboard,
     Users,
-    Mail,
     Briefcase,
     FileText,
-    Book,
-    BookOpen,
     Settings,
     LogOut,
-    BarChart3,
     Sparkles,
     ShieldAlert,
     MessageSquare,
-    Workflow,
     Calendar,
     LayoutGrid,
     Activity,
     Calculator,
     Receipt,
-    PenTool,
     Gavel,
     Globe,
     Rocket,
     Library,
-    Wallet,
     TrendingUp,
     ArrowRightLeft,
     FileSpreadsheet,
     CalendarDays,
-    DollarSign,
     Building,
-    ClipboardCheck,
     RefreshCw,
     ShieldCheck,
     Clock,
     FilePieChart,
-    LineChart,
-    Building2,
-    MessageCircle,
     UserCheck,
-    FileSearch,
     Radar,
-    Timer,
-    Target,
-    Factory,
     BrainCircuit,
-    Leaf,
-    Fingerprint,
-    Gem,
     Coins,
-    Microscope,
-    GraduationCap,
     Gauge,
     Anchor,
     Network,
@@ -75,83 +53,74 @@ import {
 import { cn } from "@/lib/utils";
 
 import { useTheme } from "@/context/ThemeContext";
-import { Moon, Sun, Monitor, Palette, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, Search } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 
-const VOICE_WAVE_HEIGHTS = [14, 28, 42, 22, 38, 18, 46, 32, 20, 44, 26, 16];
-
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
 
+// Sélection dédoublonnée des écrans les plus utilisés (le plan complet est
+// dans /plan). Chaque destination n'apparaît qu'une fois : les anciens
+// doublons (/audit, /billing, /dashboard/whatsapp-bot, deux entrées « temps »)
+// rendaient la barre illisible et faisaient hésiter sur le bon lien.
 const menuItems: MenuItem[] = [
     { header: "PILOTAGE & CABINET" },
-    { icon: LayoutDashboard, label: "Tableau de Bord", href: "/dashboard" },
+    { icon: LayoutGrid, label: "Hub des modules", href: "/bi" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
-    { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
-    { icon: Clock, label: "Saisie des Temps", href: "/missions/timesheets" },
+    { icon: Calendar, label: "Agenda partagé", href: "/agenda" },
+    { icon: Clock, label: "Suivi des Temps & Rentabilité", href: "/timesheets" },
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
+    { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
 
     { header: "EXPERTISE & PRODUCTION" },
     { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
     { icon: FileSpreadsheet, label: "Liasse Fiscale Auto", href: "/comptabilite/liasse-fiscale" },
+    { icon: FilePieChart, label: "États Financiers SYSCOHADA", href: "/etats-financiers" },
     { icon: CalendarDays, label: "Fiscalité & Simulateur", href: "/fiscalite" },
     { icon: Calculator, label: "Paie & Social (SN)", href: "/payroll" },
     { icon: FolderPlus, label: "GED Intelligente", href: "/documents" },
     { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
 
     { header: "AUDIT & CONFORMITÉ" },
-    { icon: ShieldAlert, label: "Audit & CAC", href: "/audit" },
+    { icon: ShieldAlert, label: "Audit & CAC (FEC)", href: "/audit" },
     { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
     { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
-
-    { header: "MODULES EXPERTS" },
-    { icon: ShieldAlert, label: "Audit IA (FEC Analyzer)", href: "/audit" },
-    { icon: Timer, label: "Suivi des Temps & Rentabilité", href: "/timesheets" },
-    { icon: UserCheck, label: "Onboarding & KYC", href: "/onboarding" },
-    { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
-    { icon: BarChart3, label: "Business Intelligence", href: "/bi" },
-    { icon: FileText, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
+    { icon: Gauge, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
 
     { header: "STRATÉGIE & CONSEIL" },
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },
     { icon: Radar, label: "Radar Fiscal IA", href: "/strategy/radar" },
     { icon: Scale, label: "Simulateur Zone Franche", href: "/strategy/zone-franche" },
-    { icon: Activity, label: "Valorisation & M&A", href: "/investment" },
+    { icon: TrendingUp, label: "Valorisation & M&A", href: "/investment" },
     { icon: Globe, label: "Hub Multi-Devises", href: "/strategy/devises" },
 
-    { header: "ACCOMPAGNEMENT & DOUANES" },
-    { icon: FolderPlus, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
+    { header: "TPE, DOUANES & FINTECH" },
+    { icon: Building, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
     { icon: Ship, label: "Simulateur Douanier", href: "/douanes/simulateur" },
     { icon: Anchor, label: "Suivi Transitaire", href: "/douanes/transitaire" },
-
-    { header: "BPO TPE / INFORMEL" },
-    { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
-    { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
     { icon: Users, label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" },
-
-    { header: "FINTECH & MOBILE MONEY" },
+    { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
+    { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
     { icon: Smartphone, label: "Mobile Money", href: "/mobile-money" },
     { icon: CreditCard, label: "Hub Paiements (Wave/OM)", href: "/fintech/payments" },
     { icon: Landmark, label: "Dossier Crédit Auto", href: "/fintech/credit" },
     { icon: Coins, label: "Score Solvabilité IA", href: "/fintech/scoring" },
 
     { header: "NEXUS INTELLIGENCE" },
-    { icon: BrainCircuit, label: "Moteur IA & LLM", href: "/settings/ai" },
-    { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
-    { icon: MessageCircle, label: "Hub WhatsApp Bot PMI", href: "/dashboard/whatsapp-bot" },
+    { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
     { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
+    { icon: BrainCircuit, label: "Moteur IA & LLM", href: "/settings/ai" },
 
     { header: "PLATEFORME & ÉCOSYSTÈME" },
+    { icon: UserCheck, label: "Onboarding & KYC", href: "/onboarding" },
     { icon: Users, label: "Portail TPE / Client", href: "/portal/tpe-client" },
     { icon: FileDigit, label: "Developer Hub & API", href: "/settings/api-keys" },
-    // La barre laterale ne presente qu'une selection des 214 ecrans.
-    // /plan les inventorie tous et les rend atteignables.
-    { icon: LayoutGrid, label: "Plan de l'application", href: "/plan" },
+    { icon: Network, label: "Plan de l'application", href: "/plan" },
 ];
 
 export function Sidebar() {
@@ -159,25 +128,36 @@ export function Sidebar() {
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const [isFabOpen, setIsFabOpen] = useState(false);
-    const [isVoiceActive, setIsVoiceActive] = useState(false);
-    const [transcription, setTranscription] = useState("");
+    const [filter, setFilter] = useState("");
     const { data: session } = useSession();
-
-    const startNexusGo = () => {
-        setIsVoiceActive(true);
-        setIsFabOpen(false);
-        setTranscription("Initialisation de Nexus-Go...");
-        
-        setTimeout(() => setTranscription("Je vous écoute. Quelle est votre demande ?"), 1000);
-        setTimeout(() => setTranscription("Analyse du dossier Traoré en cours..."), 3000);
-        setTimeout(() => setTranscription("L'EBITDA du groupe Traoré est en hausse de 12.4% ce trimestre. Souhaitez-vous le rapport détaillé ?"), 5000);
-    };
 
     // Close sidebar on navigation (mobile)
     useEffect(() => {
         setIsOpen(false);
         setIsFabOpen(false);
     }, [pathname]);
+
+    // Entrée active : le href le plus long qui préfixe l'URL courante, pour
+    // que /clients/123 allume « Clients » et /audit/ai-assisted allume
+    // « Audit Légal IA » plutôt que « Audit & CAC ».
+    const activeHref = menuItems
+        .filter((i) => i.href && (pathname === i.href || pathname.startsWith(i.href + "/")))
+        .sort((a, b) => b.href!.length - a.href!.length)[0]?.href ?? null;
+
+    const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const q = normalize(filter.trim());
+    // En cas de filtre, on ne garde que les liens qui correspondent, avec
+    // l'en-tête de leur section pour conserver le contexte.
+    const visibleItems: MenuItem[] = q
+        ? menuItems.reduce<MenuItem[]>((acc, item, idx) => {
+            if (item.header) return acc;
+            if (!normalize(item.label ?? "").includes(q)) return acc;
+            const header = [...menuItems.slice(0, idx)].reverse().find((i) => i.header);
+            if (header && !acc.includes(header)) acc.push(header);
+            acc.push(item);
+            return acc;
+        }, [])
+        : menuItems;
 
     return (
         <>
@@ -228,9 +208,28 @@ export function Sidebar() {
                     </button>
                 </div>
 
+                {/* Filtre rapide : une cinquantaine d'entrées, on tape deux
+                    lettres plutôt que de faire défiler. */}
+                <div className="px-4 pb-1">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                        <input
+                            type="search"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            placeholder="Filtrer le menu…"
+                            aria-label="Filtrer le menu"
+                            className="w-full pl-8 pr-3 py-2 rounded-lg text-xs bg-muted/40 border border-border/60 text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background outline-none transition-colors"
+                        />
+                    </div>
+                </div>
+
                 {/* Navigation */}
-                <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                    {menuItems.map((item, idx) => {
+                <nav className="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto custom-scrollbar" aria-label="Navigation principale">
+                    {visibleItems.length === 0 && (
+                        <p className="px-4 py-6 text-xs text-muted-foreground text-center">Aucune entrée ne correspond à « {filter} ».</p>
+                    )}
+                    {visibleItems.map((item, idx) => {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
@@ -243,12 +242,13 @@ export function Sidebar() {
                         }
 
                         const Icon = item.icon!;
-                        const isActive = pathname === item.href;
+                        const isActive = item.href === activeHref;
 
                         return (
                             <Link
                                 key={`${item.href}-${idx}`}
                                 href={item.href!}
+                                aria-current={isActive ? "page" : undefined}
                                 className={cn(
                                     "sidebar-link",
                                     isActive && "active"
@@ -333,12 +333,12 @@ export function Sidebar() {
                         <Link href="/scan" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <ScanLine className="w-4 h-4" /> Scanner Facture
                         </Link>
-                        <button 
-                            onClick={startNexusGo}
-                            className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary"
-                        >
+                        {/* L'ancien overlay « Nexus-Go » jouait une transcription
+                            scriptée avec des chiffres inventés ; /nexus-go utilise la
+                            vraie reconnaissance vocale du navigateur. */}
+                        <Link href="/nexus-go" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <Mic className="w-4 h-4" /> Note Vocale IA
-                        </button>
+                        </Link>
                         <Link href="/missions/new" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <PlusCircle className="w-4 h-4" /> Nouvelle Mission
                         </Link>
@@ -359,52 +359,6 @@ export function Sidebar() {
                 </button>
             </div>
 
-            {/* Nexus-Go Voice Overlay */}
-            {isVoiceActive && (
-                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in duration-300">
-                    <div className="absolute inset-0 bg-primary/95 backdrop-blur-2xl" onClick={() => setIsVoiceActive(false)} />
-                    
-                    <div className="relative z-10 flex flex-col items-center text-center space-y-12 max-w-sm">
-                        <div className="w-32 h-32 relative">
-                            <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-20" />
-                            <div className="absolute inset-0 bg-primary rounded-full animate-pulse opacity-40" />
-                            <div className="relative w-full h-full bg-primary rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0, 107, 63,0.5)]">
-                                <Mic className="w-12 h-12 text-white" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Nexus-Go Active</h2>
-                            <p className="text-primary-foreground/70/60 font-medium text-sm italic min-h-[3rem] leading-relaxed">
-                                &ldquo;{transcription}&rdquo;
-                            </p>
-                        </div>
-
-                        <div className="flex gap-4 pt-12">
-                            <button 
-                                onClick={() => setIsVoiceActive(false)}
-                                className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/10 transition-all"
-                            >
-                                Annuler
-                            </button>
-                            <button 
-                                onClick={() => setIsVoiceActive(false)}
-                                className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/30 transition-all"
-                            >
-                                Terminer
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="absolute bottom-12 left-12 right-12 text-center opacity-30">
-                        <div className="flex justify-center gap-1">
-                            {VOICE_WAVE_HEIGHTS.map((h, i) => (
-                                <div key={i} className="w-1 bg-white rounded-full animate-voice-wave" style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }
