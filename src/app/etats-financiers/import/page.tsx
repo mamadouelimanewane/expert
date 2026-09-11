@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X, ScanLine, Plus, Loader2 } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X, ScanLine, Plus, Loader2, Sparkles, BookOpen } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,8 @@ import { cn } from "@/lib/utils";
 
 type Ligne = { numero: string; intitule: string; debit: number; credit: number; confiance?: "haute" | "moyenne" | "faible"; source?: string };
 type Mode = "fichier" | "scan";
-type InfosOCR = { origine: string; pages: number; confianceOCR: number | null; controleTotaux: string; totauxDetectes: { debit: number; credit: number } | null; disposition: string; dureeMs: number; rejets: { ligne: number; texte: string; raison: string }[] };
+type InfosOCR = { origine: string; pages: number; confianceOCR: number | null; controleTotaux: string; totauxDetectes: { debit: number; credit: number } | null; disposition: string; dureeMs: number; rejets: { ligne: number; texte: string; raison: string }[]; modele?: string; document?: string; titre?: string; periodeLue?: string; remarques?: string[]; usage?: { input: number; output: number; coutEstimeUSD: number } };
+type LigneJournal = { date: string; libelle: string; entree: number; sortie: number; confiance: "haute" | "moyenne" | "faible"; illisible: boolean; remarque: string };
 type Colonnes = { numero: number; intitule: number; debit: number; credit: number; soldeDebit: number; soldeCredit: number; solde: number };
 type BalanceExistante = { id: string; periode: string; fichier: string | null; nbLignes: number; totalDebit: number; totalCredit: number; equilibree: boolean; createdAt: string; importedBy?: { firstName: string; lastName: string } };
 
@@ -64,6 +65,13 @@ export default function ImportBalancePage() {
     const [mode, setMode] = useState<Mode>("fichier");
     const [ocr, setOcr] = useState<InfosOCR | null>(null);
     const [ocrEnCours, setOcrEnCours] = useState(false);
+    const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
+    const [journal, setJournal] = useState<LigneJournal[]>([]);
+    const [journalEnvoi, setJournalEnvoi] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/comptabilite/balance/ia").then((r) => r.json()).then((d) => setIaDisponible(!!d.disponible)).catch(() => setIaDisponible(false));
+    }, []);
 
     useEffect(() => {
         fetch("/api/clients?limit=200&isActive=true").then((r) => r.json()).then((d) => {
@@ -101,6 +109,55 @@ export default function ImportBalancePage() {
         } catch {
             setRejets(["Lecture du document impossible."]);
         } finally { setOcrEnCours(false); }
+    };
+
+    // Lecture par modèle de vision (manuscrit, photo dégradée). Opt-in : le
+    // document est transmis à l'API Anthropic — l'utilisateur clique en
+    // connaissance de cause, jamais automatiquement.
+    const lireParIA = async () => {
+        if (!fichier) return;
+        setLignes([]); setRejets([]); setResultat(null); setColonnes(null); setOcr(null); setJournal([]);
+        setOcrEnCours(true);
+        try {
+            const fd = new FormData(); fd.append("file", fichier);
+            const r = await fetch("/api/comptabilite/balance/ia", { method: "POST", body: fd });
+            const d = await r.json();
+            if (!r.ok) { setRejets([d.error || "Lecture par IA impossible."]); return; }
+            setOcr({ origine: d.origine, pages: d.pages, confianceOCR: null, controleTotaux: d.controleTotaux, totauxDetectes: d.totauxDetectes, disposition: d.disposition, dureeMs: d.dureeMs, rejets: d.rejets ?? [], modele: d.modele, document: d.document, titre: d.titre, periodeLue: d.periodeLue, remarques: d.remarques ?? [], usage: d.usage });
+            if (d.document === "journal") {
+                setJournal(d.journal ?? []);
+                toast.success(`Cahier de caisse lu : ${(d.journal ?? []).length} opérations — vérifiez avant d'envoyer au journal`);
+            } else if (d.document === "balance") {
+                setLignes((d.lignes ?? []).map((l: Ligne) => ({ numero: l.numero, intitule: l.intitule, debit: l.debit, credit: l.credit, confiance: l.confiance, source: l.source })));
+                setRejets((d.rejets ?? []).map((x: { ligne: number; texte: string; raison: string }) => `Ligne ${x.ligne} : ${x.raison} — « ${x.texte.slice(0, 80)} »`));
+                toast.success(`${(d.lignes ?? []).length} comptes lus par l'IA — vérifiez les lignes surlignées avant d'enregistrer`);
+            } else {
+                setRejets([`Le document n'a pas été reconnu comme une balance ni comme un cahier de caisse.${(d.remarques ?? []).length ? " " + d.remarques.join(" ") : ""}`]);
+            }
+        } catch {
+            setRejets(["Lecture par IA impossible."]);
+        } finally { setOcrEnCours(false); }
+    };
+
+    // Cahier de caisse → journal d'écritures (même circuit que l'import de
+    // transactions : imputation par règles, compte d'attente 471 sinon).
+    const envoyerJournal = async () => {
+        if (!clientId) { toast.warning("Sélectionnez le dossier client."); return; }
+        const valides = journal.filter((l) => !l.illisible && (l.entree > 0 || l.sortie > 0) && l.libelle);
+        if (valides.length === 0) { toast.warning("Aucune opération exploitable."); return; }
+        setJournalEnvoi(true);
+        try {
+            const transactions = valides.map((l) => ({ date: l.date, libelle: l.libelle, amount: l.entree > 0 ? l.entree : l.sortie, type: l.entree > 0 ? "recette" : "depense" }));
+            const r = await fetch("/api/ingest/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId, periode, transactions }) });
+            const d = await r.json();
+            if (!r.ok) { toast.error(d.error || "Import refusé"); if (d.lignesRejetees?.length) setRejets(d.lignesRejetees); return; }
+            toast.success(`${d.importees} opérations importées (${d.ecritures} écritures, ${d.aQualifier} à qualifier) — période ${d.periode}`);
+            setJournal([]);
+        } finally { setJournalEnvoi(false); }
+    };
+
+    const modifierJournal = (i: number, champ: keyof LigneJournal, valeur: string) => {
+        setJournal((ls) => ls.map((l, k) => k !== i ? l : champ === "entree" || champ === "sortie" ? { ...l, [champ]: nombre(valeur), confiance: "haute", illisible: false } : { ...l, [champ]: valeur, confiance: "haute", illisible: false }));
     };
 
     const lireFichier = async (f: File) => {
@@ -230,7 +287,19 @@ export default function ImportBalancePage() {
                             <>
                                 <p className="font-bold">{fichier.name}</p>
                                 <p className="text-xs text-muted-foreground">{(fichier.size / 1024).toFixed(1)} Ko · {ocrEnCours ? "lecture en cours (10 à 40 s)…" : `${lignes.length} comptes lus`}</p>
-                                <button type="button" onClick={(e) => { e.preventDefault(); setFichier(null); setLignes([]); setRejets([]); setColonnes(null); }} className="relative z-10 mt-3 inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-rose-600"><X className="w-3.5 h-3.5" /> Retirer</button>
+                                <div className="relative z-10 mt-3 flex flex-wrap items-center justify-center gap-3">
+                                    <button type="button" onClick={(e) => { e.preventDefault(); setFichier(null); setLignes([]); setRejets([]); setColonnes(null); setJournal([]); setOcr(null); }} className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-rose-600"><X className="w-3.5 h-3.5" /> Retirer</button>
+                                    {mode === "scan" && !ocrEnCours && (
+                                        iaDisponible ? (
+                                            <button type="button" onClick={(e) => { e.preventDefault(); lireParIA(); }} title="Le document sera transmis à l'API Anthropic (Claude) pour lecture. Recommandé pour l'écriture manuscrite ou une photo de mauvaise qualité." className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:brightness-110">
+                                                <Sparkles className="w-3.5 h-3.5" /> Lire avec l'IA (manuscrit)
+                                            </button>
+                                        ) : iaDisponible === false ? (
+                                            <span className="text-[11px] text-muted-foreground" title="Renseignez ANTHROPIC_API_KEY sur le serveur pour activer la lecture des documents manuscrits.">Lecture IA non configurée</span>
+                                        ) : null
+                                    )}
+                                </div>
+                                {mode === "scan" && iaDisponible && !ocrEnCours && <p className="text-[11px] text-muted-foreground mt-2 max-w-md mx-auto">L'OCR local (déjà appliqué) lit l'imprimé. « Lire avec l'IA » envoie le document à Anthropic — à utiliser pour un cahier manuscrit ou un scan dégradé.</p>}
                             </>
                         ) : (
                             <>
@@ -251,10 +320,51 @@ export default function ImportBalancePage() {
 
                     {ocr && (
                         <div className="apix-card p-4 text-sm grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Lecture</p><p className="font-bold">{{ PDF_TABLEAU: "Tableau PDF", PDF_TEXTE: "Texte PDF", OCR_IMAGE: "OCR image", OCR_PDF_SCANNE: "OCR PDF scanné" }[ocr.origine] ?? ocr.origine}</p><p className="text-xs text-muted-foreground">{ocr.pages} page{ocr.pages > 1 ? "s" : ""} · {(ocr.dureeMs / 1000).toFixed(1)} s</p></div>
-                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Confiance OCR</p><p className={cn("font-bold", ocr.confianceOCR == null ? "" : ocr.confianceOCR >= 85 ? "text-emerald-600" : ocr.confianceOCR >= 65 ? "text-amber-600" : "text-rose-600")}>{ocr.confianceOCR == null ? "n/a (texte natif)" : `${ocr.confianceOCR} %`}</p></div>
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Lecture</p><p className="font-bold">{{ PDF_TABLEAU: "Tableau PDF", PDF_TEXTE: "Texte PDF", OCR_IMAGE: "OCR image", OCR_PDF_SCANNE: "OCR PDF scanné", IA_VISION: "IA (vision)" }[ocr.origine] ?? ocr.origine}</p><p className="text-xs text-muted-foreground">{ocr.pages} page{ocr.pages > 1 ? "s" : ""} · {(ocr.dureeMs / 1000).toFixed(1)} s</p></div>
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Confiance OCR</p><p className={cn("font-bold", ocr.confianceOCR == null ? "" : ocr.confianceOCR >= 85 ? "text-emerald-600" : ocr.confianceOCR >= 65 ? "text-amber-600" : "text-rose-600")}>{ocr.confianceOCR == null ? (ocr.origine === "IA_VISION" ? "par ligne (voir couleurs)" : "n/a (texte natif)") : `${ocr.confianceOCR} %`}</p>{ocr.usage && <p className="text-xs text-muted-foreground">{ocr.modele} · ≈ {ocr.usage.coutEstimeUSD.toFixed(3)} $</p>}</div>
                             <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Colonnes</p><p className="font-bold">{{ "debit-credit": "Débit / Crédit", "debit-credit-solde": "Débit / Crédit / Solde", "mouvements-soldes": "Mouvements + soldes", "anouveaux-mouvements-soldes": "À-nouveaux + mouvements + soldes", "solde-signe": "Solde signé", inconnue: "Non déterminées" }[ocr.disposition] ?? ocr.disposition}</p></div>
                             <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Totaux imprimés</p><p className={cn("font-bold", ocr.controleTotaux === "concordant" ? "text-emerald-600" : ocr.controleTotaux === "ecart" ? "text-rose-600" : "")}>{ocr.controleTotaux === "concordant" ? "Concordants" : ocr.controleTotaux === "ecart" ? "Écart avec les lignes lues" : "Non trouvés"}</p>{ocr.totauxDetectes && <p className="text-xs text-muted-foreground tabular-nums">{ocr.totauxDetectes.debit.toLocaleString("fr-FR")} / {ocr.totauxDetectes.credit.toLocaleString("fr-FR")}</p>}</div>
+                        </div>
+                    )}
+
+                    {ocr && (ocr.remarques?.length || ocr.titre || ocr.periodeLue) ? (
+                        <div className="apix-card p-4 text-sm">
+                            {(ocr.titre || ocr.periodeLue) && <p className="font-bold">{ocr.titre}{ocr.periodeLue ? <span className="text-muted-foreground font-normal"> · période lue : {ocr.periodeLue}</span> : null}</p>}
+                            {ocr.remarques && ocr.remarques.length > 0 && <ul className="mt-1 list-disc pl-5 text-muted-foreground space-y-0.5">{ocr.remarques.map((r, i) => <li key={i}>{r}</li>)}</ul>}
+                        </div>
+                    ) : null}
+
+                    {journal.length > 0 && (
+                        <div className="apix-card overflow-hidden">
+                            <div className="p-4 border-b border-border flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <p className="font-bold flex items-center gap-2"><BookOpen className="w-4 h-4 text-primary" /> Cahier de caisse — {journal.length} opérations</p>
+                                    <p className="text-xs text-muted-foreground">Entrées {fcfa(journal.reduce((s, l) => s + l.entree, 0))} · sorties {fcfa(journal.reduce((s, l) => s + l.sortie, 0))} · {journal.filter((l) => l.illisible).length} illisible{journal.filter((l) => l.illisible).length > 1 ? "s" : ""}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Ces opérations iront au journal d&apos;écritures du dossier pour la période <b>{periode}</b> (imputation automatique, compte 471 si aucune règle).</p>
+                            </div>
+                            <div className="overflow-x-auto max-h-96">
+                                <table className="apix-table w-full text-sm">
+                                    <thead><tr><th className="text-left">Date</th><th className="text-left">Libellé</th><th className="text-right">Entrée</th><th className="text-right">Sortie</th><th></th></tr></thead>
+                                    <tbody>
+                                        {journal.map((l, i) => (
+                                            <tr key={i} className={cn((l.illisible || l.confiance === "faible") && "bg-rose-50 dark:bg-rose-900/20", !l.illisible && l.confiance === "moyenne" && "bg-amber-50 dark:bg-amber-900/20")} title={l.remarque}>
+                                                <td><input value={l.date} onChange={(e) => modifierJournal(i, "date", e.target.value)} placeholder="JJ/MM/AAAA" className="w-28 bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Date" /></td>
+                                                <td><input value={l.libelle} onChange={(e) => modifierJournal(i, "libelle", e.target.value)} className="w-full min-w-48 bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Libellé" /></td>
+                                                <td className="text-right"><input value={l.entree ? l.entree.toLocaleString("fr-FR") : ""} onChange={(e) => modifierJournal(i, "entree", e.target.value)} inputMode="decimal" className="w-28 text-right tabular-nums bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Entrée" /></td>
+                                                <td className="text-right"><input value={l.sortie ? l.sortie.toLocaleString("fr-FR") : ""} onChange={(e) => modifierJournal(i, "sortie", e.target.value)} inputMode="decimal" className="w-28 text-right tabular-nums bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Sortie" /></td>
+                                                <td className="w-8 text-right"><button type="button" onClick={() => setJournal((ls) => ls.filter((_, k) => k !== i))} className="p-1 text-muted-foreground hover:text-rose-600" aria-label="Supprimer"><X className="w-3.5 h-3.5" /></button></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="p-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
+                                <p className="text-[11px] text-muted-foreground">Lignes <span className="px-1 rounded bg-rose-100 text-rose-800">rouge</span> : illisibles ou douteuses (non envoyées tant qu&apos;elles ne sont pas corrigées). Survolez pour lire la remarque du modèle.</p>
+                                <button onClick={envoyerJournal} disabled={journalEnvoi || !clientId} className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">
+                                    {journalEnvoi ? "Envoi…" : `Envoyer au journal (${journal.filter((l) => !l.illisible && (l.entree > 0 || l.sortie > 0) && l.libelle).length})`}
+                                </button>
+                            </div>
                         </div>
                     )}
 
