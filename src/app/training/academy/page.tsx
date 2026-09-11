@@ -91,7 +91,7 @@ export default function TrainingAcademyPage() {
             </div>
 
             <div className="flex flex-wrap gap-2 items-center">
-                <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5">
+                <div className="tabs-scroll flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5">
                     <button
                         onClick={() => setActiveTab("courses")}
                         className={cn("px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2",

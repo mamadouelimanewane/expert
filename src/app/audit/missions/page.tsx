@@ -398,7 +398,7 @@ export default function NexusAuditAssurancePage() {
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                                             Score global
                                         </p>
-                                        <p className="text-4xl font-black text-white tabular-nums">
+                                        <p className="text-3xl sm:text-4xl font-black text-white tabular-nums">
                                             {risque.globalScore}
                                             <span className="text-sm text-slate-500 font-bold"> / 10</span>
                                         </p>

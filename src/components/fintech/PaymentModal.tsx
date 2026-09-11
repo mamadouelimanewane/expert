@@ -87,7 +87,7 @@ export function PaymentModal({ invoiceId, amount, isOpen, onClose }: PaymentModa
                             </div>
                             <h3 className="text-2xl font-black text-white tracking-tight">Règlement Facture</h3>
                             <p className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-[0.2em]">{invoiceId}</p>
-                            <div className="mt-6 text-4xl font-black text-white tracking-tighter">
+                            <div className="mt-6 text-3xl sm:text-4xl font-black text-white tracking-tighter break-words">
                                 {amount} <span className="text-sm font-bold text-slate-500 uppercase">FCFA</span>
                             </div>
                         </div>

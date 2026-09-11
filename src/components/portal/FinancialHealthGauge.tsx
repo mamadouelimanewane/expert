@@ -155,7 +155,7 @@ export function FinancialHealthGauge({ score, rating, clientName, compact = fals
 
       {/* Facteurs clés — uniquement si le vrai détail est fourni */}
       {factors && (
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-3 grid-keep gap-2">
           {[
             { label: "Régularité", val: factors.regularite, icon: "📋" },
             { label: "Trésorerie", val: factors.tresorerie, icon: "💰" },

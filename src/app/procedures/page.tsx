@@ -233,7 +233,7 @@ export default function ProceduresPage() {
                                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
                                         <Users className="w-4 h-4" /> Matrice des Responsabilités (RACI) — repère visuel
                                     </h4>
-                                    <div className="grid grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                                         {["Collaborateur", "Chef de mission", "Expert-comptable", "Client"].map((role) => (
                                             <div key={role} className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-center">
                                                 <p className="text-xs font-bold text-white mb-2">{role}</p>

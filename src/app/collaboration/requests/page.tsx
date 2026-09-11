@@ -217,7 +217,7 @@ export default function CollaborationRequestsPage() {
                 ))}
             </div>
 
-            <div className="flex gap-2 bg-slate-900/30 p-2 rounded-xl border border-white/5 w-fit">
+            <div className="tabs-scroll flex gap-2 bg-slate-900/30 p-2 rounded-xl border border-white/5 w-fit">
                 {(["all", ...STATUTS] as const).map((f) => (
                     <button
                         key={f}

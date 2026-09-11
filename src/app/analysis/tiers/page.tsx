@@ -97,7 +97,7 @@ export default function TierAnalysisPage() {
                 </div>
             </div>
 
-            <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
+            <div className="tabs-scroll flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
                 <button
                     onClick={() => setActiveTab("analyse")}
                     className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all", activeTab === "analyse" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}

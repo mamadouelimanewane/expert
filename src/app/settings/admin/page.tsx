@@ -98,7 +98,7 @@ export default function UsersSettingsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 transition-all">
-                    <div className="flex gap-2 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
+                    <div className="tabs-scroll flex gap-2 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
                         {["utilisateurs", "roles", "securite", "sauvegarde"].map((tab) => (
                             <button
                                 key={tab}

@@ -290,7 +290,7 @@ export default function PayrollDashboard() {
                   </table>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5">
                   <div className="p-4 bg-slate-800/30 rounded-2xl border border-white/5">
                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total Net</p>
                     <p className="text-2xl font-black text-blue-400 tabular-nums">{totalPayroll.toLocaleString()} F</p>

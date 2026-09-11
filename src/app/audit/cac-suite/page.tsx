@@ -247,7 +247,7 @@ export default function CACSuitePage() {
                             Repère de référence — à positionner manuellement selon les risques identifiés
                             sur ce dossier.
                         </p>
-                        <div className="grid grid-cols-3 gap-2 h-32">
+                        <div className="grid grid-cols-3 grid-keep gap-2 h-24 sm:h-32">
                             {[...Array(9)].map((_, i) => (
                                 <div
                                     key={i}

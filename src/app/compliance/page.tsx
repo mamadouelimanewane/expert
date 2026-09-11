@@ -230,7 +230,7 @@ export default function NexusComplianceHubPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Panel: Diagnosis */}
                 <div className="lg:col-span-8 space-y-8">
-                    <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-[24px] w-fit">
+                    <div className="tabs-scroll flex gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-[24px] w-fit">
                         {[
                             { id: "checkup", label: "Diagnostic Conformité", icon: SearchCode },
                             { id: "referentiel", label: "Référentiels Légaux", icon: Book },

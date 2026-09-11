@@ -191,7 +191,7 @@ export default function CompleteAuditKitPage() {
                                 <Save className="w-4 h-4" /> {sauvegarde ? "…" : "Enregistrer"}
                             </button>
                         </div>
-                        <div className="flex gap-2 p-1 bg-slate-800/50 rounded-2xl border border-white/10">
+                        <div className="tabs-scroll flex gap-2 p-1 bg-slate-800/50 rounded-2xl border border-white/10">
                             {[
                                 { phase: "planning" as const, label: "1. Planification", icon: Target },
                                 { phase: "risk" as const, label: "2. Risques", icon: AlertTriangle },

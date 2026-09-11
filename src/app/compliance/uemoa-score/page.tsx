@@ -207,7 +207,7 @@ export default function UemoaScorePage() {
                 />
               </svg>
               <div className="text-center">
-                <p className="text-5xl font-black text-white">{result.score}</p>
+                <p className="text-4xl sm:text-5xl font-black text-white">{result.score}</p>
                 <p className="text-xs font-bold text-slate-400 mt-1">/ 100</p>
               </div>
             </div>

@@ -187,7 +187,7 @@ export default function SmartGEDPage() {
                     </div>
                     <div className="flex gap-2 w-full md:w-auto">
                         <button className="p-3 bg-slate-800 rounded-xl text-slate-400 hover:text-white border border-white/5 transition-colors"><Filter className="w-4 h-4" /></button>
-                        <div className="flex p-1 bg-slate-800 rounded-xl border border-white/5">
+                        <div className="tabs-scroll flex p-1 bg-slate-800 rounded-xl border border-white/5">
                             <button onClick={() => setView("list")} className={cn("p-2 rounded-lg transition-colors", view === "list" ? "bg-slate-700 text-white" : "text-slate-500")}><List className="w-4 h-4" /></button>
                             <button onClick={() => setView("grid")} className={cn("p-2 rounded-lg transition-colors", view === "grid" ? "bg-slate-700 text-white" : "text-slate-500")}><LayoutGrid className="w-4 h-4" /></button>
                         </div>

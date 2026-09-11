@@ -148,7 +148,7 @@ export default function BusinessPlanPage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex gap-1 p-1 bg-slate-900/50 rounded-2xl border border-slate-700/50 w-fit">
+            <div className="tabs-scroll flex gap-1 p-1 bg-slate-900/50 rounded-2xl border border-slate-700/50 w-fit">
                 <TabButton
                     active={activeTab === "plan"}
                     onClick={() => setActiveTab("plan")}

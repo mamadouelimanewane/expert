@@ -175,12 +175,12 @@ export default function CollaborativeProductionPage() {
             {/* Main Production Table (PENNYLANE STYLE) */}
             <div className="apix-panel overflow-hidden" style={{ ["--panel-bar" as any]: "#006B3F8C", ["--panel-border" as any]: "#006B3F40", padding: 0 }}>
                 <div className="p-8 border-b border-white/5 flex flex-wrap justify-between items-center gap-6 bg-slate-900/60">
-                    <div className="flex items-center gap-6">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-6 min-w-0">
+                        <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-3">
                             <TableIcon className="w-5 h-5 text-primary" />
                             Flux Financiers Multi-Dossiers
                         </h3>
-                        <div className="flex gap-2">
+                        <div className="tabs-scroll flex gap-2">
                             {TAGS.map(tag => (
                                 <button
                                     key={tag}
@@ -195,8 +195,8 @@ export default function CollaborativeProductionPage() {
                             ))}
                         </div>
                     </div>
-                    <div className="flex gap-4">
-                        <div className="relative w-80">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full lg:w-auto">
+                        <div className="relative w-full sm:w-80">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
                             <input
                                 type="text"

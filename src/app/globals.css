@@ -988,3 +988,111 @@ html, body {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FILET DE SÉCURITÉ MOBILE (< 640px)
+   ───────────────────────────────────────────────────────────────────────────
+   223 écrans ont été conçus desktop-first : beaucoup imposent des grilles à
+   3-7 colonnes, des chiffres en text-5xl, des paddings p-8/p-10 ou des
+   largeurs fixes sans variante `sm:`. Plutôt que de retoucher chaque écran,
+   ces règles ramènent les cas les plus fréquents à un rendu lisible sur
+   téléphone. Elles sont hors @layer : elles priment donc sur les utilitaires
+   Tailwind (déclarés dans @layer utilities) sans recourir à !important.
+   Elles ne s'appliquent JAMAIS à l'impression (@media screen).
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media screen and (max-width: 639.98px) {
+  /* Les en-têtes « titre à gauche, actions à droite » se replient au lieu
+     d'écraser leur contenu. `.flex-nowrap` garde un comportement explicite. */
+  .flex.justify-between:not(.flex-nowrap):not(.flex-col) {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  /* Tableaux : défilement horizontal interne, jamais de débordement de page.
+     Un tableau déjà enveloppé dans un conteneur défilant n'est pas concerné. */
+  :where(:not(.overflow-x-auto, .overflow-auto, .apix-table-wrapper, .table-responsive)) > table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Largeurs fixes (w-[600px], min-w-[420px]…) bornées à l'écran ; les
+     tableaux conservent leur min-width, c'est ce qui leur permet de défiler. */
+  [class*="w-["]:where(:not(table, .overflow-x-auto *, .overflow-auto *, .tabs-scroll *)) {
+    max-width: 100%;
+  }
+  [class*="min-w-["]:where(:not(table, thead, tbody, tr, th, td, .overflow-x-auto *, .overflow-auto *, .tabs-scroll *)) {
+    min-width: 0;
+  }
+
+  /* Grilles fixées à 3-6 colonnes sans variante responsive : 2 colonnes.
+     Les grilles à 7 colonnes (calendriers) gardent leur semaine complète ;
+     la classe `grid-keep` permet à une grille compacte de conserver la sienne. */
+  .grid-cols-3:not([class*=":grid-cols-"]):not(.grid-keep),
+  .grid-cols-4:not([class*=":grid-cols-"]):not(.grid-keep),
+  .grid-cols-5:not([class*=":grid-cols-"]):not(.grid-keep),
+  .grid-cols-6:not([class*=":grid-cols-"]):not(.grid-keep) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Médias fluides */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Grands chiffres / titres héroïques */
+  .text-7xl, .text-6xl, .text-5xl { font-size: 2.25rem; line-height: 1.1; }
+  .text-4xl { font-size: 1.875rem; line-height: 1.15; }
+  .text-3xl { font-size: 1.5rem; line-height: 1.2; }
+
+  /* Espacements généreux ramenés à l'échelle du téléphone */
+  .p-8, .p-10, .p-12, .p-16 { padding: 1rem; }
+  .px-8, .px-10, .px-12, .px-16 { padding-inline: 1rem; }
+  .py-10, .py-12, .py-16, .py-20 { padding-block: 1.5rem; }
+  .gap-8, .gap-10, .gap-12 { gap: 1rem; }
+  .space-y-10 > :not(:last-child),
+  .space-y-12 > :not(:last-child) { margin-block-end: 1.5rem; }
+
+  /* Champs de saisie : 16px minimum pour éviter le zoom automatique d'iOS
+     et une hauteur tactile confortable. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  /* Boîtes de dialogue : plein écran en largeur, contenu défilant */
+  .fixed.inset-0 > [class*="max-w-"] {
+    width: 100%;
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  /* Blocs de code et longues références (RCCM, NINEA, hash) */
+  pre, code { white-space: pre-wrap; word-break: break-word; }
+  .break-all-mobile { word-break: break-all; }
+}
+
+/* Barres d'onglets / segmented controls : défilement horizontal discret
+   plutôt que troncature quand la largeur manque (mobile et tablette). */
+.tabs-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs-scroll::-webkit-scrollbar { display: none; }
+.tabs-scroll > * { flex-shrink: 0; white-space: nowrap; }
+
+/* Tablette (640–1023px) : les grilles 4+ colonnes n'ont pas la place */
+@media screen and (min-width: 640px) and (max-width: 1023.98px) {
+  .grid-cols-5:not([class*=":grid-cols-"]):not(.grid-keep),
+  .grid-cols-6:not([class*=":grid-cols-"]):not(.grid-keep),
+  .grid-cols-7:not([class*=":grid-cols-"]):not(.grid-keep) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+

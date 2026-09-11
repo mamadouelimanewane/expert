@@ -288,7 +288,7 @@ export default function ExpensesPage() {
             </div>
 
             {/* Main Tabs */}
-            <div className="flex gap-4 p-1 bg-slate-900 border border-white/5 rounded-3xl w-fit">
+            <div className="tabs-scroll flex gap-4 p-1 bg-slate-900 border border-white/5 rounded-3xl w-fit">
                 <button
                     onClick={() => setActiveTab("notes")}
                     className={cn(

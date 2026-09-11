@@ -192,7 +192,7 @@ export default function ResourcesPlanning() {
                     </div>
 
                     <div className="flex gap-4">
-                        <div className="flex items-center gap-3 p-1.5 bg-slate-800 border border-white/5 rounded-2xl">
+                        <div className="tabs-scroll flex items-center gap-3 p-1.5 bg-slate-800 border border-white/5 rounded-2xl">
                             <button onClick={() => shiftWeek(-7)} className="p-2 hover:bg-white/5 rounded-xl text-slate-400"><ChevronLeft className="w-5 h-5" /></button>
                             <span className="text-xs font-black text-white uppercase tracking-widest px-4">{weekLabel}</span>
                             <button onClick={() => shiftWeek(7)} className="p-2 hover:bg-white/5 rounded-xl text-slate-400"><ChevronRight className="w-5 h-5" /></button>
@@ -222,7 +222,7 @@ export default function ResourcesPlanning() {
                         ) : (
                         <div className="overflow-x-auto">
                             <div className="min-w-[1000px]">
-                                <div className="grid grid-cols-6 gap-4 mb-8">
+                                <div className="grid grid-cols-6 grid-keep gap-4 mb-8">
                                     <div className="col-span-1" />
                                     {DAYS.map(day => (
                                         <div key={day} className="text-center">
@@ -235,7 +235,7 @@ export default function ResourcesPlanning() {
                                     {users.map(user => {
                                         const occ = userOccupancy(user.id);
                                         return (
-                                        <div key={user.id} className="grid grid-cols-6 gap-4 items-start">
+                                        <div key={user.id} className="grid grid-cols-6 grid-keep gap-4 items-start">
                                             <div className="col-span-1 flex items-center gap-4 group">
                                                 <div className="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center text-sm font-black text-white border border-white/5">
                                                     {user.firstName[0]}{user.lastName[0]}
@@ -374,7 +374,7 @@ export default function ResourcesPlanning() {
                                     <option key={t.id} value={t.id}>{t.title} {t.mission ? `— ${t.mission.title}` : ""}</option>
                                 ))}
                             </select>
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <select value={form.dayOfWeek} onChange={(e) => setForm({ ...form, dayOfWeek: e.target.value })} className="bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white">
                                     {DAYS.map((d, i) => <option key={d} value={i}>{d}</option>)}
                                 </select>

@@ -43,7 +43,7 @@ export default function ControllingPage() {
 
               <div className="mb-8">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">CA Facturé (YTD)</p>
-                <p className="text-4xl font-black text-white">{(data.general.caRealise / 1000000).toFixed(1)}M <span className="text-lg text-slate-400">FCFA</span></p>
+                <p className="text-3xl sm:text-4xl font-black text-white">{(data.general.caRealise / 1000000).toFixed(1)}M <span className="text-lg text-slate-400">FCFA</span></p>
               </div>
 
               <div className="flex items-start gap-3 p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl">

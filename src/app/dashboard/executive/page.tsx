@@ -95,7 +95,7 @@ export default function ExecutiveDashboardPage() {
           {/* Pipeline */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl">
             <h3 className="text-lg font-black text-white mb-6">Pipeline Missions</h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div className="p-4 bg-slate-800/30 rounded-2xl border border-white/5 text-center">
                 <p className="text-2xl font-black text-slate-300">{data.pipeline.prospects}</p>
                 <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Prospects</p>

@@ -235,7 +235,7 @@ Fait à ${pays.city}, le ${date}`;
                     >
                         <PlusCircle className="w-4 h-4" /> Nouveau Contentieux
                     </button>
-                    <div className="flex bg-slate-900/80 p-1 rounded-xl border border-white/5 w-fit">
+                    <div className="tabs-scroll flex bg-slate-900/80 p-1 rounded-xl border border-white/5 w-fit">
                         {COUNTRIES.map((c) => (
                             <button
                                 key={c.id}

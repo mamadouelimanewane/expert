@@ -180,7 +180,7 @@ export default function MobileMoneyPage() {
             </div>
 
             {/* Operators Quick View */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {["Wave", "Orange Money", "MTN MoMo"].map(op => {
                     const opTxs = transactions.filter(t => t.operator === op);
                     const opIn = opTxs.filter(t => t.type === "IN").reduce((acc, t) => acc + t.amount, 0);

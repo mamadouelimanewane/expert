@@ -124,14 +124,14 @@ export default function ZoneFranchePage() {
           {/* Fiche Zone */}
           <div className="apix-card">
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-4xl">{selectedZone.drapeau}</span>
+              <span className="text-3xl sm:text-4xl">{selectedZone.drapeau}</span>
               <div>
                 <h3 className="text-xl font-black text-white">{selectedZone.nom}</h3>
                 <p className="text-slate-400 text-sm font-medium">{selectedZone.paysNom} \u2014 Duree d'agrement : {selectedZone.dureeAnnees} ans</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               {[
                 { label: "IS", value: `${selectedZone.tauxIS}%`, good: selectedZone.tauxIS < 20 },
                 { label: "TVA", value: "0%", good: true },

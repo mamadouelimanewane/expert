@@ -39,7 +39,7 @@ export default function ValorisationPage() {
         </div>
       </div>
 
-      <div className="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl">
+      <div className="tabs-scroll flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl">
         <button onClick={() => setActiveTab('dcf')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'dcf' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Méthode DCF</button>
         <button onClick={() => setActiveTab('ebitda')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'ebitda' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Multiple EBITDA</button>
         <button onClick={() => setActiveTab('anr')} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all", activeTab === 'anr' ? "bg-primary text-white shadow-lg" : "text-slate-400 hover:text-white")}>Actif Net (ANR)</button>
@@ -87,7 +87,7 @@ export default function ValorisationPage() {
                 <div className="space-y-6">
                   <div className="text-center">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Valeur d'Entreprise Estimée</p>
-                    <p className="text-4xl font-black text-primary">{Math.round(dcfResult.enterpriseValue).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
+                    <p className="text-2xl sm:text-4xl font-black text-primary break-words">{Math.round(dcfResult.enterpriseValue).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 mt-8">
@@ -132,7 +132,7 @@ export default function ValorisationPage() {
             
             <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Valeur d'Entreprise (EBITDA)</p>
-              <p className="text-5xl font-black text-emerald-400">{valEbitda.toLocaleString()} <span className="text-xl text-slate-400">FCFA</span></p>
+              <p className="text-3xl sm:text-5xl font-black text-emerald-400 break-words">{valEbitda.toLocaleString()} <span className="text-xl text-slate-400">FCFA</span></p>
               <p className="text-sm text-slate-400 mt-4">Fourchette suggérée : {(valEbitda * 0.9).toLocaleString()} - {(valEbitda * 1.1).toLocaleString()}</p>
             </div>
           </motion.div>
@@ -160,7 +160,7 @@ export default function ValorisationPage() {
             
             <div className="bg-slate-900/40 border border-white/5 rounded-[32px] p-8 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Actif Net Réévalué (ANR)</p>
-              <p className="text-5xl font-black text-blue-400">{valAnr.toLocaleString()} <span className="text-xl text-slate-400">FCFA</span></p>
+              <p className="text-3xl sm:text-5xl font-black text-blue-400 break-words">{valAnr.toLocaleString()} <span className="text-xl text-slate-400">FCFA</span></p>
             </div>
           </motion.div>
         )}
@@ -169,7 +169,7 @@ export default function ValorisationPage() {
           <motion.div key="synthese" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
             <div className="bg-slate-900/40 border border-emerald-500/20 rounded-[32px] p-10 backdrop-blur-xl shadow-2xl text-center">
               <h3 className="text-sm font-black text-emerald-500 uppercase tracking-widest mb-4">Valeur de Synthèse (Moyenne)</h3>
-              <p className="text-6xl font-black text-white">{Math.round(avgValuation).toLocaleString()} <span className="text-2xl text-slate-400">FCFA</span></p>
+              <p className="text-4xl sm:text-6xl font-black text-white break-words">{Math.round(avgValuation).toLocaleString()} <span className="text-2xl text-slate-400">FCFA</span></p>
               
               <div className="flex justify-center gap-8 mt-10">
                 <div className="text-right">

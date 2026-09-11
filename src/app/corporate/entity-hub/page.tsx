@@ -138,7 +138,7 @@ export default function NexusEntityHubPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-6 mb-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
                                     <div className="space-y-1">
                                         <p className="text-[9px] text-slate-600 font-black uppercase tracking-widest">Dernière AG</p>
                                         <p className="text-xs font-bold text-white">{entity.lastAG || "—"}</p>

@@ -268,11 +268,11 @@ export default function TimesheetsPage() {
                         <Users className="w-5 h-5 text-primary" />
                         <h3 className="text-lg font-black text-white uppercase tracking-widest">Feuille de Temps</h3>
                     </div>
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center w-full sm:w-auto">
                         <select
                             value={newMissionId}
                             onChange={e => setNewMissionId(e.target.value)}
-                            className="bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
+                            className="bg-slate-800 border border-white/10 rounded-xl px-3 py-2 text-xs text-white min-w-0 flex-1 sm:flex-none sm:max-w-xs"
                         >
                             <option value="">Ajouter une mission…</option>
                             {missions.filter(m => !rows.some(r => r.key === m.id)).map(m => (

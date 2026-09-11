@@ -409,7 +409,7 @@ export default function AgendaPage() {
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label className="text-xs font-bold text-slate-400 mb-1 block">Date</label>
                                     <input

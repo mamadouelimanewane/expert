@@ -189,12 +189,16 @@ export default async function BusinessIntelligencePage() {
                   <Link
                     key={index}
                     href={mod.href}
-                    className="apix-hub-card relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl transition-all duration-300"
+                    // Le span de la dernière rangée ne vaut que pour la grille
+                    // 4 colonnes (lg) : appliqué en style inline, il créait des
+                    // colonnes implicites et écrasait la grille 1 colonne du mobile.
+                    className={`apix-hub-card relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl transition-all duration-300 ${
+                      isInLastPartialRow && spanCount === 4 ? "lg:col-span-4" : isInLastPartialRow && spanCount === 2 ? "lg:col-span-2" : ""
+                    }`}
                     style={{
                       ['--hover-color' as any]: mod.color,
                       ['--hover-color-30' as any]: `${mod.color}30`,
                       ['--hover-color-40' as any]: `${mod.color}40`,
-                      ...(isInLastPartialRow && spanCount > 1 ? { gridColumn: `span ${spanCount}` } : {}),
                     }}
                   >
                     {mod.badge && (

@@ -136,7 +136,7 @@ export default function TaxSimulatorPage() {
                 <div className="flex-1 space-y-6">
                   <div className="p-6 bg-slate-950/50 rounded-2xl border border-white/5">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Impôt sur les Sociétés (IS) Estimé</p>
-                    <p className="text-5xl font-black text-emerald-400">{Math.round(result.is).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
+                    <p className="text-3xl sm:text-5xl font-black text-emerald-400 break-words">{Math.round(result.is).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">

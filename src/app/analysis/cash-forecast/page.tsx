@@ -91,12 +91,12 @@ export default function CashForecastPage() {
               <div>
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Trésorerie Actuelle</p>
                 <div className="flex items-end gap-4">
-                  <p className="text-4xl font-black text-white">{(data.baseCash / 1000000).toFixed(1)}M <span className="text-lg text-slate-400">FCFA</span></p>
+                  <p className="text-3xl sm:text-4xl font-black text-white">{(data.baseCash / 1000000).toFixed(1)}M <span className="text-lg text-slate-400">FCFA</span></p>
                   <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest rounded-full mb-1">Sain</span>
                 </div>
               </div>
 
-              <div className="flex bg-muted rounded-xl p-1 border border-border">
+              <div className="tabs-scroll flex bg-muted rounded-xl p-1 border border-border">
                 <button 
                   onClick={() => setActiveScenario('optimiste')}
                   className={cn("px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all", activeScenario === 'optimiste' ? "bg-emerald-500/20 text-emerald-400" : "text-slate-500 hover:text-slate-300")}

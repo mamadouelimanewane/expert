@@ -342,7 +342,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
                 (fixedAssets, chargees via /api/audit/fixed-assets). L'amortissement
                 cumule n'est pas suivi par ce module (voir mapping ci-dessus, valeur
                 fixee a 0) : la VNC affichee est donc egale a la valeur d'acquisition. */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard icon={Boxes} label="Total Immobilisations" value={String(fixedAssets.length)} color="cyan" />
                 <StatCard icon={DollarSign} label="Valeur Brute" value={`${(fixedAssets.reduce((s, a) => s + a.acquisitionValue, 0) / 1000000).toFixed(1)}M FCFA`} color="emerald" />
                 <StatCard icon={TrendingUp} label="Amortissements" value={`${(fixedAssets.reduce((s, a) => s + a.amortization, 0) / 1000000).toFixed(1)}M FCFA`} color="amber" />
@@ -435,7 +435,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Actions Footer */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-cyan-500/50 transition-all text-left group">
                     <Download className="w-6 h-6 text-cyan-400 mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Exporter Inventaire</h4>
@@ -484,7 +484,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
 
             {/* Stats Cards — calcules sur MOCK_PRODUCTS, vide tant que la saisie
                 manuelle de structure de coûts n'est pas disponible (voir note plus haut). */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard icon={Boxes} label="Produits Suivis" value={String(MOCK_PRODUCTS.length)} color="amber" />
                 <StatCard icon={DollarSign} label="Coût Moyen" value={MOCK_PRODUCTS.length > 0 ? `${Math.round(MOCK_PRODUCTS.reduce((s, p) => s + p.totalCost, 0) / MOCK_PRODUCTS.length).toLocaleString()} FCFA` : "—"} color="emerald" />
                 <StatCard icon={TrendingUp} label="Marge Moyenne" value={MOCK_PRODUCTS.length > 0 ? `${(MOCK_PRODUCTS.reduce((s, p) => s + p.margin, 0) / MOCK_PRODUCTS.length).toFixed(1)}%` : "—"} color="cyan" />
@@ -555,7 +555,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Actions Footer */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-amber-500/50 transition-all text-left group">
                     <BarChart3 className="w-6 h-6 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Analyse Comparative</h4>
@@ -604,7 +604,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
 
             {/* Stats Cards — calcules sur MOCK_CENTERS, vide tant que la saisie
                 manuelle par centre analytique n'est pas disponible (voir note plus haut). */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <StatCard icon={Layers} label="Centres Actifs" value={String(MOCK_CENTERS.length)} color="indigo" />
                 <StatCard icon={DollarSign} label="Chiffre d'Affaires" value={MOCK_CENTERS.length > 0 ? `${(MOCK_CENTERS.reduce((s, c) => s + c.revenue, 0) / 1000000).toFixed(0)}M FCFA` : "—"} color="emerald" />
                 <StatCard icon={TrendingUp} label="Charges Totales" value={MOCK_CENTERS.length > 0 ? `${(MOCK_CENTERS.reduce((s, c) => s + c.costs, 0) / 1000000).toFixed(0)}M FCFA` : "—"} color="rose" />
@@ -690,7 +690,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
             </div>
 
             {/* Actions Footer */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button className="p-4 glass-card rounded-xl border border-slate-700/50 hover:border-primary/50 transition-all text-left group">
                     <TrendingUp className="w-6 h-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                     <h4 className="font-bold text-white text-sm">Simulation Seuil</h4>
@@ -717,7 +717,7 @@ Le Cabinet s'engage à respecter les normes professionnelles de l'Ordre...`);
     return (
         <div className="space-y-6">
             {/* Mission Type Selector */}
-            <div className="flex gap-3 p-2 glass-card rounded-2xl border border-slate-700/50 w-fit">
+            <div className="tabs-scroll flex gap-3 p-2 glass-card rounded-2xl border border-slate-700/50 w-fit">
                 <MissionTypeButton
                     icon={FileSignature}
                     label="Mission Standard"

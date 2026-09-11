@@ -210,7 +210,7 @@ export default function WritingCenterPage() {
                     <p className="page-subtitle">Modèles réels d'actes juridiques, PV et courriers, avec suivi des correspondances du cabinet.</p>
                 </div>
 
-                <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">
+                <div className="tabs-scroll flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">
                     <button
                         onClick={() => setView("redaction")}
                         className={cn(

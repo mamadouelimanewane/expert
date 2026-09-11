@@ -207,7 +207,7 @@ export default function ResourcePlanningPage() {
                     </p>
                 </div>
 
-                <div className="flex bg-slate-800 rounded-2xl p-1 border border-white/5">
+                <div className="tabs-scroll flex bg-slate-800 rounded-2xl p-1 border border-white/5">
                     <button
                         type="button"
                         onClick={() => decalerSemaine(-1)}

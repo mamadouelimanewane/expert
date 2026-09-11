@@ -189,7 +189,7 @@ export default function PortalByToken() {
 
       {/* Tabs */}
       <div className="max-w-5xl mx-auto px-6">
-        <div className="flex gap-1 mt-6 bg-slate-900/40 rounded-2xl p-1.5 border border-white/5 w-fit">
+        <div className="tabs-scroll flex gap-1 mt-6 bg-slate-900/40 rounded-2xl p-1.5 border border-white/5 w-fit">
           {([
             { key: "dashboard", label: "Mon Tableau de Bord", icon: TrendingUp },
             { key: "saisie", label: "Saisie Rapide", icon: Upload },
@@ -214,7 +214,7 @@ export default function PortalByToken() {
             <div className="grid sm:grid-cols-4 gap-4">
               <div className="sm:col-span-2 bg-gradient-to-br from-primary/20 to-violet-600/10 border border-primary/20 rounded-[24px] p-6 flex items-center gap-6">
                 <div className="text-center">
-                  <p className="text-6xl font-black tabular-nums" style={{ color: ratingColor }}>{score}</p>
+                  <p className="text-5xl sm:text-6xl font-black tabular-nums" style={{ color: ratingColor }}>{score}</p>
                   <p className="text-lg font-black text-white mt-1">{rating}</p>
                   <p className="text-[10px] text-slate-500 mt-1">Score / 100</p>
                 </div>

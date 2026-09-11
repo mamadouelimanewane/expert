@@ -99,7 +99,7 @@ export default function DeclarationsPage() {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Filters */}
                     <div className="flex justify-between items-center">
-                        <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5 w-fit">
+                        <div className="tabs-scroll flex gap-2 bg-slate-900/50 p-1.5 rounded-2xl border border-white/5 w-fit">
                             {["tous", "a_preparer", "validation", "teletransmise"].map((s) => (
                                 <button
                                     key={s}

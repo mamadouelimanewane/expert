@@ -26,7 +26,7 @@ export default function EtatsFinanciersLayout({
               </p>
             </div>
           </div>
-          <nav className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-900">
+          <nav className="tabs-scroll flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-900">
             <NavItem href="/etats-financiers" icon={<BarChart3 size={18} />} label="Synthèse" />
             <NavItem href="/etats-financiers/import" icon={<Upload size={18} />} label="Import Balance" />
             <NavItem href="/etats-financiers/bilan" icon={<FileSpreadsheet size={18} />} label="Bilan" />

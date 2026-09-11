@@ -347,7 +347,7 @@ export default function HealthReportPage() {
                             <>
                                 <div className="flex items-center gap-8 flex-wrap">
                                     <div className="bg-gradient-to-br from-primary/30 to-violet-600/20 border border-primary/20 rounded-[24px] p-8 text-center shrink-0">
-                                        <p className="text-7xl font-black tabular-nums" style={{ color: couleur }}>
+                                        <p className="text-5xl sm:text-7xl font-black tabular-nums" style={{ color: couleur }}>
                                             {score}
                                         </p>
                                         <p className="text-2xl font-black text-white mt-1">{rating}</p>

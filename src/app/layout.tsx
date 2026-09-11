@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -15,6 +15,16 @@ export const metadata: Metadata = {
   description: "Logiciel de gestion pour cabinets d'expertise comptable (Zone OHADA)",
 };
 
+// `viewport-fit=cover` étend le rendu sous les encoches et la barre d'accueil
+// iOS : sans lui, les utilitaires pt-safe / pb-safe (env(safe-area-inset-*))
+// valent toujours 0 et la barre mobile se retrouve sous l'encoche.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#006B3F",
+};
+
 // Même police que la référence de présentation (apix-pap.vercel.app : Inter).
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -27,7 +37,6 @@ export default function RootLayout({
         <html lang="fr" className="light">
           <head>
             <link rel="manifest" href="/manifest.json" />
-            <meta name="theme-color" content="#006B3F" />
             <script dangerouslySetInnerHTML={{
               __html: `
                 if ('serviceWorker' in navigator) {

@@ -198,7 +198,7 @@ export default function FiscaliteOhada() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1.5 bg-slate-900/40 border border-white/5 rounded-2xl w-fit">
+      <div className="tabs-scroll flex gap-2 p-1.5 bg-slate-900/40 border border-white/5 rounded-2xl w-fit">
         {([
           { key: "obligations", label: "Obligations du Mois", icon: Bell },
           { key: "simulation", label: "Simulateur IS / TVA", icon: Sparkles },

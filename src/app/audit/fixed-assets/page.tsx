@@ -105,7 +105,7 @@ export default function FixedAssetsAuditPage() {
                     <p className="page-subtitle">Préparation des missions d'inventaire physique et rapprochement comptable.</p>
                 </div>
 
-                <div className="flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">
+                <div className="tabs-scroll flex gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-slate-700">
                     {["inventaire", "rapprochement", "planification"].map((tab) => (
                         <button
                             key={tab}

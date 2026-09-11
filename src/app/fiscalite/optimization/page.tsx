@@ -176,7 +176,7 @@ export default function NexusTaxIntelligencePage() {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-[24px] w-fit">
+            <div className="tabs-scroll flex gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-[24px] w-fit">
                 {[
                     { id: "audit", label: "Intégrité & Risques", icon: ShieldCheck },
                     { id: "optimisation", label: "Cadrage des Régimes", icon: Target },

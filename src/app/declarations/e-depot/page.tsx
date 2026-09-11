@@ -94,7 +94,7 @@ export default function EDepotPage() {
       </div>
 
       {/* Country Tabs */}
-      <div className="flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl">
+      <div className="tabs-scroll flex bg-slate-900/40 p-1.5 rounded-2xl border border-white/5 w-fit backdrop-blur-xl">
         {COUNTRIES.map(c => (
           <button 
             key={c.id}

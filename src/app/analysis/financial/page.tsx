@@ -134,7 +134,7 @@ export default function FinancialAnalysisPage() {
                     </div>
 
                     {/* Navigation Tabs */}
-                    <div className="flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit flex-wrap">
+                    <div className="tabs-scroll flex gap-2 p-1.5 bg-slate-900/50 border border-slate-700 rounded-2xl w-fit">
                         <button onClick={() => setActiveTab("bilan")} className={cn("px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all", activeTab === "bilan" ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-white")}>
                             <Layers className="w-3 h-3 inline mr-2" /> Structure Bilan
                         </button>
@@ -262,7 +262,7 @@ export default function FinancialAnalysisPage() {
                                                 1
                                             );
                                             return (
-                                                <div className="grid grid-cols-5 gap-4">
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                                                     <CashBar label={`Tréso. ${cashflow.previousYear}`} value={cashflow.openingCash} kind="neutral" maxAbs={maxAbs} />
                                                     <CashBar label="EBITDA" value={cashflow.ebitda} kind="positive" maxAbs={maxAbs} />
                                                     <CashBar label="Δ BFR" value={cashflow.bfrChange} kind={cashflow.bfrChange >= 0 ? "positive" : "negative"} maxAbs={maxAbs} />
@@ -294,7 +294,7 @@ export default function FinancialAnalysisPage() {
                                                 <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{dupont.roe}%</p>
                                             </div>
 
-                                            <div className="grid grid-cols-3 gap-4 w-full">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                                                 <DuPontCard label="Marge Nette" value={`${dupont.netMargin}%`} desc="Efficacité Opérationnelle" color="text-emerald-400" />
                                                 <div className="flex items-center justify-center text-slate-600 font-bold">×</div>
                                                 <DuPontCard label="Rotation Actif" value={`${dupont.assetTurnover}`} desc="CA / Total Bilan" color="text-amber-400" />
