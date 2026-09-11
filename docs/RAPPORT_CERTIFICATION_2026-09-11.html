@@ -124,7 +124,7 @@
     <div class="meta">
       <div><b>Date</b> 11 septembre 2026</div>
       <div><b>Dépôt</b> mamadouelimanewane/expert</div>
-      <div><b>Commits</b> a5433db → 534e735 (15)</div>
+      <div><b>Commits</b> a5433db → e9a603d (19)</div>
       <div><b>Production</b> expert-pi.vercel.app</div>
       <div><b>Exécuté par</b> Claude Opus 5, session assistée</div>
     </div>
@@ -133,8 +133,8 @@
   <section class="verdict">
     <div>
       <div class="eyebrow">Verdict</div>
-      <p style="margin-top:8px"><strong>L'application est apte à une démonstration client</strong> sur les parcours testés : création et suivi d'un dossier client, missions, temps, facturation, lettres de mission, import et validation d'écritures, bilan / compte de résultat / TFT / liasse, export FEC, scan OCR, audit et conformité. Les 14 anomalies bloquantes ou majeures relevées ont été corrigées et re-testées.</p>
-      <p style="margin:0">Trois conditions restent à remplir avant la démo (ci-contre), et sept limites fonctionnelles doivent être connues du présentateur pour ne pas être découvertes devant le client.</p>
+      <p style="margin-top:8px"><strong>L'application est apte à une démonstration client</strong> sur les parcours testés : création et suivi d'un dossier client, missions, temps, facturation, lettres de mission, import et validation d'écritures, bilan / compte de résultat / TFT / liasse, export FEC, scan OCR, audit et conformité. Les 14 anomalies bloquantes ou majeures relevées ont été corrigées et re-testées ; un second lot a ensuite livré l'import de balance générale, les lignes de facture et la fiche facture imprimable (C-12 à C-14).</p>
+      <p style="margin:0">Trois conditions restent à remplir avant la démo (ci-contre), et cinq limites fonctionnelles doivent être connues du présentateur pour ne pas être découvertes devant le client.</p>
     </div>
     <div class="stamp">
       <div class="eyebrow">Décision</div>
@@ -143,7 +143,7 @@
         <ul style="padding-left:16px;margin:6px 0 0">
           <li>Renseigner <code>WHATSAPP_APP_SECRET</code> sur Vercel</li>
           <li>Vérifier le déploiement du commit <code>534e735</code></li>
-          <li>Exclure du scénario : e-dépôt DGI, signature qualifiée, import de balance</li>
+          <li>Exclure du scénario : e-dépôt DGI, signature qualifiée</li>
         </ul>
       </div>
     </div>
@@ -152,7 +152,7 @@
   <div class="figures">
     <div class="fig"><div class="n">≈ 95</div><div class="l">appels API vérifiés (3 phases, session réelle)</div></div>
     <div class="fig"><div class="n">46</div><div class="l">écrans rendus sans erreur d'exécution</div></div>
-    <div class="fig"><div class="n">14</div><div class="l">anomalies corrigées et re-testées</div></div>
+    <div class="fig"><div class="n">17</div><div class="l">anomalies corrigées et re-testées</div></div>
     <div class="fig"><div class="n">388</div><div class="l">tests unitaires — 0 échec, typecheck et lint verts</div></div>
   </div>
 
@@ -166,7 +166,7 @@
         <tr><td><b>Client</b></td><td>Création (validation email/téléphone), recherche, fiche, modification, archivage, lien portail (obtenir, régénérer, révoquer), accès portail avec jeton valide / invalide / révoqué</td><td><span class="pill ok">Conforme</span> après construction de la fiche</td></tr>
         <tr><td><b>Missions</b></td><td>Création (budget « 1 500 000 » au format FR accepté), lecture, transitions de statut (DRAFT → IN_PROGRESS → COMPLETED ; DRAFT → COMPLETED refusé 409), échéance, honoraires</td><td><span class="pill ok">Conforme</span> après ajout de l'API et de la fiche</td></tr>
         <tr><td><b>Temps &amp; dépenses</b></td><td>Saisie 2,5 h, refus de 30 h/jour, catégories de dépense contrôlées</td><td><span class="pill ok">Conforme</span></td></tr>
-        <tr><td><b>Facturation</b></td><td>Facture 2 lignes → total TTC 826 000 FCFA (TVA 18 %), numérotation FAC-2026-037, cycle SENT → PAID, filtre par statut, relances</td><td><span class="pill ok">Conforme</span> — voir limite L5 (lignes non détaillées)</td></tr>
+        <tr><td><b>Facturation</b></td><td>Facture 2 lignes → total TTC 826 000 FCFA (TVA 18 %), numérotation FAC-2026-037, cycle SENT → PAID, filtre par statut, relances</td><td><span class="pill ok">Conforme</span> — lignes détaillées et fiche imprimable (lot 2)</td></tr>
         <tr><td><b>Lettres de mission</b></td><td>Création LM-2026-001, envoi, empreinte SHA-256, passage SIGNEE avec horodatage</td><td><span class="pill ok">Conforme</span> — voir limite L4</td></tr>
         <tr><td><b>Production comptable</b></td><td>Import de 8 transactions (16 écritures, 2 à qualifier en 471), refus des sens inconnus et des montants négatifs, validation, déversement, FEC</td><td><span class="pill ok">Conforme</span> après 2 correctifs</td></tr>
         <tr><td><b>États financiers</b></td><td>Bilan équilibré (actif = passif = 624 069), résultat net 398 305, TVA extraite du TTC (1 180 000 → 1 000 000 HT), TFT N/N-1, liasse « déposable »</td><td><span class="pill ok">Conforme</span></td></tr>
@@ -250,6 +250,25 @@
     <p class="fix">CI verte (typecheck, lint, 388 tests, build) et APK <code>app-debug.apk</code> généré à chaque push.</p>
   </div></div>
 
+  <div class="finding"><div class="id"><b>C-12</b>bloquant</div><div>
+    <div class="sev"><span class="pill crit">Bloquant démo</span></div>
+    <h4>Création de facture impossible depuis l'interface</h4>
+    <p>Le formulaire « Nouvelle facture » envoyait <code>lineItems</code> (avec <code>description</code>) alors que l'API exige <code>lines</code> (avec <code>designation</code>) : chaque enregistrement échouait en 400 « au moins une ligne requise ». Et le modèle ne conservait que les totaux — une facture n'avait aucun détail.</p>
+    <p class="fix">Contrat aligné, lignes persistées (<code>Invoice.lines</code>), <code>GET /api/invoices/[id]</code>, fiche <code>/billing/[id]</code> imprimable (désignation, quantité, PU, HT / TVA / TTC, identifiants fiscaux du client) avec envoi, encaissement et annulation.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-13</b>majeur</div><div>
+    <div class="sev"><span class="pill warn">Intégrité</span></div>
+    <h4>Deux formats de période coexistaient</h4>
+    <p>WhatsApp, l'import et les états financiers emploient « 2026-06 » ; la saisie manuelle « Informel » écrivait « JUIN-2026 » : ses écritures n'entraient jamais dans le bilan du mois.</p>
+    <p class="fix">Normalisation en AAAA-MM à l'import, à la saisie et au déversement (formes reconnues : 2026-06, 06/2026, JUIN-2026, juin 2026).</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-14</b>fonctionnel</div><div>
+    <div class="sev"><span class="pill info">Fonctionnalité livrée</span></div>
+    <h4>Import de balance générale</h4>
+    <p>La page « Import des données » était volontairement désactivée : un cabinet qui reçoit une balance ne pouvait pas produire le bilan sans ressaisir des écritures.</p>
+    <p class="fix">Lecture CSV / Excel dans le navigateur (séparateur « ; » détecté, colonnes reconnues, lignes TOTAL ignorées), contrôle d'équilibre, enregistrement par dossier et période de clôture ; bilan, résultat, TFT et liasse préfèrent cette balance au journal et indiquent leur source. Vérifié : 12 comptes → actif = passif = 9 400 000, résultat 3 200 000.</p>
+  </div></div>
+
   <h2>Limites à connaître avant la démo</h2>
   <p>Non corrigées dans cette session : soit parce qu'elles relèvent d'une configuration ou d'un prestataire externe, soit parce qu'elles demandent une évolution de modèle de données à décider.</p>
   <div class="tbl-wrap">
@@ -260,8 +279,6 @@
         <tr><td class="mono">L2</td><td><b>Criblage sanctions partiel</b> — OFAC interrogé ; listes UE/ONU/PEP non interrogées (<code>OPENSANCTIONS_API_KEY</code> absente). L'écran le dit clairement.</td><td><span class="pill warn">À annoncer</span></td><td>Souscrire une clé OpenSanctions.</td></tr>
         <tr><td class="mono">L3</td><td><b>E-dépôt DGI non connecté</b> — l'API répond 503 avec un message honnête ; le dépôt reste manuel.</td><td><span class="pill warn">À annoncer</span></td><td>Intégration au portail DGI (projet distinct).</td></tr>
         <tr><td class="mono">L4</td><td><b>Signature électronique non qualifiée</b> — empreinte SHA-256 horodatée, journalisée mais non stockée sur la lettre ; pas de tiers de confiance.</td><td><span class="pill warn">À annoncer</span></td><td>Stocker l'empreinte sur la lettre ; prestataire eIDAS/AUSCGIE si exigé.</td></tr>
-        <tr><td class="mono">L5</td><td><b>Lignes de facture non conservées</b> — le modèle <code>Invoice</code> ne stocke que les totaux ; une facture éditée n'a pas de détail.</td><td><span class="pill warn">Visible</span> si l'on ouvre une facture</td><td>Ajouter <code>lines</code> au modèle et à l'impression (évolution courte).</td></tr>
-        <tr><td class="mono">L6</td><td><b>Import de balance générale absent</b> — la page « Import des données » est volontairement désactivée ; les états financiers se calculent à partir du journal d'écritures uniquement.</td><td><span class="pill warn">À annoncer</span> — un cabinet arrive souvent avec une balance</td><td>Modèle « balance importée » lu par le moteur SYSCOHADA, qui accepte déjà une balance en entrée.</td></tr>
         <tr><td class="mono">L7</td><td><b>Paie Sénégal uniquement</b> — les autres pays sont refusés explicitement (conforme au README).</td><td><span class="pill info">Connu</span></td><td>Barèmes par pays.</td></tr>
         <tr><td class="mono">L8</td><td><b>Heuristique OCR fournisseur / numéro naïve</b> — montants fiables, mais « FACTURE N 2026-117 » est lu comme nom de fournisseur.</td><td><span class="pill info">Mineur</span></td><td>Règles d'extraction par libellé.</td></tr>
         <tr><td class="mono">L9</td><td><b>Limitation de débit en mémoire, CSP avec <code>unsafe-eval</code>, mots de passe de démo dans l'historique git</b> (rotation à confirmer).</td><td><span class="pill info">Hors démo</span></td><td>Redis/Upstash, nonces CSP, <code>npm run rotate:passwords</code>.</td></tr>
@@ -274,7 +291,7 @@
     <li><span class="box"></span><div><b>Ajouter <code>WHATSAPP_APP_SECRET</code> dans Vercel et redéployer</b><span>Sans lui, chaque message WhatsApp entrant est rejeté (L1). Vérifier ensuite avec <code>scripts/</code> de vérification du token.</span></div></li>
     <li><span class="box"></span><div><b>Confirmer que <code>expert-pi.vercel.app</code> sert le commit <code>534e735</code></b><span>Le déploiement Vercel se déclenche à chaque push ; ouvrir <code>/clients</code>, cliquer un dossier : la fiche doit s'afficher.</span></div></li>
     <li><span class="box"></span><div><b>Préparer un jeu de données de démo cohérent</b><span>La base contient encore des clients de test hétérogènes (« Chez Awa Test Verification », factures au client « N/A »). Créer 3 dossiers propres avec écritures, factures et lettres — ou utiliser <code>npm run seed:demo</code> sur une base dédiée.</span></div></li>
-    <li><span class="box"></span><div><b>Écrire le scénario en évitant L3, L4, L6</b><span>Parcours conseillé : hub → fiche client → mission (démarrer, terminer) → scan d'une facture (OCR) → import d'écritures → validation → bilan / liasse → export FEC → facture d'honoraires → portail client.</span></div></li>
+    <li><span class="box"></span><div><b>Écrire le scénario en évitant L3 et L4</b><span>Parcours conseillé : hub → fiche client → mission (démarrer, terminer) → scan d'une facture (OCR) → import d'une balance Excel → bilan / liasse → export FEC → facture d'honoraires imprimée → portail client.</span></div></li>
     <li><span class="box"></span><div><b>Tourner les mots de passe de démo exposés dans l'historique git</b><span><code>npm run rotate:passwords</code> si ce n'est pas déjà fait (voir L9).</span></div></li>
   </ul>
 
@@ -288,11 +305,11 @@
         <tr><td>2</td><td>Clients → fiche</td><td>Indicateurs, onglets, lien portail affiché puis régénéré.</td></tr>
         <tr><td>3</td><td>Mission → « Démarrer »</td><td>Statut En cours, puis Terminée avec date de clôture.</td></tr>
         <tr><td>4</td><td>Scan OCR</td><td>Facture image : HT 100 000 / TVA 18 000 / TTC 118 000, confiance 94 %.</td></tr>
-        <tr><td>5</td><td>Ingestion → Connecteurs</td><td>8 transactions → 16 écritures, 2 à qualifier (compte 471).</td></tr>
-        <tr><td>6</td><td>Production → validation → déversement</td><td>18 écritures en production.</td></tr>
-        <tr><td>7</td><td>États financiers</td><td>Bilan équilibré 624 069, résultat net 398 305, liasse déposable.</td></tr>
+        <tr><td>5</td><td>États financiers → Import balance</td><td>Balance Excel 12 comptes reconnue, équilibrée, enregistrée pour 2025-12.</td></tr>
+        <tr><td>6</td><td>Ingestion → Connecteurs → validation</td><td>8 transactions → 16 écritures, 2 à qualifier (471), déversées en production.</td></tr>
+        <tr><td>7</td><td>États financiers</td><td>Bilan depuis la balance : actif = passif = 9 400 000, résultat 3 200 000, liasse déposable (source affichée).</td></tr>
         <tr><td>8</td><td>Export FEC</td><td>Fichier <code>009999999FEC20261231.txt</code> au format normé.</td></tr>
-        <tr><td>9</td><td>Facturation</td><td>FAC-2026-0xx, 826 000 FCFA TTC, cycle envoyée → payée.</td></tr>
+        <tr><td>9</td><td>Facturation → fiche</td><td>Facture 2 lignes, HT 850 000 / TVA 153 000 / TTC 1 003 000, imprimable, cycle envoyée → payée.</td></tr>
         <tr><td>10</td><td>Portail client</td><td>Accès par lien, données du dossier, jeton révocable.</td></tr>
       </tbody>
     </table>
@@ -300,5 +317,5 @@
 
   <div class="note">Les chiffres de ce rapport proviennent des réponses réelles de l'API pendant la campagne ; les données de test ont été supprimées de la base de production après vérification.</div>
 
-  <div class="foot">Cabinet 360 v2.0.0 · Next.js 16 · Prisma / MongoDB Atlas · 223 pages · 148 routes API · 388 tests · Rapport généré le 11/09/2026</div>
+  <div class="foot">Cabinet 360 v2.0.0 · Next.js 16 · Prisma / MongoDB Atlas · 227 pages · 151 routes API · 388 tests · Rapport généré le 11/09/2026</div>
 </div>

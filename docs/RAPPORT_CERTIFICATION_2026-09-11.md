@@ -1,6 +1,6 @@
 # Certification Cabinet 360 — tests approfondis avant démonstration client
 
-**Date** : 11 septembre 2026 · **Commits** : a5433db → 534e735 · **Prod** : expert-pi.vercel.app
+**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → e9a603d · **Prod** : expert-pi.vercel.app
 **Version complète (mise en page)** : `docs/RAPPORT_CERTIFICATION_2026-09-11.html`
 
 ## Verdict : apte à la démo, sous conditions
@@ -13,7 +13,7 @@ conformité fonctionnent de bout en bout. 14 anomalies bloquantes ou majeures on
 Conditions :
 1. Renseigner `WHATSAPP_APP_SECRET` sur Vercel (le bot rejette tout message : « signature_invalide »).
 2. Vérifier que la prod sert le commit `534e735`.
-3. Exclure du scénario : e-dépôt DGI, signature qualifiée, import de balance générale.
+3. Exclure du scénario : e-dépôt DGI, signature qualifiée.
 
 ## Constats corrigés
 
@@ -30,12 +30,14 @@ Conditions :
 | C-09 | Raccourcis mobiles morts, overlay vocal simulé, alert() | Liens réels, /nexus-go, notifications |
 | C-10 | Non utilisable sur mobile, erreur d'hydratation | Filet CSS, tabs défilants, fuseau fixe |
 | C-11 | CI en échec depuis le 1er septembre, APK jamais produit | CI verte, APK généré |
+| C-12 | Formulaire « Nouvelle facture » : `lineItems` envoyé, `lines` attendu → toute création échouait | Contrat aligné, lignes persistées, fiche `/billing/[id]` imprimable |
+| C-13 | Écritures saisies en « JUIN-2026 » jamais dans les états du mois (période non normalisée) | Normalisation AAAA-MM partout |
+| C-14 | Import de balance générale absent (page désactivée) | Import CSV/Excel + modèle BalanceImportee, prioritaire sur le journal dans bilan/résultat/TFT/liasse |
 
 ## Limites à annoncer
 
 L1 WhatsApp (secret manquant) · L2 criblage UE/ONU/PEP (clé OpenSanctions absente) ·
 L3 e-dépôt DGI non connecté · L4 signature = empreinte SHA-256 interne ·
-L5 lignes de facture non conservées · L6 import de balance générale absent ·
 L7 paie Sénégal uniquement · L8 heuristique OCR fournisseur naïve ·
 L9 rate limiting mémoire, CSP unsafe-eval, mots de passe démo dans l'historique git.
 
@@ -45,5 +47,7 @@ Hub → fiche client (lien portail) → mission (démarrer, terminer) → scan O
 (HT 100 000 / TVA 18 000 / TTC 118 000) → import 8 transactions → validation →
 déversement → bilan équilibré / liasse déposable → export FEC → facture
 826 000 FCFA (envoyée → payée) → portail client.
+
+Nouveau parcours vérifié : balance 12 comptes → bilan équilibré 9 400 000 / résultat 3 200 000 / liasse déposable ; CSV Excel FR (5 comptes) via l'écran → bilan présélectionné ; facture 2 lignes → 1 003 000 TTC imprimable.
 
 Les données de test (`ZZ-TEST-CERTIF`) ont été supprimées de la base après vérification.
