@@ -1,4 +1,5 @@
 import Tesseract from 'tesseract.js';
+import { tmpdir } from 'os';
 
 const OCR_TIMEOUT_MS = 45_000;
 import sharp from 'sharp';
@@ -53,6 +54,9 @@ export class OCREngine {
             // façon coupée à 60 s.
             const { data } = await Promise.race([
                 Tesseract.recognize(processedImageBuffer, 'fra', {
+                    // Vercel : seul /tmp est inscriptible ; sans cachePath, le
+                    // téléchargement de fra.traineddata échoue en production.
+                    cachePath: tmpdir(),
                     logger: (m) => {
                         if (m.status === 'recognizing text') {
                             console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
