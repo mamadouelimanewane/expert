@@ -50,7 +50,7 @@ d'introduire la notion de locataire sur les modèles métier, de cloisonner les
 - **Authentification** : NextAuth (session JWT), bcrypt
 - **Interface** : Tailwind CSS v4, Framer Motion, Lucide
 - **Tests** : Vitest
-- **Fichiers** : SheetJS (xlsx), Tesseract.js (OCR navigateur)
+- **Fichiers** : SheetJS (xlsx), Tesseract.js et pdf-parse (OCR serveur), Claude (lecture IA optionnelle du manuscrit)
 - **Mobile** : Capacitor (Android)
 
 ---
@@ -116,8 +116,22 @@ correspond, l'écriture part en compte d'attente 471 avec une confiance nulle**
 et un motif explicite. Elle n'est jamais imputée au hasard sur un compte
 plausible.
 
-L'OCR (Tesseract.js) et l'analyse de balance s'exécutent **dans le
-navigateur** : aucun fichier comptable n'est transmis à un service tiers.
+### Lecture des documents : trois niveaux, du local vers l'IA
+
+| Niveau | Outil | Où ça tourne | Quand |
+|---|---|---|---|
+| Fichier structuré | SheetJS | navigateur | balance Excel / CSV |
+| Imprimé scanné | Tesseract.js + pdf-parse | **serveur de l'application** | balance ou facture imprimée, PDF natif ou scanné |
+| Manuscrit ou dégradé | Claude (modèle de vision, `ANTHROPIC_API_KEY`) | **API Anthropic** | cahier de caisse, reçu de commerçant, balance annotée |
+
+Les deux premiers niveaux ne transmettent rien à un tiers. Le troisième
+**n'est jamais automatique** : il n'apparaît que si la clé est configurée
+et ne se déclenche que sur le bouton « Lire avec l'IA », qui annonce
+l'envoi du document. Dans les trois cas, rien n'est enregistré avant
+relecture à l'écran : lignes à confiance faible surlignées, champs
+illisibles laissés vides (jamais devinés), totaux imprimés confrontés à la
+somme des lignes lues. Voir `scripts/test-vision-manuscrit.ts` pour un
+test réel sur documents manuscrits générés.
 
 ---
 

@@ -96,8 +96,14 @@ SMTP_USER="votre-email@gmail.com"
 SMTP_PASSWORD="votre-mot-de-passe-app"
 SMTP_FROM="noreply@cabinet360.com"
 
-# OCR (optionnel)
-GOOGLE_VISION_API_KEY=""
+# Lecture par IA des documents manuscrits (optionnel) — Claude, Anthropic.
+# Sans clé, seul l'OCR local (Tesseract, sur le serveur) est proposé.
+# Le compte Anthropic doit être crédité (Plans & Billing) : ≈ 0,02–0,05 $ par page.
+ANTHROPIC_API_KEY=""
+
+# WhatsApp Business : sans WHATSAPP_APP_SECRET, toute notification Meta est rejetée
+# (signature_invalide) — le bot est inopérant.
+WHATSAPP_APP_SECRET=""
 
 # Mobile Money (optionnel)
 WAVE_API_KEY=""
