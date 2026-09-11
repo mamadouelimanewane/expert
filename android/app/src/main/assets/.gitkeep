@@ -1,0 +1,2 @@
+# `cap sync` écrit capacitor.config.json et capacitor.plugins.json ici ;
+# le dossier doit exister dans le dépôt pour que la CI Android fonctionne.
