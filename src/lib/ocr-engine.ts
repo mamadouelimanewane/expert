@@ -245,3 +245,111 @@ export async function processUploadedInvoice(filePath: string) {
             : null,
     };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reconstitution de balance générale depuis un document scanné (image ou PDF)
+// ─────────────────────────────────────────────────────────────────────────────
+import { createWorker, PSM } from 'tesseract.js';
+import { parserBalanceTableau, parserBalanceTexte, type ResultatBalanceOCR } from './ocr-balance';
+
+export type BalanceOCR = ResultatBalanceOCR & {
+    /** D'où viennent les lignes : tableau ou texte d'un PDF natif, ou OCR d'une image. */
+    origine: 'PDF_TABLEAU' | 'PDF_TEXTE' | 'OCR_IMAGE' | 'OCR_PDF_SCANNE';
+    pages: number;
+    /** Confiance moyenne Tesseract (0-100), absente pour un PDF natif. */
+    confianceOCR: number | null;
+    /** Texte brut, pour vérification à l'écran. */
+    texte: string;
+};
+
+const OCR_BALANCE_TIMEOUT_MS = 50_000;
+/** En-deçà, la couche texte d'un PDF est jugée absente (document scanné). */
+const MIN_CARACTERES_PDF = 80;
+
+/**
+ * Prépare une page pour l'OCR de tableau : niveaux de gris, contraste,
+ * agrandissement (Tesseract lit mal sous ~30 px de hauteur de caractère),
+ * binarisation. Un PNG en sortie pour éviter les artefacts JPEG.
+ */
+async function preparerImageTableau(entree: Buffer): Promise<Buffer> {
+    const meta = await sharp(entree).metadata();
+    const largeur = meta.width ?? 0;
+    let pipeline = sharp(entree).rotate().greyscale().normalize();
+    if (largeur > 0 && largeur < 2200) pipeline = pipeline.resize({ width: 2200, kernel: 'lanczos3' });
+    return pipeline.sharpen().threshold(165).png().toBuffer();
+}
+
+/** OCR d'une image de tableau : lignes préservées, espaces multiples conservés. */
+async function ocrTableau(image: Buffer): Promise<{ text: string; confidence: number }> {
+    const worker = await createWorker('fra', 1, { cachePath: tmpdir() });
+    try {
+        await worker.setParameters({
+            tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
+            preserve_interword_spaces: '1',
+        });
+        const { data } = await Promise.race([
+            worker.recognize(image),
+            new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`OCR interrompu après ${OCR_BALANCE_TIMEOUT_MS / 1000} s`)), OCR_BALANCE_TIMEOUT_MS)),
+        ]);
+        return { text: data.text, confidence: data.confidence };
+    } finally {
+        await worker.terminate();
+    }
+}
+
+/**
+ * Reconstitue une balance depuis un fichier déposé.
+ *
+ * PDF : on tente d'abord le tableau (cellules), puis le texte ; si le PDF n'a
+ * pas de couche texte (scan), chaque page est rendue en image puis lue par
+ * l'OCR. Image : prétraitement puis OCR. Dans tous les cas, l'analyse des
+ * lignes est faite par `parserBalanceTexte`, qui ne complète jamais rien.
+ */
+export async function reconstituerBalance(fichier: Buffer, mimeType: string, nomFichier: string): Promise<BalanceOCR> {
+    const estPdf = mimeType === 'application/pdf' || /\.pdf$/i.test(nomFichier);
+
+    if (estPdf) {
+        const { PDFParse } = await import('pdf-parse');
+        const pdf = new PDFParse({ data: new Uint8Array(fichier) });
+        try {
+            // 1. Tableau extrait de la couche texte
+            try {
+                const table = await pdf.getTable();
+                const lignes = table.pages.flatMap((p) => p.tables.flatMap((t) => t));
+                if (lignes.length >= 3) {
+                    const r = parserBalanceTableau(lignes);
+                    if (r.lignes.length >= 3) {
+                        return { ...r, origine: 'PDF_TABLEAU', pages: table.pages.length, confianceOCR: null, texte: lignes.map((l) => l.join(' | ')).join('\n') };
+                    }
+                }
+            } catch (e) {
+                console.warn('Balance PDF : extraction de tableau impossible, repli sur le texte.', e instanceof Error ? e.message : e);
+            }
+            // 2. Texte de la couche texte
+            const texte = await pdf.getText();
+            const contenu = texte.text ?? '';
+            if (contenu.replace(/\s/g, '').length >= MIN_CARACTERES_PDF) {
+                const r = parserBalanceTexte(contenu);
+                if (r.lignes.length >= 1) return { ...r, origine: 'PDF_TEXTE', pages: texte.pages?.length ?? 1, confianceOCR: null, texte: contenu };
+            }
+            // 3. PDF scanné : rendu image page par page puis OCR (5 pages max)
+            const captures = await pdf.getScreenshot({ scale: 2, imageBuffer: true, first: 5 });
+            let texteOCR = ''; const confiances: number[] = [];
+            for (const page of captures.pages) {
+                const image = await preparerImageTableau(Buffer.from(page.data));
+                const { text, confidence } = await ocrTableau(image);
+                texteOCR += text + '\n'; confiances.push(confidence);
+            }
+            const r = parserBalanceTexte(texteOCR);
+            const conf = confiances.length ? Math.round(confiances.reduce((a, b) => a + b, 0) / confiances.length) : null;
+            return { ...r, origine: 'OCR_PDF_SCANNE', pages: captures.pages.length, confianceOCR: conf, texte: texteOCR };
+        } finally {
+            await pdf.destroy().catch(() => {});
+        }
+    }
+
+    const image = await preparerImageTableau(fichier);
+    const { text, confidence } = await ocrTableau(image);
+    const r = parserBalanceTexte(text);
+    return { ...r, origine: 'OCR_IMAGE', pages: 1, confianceOCR: Math.round(confidence), texte: text };
+}

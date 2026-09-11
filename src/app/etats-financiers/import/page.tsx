@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X, ScanLine, Plus, Loader2 } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,9 @@ import { cn } from "@/lib/utils";
 // journal pour produire bilan, résultat, TFT et liasse.
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Ligne = { numero: string; intitule: string; debit: number; credit: number };
+type Ligne = { numero: string; intitule: string; debit: number; credit: number; confiance?: "haute" | "moyenne" | "faible"; source?: string };
+type Mode = "fichier" | "scan";
+type InfosOCR = { origine: string; pages: number; confianceOCR: number | null; controleTotaux: string; totauxDetectes: { debit: number; credit: number } | null; disposition: string; dureeMs: number; rejets: { ligne: number; texte: string; raison: string }[] };
 type Colonnes = { numero: number; intitule: number; debit: number; credit: number; soldeDebit: number; soldeCredit: number; solde: number };
 type BalanceExistante = { id: string; periode: string; fichier: string | null; nbLignes: number; totalDebit: number; totalCredit: number; equilibree: boolean; createdAt: string; importedBy?: { firstName: string; lastName: string } };
 
@@ -59,6 +61,9 @@ export default function ImportBalancePage() {
     const [envoi, setEnvoi] = useState(false);
     const [existantes, setExistantes] = useState<BalanceExistante[]>([]);
     const [resultat, setResultat] = useState<{ periode: string; nbLignes: number; equilibree: boolean } | null>(null);
+    const [mode, setMode] = useState<Mode>("fichier");
+    const [ocr, setOcr] = useState<InfosOCR | null>(null);
+    const [ocrEnCours, setOcrEnCours] = useState(false);
 
     useEffect(() => {
         fetch("/api/clients?limit=200&isActive=true").then((r) => r.json()).then((d) => {
@@ -77,8 +82,30 @@ export default function ImportBalancePage() {
         return { debit, credit, ecart: debit - credit, equilibree: Math.abs(debit - credit) <= 1 };
     }, [lignes]);
 
+    // Balance scannée (image ou PDF) : le serveur lit le document (tableau ou
+    // texte du PDF, sinon OCR) et renvoie des lignes à vérifier. Rien n'est
+    // enregistré avant que l'utilisateur ait validé l'aperçu.
+    const scannerFichier = async (f: File) => {
+        setFichier(f); setLignes([]); setRejets([]); setResultat(null); setColonnes(null); setOcr(null);
+        setOcrEnCours(true);
+        try {
+            const fd = new FormData(); fd.append("file", f);
+            const r = await fetch("/api/comptabilite/balance/ocr", { method: "POST", body: fd });
+            const d = await r.json();
+            if (!r.ok) { setRejets([d.error || "Lecture impossible."]); return; }
+            setLignes((d.lignes ?? []).map((l: Ligne) => ({ numero: l.numero, intitule: l.intitule, debit: l.debit, credit: l.credit, confiance: l.confiance, source: l.source })));
+            setOcr({ origine: d.origine, pages: d.pages, confianceOCR: d.confianceOCR, controleTotaux: d.controleTotaux, totauxDetectes: d.totauxDetectes, disposition: d.disposition, dureeMs: d.dureeMs, rejets: d.rejets ?? [] });
+            setRejets((d.rejets ?? []).map((x: { ligne: number; texte: string; raison: string }) => `Ligne ${x.ligne} : ${x.raison} — « ${x.texte.slice(0, 80)} »`));
+            if ((d.lignes ?? []).length === 0) setRejets((x) => [...x, "Aucune ligne de balance reconnue. Vérifiez que le document est une balance (compte, intitulé, débit, crédit) et qu'il est net et droit."]);
+            else toast.success(`${d.lignes.length} comptes reconstitués — vérifiez les lignes surlignées avant d'enregistrer`);
+        } catch {
+            setRejets(["Lecture du document impossible."]);
+        } finally { setOcrEnCours(false); }
+    };
+
     const lireFichier = async (f: File) => {
-        setFichier(f); setLignes([]); setRejets([]); setResultat(null); setColonnes(null);
+        if (mode === "scan" || /\.(pdf|png|jpe?g|webp|tiff?|bmp)$/i.test(f.name)) { await scannerFichier(f); return; }
+        setFichier(f); setLignes([]); setRejets([]); setResultat(null); setColonnes(null); setOcr(null);
         try {
             // CSV : Excel en français sépare par « ; » — on détecte le séparateur
             // sur la première ligne plutôt que de laisser tout tomber dans une
@@ -138,6 +165,16 @@ export default function ImportBalancePage() {
         } finally { setEnvoi(false); }
     };
 
+    const modifierLigne = (i: number, champ: keyof Ligne, valeur: string) => {
+        setLignes((ls) => ls.map((l, k) => {
+            if (k !== i) return l;
+            if (champ === "debit" || champ === "credit") return { ...l, [champ]: nombre(valeur), confiance: "haute" as const };
+            return { ...l, [champ]: valeur, confiance: "haute" as const };
+        }));
+    };
+    const supprimerLigne = (i: number) => setLignes((ls) => ls.filter((_, k) => k !== i));
+    const ajouterLigne = () => setLignes((ls) => [...ls, { numero: "", intitule: "", debit: 0, credit: 0, confiance: "haute" }]);
+
     const supprimer = async (p: string) => {
         if (!window.confirm(`Supprimer la balance ${p} ? Les états financiers de cette période reviendront au journal d'écritures.`)) return;
         const r = await fetch(`/api/comptabilite/balance?clientId=${clientId}&periode=${p}`, { method: "DELETE" });
@@ -172,25 +209,33 @@ export default function ImportBalancePage() {
                         </label>
                     </div>
 
+                    <div className="tabs-scroll flex gap-1 p-1 rounded-xl bg-muted/40 border border-border w-fit">
+                        {([["fichier", "Fichier Excel / CSV", FileSpreadsheet], ["scan", "Balance scannée (PDF / image)", ScanLine]] as const).map(([k, l, I]) => (
+                            <button key={k} type="button" onClick={() => { setMode(k); setFichier(null); setLignes([]); setRejets([]); setOcr(null); setColonnes(null); }} className={cn("inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-bold transition-colors", mode === k ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted")}>
+                                <I className="w-4 h-4" /> {l}
+                            </button>
+                        ))}
+                    </div>
+
                     <div
                         onDragEnter={(e) => drag(e, true)} onDragOver={(e) => drag(e, true)} onDragLeave={(e) => drag(e, false)}
                         onDrop={(e) => { drag(e, false); const f = e.dataTransfer.files?.[0]; if (f) lireFichier(f); }}
                         className={cn("relative apix-card p-8 border-2 border-dashed text-center transition-colors", dragActive ? "border-primary bg-primary/5" : "border-border")}
                     >
-                        <input type="file" accept=".xlsx,.xls,.csv" onChange={(e) => { const f = e.target.files?.[0]; if (f) lireFichier(f); }} className="absolute inset-0 opacity-0 cursor-pointer" aria-label="Choisir un fichier de balance" />
+                        <input type="file" accept={mode === "scan" ? ".pdf,.png,.jpg,.jpeg,.webp,.tif,.tiff" : ".xlsx,.xls,.csv"} onChange={(e) => { const f = e.target.files?.[0]; if (f) lireFichier(f); }} className="absolute inset-0 opacity-0 cursor-pointer" aria-label="Choisir un fichier de balance" />
                         <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                            {fichier ? <FileSpreadsheet className="w-7 h-7" /> : <UploadCloud className="w-7 h-7" />}
+                            {ocrEnCours ? <Loader2 className="w-7 h-7 animate-spin" /> : fichier ? (mode === "scan" ? <ScanLine className="w-7 h-7" /> : <FileSpreadsheet className="w-7 h-7" />) : <UploadCloud className="w-7 h-7" />}
                         </div>
                         {fichier ? (
                             <>
                                 <p className="font-bold">{fichier.name}</p>
-                                <p className="text-xs text-muted-foreground">{(fichier.size / 1024).toFixed(1)} Ko · {lignes.length} comptes lus</p>
+                                <p className="text-xs text-muted-foreground">{(fichier.size / 1024).toFixed(1)} Ko · {ocrEnCours ? "lecture en cours (10 à 40 s)…" : `${lignes.length} comptes lus`}</p>
                                 <button type="button" onClick={(e) => { e.preventDefault(); setFichier(null); setLignes([]); setRejets([]); setColonnes(null); }} className="relative z-10 mt-3 inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-rose-600"><X className="w-3.5 h-3.5" /> Retirer</button>
                             </>
                         ) : (
                             <>
                                 <p className="font-bold">Glissez la balance ici ou cliquez pour choisir</p>
-                                <p className="text-xs text-muted-foreground mt-1">Excel (.xlsx, .xls) ou CSV · colonnes reconnues : Compte, Intitulé, Débit, Crédit (ou Solde débiteur / créditeur)</p>
+                                <p className="text-xs text-muted-foreground mt-1">{mode === "scan" ? "PDF (natif ou scanné), PNG, JPEG · une balance imprimée nette et droite, 2 à 6 colonnes de montants" : "Excel (.xlsx, .xls) ou CSV · colonnes reconnues : Compte, Intitulé, Débit, Crédit (ou Solde débiteur / créditeur)"}</p>
                             </>
                         )}
                     </div>
@@ -201,6 +246,15 @@ export default function ImportBalancePage() {
                             {(["numero", "intitule", "debit", "credit", "soldeDebit", "soldeCredit", "solde"] as const).filter((k) => colonnes[k] >= 0).map((k) => (
                                 <span key={k} className="inline-block mr-2 px-1.5 py-0.5 rounded bg-muted font-mono">{k} ← « {entete[colonnes[k]]} »</span>
                             ))}
+                        </div>
+                    )}
+
+                    {ocr && (
+                        <div className="apix-card p-4 text-sm grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Lecture</p><p className="font-bold">{{ PDF_TABLEAU: "Tableau PDF", PDF_TEXTE: "Texte PDF", OCR_IMAGE: "OCR image", OCR_PDF_SCANNE: "OCR PDF scanné" }[ocr.origine] ?? ocr.origine}</p><p className="text-xs text-muted-foreground">{ocr.pages} page{ocr.pages > 1 ? "s" : ""} · {(ocr.dureeMs / 1000).toFixed(1)} s</p></div>
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Confiance OCR</p><p className={cn("font-bold", ocr.confianceOCR == null ? "" : ocr.confianceOCR >= 85 ? "text-emerald-600" : ocr.confianceOCR >= 65 ? "text-amber-600" : "text-rose-600")}>{ocr.confianceOCR == null ? "n/a (texte natif)" : `${ocr.confianceOCR} %`}</p></div>
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Colonnes</p><p className="font-bold">{{ "debit-credit": "Débit / Crédit", "debit-credit-solde": "Débit / Crédit / Solde", "mouvements-soldes": "Mouvements + soldes", "anouveaux-mouvements-soldes": "À-nouveaux + mouvements + soldes", "solde-signe": "Solde signé", inconnue: "Non déterminées" }[ocr.disposition] ?? ocr.disposition}</p></div>
+                            <div><p className="text-[11px] font-bold uppercase text-muted-foreground">Totaux imprimés</p><p className={cn("font-bold", ocr.controleTotaux === "concordant" ? "text-emerald-600" : ocr.controleTotaux === "ecart" ? "text-rose-600" : "")}>{ocr.controleTotaux === "concordant" ? "Concordants" : ocr.controleTotaux === "ecart" ? "Écart avec les lignes lues" : "Non trouvés"}</p>{ocr.totauxDetectes && <p className="text-xs text-muted-foreground tabular-nums">{ocr.totauxDetectes.debit.toLocaleString("fr-FR")} / {ocr.totauxDetectes.credit.toLocaleString("fr-FR")}</p>}</div>
                         </div>
                     )}
 
@@ -224,14 +278,24 @@ export default function ImportBalancePage() {
                             </div>
                             <div className="overflow-x-auto max-h-80">
                                 <table className="apix-table w-full text-sm">
-                                    <thead><tr><th className="text-left">Compte</th><th className="text-left">Intitulé</th><th className="text-right">Débit</th><th className="text-right">Crédit</th></tr></thead>
+                                    <thead><tr><th className="text-left">Compte</th><th className="text-left">Intitulé</th><th className="text-right">Débit</th><th className="text-right">Crédit</th><th></th></tr></thead>
                                     <tbody>
-                                        {lignes.slice(0, 200).map((l, i) => (
-                                            <tr key={i}><td className="font-mono">{l.numero}</td><td>{l.intitule}</td><td className="text-right tabular-nums">{l.debit ? l.debit.toLocaleString("fr-FR") : ""}</td><td className="text-right tabular-nums">{l.credit ? l.credit.toLocaleString("fr-FR") : ""}</td></tr>
+                                        {lignes.slice(0, 300).map((l, i) => (
+                                            <tr key={i} className={cn(l.confiance === "faible" && "bg-rose-50 dark:bg-rose-900/20", l.confiance === "moyenne" && "bg-amber-50 dark:bg-amber-900/20")} title={l.source}>
+                                                <td className="font-mono"><input value={l.numero} onChange={(e) => modifierLigne(i, "numero", e.target.value)} className="w-24 bg-transparent border-b border-transparent focus:border-primary outline-none font-mono" aria-label="Compte" /></td>
+                                                <td><input value={l.intitule} onChange={(e) => modifierLigne(i, "intitule", e.target.value)} className="w-full min-w-40 bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Intitulé" /></td>
+                                                <td className="text-right"><input value={l.debit ? l.debit.toLocaleString("fr-FR") : ""} onChange={(e) => modifierLigne(i, "debit", e.target.value)} inputMode="decimal" className="w-28 text-right tabular-nums bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Débit" /></td>
+                                                <td className="text-right"><input value={l.credit ? l.credit.toLocaleString("fr-FR") : ""} onChange={(e) => modifierLigne(i, "credit", e.target.value)} inputMode="decimal" className="w-28 text-right tabular-nums bg-transparent border-b border-transparent focus:border-primary outline-none" aria-label="Crédit" /></td>
+                                                <td className="w-8 text-right"><button type="button" onClick={() => supprimerLigne(i)} className="p-1 text-muted-foreground hover:text-rose-600" aria-label="Supprimer la ligne"><X className="w-3.5 h-3.5" /></button></td>
+                                            </tr>
                                         ))}
                                     </tbody>
                                 </table>
-                                {lignes.length > 200 && <p className="p-3 text-xs text-muted-foreground">… et {lignes.length - 200} autres comptes.</p>}
+                                {lignes.length > 300 && <p className="p-3 text-xs text-muted-foreground">… et {lignes.length - 300} autres comptes.</p>}
+                                <div className="p-2 border-t border-border flex items-center justify-between gap-3 flex-wrap">
+                                    <button type="button" onClick={ajouterLigne} className="inline-flex items-center gap-1.5 text-xs font-bold text-primary px-2 py-1"><Plus className="w-3.5 h-3.5" /> Ajouter un compte</button>
+                                    {ocr && <p className="text-[11px] text-muted-foreground">Lignes <span className="px-1 rounded bg-amber-100 text-amber-800">ambre</span> : caractères corrigés (O→0, l→1), <span className="px-1 rounded bg-rose-100 text-rose-800">rouge</span> : montants incomplets — à vérifier. Survolez une ligne pour voir le texte lu.</p>}
+                                </div>
                             </div>
                             <div className="p-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
                                 {!totaux.equilibree && <p className="text-xs text-rose-600">La balance sera enregistrée telle quelle : l&apos;écart sera visible dans les contrôles du bilan.</p>}
