@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import React, { useState, useEffect } from 'react';
 import { Save, AlertTriangle } from 'lucide-react';
@@ -81,12 +82,12 @@ export default function ConfigPage() {
                             <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg dark:bg-amber-500/10 dark:border-amber-500/20">
                                 <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                                 <p className="text-xs text-amber-800 dark:text-amber-300">
-                                    Ces champs sont en lecture seule. La modification depuis cet écran nécessite l'ajout d'un endpoint de mise à jour client — utilisez pour l'instant la fiche client dans <a href="/clients" className="underline font-semibold">Clients</a>.
+                                    Ces champs sont en lecture seule. La modification depuis cet écran nécessite l'ajout d'un endpoint de mise à jour client — utilisez pour l'instant la fiche client dans <Link href="/clients" className="underline font-semibold">Clients</Link>.
                                 </p>
                             </div>
                         </>
                     ) : (
-                        <p className="text-sm text-slate-500">Aucun client. Créez-en un depuis <a href="/clients/new" className="text-primary underline">Nouveau client</a>.</p>
+                        <p className="text-sm text-slate-500">Aucun client. Créez-en un depuis <Link href="/clients/new" className="text-primary underline">Nouveau client</Link>.</p>
                     )}
                 </div>
             </div>

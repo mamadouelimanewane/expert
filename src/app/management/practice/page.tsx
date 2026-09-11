@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -154,12 +155,12 @@ export default function PracticeManagementPage() {
                             <Target className="w-5 h-5 text-primary" />
                             Rentabilité par mission (boni/mali)
                         </h3>
-                        <a
+                        <Link
                             href="/missions/boni-mali"
                             className="text-xs font-bold text-primary hover:text-white transition-colors"
                         >
                             Voir tout
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="overflow-x-auto">

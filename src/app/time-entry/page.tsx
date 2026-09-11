@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -303,7 +304,7 @@ export default function TimeEntryPage() {
                                 </div>
                             ))}
                             {filteredMissions.length === 0 && (
-                                <p className="text-sm text-slate-500 col-span-2">Aucune mission ne correspond. Créez-en une depuis <a href="/missions/new" className="text-primary underline">Nouvelle mission</a>.</p>
+                                <p className="text-sm text-slate-500 col-span-2">Aucune mission ne correspond. Créez-en une depuis <Link href="/missions/new" className="text-primary underline">Nouvelle mission</Link>.</p>
                             )}
                         </div>
                     </div>
