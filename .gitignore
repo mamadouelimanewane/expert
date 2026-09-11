@@ -48,3 +48,7 @@ docs/**/CREDENTIALS*.md
 
 # Pièces déposées via /api/documents (UPLOAD_DIR)
 /uploads
+
+# Données de langue Tesseract téléchargées à l exécution
+*.traineddata
+*.traineddata.gz
