@@ -85,13 +85,30 @@ export type ResultatVision = {
 };
 
 /** Réduit une image aux dimensions utiles et la convertit en JPEG (les scans PNG en A4 pèsent 10 Mo). */
+class ImageIllisible extends Error {}
+
 async function preparerImage(fichier: Buffer): Promise<{ data: string; media_type: "image/jpeg" }> {
     const buffer = await sharp(fichier)
         .rotate()
         .resize({ width: TAILLE_IMAGE_MAX, height: TAILLE_IMAGE_MAX, fit: "inside", withoutEnlargement: true })
         .jpeg({ quality: 88 })
-        .toBuffer();
+        .toBuffer()
+        .catch(() => { throw new ImageIllisible("Image illisible ou format non pris en charge (attendu : JPEG, PNG, WebP)."); });
     return { data: buffer.toString("base64"), media_type: "image/jpeg" };
+}
+
+
+/** Traduit une erreur du SDK en message actionnable pour l'écran. */
+function traduireErreur(error: unknown): { raison: "non_configure" | "erreur"; message: string } {
+    if (error instanceof Anthropic.AuthenticationError) return { raison: "non_configure", message: "Clé ANTHROPIC_API_KEY refusée par l'API : vérifiez-la ou créez-en une nouvelle." };
+    if (error instanceof Anthropic.RateLimitError) return { raison: "erreur", message: "Quota de l'API IA atteint : réessayez dans quelques instants." };
+    if (error instanceof Anthropic.APIError) {
+        if (/credit balance/i.test(error.message)) return { raison: "non_configure", message: "Le compte Anthropic n'a pas de crédits : ajoutez des crédits sur console.anthropic.com (Plans & Billing), puis réessayez." };
+        console.error("Vision — erreur API:", error.status, error.message);
+        return { raison: "erreur", message: `Lecture par IA impossible (erreur ${error.status}).` };
+    }
+    console.error("Vision — erreur:", error);
+    return { raison: "erreur", message: "Lecture par IA impossible." };
 }
 
 export function visionConfiguree(): boolean {
@@ -105,11 +122,12 @@ export async function lireDocumentParVision(fichier: Buffer, mimeType: string, n
     const client = new Anthropic();
     const estPdf = mimeType === "application/pdf" || /\.pdf$/i.test(nomFichier);
 
-    const piece: Anthropic.ContentBlockParam = estPdf
+    let piece: Anthropic.ContentBlockParam;
+    try {
+        piece = estPdf
         ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: fichier.toString("base64") } }
         : { type: "image", source: { type: "base64", ...(await preparerImage(fichier)) } };
 
-    try {
         const response = await client.messages.parse({
             model: MODELE_VISION,
             max_tokens: 16000,
@@ -139,18 +157,8 @@ export async function lireDocumentParVision(fichier: Buffer, mimeType: string, n
         const coutEstimeUSD = Math.round((input * 5 + output * 25) / 1_000_000 * 10_000) / 10_000;
         return { ok: true, lecture, modele: response.model, usage: { input, output, coutEstimeUSD } };
     } catch (error) {
-        if (error instanceof Anthropic.AuthenticationError) {
-            return { ok: false, raison: "non_configure", message: "Clé ANTHROPIC_API_KEY refusée par l'API." };
-        }
-        if (error instanceof Anthropic.RateLimitError) {
-            return { ok: false, raison: "erreur", message: "Quota de l'API IA atteint : réessayez dans quelques instants." };
-        }
-        if (error instanceof Anthropic.APIError) {
-            console.error("Vision — erreur API:", error.status, error.message);
-            return { ok: false, raison: "erreur", message: `Lecture par IA impossible (erreur ${error.status}).` };
-        }
-        console.error("Vision — erreur:", error);
-        return { ok: false, raison: "erreur", message: "Lecture par IA impossible." };
+        if (error instanceof ImageIllisible) return { ok: false, raison: "illisible", message: error.message };
+        return { ok: false, ...traduireErreur(error) };
     }
 }
 
@@ -281,10 +289,12 @@ export async function lireFactureParVision(fichier: Buffer, mimeType: string, no
     }
     const client = new Anthropic();
     const estPdf = mimeType === "application/pdf" || /\.pdf$/i.test(nomFichier);
-    const piece: Anthropic.ContentBlockParam = estPdf
+    let piece: Anthropic.ContentBlockParam;
+    try {
+        piece = estPdf
         ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: fichier.toString("base64") } }
         : { type: "image", source: { type: "base64", ...(await preparerImage(fichier)) } };
-    try {
+
         const response = await client.messages.parse({
             model: MODELE_VISION,
             max_tokens: 8000,
@@ -302,11 +312,8 @@ export async function lireFactureParVision(fichier: Buffer, mimeType: string, no
         const coutEstimeUSD = Math.round((input * 5 + output * 25) / 1_000_000 * 10_000) / 10_000;
         return { ok: true, lecture, modele: response.model, usage: { input, output, coutEstimeUSD } };
     } catch (error) {
-        if (error instanceof Anthropic.AuthenticationError) return { ok: false, raison: "non_configure", message: "Clé ANTHROPIC_API_KEY refusée par l'API." };
-        if (error instanceof Anthropic.RateLimitError) return { ok: false, raison: "erreur", message: "Quota de l'API IA atteint : réessayez dans quelques instants." };
-        if (error instanceof Anthropic.APIError) { console.error("Vision facture — erreur API:", error.status, error.message); return { ok: false, raison: "erreur", message: `Lecture par IA impossible (erreur ${error.status}).` }; }
-        console.error("Vision facture — erreur:", error);
-        return { ok: false, raison: "erreur", message: "Lecture par IA impossible." };
+        if (error instanceof ImageIllisible) return { ok: false, raison: "illisible", message: error.message };
+        return { ok: false, ...traduireErreur(error) };
     }
 }
 
