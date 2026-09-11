@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
-import { balanceDepuisJournal } from "@/lib/ohada/balance-from-journal";
+import { obtenirBalance } from "@/lib/ohada/balance-source";
 import { genererEtatsFinanciers } from "@/lib/ohada/syscohada-engine";
 
 // État d'avancement de la liasse fiscale (DSF SYSCOHADA).
@@ -11,14 +11,6 @@ import { genererEtatsFinanciers } from "@/lib/ohada/syscohada-engine";
 // L'état est désormais déduit du moteur : un tableau est servi s'il comporte
 // des montants, en anomalie si un contrôle échoue, et les tableaux non
 // implémentés sont annoncés comme tels plutôt que présentés en cours.
-
-const SELECTION = {
-    debitCompte: true,
-    debitIntitule: true,
-    creditCompte: true,
-    creditIntitule: true,
-    montant: true,
-} as const;
 
 type EtatTableau = "COMPLET" | "ANOMALIE" | "VIDE" | "NON_IMPLEMENTE";
 
@@ -31,17 +23,7 @@ export async function GET(request: Request) {
         const clientId = searchParams.get("clientId");
         const periode = searchParams.get("periode");
 
-        const ecritures = await prisma.tpeJournal.findMany({
-            where: {
-                status: "EXPORTED",
-                source: { not: "WHATSAPP_TEST" },
-                ...(clientId ? { clientId } : {}),
-                ...(periode ? { periode } : {}),
-            },
-            select: SELECTION,
-        });
-
-        const balance = balanceDepuisJournal(ecritures);
+        const { balance, source } = await obtenirBalance(clientId, periode);
         const etats = genererEtatsFinanciers(balance);
 
         const servi = (lignes: { netN: number }[]) => lignes.some((l) => l.netN !== 0);
@@ -126,14 +108,16 @@ export async function GET(request: Request) {
                 comptesNonAffectes: etats.comptesNonAffectes,
             },
             source: {
-                ecritures: ecritures.length,
+                type: source.type,
+                detail: source,
+                ecritures: source.type === "JOURNAL" ? source.ecritures : source.lignes,
                 comptes: balance.length,
                 periode,
                 clientId,
             },
-            // Sans écriture, tous les tableaux sont vides parce que la base
-            // l'est — pas parce que la liasse est prête.
-            aucuneDonnee: ecritures.length === 0,
+            // Sans écriture ni balance, tous les tableaux sont vides parce que
+            // la base l'est — pas parce que la liasse est prête.
+            aucuneDonnee: balance.length === 0,
         });
     } catch (error) {
         console.error("Erreur API liasse fiscale:", error);

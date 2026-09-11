@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 import { requireStaff } from "@/lib/api-auth";
-import { normaliserDateISO } from "@/lib/validation";
+import { normaliserDateISO, normaliserPeriode } from "@/lib/validation";
 
 // GET: Récupérer tous les journaux TPE sauvegardés
 export async function GET() {
@@ -28,7 +28,13 @@ export async function POST(request: Request) {
     if (denied) return denied;
 
     try {
-        const { journal, businessName, periode, clientId } = await request.json();
+        const { journal, businessName, periode: periodeBrute, clientId } = await request.json();
+        // « JUIN-2026 » et « 2026-06 » désignaient deux périodes distinctes en
+        // base : la première n'entrait jamais dans les états financiers.
+        const periode = normaliserPeriode(periodeBrute);
+        if (!periode) {
+            return NextResponse.json({ error: "Période illisible : attendu AAAA-MM (ex. 2026-06)." }, { status: 400 });
+        }
 
         if (!journal || !Array.isArray(journal)) {
             return NextResponse.json({ error: "Données invalides" }, { status: 400 });
@@ -70,7 +76,7 @@ export async function POST(request: Request) {
         // Bulk insert all journal lines
         const result = await prisma.tpeJournal.createMany({
             data: journal.map((line: any, index: number) => ({
-                periode: periode || 'PERIODE-INCONNUE',
+                periode,
                 businessName: businessName || client.companyName || 'Commerçant',
                 date: datesNormalisees[index] as string,
                 libelle: line.libelle,
@@ -103,7 +109,8 @@ export async function PATCH(request: Request) {
     if (denied) return denied;
 
     try {
-        const { periode, clientId } = await request.json().catch(() => ({}));
+        const { periode: periodeBrute, clientId } = await request.json().catch(() => ({}));
+        const periode = typeof periodeBrute === "string" ? normaliserPeriode(periodeBrute) ?? periodeBrute.trim() : periodeBrute;
 
         // Sans strictUndefinedChecks, Prisma retire purement et simplement un
         // filtre valant undefined : un corps de requete sans periode transformait

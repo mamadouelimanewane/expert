@@ -1,4 +1,9 @@
-﻿"use client";
+"use client";
+
+import { Suspense } from "react";
+import { LoadingState } from "@/components/ui/LoadingState";
+
+import { useSearchParams } from "next/navigation";
 
 import React from 'react';
 import { Download, Printer, TrendingUp, TrendingDown } from 'lucide-react';
@@ -13,10 +18,13 @@ import ControlesBanner from '@/components/etats-financiers/ControlesBanner';
 // les périodes dans un seul compte de résultat sans signification.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function ResultatPage() {
+function ResultatPageContenu() {
     const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
-    const [clientId, setClientId] = useState("");
-    const [periode, setPeriode] = useState(new Date().toISOString().substring(0, 7));
+    // Pré-sélection par l'URL (?clientId=&periode=) : liens depuis l'import de
+    // balance, la fiche client et la liasse.
+    const params = useSearchParams();
+    const [clientId, setClientId] = useState(params.get("clientId") ?? "");
+    const [periode, setPeriode] = useState(params.get("periode") ?? new Date().toISOString().substring(0, 7));
 
     const [resultatData, setResultatData] = useState<any[]>([]);
     const [controles, setControles] = useState<any>(null);
@@ -170,5 +178,11 @@ export default function ResultatPage() {
     );
 }
 
-
-
+// useSearchParams impose une frontière Suspense au build (prérendu statique).
+export default function ResultatPage() {
+    return (
+        <Suspense fallback={<LoadingState label="Chargement…" />}>
+            <ResultatPageContenu />
+        </Suspense>
+    );
+}

@@ -131,7 +131,7 @@ export default function InformelPage() {
     // silencieusement les écritures au premier client de la base.
     const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
     const [clientId, setClientId] = useState('');
-    const [periode, setPeriode] = useState('JUIN-2026');
+    const [periode, setPeriode] = useState(new Date().toISOString().substring(0, 7));
     const [imported, setImported] = useState(false);
     const [processing, setProcessing] = useState(false);
     const [dragging, setDragging] = useState(false);

@@ -85,7 +85,15 @@ export async function POST(request: Request) {
             taxAmount,
             total,
             notes: body.notes ?? "",
-            clientId: body.clientId
+            clientId: body.clientId,
+            // Détail conservé pour l'édition de la facture (auparavant seuls
+            // les totaux étaient stockés : une facture n'avait aucune ligne).
+            lines: body.lines.map((l) => ({
+                designation: l.designation ?? "",
+                quantity: l.quantity,
+                unitPrice: l.unitPrice,
+                amount: Math.round(l.quantity * l.unitPrice * 100) / 100,
+            })),
         });
 
         return NextResponse.json({ invoice }, { status: 201 });

@@ -1,5 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
+import { LoadingState } from "@/components/ui/LoadingState";
+
+import { useSearchParams } from "next/navigation";
+
 import React from 'react';
 import { Download, Printer } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -16,10 +21,13 @@ import ControlesBanner from '@/components/etats-financiers/ControlesBanner';
 // tant qu'un client n'est pas sélectionné.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function BilanPage() {
+function BilanPageContenu() {
     const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
-    const [clientId, setClientId] = useState("");
-    const [periode, setPeriode] = useState(new Date().toISOString().substring(0, 7));
+    // Pré-sélection par l'URL (?clientId=&periode=) : liens depuis l'import de
+    // balance, la fiche client et la liasse.
+    const params = useSearchParams();
+    const [clientId, setClientId] = useState(params.get("clientId") ?? "");
+    const [periode, setPeriode] = useState(params.get("periode") ?? new Date().toISOString().substring(0, 7));
 
     const [actifData, setActifData] = useState<any[]>([]);
     const [passifData, setPassifData] = useState<any[]>([]);
@@ -192,5 +200,14 @@ function BilanTable({ title, data, headerColor, showAmort }: { title: string, da
                 </table>
             </div>
         </div>
+    );
+}
+
+// useSearchParams impose une frontière Suspense au build (prérendu statique).
+export default function BilanPage() {
+    return (
+        <Suspense fallback={<LoadingState label="Chargement…" />}>
+            <BilanPageContenu />
+        </Suspense>
     );
 }

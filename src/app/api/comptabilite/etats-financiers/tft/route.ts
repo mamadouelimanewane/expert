@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
-import { balanceDepuisJournal } from "@/lib/ohada/balance-from-journal";
+import { obtenirBalance } from "@/lib/ohada/balance-source";
 import { genererEtatsFinanciers } from "@/lib/ohada/syscohada-engine";
 import { genererTFT } from "@/lib/ohada/tft-engine";
 
 // Tableau des Flux de Trésorerie — méthode indirecte simplifiée (tft-engine.ts).
 // Contrairement au bilan/résultat, la période N-1 est ici OBLIGATOIRE : sans
 // elle, toutes les variations ne seraient que les soldes N eux-mêmes.
-
-const SELECTION = {
-    debitCompte: true,
-    debitIntitule: true,
-    creditCompte: true,
-    creditIntitule: true,
-    montant: true,
-} as const;
 
 export async function GET(request: Request) {
     const { denied } = await requireStaff();
@@ -31,17 +22,8 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "clientId, periode et periodeN1 sont requis" }, { status: 400 });
         }
 
-        const base = { clientId, status: "EXPORTED", source: { not: "WHATSAPP_TEST" } };
-
-        const [ecrituresN, ecrituresN1] = await Promise.all([
-            prisma.tpeJournal.findMany({ where: { ...base, periode }, select: SELECTION }),
-            prisma.tpeJournal.findMany({ where: { ...base, periode: periodeN1 }, select: SELECTION }),
-        ]);
-
-        const statement = genererEtatsFinanciers(
-            balanceDepuisJournal(ecrituresN),
-            balanceDepuisJournal(ecrituresN1)
-        );
+        const [n, n1] = await Promise.all([obtenirBalance(clientId, periode), obtenirBalance(clientId, periodeN1)]);
+        const statement = genererEtatsFinanciers(n.balance, n1.balance);
 
         if (!statement.controleEquilibre.equilibre) {
             return NextResponse.json({
@@ -54,7 +36,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             tft,
-            source: { ecrituresN: ecrituresN.length, ecrituresN1: ecrituresN1.length, periode, periodeN1 },
+            source: { type: n.source.type, detail: n.source, ecrituresN: n.source.type === "JOURNAL" ? n.source.ecritures : n.source.lignes, ecrituresN1: n1.source.type === "JOURNAL" ? n1.source.ecritures : n1.source.lignes, periode, periodeN1 },
             anomalies: statement.anomalies,
         });
     } catch (error) {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { AccountingEngine } from "@/lib/accounting-engine";
-import { analyserMontant, normaliserDateISO } from "@/lib/validation";
+import { analyserMontant, normaliserDateISO, normaliserPeriode } from "@/lib/validation";
 
 // Import d'écritures depuis un export externe (Wave, CSV générique...).
 //
@@ -61,7 +61,10 @@ export async function POST(request: Request) {
         }
 
         const businessName = client.companyName || [client.firstName, client.lastName].filter(Boolean).join(" ") || "Client";
-        const periodeRetenue = periode || new Date().toISOString().substring(0, 7);
+        const periodeRetenue = periode ? normaliserPeriode(periode) : new Date().toISOString().substring(0, 7);
+        if (!periodeRetenue) {
+            return NextResponse.json({ error: "Période illisible : attendu AAAA-MM (ex. 2026-09)." }, { status: 400 });
+        }
 
         let aQualifier = 0;
         const lignesJournal: {

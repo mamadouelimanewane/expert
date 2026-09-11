@@ -323,3 +323,45 @@ export function normaliserDateISO(brut: unknown): string | null {
 
     return null;
 }
+
+const MOIS_FR: Record<string, string> = {
+    janvier: "01", janv: "01", jan: "01",
+    fevrier: "02", "février": "02", fev: "02", "fév": "02",
+    mars: "03", mar: "03",
+    avril: "04", avr: "04",
+    mai: "05",
+    juin: "06", jun: "06",
+    juillet: "07", juil: "07", jul: "07",
+    aout: "08", "août": "08", aou: "08",
+    septembre: "09", sept: "09", sep: "09",
+    octobre: "10", oct: "10",
+    novembre: "11", nov: "11",
+    decembre: "12", "décembre": "12", dec: "12", "déc": "12",
+};
+
+/**
+ * Ramène une période comptable à la forme canonique « AAAA-MM ».
+ *
+ * Le hub WhatsApp, l'import de transactions et les états financiers emploient
+ * « 2026-06 » ; la saisie manuelle acceptait « JUIN-2026 » : les écritures
+ * ainsi datées n'entraient jamais dans le bilan du mois. Formes reconnues :
+ * « 2026-06 », « 06/2026 », « JUIN-2026 », « juin 2026 », « Sept-2026 ».
+ * Retourne `null` si la période est illisible.
+ */
+export function normaliserPeriode(brut: unknown): string | null {
+    if (typeof brut !== "string") return null;
+    const v = brut.trim().toLowerCase();
+    let m = v.match(/^(\d{4})-(\d{1,2})$/);
+    if (m) return valider(m[1], m[2]);
+    m = v.match(/^(\d{1,2})[/-](\d{4})$/);
+    if (m) return valider(m[2], m[1]);
+    m = v.match(/^([a-zéû]+)\.?[\s-]+(\d{4})$/);
+    if (m && MOIS_FR[m[1]]) return `${m[2]}-${MOIS_FR[m[1]]}`;
+    return null;
+}
+
+function valider(annee: string, mois: string): string | null {
+    const mm = Number(mois);
+    if (!Number.isInteger(mm) || mm < 1 || mm > 12) return null;
+    return `${annee}-${String(mm).padStart(2, "0")}`;
+}

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -81,21 +81,19 @@ export default function NewInvoicePage() {
         setError(null);
 
         try {
-            const invoiceNumber = `FAC-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
+            // Le numéro, les totaux et le statut sont fixés par le serveur
+            // (numérotation séquentielle, calcul TVA) ; le contrat de l'API est
+            // `lines: [{ designation, quantity, unitPrice }]`. Le formulaire
+            // envoyait `lineItems` : chaque création échouait en 400.
             const res = await fetch("/api/invoices", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    invoiceNumber,
                     clientId: formData.clientId,
                     dueDate: new Date(formData.dueDate).toISOString(),
-                    subtotal,
                     taxRate: formData.taxRate,
-                    taxAmount,
-                    total,
                     notes: formData.notes,
-                    status: formData.status,
-                    lineItems,
+                    lines: lineItems.map((l) => ({ designation: l.description, quantity: l.quantity, unitPrice: l.unitPrice })),
                 }),
             });
 

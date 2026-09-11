@@ -1,5 +1,10 @@
 "use client";
 
+import { Suspense } from "react";
+import { LoadingState } from "@/components/ui/LoadingState";
+
+import { useSearchParams } from "next/navigation";
+
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -78,10 +83,13 @@ const ETAT: Record<EtatTableau, { libelle: string; classe: string }> = {
 
 const fcfa = (n: number) => Math.round(n).toLocaleString("fr-FR");
 
-export default function LiasseFiscalePage() {
+function LiasseFiscalePageContenu() {
     const [clients, setClients] = useState<{ id: string; nom: string }[]>([]);
-    const [clientId, setClientId] = useState("");
-    const [periode, setPeriode] = useState(new Date().toISOString().substring(0, 7));
+    // Pré-sélection par l'URL (?clientId=&periode=) : liens depuis l'import de
+    // balance, la fiche client et la liasse.
+    const params = useSearchParams();
+    const [clientId, setClientId] = useState(params.get("clientId") ?? "");
+    const [periode, setPeriode] = useState(params.get("periode") ?? new Date().toISOString().substring(0, 7));
 
     const [tableaux, setTableaux] = useState<Tableau[]>([]);
     const [selection, setSelection] = useState<string>("bilan-actif");
@@ -438,5 +446,14 @@ export default function LiasseFiscalePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// useSearchParams impose une frontière Suspense au build (prérendu statique).
+export default function LiasseFiscalePage() {
+    return (
+        <Suspense fallback={<LoadingState label="Chargement…" />}>
+            <LiasseFiscalePageContenu />
+        </Suspense>
     );
 }

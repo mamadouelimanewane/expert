@@ -168,7 +168,7 @@ export default function BillingPage() {
                                 {invoices.map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-800/20 group transition-colors">
                                         <td className="px-6 py-4">
-                                            <p className="font-bold text-slate-200">{item.invoiceNumber}</p>
+                                            <Link href={`/billing/${item.id}`} className="font-bold text-slate-200 hover:text-primary">{item.invoiceNumber}</Link>
                                             <p className="text-[10px] text-slate-500 uppercase">{new Date(item.issueDate).toLocaleDateString()}</p>
                                         </td>
                                         <td className="px-6 py-4">

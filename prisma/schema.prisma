@@ -44,6 +44,7 @@ model User {
   assignedMissions     Mission[]            @relation("AssignedTo")
   createdMissions      Mission[]            @relation("CreatedBy")
   timeEntries          TimeEntry[]
+  balancesImportees    BalanceImportee[]    @relation("BalancesImportees")
   meetings             Meeting[]
   documents            Document[]
   notifications        Notification[]
@@ -144,6 +145,8 @@ model Client {
   portalToken     String? // Token unique pour l'URL du portail client
   portalEnabled   Boolean   @default(false)
   portalCreatedAt DateTime?
+
+  balancesImportees BalanceImportee[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -324,6 +327,34 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+// Balance générale importée (CSV / Excel) pour un dossier et une période de
+// clôture (YYYY-MM). Quand elle existe, le moteur SYSCOHADA la préfère au
+// journal d'écritures pour produire bilan, résultat, TFT et liasse.
+model BalanceImportee {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  periode String // YYYY-MM : mois de clôture de la balance
+  fichier String?
+
+  // CompteBalance[] : { numero, intitule, debit, credit }
+  lignes      Json
+  nbLignes    Int
+  totalDebit  Float
+  totalCredit Float
+  equilibree  Boolean
+
+  clientId String @db.ObjectId
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  importedById String @db.ObjectId
+  importedBy   User   @relation("BalancesImportees", fields: [importedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clientId, periode])
+  @@map("balances_importees")
+}
+
 model Invoice {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
   invoiceNumber String @unique
@@ -341,6 +372,10 @@ model Invoice {
   total     Float
 
   notes String?
+
+  // Détail des prestations facturées : [{ designation, quantity, unitPrice }].
+  // Absent des factures antérieures au 11/09/2026 (seuls les totaux existaient).
+  lines Json?
 
   // Relations
   clientId String @db.ObjectId

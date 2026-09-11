@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import Link from "next/link";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -469,7 +471,7 @@ export default function TPEClientPortalPage() {
             </button>
 
             {/* Voir mes factures */}
-            <a
+            <Link
               href="/billing"
               className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 flex flex-col items-start gap-3 active:scale-95 transition-transform shadow-lg shadow-emerald-200"
             >
@@ -481,7 +483,7 @@ export default function TPEClientPortalPage() {
                 <p className="text-white font-bold text-sm leading-tight">factures 🧾</p>
               </div>
               <div className="absolute -bottom-3 -right-3 w-16 h-16 rounded-full bg-white/10" />
-            </a>
+            </Link>
 
             {/* Contacter le comptable */}
             <button
