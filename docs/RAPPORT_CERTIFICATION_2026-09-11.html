@@ -1,0 +1,304 @@
+<title>Certification Cabinet 360</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f6f7f4;
+    --paper: #ffffff;
+    --ink: #17211c;
+    --ink-2: #4a5852;
+    --ink-3: #7b8781;
+    --rule: #dde3df;
+    --rule-2: #c9d2cc;
+    --green: #006b3f;
+    --green-soft: #e3f1ea;
+    --orange: #f29400;
+    --orange-soft: #fff1dc;
+    --ok: #1f8a4c; --ok-soft: #e4f4ea;
+    --warn: #b96a00; --warn-soft: #fff2dd;
+    --crit: #b42318; --crit-soft: #fde8e6;
+    --info: #1d4ed8; --info-soft: #e4ecfc;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101613; --paper: #172019; --ink: #e8ede9; --ink-2: #b4bfb8; --ink-3: #7f8b84;
+      --rule: #263129; --rule-2: #354236; --green: #2fb373; --green-soft: #143324; --orange: #f5a623; --orange-soft: #3a2a0d;
+      --ok: #3ccb7a; --ok-soft: #12321f; --warn: #f0a83a; --warn-soft: #3a2a0d; --crit: #f0665a; --crit-soft: #3d1613; --info: #7fa4ff; --info-soft: #14203d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101613; --paper: #172019; --ink: #e8ede9; --ink-2: #b4bfb8; --ink-3: #7f8b84;
+    --rule: #263129; --rule-2: #354236; --green: #2fb373; --green-soft: #143324; --orange: #f5a623; --orange-soft: #3a2a0d;
+    --ok: #3ccb7a; --ok-soft: #12321f; --warn: #f0a83a; --warn-soft: #3a2a0d; --crit: #f0665a; --crit-soft: #3d1613; --info: #7fa4ff; --info-soft: #14203d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.55; }
+  .page { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: 40px; font-variation-settings: "opsz" 144; }
+  h2 { font-size: 24px; margin-top: 56px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--rule-2); }
+  h3 { font-size: 17px; font-family: var(--sans); font-weight: 700; margin: 24px 0 8px; }
+  p { margin: 0 0 12px; max-width: 70ch; }
+  .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  .lede { font-size: 17px; color: var(--ink-2); max-width: 62ch; }
+  code, .mono { font-family: var(--mono); font-size: .9em; }
+  code { background: var(--green-soft); color: var(--ink); padding: 1px 5px; border-radius: 4px; }
+  a { color: var(--green); }
+
+  /* En-tête de rapport */
+  .head { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; padding-bottom: 24px; border-bottom: 3px solid var(--green); }
+  .meta { font-family: var(--mono); font-size: 12px; color: var(--ink-2); display: grid; gap: 4px; text-align: right; }
+  .meta b { color: var(--ink); font-weight: 500; }
+
+  /* Verdict */
+  .verdict { margin-top: 28px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border: 1px solid var(--rule-2); background: var(--paper); }
+  .verdict > div { padding: 24px 28px; }
+  .verdict .stamp { border-left: 1px solid var(--rule-2); background: var(--orange-soft); display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .stamp .word { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.1; }
+  .stamp .cond { font-size: 13px; color: var(--ink-2); }
+  .verdict ul { margin: 8px 0 0; padding-left: 18px; }
+  .verdict li { margin: 4px 0; }
+
+  /* Chiffres */
+  .figures { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+  .fig { background: var(--paper); border: 1px solid var(--rule); padding: 14px 16px; }
+  .fig .n { font-family: var(--serif); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .fig .l { font-size: 12px; color: var(--ink-2); margin-top: 6px; }
+
+  /* Tableaux */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--rule); background: var(--paper); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th { text-align: left; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; padding: 10px 14px; border-bottom: 1px solid var(--rule-2); background: var(--bg); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .ok { background: var(--ok-soft); color: var(--ok); }
+  .warn { background: var(--warn-soft); color: var(--warn); }
+  .crit { background: var(--crit-soft); color: var(--crit); }
+  .info { background: var(--info-soft); color: var(--info); }
+  .neutral { background: var(--green-soft); color: var(--green); }
+
+  /* Constats */
+  .finding { display: grid; grid-template-columns: 72px 1fr; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+  .finding:last-child { border-bottom: 0; }
+  .finding .id { font-family: var(--mono); font-size: 12px; color: var(--ink-3); padding-top: 3px; }
+  .finding .id b { display: block; font-size: 14px; color: var(--ink); font-weight: 500; }
+  .finding h4 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+  .finding p { margin: 0 0 6px; color: var(--ink-2); font-size: 14px; }
+  .finding .fix { color: var(--ink); }
+  .finding .fix::before { content: "Correctif — "; font-weight: 700; color: var(--green); }
+  .sev { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+
+  /* Prérequis */
+  .todo { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+  .todo li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; background: var(--paper); border: 1px solid var(--rule); padding: 12px 14px; }
+  .todo .box { width: 16px; height: 16px; border: 2px solid var(--rule-2); margin-top: 2px; }
+  .todo b { display: block; }
+  .todo span { color: var(--ink-2); font-size: 14px; }
+
+  .note { border-left: 3px solid var(--orange); padding: 10px 14px; background: var(--paper); font-size: 14px; color: var(--ink-2); margin: 14px 0; }
+  .foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--rule-2); font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+
+  @media (max-width: 720px) {
+    h1 { font-size: 30px; }
+    .head { grid-template-columns: 1fr; }
+    .meta { text-align: left; }
+    .verdict { grid-template-columns: 1fr; }
+    .verdict .stamp { border-left: 0; border-top: 1px solid var(--rule-2); }
+    .figures { grid-template-columns: repeat(2, 1fr); }
+    .finding { grid-template-columns: 1fr; gap: 6px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+  <header class="head">
+    <div>
+      <div class="eyebrow">Rapport de tests approfondis · avant démonstration client</div>
+      <h1 style="margin-top:8px">Certification Cabinet 360</h1>
+      <p class="lede" style="margin-top:12px">ERP pour cabinet d'expertise comptable en zone OHADA — parcours client, gestion du cabinet, production comptable, états financiers SYSCOHADA, exports, documents, audit, conformité, paie et ergonomie, testés de bout en bout sur la base de production.</p>
+    </div>
+    <div class="meta">
+      <div><b>Date</b> 11 septembre 2026</div>
+      <div><b>Dépôt</b> mamadouelimanewane/expert</div>
+      <div><b>Commits</b> a5433db → 534e735 (15)</div>
+      <div><b>Production</b> expert-pi.vercel.app</div>
+      <div><b>Exécuté par</b> Claude Opus 5, session assistée</div>
+    </div>
+  </header>
+
+  <section class="verdict">
+    <div>
+      <div class="eyebrow">Verdict</div>
+      <p style="margin-top:8px"><strong>L'application est apte à une démonstration client</strong> sur les parcours testés : création et suivi d'un dossier client, missions, temps, facturation, lettres de mission, import et validation d'écritures, bilan / compte de résultat / TFT / liasse, export FEC, scan OCR, audit et conformité. Les 14 anomalies bloquantes ou majeures relevées ont été corrigées et re-testées.</p>
+      <p style="margin:0">Trois conditions restent à remplir avant la démo (ci-contre), et sept limites fonctionnelles doivent être connues du présentateur pour ne pas être découvertes devant le client.</p>
+    </div>
+    <div class="stamp">
+      <div class="eyebrow">Décision</div>
+      <div class="word">Apte à la démo, sous conditions</div>
+      <div class="cond">
+        <ul style="padding-left:16px;margin:6px 0 0">
+          <li>Renseigner <code>WHATSAPP_APP_SECRET</code> sur Vercel</li>
+          <li>Vérifier le déploiement du commit <code>534e735</code></li>
+          <li>Exclure du scénario : e-dépôt DGI, signature qualifiée, import de balance</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="figures">
+    <div class="fig"><div class="n">≈ 95</div><div class="l">appels API vérifiés (3 phases, session réelle)</div></div>
+    <div class="fig"><div class="n">46</div><div class="l">écrans rendus sans erreur d'exécution</div></div>
+    <div class="fig"><div class="n">14</div><div class="l">anomalies corrigées et re-testées</div></div>
+    <div class="fig"><div class="n">388</div><div class="l">tests unitaires — 0 échec, typecheck et lint verts</div></div>
+  </div>
+
+  <h2>Périmètre et méthode</h2>
+  <p>Les tests ont été exécutés contre l'instance locale connectée à la base MongoDB Atlas de production, avec une session staff authentifiée. Les appels API ont été émis depuis le navigateur (mêmes cookies, même middleware que l'utilisateur final) ; les écrans ont été rendus en 375 px, 768 px et 1 280 px. Toutes les données de test portaient le préfixe <code>ZZ-TEST-CERTIF</code> et ont été supprimées à la fin (client, 2 missions, 18 écritures, 4 documents, factures, lettre, réunions, dépenses, webhooks, clé API). Aucun paiement Mobile Money réel n'a été déclenché.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Parcours</th><th>Ce qui a été vérifié</th><th>Résultat</th></tr></thead>
+      <tbody>
+        <tr><td><b>Client</b></td><td>Création (validation email/téléphone), recherche, fiche, modification, archivage, lien portail (obtenir, régénérer, révoquer), accès portail avec jeton valide / invalide / révoqué</td><td><span class="pill ok">Conforme</span> après construction de la fiche</td></tr>
+        <tr><td><b>Missions</b></td><td>Création (budget « 1 500 000 » au format FR accepté), lecture, transitions de statut (DRAFT → IN_PROGRESS → COMPLETED ; DRAFT → COMPLETED refusé 409), échéance, honoraires</td><td><span class="pill ok">Conforme</span> après ajout de l'API et de la fiche</td></tr>
+        <tr><td><b>Temps &amp; dépenses</b></td><td>Saisie 2,5 h, refus de 30 h/jour, catégories de dépense contrôlées</td><td><span class="pill ok">Conforme</span></td></tr>
+        <tr><td><b>Facturation</b></td><td>Facture 2 lignes → total TTC 826 000 FCFA (TVA 18 %), numérotation FAC-2026-037, cycle SENT → PAID, filtre par statut, relances</td><td><span class="pill ok">Conforme</span> — voir limite L5 (lignes non détaillées)</td></tr>
+        <tr><td><b>Lettres de mission</b></td><td>Création LM-2026-001, envoi, empreinte SHA-256, passage SIGNEE avec horodatage</td><td><span class="pill ok">Conforme</span> — voir limite L4</td></tr>
+        <tr><td><b>Production comptable</b></td><td>Import de 8 transactions (16 écritures, 2 à qualifier en 471), refus des sens inconnus et des montants négatifs, validation, déversement, FEC</td><td><span class="pill ok">Conforme</span> après 2 correctifs</td></tr>
+        <tr><td><b>États financiers</b></td><td>Bilan équilibré (actif = passif = 624 069), résultat net 398 305, TVA extraite du TTC (1 180 000 → 1 000 000 HT), TFT N/N-1, liasse « déposable »</td><td><span class="pill ok">Conforme</span></td></tr>
+        <tr><td><b>Documents / OCR</b></td><td>Refus d'un fichier HTML, extraction d'une facture image : HT 100 000, TVA 18 000, TTC 118 000, confiance 94 %, date manquante signalée</td><td><span class="pill ok">Conforme</span> après correctif OCR</td></tr>
+        <tr><td><b>Audit &amp; conformité</b></td><td>Dossier d'audit (9 sections), papiers de travail RSE persistés, score de risque, alertes fraude, registre KYC, checkup, criblage OFAC</td><td><span class="pill ok">Conforme</span> — voir limite L2</td></tr>
+        <tr><td><b>Paie</b></td><td>Refus d'un bulletin sans salarié (ne crée plus de période vide)</td><td><span class="pill warn">Partiel</span> — pas de salarié de test créé</td></tr>
+        <tr><td><b>Agenda, prospects, devis, paramètres</b></td><td>Réunions (fin &lt; début refusée), prospects, propositions, clés API (secret affiché une seule fois), webhooks</td><td><span class="pill ok">Conforme</span></td></tr>
+        <tr><td><b>Tableaux de bord</b></td><td>12 endpoints de synthèse (exécutif, associé, brief, radar, rentabilité, contrôle de gestion, boni/mali, obligations, gouvernance…)</td><td><span class="pill ok">Conforme</span></td></tr>
+        <tr><td><b>Ergonomie</b></td><td>Responsive 375 / 768 / 1 280 px, sidebar, hub, états vides et de chargement, notifications, focus clavier</td><td><span class="pill ok">Conforme</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Constats corrigés</h2>
+  <p>Numérotés dans l'ordre de découverte. Chaque correctif a été re-testé par l'appel ou l'écran qui l'avait révélé.</p>
+
+  <div class="finding"><div class="id"><b>C-01</b>bloquant</div><div>
+    <div class="sev"><span class="pill crit">Bloquant démo</span></div>
+    <h4>Aucune fiche client, aucune modification possible</h4>
+    <p>Le « CRM 360° » ne permettait ni d'ouvrir un dossier ni de corriger un NINEA ou une adresse ; <code>/api/clients/[id]</code> n'acceptait que GET (PATCH/DELETE → 405).</p>
+    <p class="fix">Fiche <code>/clients/[id]</code> (identité modifiable, indicateurs, missions, factures, temps, documents, lettres, archivage) et API PATCH/DELETE avec validation et journal d'audit.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-02</b>bloquant</div><div>
+    <div class="sev"><span class="pill crit">Bloquant démo</span></div>
+    <h4>Portail client inaccessible depuis l'interface</h4>
+    <p>Le jeton portail n'est jamais renvoyé par l'API (choix de sécurité correct), mais la liste des clients conditionnait le bouton « copier le lien » à sa présence : il ne s'affichait jamais.</p>
+    <p class="fix">Route <code>/api/clients/[id]/portal-link</code> réservée aux rôles écriture : afficher, régénérer, révoquer — chaque consultation journalisée. Vérifié : ancien jeton → 404 après régénération, jeton révoqué → 404.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-03</b>bloquant</div><div>
+    <div class="sev"><span class="pill crit">Bloquant démo</span></div>
+    <h4>Missions figées en brouillon</h4>
+    <p>Le kanban était en lecture seule ; aucune route ne permettait de faire avancer une mission (PATCH → 405). Les statuts « En cours », « À réviser », « Terminée » n'étaient jamais atteints.</p>
+    <p class="fix">API <code>/api/missions/[id]</code> avec transitions contrôlées (refus 409 explicite), fiche <code>/missions/[id]</code>, menu d'avancement sur chaque carte du kanban.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-04</b>majeur</div><div>
+    <div class="sev"><span class="pill crit">Majeur</span></div>
+    <h4>Écritures validées absentes du bilan</h4>
+    <p>La validation depuis « Abonnés TPE » passe une écriture en <code>APPROVED</code> ; le déversement en production ne prenait que <code>PENDING</code>. Une écriture validée par l'expert n'entrait donc jamais dans le bilan, le résultat ni le FEC.</p>
+    <p class="fix">Déversement de <code>PENDING</code> et <code>APPROVED</code>. Re-test : 18 écritures déversées, bilan équilibré.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-05</b>majeur</div><div>
+    <div class="sev"><span class="pill crit">Majeur</span></div>
+    <h4>Documents figés en « PROCESSING »</h4>
+    <p>L'OCR serveur ne rendait jamais la main : le worker Tesseract, bundlé par Turbopack, ne retrouvait plus son chemin. En Node pur, la même image est reconnue en 5 s à 95 %.</p>
+    <p class="fix"><code>tesseract.js</code> et <code>sharp</code> externalisés (<code>serverExternalPackages</code>), délai maximal 45 s (statut ERROR au lieu d'un blocage), <code>maxDuration</code> 60 s, cache des langues dans <code>/tmp</code> (seul répertoire inscriptible sur Vercel).</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-06</b>sécurité</div><div>
+    <div class="sev"><span class="pill crit">Sécurité</span></div>
+    <h4>Webhook vers une adresse interne accepté (SSRF)</h4>
+    <p>Un compte staff pouvait enregistrer <code>http://localhost/…</code> ou une IP privée comme destination de webhook et faire sonder le réseau interne par le serveur.</p>
+    <p class="fix">Seules les URL <code>https://</code> vers un hôte public sont acceptées ; identifiants dans l'URL refusés.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-07</b>majeur</div><div>
+    <div class="sev"><span class="pill warn">Intégrité</span></div>
+    <h4>Montants négatifs ou nuls acceptés à l'import</h4>
+    <p>Une ligne « −5 » était importée en valeur absolue sans avertissement ; une ligne à 0 créait deux écritures vides.</p>
+    <p class="fix">Rejet explicite avec le numéro de ligne et le motif ; aucune écriture n'est enregistrée si une ligne est invalide.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-08</b>robustesse</div><div>
+    <div class="sev"><span class="pill warn">Robustesse</span></div>
+    <h4>Cinq routes répondaient 500 « Erreur serveur » à une saisie invalide</h4>
+    <p>Alertes fraude (sévérité, statut), dépenses (catégorie), réunions (type, fin avant début), relances sans facture, paie sans salarié — cette dernière créant au passage une période de paie « VALIDATED » vide.</p>
+    <p class="fix">Validation des énumérations avec message listant les valeurs admises (400), contrôle de cohérence des dates, vérification des salariés avant toute écriture.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-09</b>ergonomie</div><div>
+    <div class="sev"><span class="pill info">Ergonomie</span></div>
+    <h4>Raccourcis mobiles sans action, overlay vocal simulé, alert() natifs</h4>
+    <p>« Scanner facture » et « Nouvelle mission » du menu flottant ne faisaient rien ; « Note vocale IA » jouait une transcription scriptée avec des chiffres inventés ; 13 retours utilisateur passaient par <code>alert()</code>.</p>
+    <p class="fix">Liens réels, overlay supprimé au profit de <code>/nexus-go</code> (vraie reconnaissance vocale), système de notifications, sidebar dédoublonnée (44 destinations uniques), fiches reliées.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-10</b>ergonomie</div><div>
+    <div class="sev"><span class="pill info">Ergonomie</span></div>
+    <h4>Application non utilisable sur téléphone</h4>
+    <p>Grilles à 3-7 colonnes forcées, chiffres en 72 px, barres d'onglets tronquées, boutons flottants recouvrant le contenu, erreur d'hydratation sur le hub.</p>
+    <p class="fix">Filet CSS mobile, barres d'onglets défilantes, formatage des heures en fuseau fixe ; 30 écrans vérifiés sans débordement à 375 px.</p>
+  </div></div>
+  <div class="finding"><div class="id"><b>C-11</b>chaîne</div><div>
+    <div class="sev"><span class="pill info">Chaîne de livraison</span></div>
+    <h4>Intégration continue en échec depuis le 1<sup>er</sup> septembre, APK jamais produit</h4>
+    <p>Conflit de dépendances (<code>nodemailer</code> 9 / <code>next-auth</code>), action GitHub disparue, Java 17 pour Capacitor 8, URL de production obsolète dans la configuration Android.</p>
+    <p class="fix">CI verte (typecheck, lint, 388 tests, build) et APK <code>app-debug.apk</code> généré à chaque push.</p>
+  </div></div>
+
+  <h2>Limites à connaître avant la démo</h2>
+  <p>Non corrigées dans cette session : soit parce qu'elles relèvent d'une configuration ou d'un prestataire externe, soit parce qu'elles demandent une évolution de modèle de données à décider.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Limite</th><th>Impact en démo</th><th>Voie de résolution</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">L1</td><td><b>Bot WhatsApp inopérant</b> — <code>WHATSAPP_APP_SECRET</code> absent : le journal de production montre des notifications Meta refusées (« signature_invalide »).</td><td><span class="pill crit">Bloquant</span> si le bot est montré</td><td>Renseigner le secret d'application Meta dans les variables Vercel, redéployer.</td></tr>
+        <tr><td class="mono">L2</td><td><b>Criblage sanctions partiel</b> — OFAC interrogé ; listes UE/ONU/PEP non interrogées (<code>OPENSANCTIONS_API_KEY</code> absente). L'écran le dit clairement.</td><td><span class="pill warn">À annoncer</span></td><td>Souscrire une clé OpenSanctions.</td></tr>
+        <tr><td class="mono">L3</td><td><b>E-dépôt DGI non connecté</b> — l'API répond 503 avec un message honnête ; le dépôt reste manuel.</td><td><span class="pill warn">À annoncer</span></td><td>Intégration au portail DGI (projet distinct).</td></tr>
+        <tr><td class="mono">L4</td><td><b>Signature électronique non qualifiée</b> — empreinte SHA-256 horodatée, journalisée mais non stockée sur la lettre ; pas de tiers de confiance.</td><td><span class="pill warn">À annoncer</span></td><td>Stocker l'empreinte sur la lettre ; prestataire eIDAS/AUSCGIE si exigé.</td></tr>
+        <tr><td class="mono">L5</td><td><b>Lignes de facture non conservées</b> — le modèle <code>Invoice</code> ne stocke que les totaux ; une facture éditée n'a pas de détail.</td><td><span class="pill warn">Visible</span> si l'on ouvre une facture</td><td>Ajouter <code>lines</code> au modèle et à l'impression (évolution courte).</td></tr>
+        <tr><td class="mono">L6</td><td><b>Import de balance générale absent</b> — la page « Import des données » est volontairement désactivée ; les états financiers se calculent à partir du journal d'écritures uniquement.</td><td><span class="pill warn">À annoncer</span> — un cabinet arrive souvent avec une balance</td><td>Modèle « balance importée » lu par le moteur SYSCOHADA, qui accepte déjà une balance en entrée.</td></tr>
+        <tr><td class="mono">L7</td><td><b>Paie Sénégal uniquement</b> — les autres pays sont refusés explicitement (conforme au README).</td><td><span class="pill info">Connu</span></td><td>Barèmes par pays.</td></tr>
+        <tr><td class="mono">L8</td><td><b>Heuristique OCR fournisseur / numéro naïve</b> — montants fiables, mais « FACTURE N 2026-117 » est lu comme nom de fournisseur.</td><td><span class="pill info">Mineur</span></td><td>Règles d'extraction par libellé.</td></tr>
+        <tr><td class="mono">L9</td><td><b>Limitation de débit en mémoire, CSP avec <code>unsafe-eval</code>, mots de passe de démo dans l'historique git</b> (rotation à confirmer).</td><td><span class="pill info">Hors démo</span></td><td>Redis/Upstash, nonces CSP, <code>npm run rotate:passwords</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Prérequis avant la démonstration</h2>
+  <ul class="todo">
+    <li><span class="box"></span><div><b>Ajouter <code>WHATSAPP_APP_SECRET</code> dans Vercel et redéployer</b><span>Sans lui, chaque message WhatsApp entrant est rejeté (L1). Vérifier ensuite avec <code>scripts/</code> de vérification du token.</span></div></li>
+    <li><span class="box"></span><div><b>Confirmer que <code>expert-pi.vercel.app</code> sert le commit <code>534e735</code></b><span>Le déploiement Vercel se déclenche à chaque push ; ouvrir <code>/clients</code>, cliquer un dossier : la fiche doit s'afficher.</span></div></li>
+    <li><span class="box"></span><div><b>Préparer un jeu de données de démo cohérent</b><span>La base contient encore des clients de test hétérogènes (« Chez Awa Test Verification », factures au client « N/A »). Créer 3 dossiers propres avec écritures, factures et lettres — ou utiliser <code>npm run seed:demo</code> sur une base dédiée.</span></div></li>
+    <li><span class="box"></span><div><b>Écrire le scénario en évitant L3, L4, L6</b><span>Parcours conseillé : hub → fiche client → mission (démarrer, terminer) → scan d'une facture (OCR) → import d'écritures → validation → bilan / liasse → export FEC → facture d'honoraires → portail client.</span></div></li>
+    <li><span class="box"></span><div><b>Tourner les mots de passe de démo exposés dans l'historique git</b><span><code>npm run rotate:passwords</code> si ce n'est pas déjà fait (voir L9).</span></div></li>
+  </ul>
+
+  <h2>Ce que le scénario recommandé montre</h2>
+  <p>Chaque étape ci-dessous a été exécutée avec succès pendant la campagne, avec les valeurs indiquées.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Étape</th><th>Écran</th><th>Résultat attendu</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Hub <code>/bi</code></td><td>Accueil personnalisé, recherche parmi 41 modules (« paie » → 2 résultats).</td></tr>
+        <tr><td>2</td><td>Clients → fiche</td><td>Indicateurs, onglets, lien portail affiché puis régénéré.</td></tr>
+        <tr><td>3</td><td>Mission → « Démarrer »</td><td>Statut En cours, puis Terminée avec date de clôture.</td></tr>
+        <tr><td>4</td><td>Scan OCR</td><td>Facture image : HT 100 000 / TVA 18 000 / TTC 118 000, confiance 94 %.</td></tr>
+        <tr><td>5</td><td>Ingestion → Connecteurs</td><td>8 transactions → 16 écritures, 2 à qualifier (compte 471).</td></tr>
+        <tr><td>6</td><td>Production → validation → déversement</td><td>18 écritures en production.</td></tr>
+        <tr><td>7</td><td>États financiers</td><td>Bilan équilibré 624 069, résultat net 398 305, liasse déposable.</td></tr>
+        <tr><td>8</td><td>Export FEC</td><td>Fichier <code>009999999FEC20261231.txt</code> au format normé.</td></tr>
+        <tr><td>9</td><td>Facturation</td><td>FAC-2026-0xx, 826 000 FCFA TTC, cycle envoyée → payée.</td></tr>
+        <tr><td>10</td><td>Portail client</td><td>Accès par lien, données du dossier, jeton révocable.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">Les chiffres de ce rapport proviennent des réponses réelles de l'API pendant la campagne ; les données de test ont été supprimées de la base de production après vérification.</div>
+
+  <div class="foot">Cabinet 360 v2.0.0 · Next.js 16 · Prisma / MongoDB Atlas · 223 pages · 148 routes API · 388 tests · Rapport généré le 11/09/2026</div>
+</div>
