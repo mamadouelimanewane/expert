@@ -36,7 +36,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["@prisma/client", "prisma"],
+  // tesseract.js lance un worker_thread depuis un chemin de node_modules :
+  // bundlé par Turbopack, ce chemin n'existe plus et la reconnaissance ne
+  // rend jamais la main (documents figés en PROCESSING). sharp embarque des
+  // binaires natifs. Les deux doivent rester résolus depuis node_modules.
+  serverExternalPackages: ["@prisma/client", "prisma", "tesseract.js", "sharp"],
   turbopack: {
     root: __dirname,
   },

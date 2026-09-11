@@ -1,9 +1,13 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import prisma from '@/lib/prisma';
 import { processUploadedInvoice } from '@/lib/ocr-engine';
+
+// L'OCR d'une facture prend 5 à 30 s : au-delà des 10 s par défaut de Vercel
+// la fonction était coupée avant d'écrire le statut final du document.
+export const maxDuration = 60;
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
 

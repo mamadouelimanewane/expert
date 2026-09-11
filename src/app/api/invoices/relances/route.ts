@@ -71,7 +71,10 @@ export async function POST(req: Request) {
     if (denied) return denied;
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
+    if (typeof body.invoiceId !== "string" || body.invoiceId.length !== 24) {
+      return NextResponse.json({ error: "invoiceId requis." }, { status: 400 });
+    }
     const invoice = await prisma.invoice.findUnique({
       where: { id: body.invoiceId },
       include: { client: { select: { companyName: true, firstName: true, lastName: true, email: true } } },

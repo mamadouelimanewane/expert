@@ -91,3 +91,25 @@ export function estIntrouvable(error: unknown): boolean {
         (error as { code?: string }).code === "P2025"
     );
 }
+
+/**
+ * Vérifie qu'une valeur reçue appartient à une énumération Prisma.
+ *
+ * Une valeur hors liste (« HIGH » pour une sévérité, « OPEN » pour un statut)
+ * faisait échouer Prisma en PrismaClientValidationError, renvoyée en 500
+ * « Erreur serveur » : l'appelant ne pouvait pas savoir que sa saisie était
+ * en cause. Retourne un message listant les valeurs admises.
+ */
+export function analyserEnum<T extends string>(
+    valeur: unknown,
+    admises: readonly T[],
+    libelle: string
+): { ok: true; valeur: T } | { ok: false; raison: string } {
+    if (typeof valeur === "string" && (admises as readonly string[]).includes(valeur)) {
+        return { ok: true, valeur: valeur as T };
+    }
+    return {
+        ok: false,
+        raison: `${libelle} invalide : valeurs admises ${admises.join(", ")}.`,
+    };
+}

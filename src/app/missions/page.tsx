@@ -2,11 +2,12 @@ export const dynamic = 'force-dynamic';
 
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import { MissionStatusMenu, type StatutMission } from "@/components/missions/MissionStatusMenu";
 import {
     CheckCircle2,
     Clock,
     AlertCircle,
-    MoreVertical,
+   
     Plus,
     ArrowRight,
     Briefcase,
@@ -107,9 +108,6 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                                         <h3 className="font-extrabold text-foreground uppercase tracking-wider text-xs">{col.title}</h3>
                                         <span className="text-[10px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-md border border-border">{colMissions.length}</span>
                                     </div>
-                                    <button disabled title="Non implémenté" className="p-1 rounded-lg text-muted-foreground cursor-not-allowed opacity-50">
-                                        <MoreVertical className="w-4 h-4" />
-                                    </button>
                                 </div>
 
                                 {/* Tasks List */}
@@ -125,12 +123,12 @@ export default async function MissionsPage({ searchParams }: { searchParams?: Pr
                                                         #{mission.id.slice(-4)}
                                                     </span>
                                                 </div>
-                                                <button disabled title="Non implémenté" className="text-muted-foreground opacity-50 cursor-not-allowed">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
+                                                <MissionStatusMenu id={mission.id} statut={mission.status as StatutMission} />
                                             </div>
 
-                                            <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors text-sm sm:text-base leading-snug">{mission.title}</h4>
+                                            <h4 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors text-sm sm:text-base leading-snug">
+                                                <Link href={`/missions/${mission.id}`}>{mission.title}</Link>
+                                            </h4>
                                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
                                                 <span className="w-1.5 h-1.5 bg-muted-foreground/50 rounded-full inline-block" />
                                                 {mission.client?.companyName}

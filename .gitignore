@@ -45,3 +45,6 @@ next-env.d.ts
 # Documents contenant des identifiants — ne jamais versionner
 docs/CREDENTIALS.md
 docs/**/CREDENTIALS*.md
+
+# Pièces déposées via /api/documents (UPLOAD_DIR)
+/uploads

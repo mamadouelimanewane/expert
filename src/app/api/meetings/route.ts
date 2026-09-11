@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MeetingType } from "@prisma/client";
+import { analyserEnum } from "@/lib/api-auth";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
@@ -48,6 +50,17 @@ export async function POST(request: NextRequest) {
     if (!title || !startTime || !endTime) {
       return NextResponse.json({ error: "Champs requis manquants (title, startTime, endTime)" }, { status: 400 });
     }
+    const typeReunion = analyserEnum(type ?? "PRESENTIEL", Object.values(MeetingType), "Type de réunion");
+    if (!typeReunion.ok) {
+      return NextResponse.json({ error: typeReunion.raison }, { status: 400 });
+    }
+    const debut = new Date(startTime), fin = new Date(endTime);
+    if (Number.isNaN(debut.getTime()) || Number.isNaN(fin.getTime())) {
+      return NextResponse.json({ error: "Dates de début et de fin invalides." }, { status: 400 });
+    }
+    if (fin <= debut) {
+      return NextResponse.json({ error: "La fin de la réunion doit être postérieure à son début." }, { status: 400 });
+    }
 
     // Le connecteur MongoDB de Prisma n'applique pas d'integrite
     // referentielle a l'ecriture : un clientId au format ObjectId valide
@@ -65,7 +78,7 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description: description || undefined,
-        type: type || "VIRTUELLE",
+        type: typeReunion.valeur,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         location: location || undefined,

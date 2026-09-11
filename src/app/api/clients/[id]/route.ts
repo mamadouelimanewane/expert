@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/api-auth";
+import { AuditService } from "@/lib/audit";
+import { estIntrouvable, requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { clientUpdateSchema, parseBody } from "@/lib/validation";
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+type Params = { params: Promise<{ id: string }> };
+
+export async function GET(request: Request, { params }: Params) {
     const { denied } = await requireStaff();
     if (denied) return denied;
 
@@ -15,6 +19,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         // jeton — y compris vers les trois pages d impression d etats financiers
         // qui n appellent cet endpoint que pour lire une raison sociale, faisant
         // transiter le secret dans le navigateur de chaque collaborateur.
+        // Le lien portail s'obtient explicitement via /api/clients/[id]/portal-link.
         const client = await prisma.client.findUnique({
             where: { id },
             omit: { portalToken: true },
@@ -25,6 +30,82 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return NextResponse.json({ client });
     } catch (error) {
         console.error("Erreur GET clients/[id]:", error);
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    }
+}
+
+/**
+ * Modification partielle d'une fiche client.
+ *
+ * Il n'existait aucun moyen de corriger un dossier après sa création : une
+ * faute dans un NINEA ou un changement d'adresse imposait de recréer le
+ * client et de perdre ses missions, factures et écritures.
+ */
+export async function PATCH(request: Request, { params }: Params) {
+    const { denied } = await requireWriteAccess();
+    if (denied) return denied;
+
+    const { data, invalid } = await parseBody(request, clientUpdateSchema);
+    if (invalid) return invalid;
+
+    try {
+        const { id } = await params;
+        const avant = await prisma.client.findUnique({ where: { id }, omit: { portalToken: true } });
+        if (!avant) {
+            return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
+        }
+        const client = await prisma.client.update({
+            where: { id },
+            data,
+            omit: { portalToken: true },
+        });
+        const champs = Object.keys(data) as (keyof typeof data)[];
+        await AuditService.log({
+            action: "UPDATE",
+            entity: "CLIENT",
+            entityId: id,
+            oldValue: Object.fromEntries(champs.map((c) => [c, (avant as Record<string, unknown>)[c]])),
+            newValue: data,
+            details: `Fiche client modifiée : ${champs.join(", ")}`,
+        });
+        return NextResponse.json({ client });
+    } catch (error) {
+        if (estIntrouvable(error)) {
+            return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
+        }
+        console.error("Erreur PATCH clients/[id]:", error);
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    }
+}
+
+/**
+ * Désactivation (archivage) d'un client — jamais de suppression physique :
+ * un dossier porte des écritures, des factures numérotées et des lettres de
+ * mission signées qui doivent rester consultables. Le portail est coupé.
+ */
+export async function DELETE(request: Request, { params }: Params) {
+    const { denied } = await requireWriteAccess();
+    if (denied) return denied;
+
+    try {
+        const { id } = await params;
+        const client = await prisma.client.update({
+            where: { id },
+            data: { isActive: false, portalEnabled: false },
+            select: { id: true, companyName: true, isActive: true, portalEnabled: true },
+        });
+        await AuditService.log({
+            action: "DELETE",
+            entity: "CLIENT",
+            entityId: id,
+            details: `Client archivé : ${client.companyName ?? id} (portail désactivé)`,
+        });
+        return NextResponse.json({ client, message: "Client archivé. Ses données restent consultables." });
+    } catch (error) {
+        if (estIntrouvable(error)) {
+            return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
+        }
+        console.error("Erreur DELETE clients/[id]:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }

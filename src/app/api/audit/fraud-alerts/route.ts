@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { FraudAlertSeverity, FraudAlertStatus } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
+import { analyserEnum } from "@/lib/api-auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
 
@@ -16,8 +18,16 @@ export async function GET(request: NextRequest) {
         const severity = searchParams.get("severity");
 
         const where: Record<string, unknown> = {};
-        if (status) where.status = status;
-        if (severity) where.severity = severity;
+        if (status) {
+            const s = analyserEnum(status, Object.values(FraudAlertStatus), "Statut");
+            if (!s.ok) return NextResponse.json({ error: s.raison }, { status: 400 });
+            where.status = s.valeur;
+        }
+        if (severity) {
+            const s = analyserEnum(severity, Object.values(FraudAlertSeverity), "Sévérité");
+            if (!s.ok) return NextResponse.json({ error: s.raison }, { status: 400 });
+            where.severity = s.valeur;
+        }
 
         const alerts = await prisma.fraudAlert.findMany({
             where,
@@ -158,12 +168,16 @@ export async function POST(request: NextRequest) {
         if (!montant.ok) {
             return NextResponse.json({ error: montant.raison }, { status: 400 });
         }
+        const gravite = analyserEnum(severity ?? "MOYENNE", Object.values(FraudAlertSeverity), "Sévérité");
+        if (!gravite.ok) {
+            return NextResponse.json({ error: gravite.raison }, { status: 400 });
+        }
 
         const alert = await prisma.fraudAlert.create({
             data: {
                 title,
                 description,
-                severity: severity || "MOYENNE",
+                severity: gravite.valeur,
                 amount: montant.valeur,
                 ruleTriggered,
                 clientId: clientId || null,

@@ -96,12 +96,19 @@ export async function POST(request: Request) {
             // Number("1 250,00") vaut NaN, ramené à 0 par le `|| 0`, et la ligne
             // était abandonnée sans trace pendant que la réponse annonçait
             // `importees: transactions.length`.
-            const analyse = analyserMontant(tx.amount);
+            // Le sens est porté par la colonne `type` : un montant négatif ou nul
+            // est ambigu (dépense saisie en négatif ? erreur de colonne ?) et
+            // était auparavant retourné en valeur absolue sans avertir.
+            const analyse = analyserMontant(tx.amount, { min: 0 });
             if (!analyse.ok) {
                 lignesRejetees.push(`Ligne ${numero} (${libelle}) : ${analyse.raison}`);
                 continue;
             }
-            const montant = Math.abs(analyse.valeur);
+            if (analyse.valeur === 0) {
+                lignesRejetees.push(`Ligne ${numero} (${libelle}) : montant nul.`);
+                continue;
+            }
+            const montant = analyse.valeur;
             if (montant === 0) {
                 lignesRejetees.push(`Ligne ${numero} (${libelle}) : montant nul.`);
                 continue;

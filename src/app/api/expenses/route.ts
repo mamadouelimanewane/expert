@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ExpenseCategory } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontant } from "@/lib/validation";
-import { WRITE_ROLES } from "@/lib/api-auth";
+import { WRITE_ROLES, analyserEnum } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
     try {
@@ -55,11 +56,15 @@ export async function POST(request: NextRequest) {
         if (!montant.ok) {
             return NextResponse.json({ error: montant.raison }, { status: 400 });
         }
+        const categorie = analyserEnum(category ?? "AUTRE", Object.values(ExpenseCategory), "Catégorie");
+        if (!categorie.ok) {
+            return NextResponse.json({ error: categorie.raison }, { status: 400 });
+        }
 
         const expense = await prisma.expense.create({
             data: {
                 label,
-                category: category || "AUTRE",
+                category: categorie.valeur,
                 amount: montant.valeur,
                 expenseDate: new Date(expenseDate),
                 missionId: missionId || null,

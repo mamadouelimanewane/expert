@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Building2, Search, MoreHorizontal, MapPin, Phone, FileText, LayoutGrid, List, Activity, Globe, Briefcase, MessageSquare, ArrowUpRight, Copy, Check, ExternalLink } from "lucide-react";
+import { Users, Building2, Search, MoreHorizontal, MapPin, Phone, FileText, LayoutGrid, List, Activity, Globe, Briefcase, MessageSquare, ArrowUpRight, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Client } from "@/types/prisma";
 import { ResponsiveDataList } from "@/components/layout/ResponsiveComponents";
@@ -25,14 +25,7 @@ export default function ClientsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [clients, setClients] = useState<ClientWithCount[]>([]);
     const [loading, setLoading] = useState(true);
-    const [copiedId, setCopiedId] = useState<string | null>(null);
 
-    const copyPortalLink = (token: string, clientId: string) => {
-        const url = `${window.location.origin}/portal/${token}`;
-        navigator.clipboard.writeText(url);
-        setCopiedId(clientId);
-        setTimeout(() => setCopiedId(null), 2000);
-    };
 
     useEffect(() => {
         fetchClients();
@@ -91,9 +84,9 @@ export default function ClientsPage() {
                     />
                 </div>
 
-                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-primary hover:brightness-110 text-white rounded-2xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-3 transition-all shadow-md shadow-primary/20 active:scale-95">
+                <Link href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-primary hover:brightness-110 text-white rounded-2xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-3 transition-all shadow-md shadow-primary/20 active:scale-95">
                     <Briefcase className="w-4 h-4" /> Nouveau Dossier
-                </a>
+                </Link>
             </div>
 
             {/* Main Content */}
@@ -135,11 +128,13 @@ export default function ClientsPage() {
                                         )}>
                                             {client.type === "ENTREPRISE" ? <Building2 className="w-5 h-5" /> : <Users className="w-5 h-5" />}
                                         </div>
-                                        <button disabled title="Non implémenté" onClick={(e) => e.preventDefault()} className="text-muted-foreground opacity-50 cursor-not-allowed p-1.5 rounded-lg">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
+                                        <Link href={`/clients/${client.id}`} title="Ouvrir la fiche client" className="text-muted-foreground hover:text-primary p-1.5 rounded-lg hover:bg-primary/10">
+                                            <ArrowUpRight className="w-4 h-4" />
+                                        </Link>
                                     </div>
-                                    <h3 className="font-bold text-foreground text-base leading-tight mb-1 line-clamp-2">{name}</h3>
+                                    <h3 className="font-bold text-foreground text-base leading-tight mb-1 line-clamp-2">
+                                        <Link href={`/clients/${client.id}`} className="hover:text-primary">{name}</Link>
+                                    </h3>
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{client.sector || "SECTEUR NON DÉFINI"}</p>
                                 </div>
 
@@ -170,16 +165,17 @@ export default function ClientsPage() {
                                 </div>
 
                                 {/* Lien Portail PMI */}
-                                {(client as any).portalToken && (client as any).portalEnabled && (
+                                {(client as any).portalEnabled && (
                                     <div className="flex items-center gap-2 p-2.5 bg-primary/5 border border-primary/15 rounded-xl relative z-10">
                                         <ExternalLink className="w-3 h-3 text-primary flex-shrink-0" />
                                         <span className="text-[10px] text-primary font-bold flex-1 truncate">Portail actif</span>
-                                        <button
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); copyPortalLink((client as any).portalToken, client.id); }}
+                                        <Link
+                                            href={`/clients/${client.id}#portail`}
+                                            onClick={(e) => e.stopPropagation()}
                                             className="flex items-center gap-1 px-2 py-1 bg-primary/20 hover:brightness-110/30 rounded-lg text-primary text-[9px] font-black transition-colors"
                                         >
-                                            {copiedId === client.id ? <><Check className="w-3 h-3" /> Copié!</> : <><Copy className="w-3 h-3" /> Copier URL</>}
-                                        </button>
+                                            <Copy className="w-3 h-3" /> Lien d&apos;accès
+                                        </Link>
                                     </div>
                                 )}
 
@@ -187,7 +183,7 @@ export default function ClientsPage() {
                                     <div className="flex gap-1">
                                         <ActionButton icon={Phone} title={client.phone ? `Appeler ${client.phone}` : "Aucun téléphone renseigné"} href={client.phone ? `tel:${client.phone}` : undefined} />
                                         <ActionButton icon={MessageSquare} title={client.phone ? "Ouvrir WhatsApp" : "Aucun téléphone renseigné"} href={client.phone ? `https://wa.me/${client.phone.replace(/\D/g, "")}` : undefined} />
-                                        <ActionButton icon={FileText} title="Non disponible : pas de fiche client détaillée" />
+                                        <Link href={`/clients/${client.id}`} title="Fiche client" className="p-2.5 rounded-xl bg-slate-800/50 text-slate-400 hover:brightness-110 hover:text-white transition-all hover:scale-110 hover:shadow-lg border border-white/5"><FileText className="w-3.5 h-3.5" /></Link>
                                     </div>
                                     <span className={cn(
                                         "px-2.5 py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider border",
@@ -201,12 +197,12 @@ export default function ClientsPage() {
                     })}
 
                     {/* Add Client Card */}
-                    <a href="/clients/new" className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-primary/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
+                    <Link href="/clients/new" className="glass-card p-6 rounded-[32px] border-2 border-dashed border-slate-700/50 hover:border-primary/50 bg-slate-900/10 flex flex-col items-center justify-center gap-4 group cursor-pointer transition-all min-h-[250px]">
                         <div className="w-16 h-16 rounded-full bg-slate-800 group-hover:brightness-110 transition-colors flex items-center justify-center shadow-2xl">
                             <Briefcase className="w-6 h-6 text-slate-400 group-hover:text-white" />
                         </div>
                         <p className="text-[10px] font-black text-slate-500 group-hover:text-primary uppercase tracking-widest">Nouveau Dossier</p>
-                    </a>
+                    </Link>
                 </div>
             ) : (
                 <div className="glass-card rounded-[40px] border border-white/5 bg-slate-900/20 overflow-hidden shadow-2xl">

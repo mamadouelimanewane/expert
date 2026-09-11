@@ -125,6 +125,31 @@ export const clientCreateSchema = z
 
 export const invoiceStatut = z.enum(["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"]);
 
+// Modification partielle d'un client : mêmes règles que la création, tous
+// les champs optionnels (une fiche se corrige champ par champ).
+export const clientUpdateSchema = z
+    .object({
+        type: z.enum(["ENTREPRISE", "PARTICULIER", "ASSOCIATION"]).optional(),
+        companyName: texteOptionnel(200),
+        firstName: texteOptionnel(100),
+        lastName: texteOptionnel(100),
+        email: z.string().trim().email("Adresse email invalide").optional(),
+        phone: texteOptionnel(40),
+        rccm: texteOptionnel(50),
+        ninea: texteOptionnel(50),
+        ifu: texteOptionnel(50),
+        nif: texteOptionnel(50),
+        fiscalRegime: z.enum(["REEL_NORMAL", "REEL_SIMPLIFIE", "CME", "MICRO_ENTREPRISE"]).optional(),
+        sector: texteOptionnel(120),
+        country: codePays.optional(),
+        address: texteOptionnel(300),
+        city: texteOptionnel(120),
+        postalCode: texteOptionnel(20),
+        subjectToTva: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+    })
+    .refine((v) => Object.keys(v).length > 0, { message: "Aucun champ à modifier" });
+
 export const invoiceLineSchema = z.object({
     designation: texteOptionnel(300),
     quantity: z.number().finite().positive("Quantité strictement positive attendue"),

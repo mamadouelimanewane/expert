@@ -118,8 +118,11 @@ export async function PATCH(request: Request) {
             return NextResponse.json({ error: "clientId requis." }, { status: 400 });
         }
 
+        // Les écritures validées une à une depuis « Abonnés TPE » passent en
+        // APPROVED : elles n'étaient ensuite jamais déversées (le filtre ne
+        // prenait que PENDING) et manquaient au bilan, au résultat et au FEC.
         const result = await prisma.tpeJournal.updateMany({
-            where: { periode, clientId, status: 'PENDING' },
+            where: { periode, clientId, status: { in: ['PENDING', 'APPROVED'] } },
             data: { status: 'EXPORTED', exportedAt: new Date() }
         });
 

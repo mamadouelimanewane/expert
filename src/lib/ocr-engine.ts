@@ -1,4 +1,6 @@
 import Tesseract from 'tesseract.js';
+
+const OCR_TIMEOUT_MS = 45_000;
 import sharp from 'sharp';
 import { analyserMontant } from "./validation";
 
@@ -45,14 +47,22 @@ export class OCREngine {
                 .sharpen()
                 .toBuffer();
 
-            // OCR avec Tesseract
-            const { data } = await Tesseract.recognize(processedImageBuffer, 'fra', {
-                logger: (m) => {
-                    if (m.status === 'recognizing text') {
-                        console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
-                    }
-                },
-            });
+            // OCR avec Tesseract — borné dans le temps : sans limite, un worker
+            // qui ne répond pas laissait la requête HTTP et le document en
+            // PROCESSING indéfiniment. Sur Vercel, la fonction est de toute
+            // façon coupée à 60 s.
+            const { data } = await Promise.race([
+                Tesseract.recognize(processedImageBuffer, 'fra', {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+                        }
+                    },
+                }),
+                new Promise<never>((_, reject) =>
+                    setTimeout(() => reject(new Error(`OCR interrompu après ${OCR_TIMEOUT_MS / 1000} s`)), OCR_TIMEOUT_MS)
+                ),
+            ]);
 
             console.log('✅ OCR completed with confidence:', data.confidence);
 
