@@ -124,7 +124,7 @@
     <div class="meta">
       <div><b>Date</b> 11 septembre 2026</div>
       <div><b>Dépôt</b> mamadouelimanewane/expert</div>
-      <div><b>Commits</b> a5433db → af07f1e (22)</div>
+      <div><b>Commits</b> a5433db → 80ed43d (24)</div>
       <div><b>Production</b> expert-pi.vercel.app</div>
       <div><b>Exécuté par</b> Claude Opus 5, session assistée</div>
     </div>
@@ -152,7 +152,7 @@
   <div class="figures">
     <div class="fig"><div class="n">≈ 95</div><div class="l">appels API vérifiés (3 phases, session réelle)</div></div>
     <div class="fig"><div class="n">46</div><div class="l">écrans rendus sans erreur d'exécution</div></div>
-    <div class="fig"><div class="n">17</div><div class="l">anomalies corrigées et re-testées</div></div>
+    <div class="fig"><div class="n">18</div><div class="l">anomalies corrigées ou fonctionnalités livrées</div></div>
     <div class="fig"><div class="n">388</div><div class="l">tests unitaires — 0 échec, typecheck et lint verts</div></div>
   </div>
 
@@ -269,6 +269,13 @@
     <p class="fix">Lecture CSV / Excel dans le navigateur (séparateur « ; » détecté, colonnes reconnues, lignes TOTAL ignorées), contrôle d'équilibre, enregistrement par dossier et période de clôture ; bilan, résultat, TFT et liasse préfèrent cette balance au journal et indiquent leur source. Vérifié : 12 comptes → actif = passif = 9 400 000, résultat 3 200 000.</p>
   </div></div>
 
+  <div class="finding"><div class="id"><b>C-15</b>fonctionnel</div><div>
+    <div class="sev"><span class="pill info">Fonctionnalité livrée</span></div>
+    <h4>Reconstitution d'une balance depuis un document scanné</h4>
+    <p>Une balance reçue en PDF scanné ou en photo devait être ressaisie. L'écran d'import propose désormais un mode « Balance scannée » : PDF natif (tableau puis texte), PDF scanné (pages rendues puis OCR) ou image (prétraitement puis Tesseract en mode tableau).</p>
+    <p class="fix">Analyseur tolérant au bruit OCR (O→0, l→1, tirets et « = » pour zéro, milliers en espaces ou points), reconnaissance de 1 à 6 colonnes de montants (soldes retenus), contrôle de la ligne TOTAL, lignes illisibles signalées jamais complétées, aperçu éditable avec confiance par ligne. Vérifié : image de balance 12 comptes → 12/12, totaux concordants, 88 %, 3 s ; PDF natif 4/4 ; 11 tests unitaires.</p>
+  </div></div>
+
   <h2>Limites à connaître avant la démo</h2>
   <p>Non corrigées dans cette session : soit parce qu'elles relèvent d'une configuration ou d'un prestataire externe, soit parce qu'elles demandent une évolution de modèle de données à décider.</p>
   <div class="tbl-wrap">
@@ -304,7 +311,7 @@
         <tr><td>2</td><td>Clients → fiche</td><td>Indicateurs, onglets, lien portail affiché puis régénéré.</td></tr>
         <tr><td>3</td><td>Mission → « Démarrer »</td><td>Statut En cours, puis Terminée avec date de clôture.</td></tr>
         <tr><td>4</td><td>Scan OCR</td><td>Facture image : HT 100 000 / TVA 18 000 / TTC 118 000, confiance 94 %.</td></tr>
-        <tr><td>5</td><td>États financiers → Import balance</td><td>Balance Excel 12 comptes reconnue, équilibrée, enregistrée pour 2025-12.</td></tr>
+        <tr><td>5</td><td>États financiers → Import balance</td><td>Balance Excel 12 comptes reconnue, équilibrée, enregistrée pour 2025-12 — ou balance scannée (PDF/photo) reconstituée par OCR et corrigée à l'écran.</td></tr>
         <tr><td>6</td><td>Ingestion → Connecteurs → validation</td><td>8 transactions → 16 écritures, 2 à qualifier (471), déversées en production.</td></tr>
         <tr><td>7</td><td>États financiers</td><td>Bilan depuis la balance : actif = passif = 9 400 000, résultat 3 200 000, liasse déposable (source affichée).</td></tr>
         <tr><td>8</td><td>Export FEC</td><td>Fichier <code>009999999FEC20261231.txt</code> au format normé.</td></tr>
@@ -316,5 +323,5 @@
 
   <div class="note">Les chiffres de ce rapport proviennent des réponses réelles de l'API pendant la campagne ; les données de test ont été supprimées de la base de production après vérification.</div>
 
-  <div class="foot">Cabinet 360 v2.0.0 · Next.js 16 · Prisma / MongoDB Atlas · 227 pages · 151 routes API · 388 tests · Rapport généré le 11/09/2026</div>
+  <div class="foot">Cabinet 360 v2.0.0 · Next.js 16 · Prisma / MongoDB Atlas · 227 pages · 152 routes API · 405 tests · Rapport généré le 11/09/2026</div>
 </div>

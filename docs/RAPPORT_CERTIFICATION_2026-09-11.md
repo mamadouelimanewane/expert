@@ -1,6 +1,6 @@
 # Certification Cabinet 360 — tests approfondis avant démonstration client
 
-**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → af07f1e · **Prod** : expert-pi.vercel.app
+**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → 80ed43d · **Prod** : expert-pi.vercel.app
 **Version complète (mise en page)** : `docs/RAPPORT_CERTIFICATION_2026-09-11.html`
 
 ## Verdict : apte à la démo, sous conditions
@@ -33,6 +33,7 @@ Conditions :
 | C-12 | Formulaire « Nouvelle facture » : `lineItems` envoyé, `lines` attendu → toute création échouait | Contrat aligné, lignes persistées, fiche `/billing/[id]` imprimable |
 | C-13 | Écritures saisies en « JUIN-2026 » jamais dans les états du mois (période non normalisée) | Normalisation AAAA-MM partout |
 | C-14 | Import de balance générale absent (page désactivée) | Import CSV/Excel + modèle BalanceImportee, prioritaire sur le journal dans bilan/résultat/TFT/liasse |
+| C-15 | Balance imprimée (PDF scanné, photo) inexploitable | Reconstitution OCR (`src/lib/ocr-balance.ts`, `POST /api/comptabilite/balance/ocr`) : PDF natif / scanné / image, aperçu éditable, contrôle des totaux — 12/12 comptes sur image réelle |
 
 ## Limites à annoncer
 
