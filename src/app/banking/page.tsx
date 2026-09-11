@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { toast } from "@/lib/toast";
 
 import { useState, useEffect } from "react";
 import {
@@ -71,7 +72,7 @@ export default function BankingPage() {
     // API banque) n'existe dans l'application : ce bouton ne doit donc rien
     // faire tant qu'une telle intégration n'est pas branchée.
     const handleSync = async () => {
-        alert("Aucune intégration bancaire n'est configurée. Utilisez l'import CSV/Wave depuis /ingest/connectors pour charger de vraies transactions.");
+        toast.info("Aucune intégration bancaire n'est configurée. Utilisez l'import CSV/Wave depuis Ingestion → Connecteurs pour charger de vraies transactions.", { title: "Synchronisation indisponible" });
     };
 
     const handleReconcile = async (txId: string, invId: string) => {
@@ -102,8 +103,8 @@ export default function BankingPage() {
             }
         }
         setIsSyncing(false);
-        if(matched > 0) alert(`${matched} flux lettrés automatiquement !`);
-        else alert("Aucun lettrage automatique possible.");
+        if (matched > 0) toast.success(`${matched} flux lettré${matched > 1 ? "s" : ""} automatiquement.`);
+        else toast.warning("Aucun lettrage automatique possible : aucune correspondance de montant et de date.");
     };
 
     const pendingTxCount = transactions.filter(t => t.status === "PENDING").length;

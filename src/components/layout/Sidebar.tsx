@@ -327,22 +327,27 @@ export function Sidebar() {
             <div className="lg:hidden fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe">
                 {isFabOpen && (
                     <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <button className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
+                        {/* Ces raccourcis étaient de simples <button> sans action :
+                            un appui ne faisait rien. Ils mènent désormais aux écrans
+                            correspondants et referment le menu. */}
+                        <Link href="/scan" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <ScanLine className="w-4 h-4" /> Scanner Facture
-                        </button>
+                        </Link>
                         <button 
                             onClick={startNexusGo}
                             className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary"
                         >
                             <Mic className="w-4 h-4" /> Note Vocale IA
                         </button>
-                        <button className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
+                        <Link href="/missions/new" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <PlusCircle className="w-4 h-4" /> Nouvelle Mission
-                        </button>
+                        </Link>
                     </div>
                 )}
                 <button
                     onClick={() => setIsFabOpen(!isFabOpen)}
+                    aria-label={isFabOpen ? "Fermer les actions rapides" : "Actions rapides"}
+                    aria-expanded={isFabOpen}
                     className={cn(
                         "w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all active:scale-95",
                         isFabOpen 

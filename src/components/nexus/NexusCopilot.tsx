@@ -44,11 +44,16 @@ export function NexusCopilot() {
         }
     };
 
+    // Sur mobile/tablette le bouton « + » des actions rapides occupe déjà
+    // l'angle inférieur droit (Sidebar) : Nexus se place au-dessus de lui
+    // pour ne pas être recouvert.
     return (
-        <div className="fixed bottom-6 right-4 sm:right-6 z-50">
+        <div className="fixed bottom-24 lg:bottom-6 right-4 sm:right-6 z-50">
             {/* Floating Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label="Ouvrir l'assistant Nexus"
+                title="Assistant Nexus"
                 className={cn(
                     "flex items-center justify-center rounded-full transition-all duration-500 shadow-[0_0_30px_rgba(79,70,229,0.5)]",
                     isOpen ? "w-14 h-14 bg-slate-800 text-slate-400 rotate-90 scale-0 opacity-0" : "w-16 h-16 bg-primary text-white hover:scale-110 rotate-0 scale-100 opacity-100"

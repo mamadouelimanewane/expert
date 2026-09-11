@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { toast } from "@/lib/toast";
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import * as XLSX from 'xlsx';
@@ -196,7 +197,7 @@ export default function InformelPage() {
                     }));
                 processData(parsed, file.name.replace(/\.[^.]+$/, ''));
             } catch (err) {
-                alert("Erreur lors de la lecture du fichier. Vérifiez le format.");
+                toast.error("Impossible de lire le fichier. Vérifiez son format.");
             }
         };
         reader.readAsArrayBuffer(file);
@@ -216,7 +217,7 @@ export default function InformelPage() {
 
     const saveToDatabase = async () => {
         if (!clientId) {
-            alert("Sélectionnez le client concerné avant d'enregistrer : sans cela, les écritures ne peuvent pas être rattachées au bon dossier.");
+            toast.warning("Sélectionnez le client concerné avant d'enregistrer : sans cela, les écritures ne peuvent pas être rattachées au bon dossier.");
             return;
         }
         setSaving(true);
@@ -230,7 +231,7 @@ export default function InformelPage() {
             if (!res.ok) throw new Error(data.error ?? 'Échec de la sauvegarde');
             setSavedCount(data.count);
         } catch {
-            alert("Erreur lors de la sauvegarde.");
+            toast.error("La sauvegarde a échoué. Réessayez.");
         } finally {
             setSaving(false);
         }
@@ -238,7 +239,7 @@ export default function InformelPage() {
 
     const exportToProduction = async () => {
         if (!clientId) {
-            alert("Sélectionnez le client concerné : l'export ne doit déverser que ses écritures.");
+            toast.warning("Sélectionnez le client concerné : l'export ne doit déverser que ses écritures.");
             return;
         }
         setExporting(true);
@@ -251,9 +252,9 @@ export default function InformelPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error ?? "Échec de l'export");
             setExported(true);
-            alert(`✅ ${data.message}`);
+            toast.success(data.message);
         } catch {
-            alert("Erreur lors de l'export.");
+            toast.error("L'export a échoué. Réessayez.");
         } finally {
             setExporting(false);
         }

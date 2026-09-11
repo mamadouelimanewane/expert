@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { toast } from "@/lib/toast";
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -132,16 +133,16 @@ export default function TpeDashboard() {
   const totalPending = tpeList.reduce((a, t) => a + t.pendingJournals, 0);
 
   const handleSendReport = () => {
-    alert("L'envoi de rapport par WhatsApp Business n'est pas encore configuré (variable WHATSAPP_VERIFY_TOKEN manquante). Aucun message n'a été envoyé.");
+    toast.warning("L'envoi par WhatsApp Business n'est pas encore configuré. Aucun message n'a été envoyé.", { title: "Envoi indisponible" });
   };
 
   const handleGenerateCredit = () => {
     if (!selected) return;
     if (selected.creditScore == null || selected.creditRating == null) {
-      alert(`Impossible de générer une attestation pour ${selected.businessName} : aucun score de solvabilité n'a encore été évalué pour ce client.`);
+      toast.info(`Impossible de générer une attestation pour ${selected.businessName} : aucun score de solvabilité n'a encore été évalué pour ce client.`, { duration: 12000 });
       return;
     }
-    alert(`Attestation de Revenus Informels — ${selected.businessName}\n\nScore: ${selected.creditRating} (${selected.creditScore}/100)\nCA de la période: ${selected.periodCA.toLocaleString()} F\n\nDonnées issues de la comptabilité TPE enregistrée. Brouillon à vérifier avant signature par l'Expert-Comptable — aucun fichier n'a été généré ou téléchargé.`);
+    toast.info(`Attestation de Revenus Informels — ${selected.businessName}\n\nScore: ${selected.creditRating} (${selected.creditScore}/100)\nCA de la période: ${selected.periodCA.toLocaleString()} F\n\nDonnées issues de la comptabilité TPE enregistrée. Brouillon à vérifier avant signature par l'Expert-Comptable — aucun fichier n'a été généré ou téléchargé.`, { duration: 12000 });
   };
 
   if (loading) {
