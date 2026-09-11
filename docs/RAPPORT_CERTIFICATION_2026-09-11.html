@@ -124,7 +124,7 @@
     <div class="meta">
       <div><b>Date</b> 11 septembre 2026</div>
       <div><b>Dépôt</b> mamadouelimanewane/expert</div>
-      <div><b>Commits</b> a5433db → e9a603d (19)</div>
+      <div><b>Commits</b> a5433db → af07f1e (22)</div>
       <div><b>Production</b> expert-pi.vercel.app</div>
       <div><b>Exécuté par</b> Claude Opus 5, session assistée</div>
     </div>
@@ -134,7 +134,7 @@
     <div>
       <div class="eyebrow">Verdict</div>
       <p style="margin-top:8px"><strong>L'application est apte à une démonstration client</strong> sur les parcours testés : création et suivi d'un dossier client, missions, temps, facturation, lettres de mission, import et validation d'écritures, bilan / compte de résultat / TFT / liasse, export FEC, scan OCR, audit et conformité. Les 14 anomalies bloquantes ou majeures relevées ont été corrigées et re-testées ; un second lot a ensuite livré l'import de balance générale, les lignes de facture et la fiche facture imprimable (C-12 à C-14).</p>
-      <p style="margin:0">Trois conditions restent à remplir avant la démo (ci-contre), et cinq limites fonctionnelles doivent être connues du présentateur pour ne pas être découvertes devant le client.</p>
+      <p style="margin:0">Trois conditions restent à remplir avant la démo (ci-contre), et quatre limites fonctionnelles doivent être connues du présentateur pour ne pas être découvertes devant le client.</p>
     </div>
     <div class="stamp">
       <div class="eyebrow">Décision</div>
@@ -278,9 +278,8 @@
         <tr><td class="mono">L1</td><td><b>Bot WhatsApp inopérant</b> — <code>WHATSAPP_APP_SECRET</code> absent : le journal de production montre des notifications Meta refusées (« signature_invalide »).</td><td><span class="pill crit">Bloquant</span> si le bot est montré</td><td>Renseigner le secret d'application Meta dans les variables Vercel, redéployer.</td></tr>
         <tr><td class="mono">L2</td><td><b>Criblage sanctions partiel</b> — OFAC interrogé ; listes UE/ONU/PEP non interrogées (<code>OPENSANCTIONS_API_KEY</code> absente). L'écran le dit clairement.</td><td><span class="pill warn">À annoncer</span></td><td>Souscrire une clé OpenSanctions.</td></tr>
         <tr><td class="mono">L3</td><td><b>E-dépôt DGI non connecté</b> — l'API répond 503 avec un message honnête ; le dépôt reste manuel.</td><td><span class="pill warn">À annoncer</span></td><td>Intégration au portail DGI (projet distinct).</td></tr>
-        <tr><td class="mono">L4</td><td><b>Signature électronique non qualifiée</b> — empreinte SHA-256 horodatée, journalisée mais non stockée sur la lettre ; pas de tiers de confiance.</td><td><span class="pill warn">À annoncer</span></td><td>Stocker l'empreinte sur la lettre ; prestataire eIDAS/AUSCGIE si exigé.</td></tr>
+        <tr><td class="mono">L4</td><td><b>Signature électronique non qualifiée</b> — empreinte SHA-256 horodatée, stockée sur la lettre ; pas de tiers de confiance.</td><td><span class="pill warn">À annoncer</span></td><td>Prestataire eIDAS/AUSCGIE si une signature qualifiée est exigée.</td></tr>
         <tr><td class="mono">L7</td><td><b>Paie Sénégal uniquement</b> — les autres pays sont refusés explicitement (conforme au README).</td><td><span class="pill info">Connu</span></td><td>Barèmes par pays.</td></tr>
-        <tr><td class="mono">L8</td><td><b>Heuristique OCR fournisseur / numéro naïve</b> — montants fiables, mais « FACTURE N 2026-117 » est lu comme nom de fournisseur.</td><td><span class="pill info">Mineur</span></td><td>Règles d'extraction par libellé.</td></tr>
         <tr><td class="mono">L9</td><td><b>Limitation de débit en mémoire, CSP avec <code>unsafe-eval</code>, mots de passe de démo dans l'historique git</b> (rotation à confirmer).</td><td><span class="pill info">Hors démo</span></td><td>Redis/Upstash, nonces CSP, <code>npm run rotate:passwords</code>.</td></tr>
       </tbody>
     </table>
@@ -290,7 +289,7 @@
   <ul class="todo">
     <li><span class="box"></span><div><b>Ajouter <code>WHATSAPP_APP_SECRET</code> dans Vercel et redéployer</b><span>Sans lui, chaque message WhatsApp entrant est rejeté (L1). Vérifier ensuite avec <code>scripts/</code> de vérification du token.</span></div></li>
     <li><span class="box"></span><div><b>Confirmer que <code>expert-pi.vercel.app</code> sert le commit <code>534e735</code></b><span>Le déploiement Vercel se déclenche à chaque push ; ouvrir <code>/clients</code>, cliquer un dossier : la fiche doit s'afficher.</span></div></li>
-    <li><span class="box"></span><div><b>Préparer un jeu de données de démo cohérent</b><span>La base contient encore des clients de test hétérogènes (« Chez Awa Test Verification », factures au client « N/A »). Créer 3 dossiers propres avec écritures, factures et lettres — ou utiliser <code>npm run seed:demo</code> sur une base dédiée.</span></div></li>
+    <li><span class="box"></span><div><b>Jeu de données de démo — fait</b><span><code>scripts/prepare-demo.ts --apply</code> exécuté : client de test et doublons archivés, 36 factures complétées d'une ligne, 2 lettres de mission, balance 2025-12 de 30 comptes pour Traoré Import-Export (bilan 30,4 M équilibré, résultat 4,6 M). Relançable sans effet de bord.</span></div></li>
     <li><span class="box"></span><div><b>Écrire le scénario en évitant L3 et L4</b><span>Parcours conseillé : hub → fiche client → mission (démarrer, terminer) → scan d'une facture (OCR) → import d'une balance Excel → bilan / liasse → export FEC → facture d'honoraires imprimée → portail client.</span></div></li>
     <li><span class="box"></span><div><b>Tourner les mots de passe de démo exposés dans l'historique git</b><span><code>npm run rotate:passwords</code> si ce n'est pas déjà fait (voir L9).</span></div></li>
   </ul>

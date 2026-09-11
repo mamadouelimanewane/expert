@@ -1,6 +1,6 @@
 # Certification Cabinet 360 — tests approfondis avant démonstration client
 
-**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → e9a603d · **Prod** : expert-pi.vercel.app
+**Date** : 11 septembre 2026 (mis à jour après le lot « balance + factures ») · **Commits** : a5433db → af07f1e · **Prod** : expert-pi.vercel.app
 **Version complète (mise en page)** : `docs/RAPPORT_CERTIFICATION_2026-09-11.html`
 
 ## Verdict : apte à la démo, sous conditions
@@ -37,8 +37,8 @@ Conditions :
 ## Limites à annoncer
 
 L1 WhatsApp (secret manquant) · L2 criblage UE/ONU/PEP (clé OpenSanctions absente) ·
-L3 e-dépôt DGI non connecté · L4 signature = empreinte SHA-256 interne ·
-L7 paie Sénégal uniquement · L8 heuristique OCR fournisseur naïve ·
+L3 e-dépôt DGI non connecté · L4 signature = empreinte SHA-256 interne (désormais stockée sur la lettre), pas de tiers de confiance ·
+L7 paie Sénégal uniquement ·
 L9 rate limiting mémoire, CSP unsafe-eval, mots de passe démo dans l'historique git.
 
 ## Scénario recommandé
@@ -47,6 +47,8 @@ Hub → fiche client (lien portail) → mission (démarrer, terminer) → scan O
 (HT 100 000 / TVA 18 000 / TTC 118 000) → import 8 transactions → validation →
 déversement → bilan équilibré / liasse déposable → export FEC → facture
 826 000 FCFA (envoyée → payée) → portail client.
+
+Mise en état de la base de démo exécutée (`scripts/prepare-demo.ts --apply`) : client de test et 2 doublons archivés, 36 factures complétées, 2 lettres de mission, balance 2025-12 (30 comptes) pour Traoré Import-Export → bilan 30,4 M équilibré, résultat 4,6 M.
 
 Nouveau parcours vérifié : balance 12 comptes → bilan équilibré 9 400 000 / résultat 3 200 000 / liasse déposable ; CSV Excel FR (5 comptes) via l'écran → bilan présélectionné ; facture 2 lignes → 1 003 000 TTC imprimable.
 
