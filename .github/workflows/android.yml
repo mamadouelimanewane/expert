@@ -13,11 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up NDK
-        uses: nstack-io/setup-ndk@v1.0.0
-        with:
-          ndk-version: r21e
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -25,7 +20,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts --legacy-peer-deps
 
       - name: Generate Prisma Client
         run: npx prisma generate
