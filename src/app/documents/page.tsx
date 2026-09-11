@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -145,7 +146,14 @@ export default function SmartGEDPage() {
                                 <span className="text-sm font-black text-white">{count}</span>
                             </div>
                         ))}
-                        {files.length === 0 && <p className="text-sm text-slate-500">Aucun document déposé pour l'instant.</p>}
+                        {files.length === 0 && (
+                            <EmptyState
+                                size="compact"
+                                icon={UploadCloud}
+                                title="Aucun document déposé"
+                                description="Déposez une facture ou un relevé : l'OCR local en extrait les montants sans rien transmettre à un service tiers."
+                            />
+                        )}
                     </div>
                 </div>
 

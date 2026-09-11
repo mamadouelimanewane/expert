@@ -1,23 +1,10 @@
-﻿"use client";
+"use client";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    Receipt,
-    Plus,
-    Filter,
-    Download,
-    CreditCard,
-    ArrowUpRight,
-    ArrowDownRight,
-    Clock,
-    CheckCircle2,
-    AlertCircle,
-    MoreVertical,
-    Mail,
-    Smartphone,
-    Loader2
-} from "lucide-react";
+import { Receipt, Plus, Filter, Download, CreditCard, ArrowUpRight, ArrowDownRight, Clock, CheckCircle2, AlertCircle, MoreVertical, Mail, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PaymentModal } from "@/components/fintech/PaymentModal";
 
@@ -152,10 +139,7 @@ export default function BillingPage() {
 
                 <div className="overflow-x-auto">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                            <p className="text-slate-500 font-medium">Chargement des données financières...</p>
-                        </div>
+                        <LoadingState label="Chargement des factures…" skeleton="rows" count={5} />
                     ) : (
                         <table className="apix-table text-left text-sm">
                             <thead className="bg-slate-900/30 text-slate-500 font-medium">
@@ -169,6 +153,18 @@ export default function BillingPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800">
+                                {invoices.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6}>
+                                            <EmptyState
+                                                icon={Receipt}
+                                                title="Aucune facture émise"
+                                                description="Créez votre première facture d'honoraires : elle apparaîtra ici avec son statut d'encaissement et ses relances."
+                                                action={{ label: "Nouvelle facture", href: "/billing/new" }}
+                                            />
+                                        </td>
+                                    </tr>
+                                )}
                                 {invoices.map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-800/20 group transition-colors">
                                         <td className="px-6 py-4">

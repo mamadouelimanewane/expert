@@ -1,23 +1,9 @@
 "use client";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 import { useState, useEffect, useMemo } from "react";
-import {
-    Clock,
-    CalendarDays,
-    Play,
-    Pause,
-    Plus,
-    BarChart3,
-    AlertTriangle,
-    CheckCircle2,
-    Save,
-    ChevronLeft,
-    ChevronRight,
-    TrendingDown,
-    Briefcase,
-    Zap,
-    Users
-} from "lucide-react";
+import { Clock, CalendarDays, Play, Pause, Plus, AlertTriangle, Save, TrendingDown, Briefcase, Zap, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RawEntry {
@@ -188,7 +174,7 @@ export default function TimesheetsPage() {
     const billableRate = totalDuration > 0 ? Math.round((nonAdminDuration / totalDuration) * 100) : 0;
 
     if (loading) {
-        return <div className="p-8 text-slate-400">Chargement des feuilles de temps…</div>;
+        return <LoadingState label="Chargement des feuilles de temps…" skeleton="rows" count={6} />;
     }
 
     return (
@@ -365,8 +351,13 @@ export default function TimesheetsPage() {
                             })}
                             {rows.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="py-8 text-center text-slate-500 text-sm">
-                                        Aucune saisie pour l'instant. Ajoutez une mission ci-dessus pour commencer.
+                                    <td colSpan={7}>
+                                        <EmptyState
+                                            size="compact"
+                                            icon={Clock}
+                                            title="Aucune saisie cette semaine"
+                                            description="Sélectionnez une mission dans la liste ci-dessus pour ajouter une ligne, puis renseignez vos heures jour par jour."
+                                        />
                                     </td>
                                 </tr>
                             )}

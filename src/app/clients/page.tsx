@@ -1,36 +1,11 @@
 "use client";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 // Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    Users,
-    Building2,
-    Search,
-    Filter,
-    MoreHorizontal,
-    MapPin,
-    Phone,
-    Calendar,
-    FileText,
-    LayoutGrid,
-    List,
-    TrendingUp,
-    Activity,
-    AlertCircle,
-    CheckCircle2,
-    Globe,
-    Briefcase,
-    MessageSquare,
-    Star,
-    ArrowUpRight,
-    PieChart,
-    Download,
-    Loader2,
-    Copy,
-    Check,
-    ExternalLink
-} from "lucide-react";
+import { Users, Building2, Search, MoreHorizontal, MapPin, Phone, FileText, LayoutGrid, List, Activity, Globe, Briefcase, MessageSquare, ArrowUpRight, Copy, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Client } from "@/types/prisma";
 import { ResponsiveDataList } from "@/components/layout/ResponsiveComponents";
@@ -123,22 +98,19 @@ export default function ClientsPage() {
 
             {/* Main Content */}
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-4">
-                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                    <p className="text-muted-foreground font-medium">Chargement de votre portefeuille...</p>
-                </div>
+                <LoadingState label="Chargement de votre portefeuille…" skeleton="cards" count={6} />
             ) : filteredClients.length === 0 ? (
-                <div className="apix-card flex flex-col items-center justify-center text-center gap-4 p-8">
-                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center shadow-inner">
-                        <Users className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-bold text-foreground mb-1">Aucun client trouvé</h3>
-                        <p className="text-muted-foreground max-w-xs mx-auto text-sm">Commencez par ajouter votre premier client pour gérer ses missions et sa fiscalité.</p>
-                    </div>
-                    <a href="/clients/new" className="mt-4 px-6 py-2.5 bg-primary text-white hover:brightness-110 rounded-xl font-bold text-xs transition-all shadow-sm">
-                        Ajouter un client
-                    </a>
+                <div className="apix-card">
+                    <EmptyState
+                        icon={Users}
+                        title={searchTerm ? "Aucun client ne correspond" : "Aucun client pour l'instant"}
+                        description={searchTerm
+                            ? `Aucun dossier ne contient « ${searchTerm} ». Vérifiez l'orthographe ou élargissez la recherche.`
+                            : "Commencez par ajouter votre premier client pour gérer ses missions et sa fiscalité."}
+                        action={searchTerm
+                            ? { label: "Effacer la recherche", onClick: () => setSearchTerm("") }
+                            : { label: "Ajouter un client", href: "/clients/new", icon: Briefcase }}
+                    />
                 </div>
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">

@@ -1231,3 +1231,21 @@ button:disabled, [aria-disabled="true"] {
 .c360-toast-close:hover { color: var(--foreground, #0f172a); }
 @keyframes c360-toast-in  { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
 @keyframes c360-toast-out { to { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+
+/* ── Boutons primaires : un seul rendu quel que soit l'écran ───────────────
+   263 boutons/liens `bg-primary` avec 5 rayons et autant d'ombres différentes.
+   Le fond, le léger relief, le survol et l'ombre sont désormais communs ;
+   le rayon reste celui choisi par l'écran (pilule, xl, 2xl). */
+:is(button, a, [role="button"])[class*="bg-primary"]:not([class*="bg-primary/"]) {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 55%);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+:is(button, a, [role="button"])[class*="bg-primary"]:not([class*="bg-primary/"]):hover:not(:disabled) {
+  filter: brightness(1.07);
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+/* Halos colorés (shadow-primary/30…) trop lourds : ramenés à une ombre douce */
+[class*="shadow-primary/"] {
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--primary) 45%, transparent);
+}
