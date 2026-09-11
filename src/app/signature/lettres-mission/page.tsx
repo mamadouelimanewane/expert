@@ -73,7 +73,7 @@ export default function SignaturePage() {
         await fetch("/api/engagement-letters", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: selectedDoc.id, status: "SIGNEE" }),
+          body: JSON.stringify({ id: selectedDoc.id, status: "SIGNEE", signatureHash: data.certificateHash }),
         });
         setDocs(prev => prev.map(d => d.id === selectedDoc.id ? { ...d, status: "Signé" } : d));
         setSelectedDoc(prev => prev ? { ...prev, status: "Signé" } : prev);

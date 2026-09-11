@@ -133,7 +133,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { id, status, signedAt, signatoryName } = body;
+        const { id, status, signedAt, signatoryName, signatureHash } = body;
 
         if (!id) {
             return NextResponse.json({ error: "id requis" }, { status: 400 });
@@ -144,6 +144,7 @@ export async function PATCH(request: NextRequest) {
             data: {
                 ...(status && { status }),
                 ...(status === "SIGNEE" ? { signedAt: signedAt ? new Date(signedAt) : new Date() } : {}),
+                ...(typeof signatureHash === "string" && /^[a-f0-9]{64}$/i.test(signatureHash) ? { signatureHash } : {}),
                 ...(signatoryName !== undefined && { signatoryName }),
             },
             include: {

@@ -1598,6 +1598,9 @@ model EngagementLetter {
   status        EngagementLetterStatus @default(BROUILLON)
   signedAt      DateTime?
   signatoryName String?
+  // Empreinte SHA-256 horodatée enregistrée à la signature (voir /api/signature).
+  // Permet de vérifier après coup que le document signé n\'a pas été altéré.
+  signatureHash String?
 
   clientId String @db.ObjectId
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)

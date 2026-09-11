@@ -92,22 +92,39 @@ export class OCREngine {
     static parseInvoiceData(text: string): InvoiceData {
         const data: InvoiceData = {};
 
-        // Extraction du numéro de facture
-        const invoiceNumberMatch = text.match(/(?:facture|invoice|n°|no|#)\s*:?\s*([A-Z0-9\-\/]+)/i);
+        const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+
+        // Numéro de facture : « FACTURE N° 2026-117 », « Facture no : F-0042 »,
+        // « Invoice # INV/2026/12 ». L'ancien motif capturait le « N » de « N° »
+        // ou de « N 2026-117 » comme numéro.
+        const invoiceNumberMatch = text.match(/(?:facture|invoice)\s*(?:n[°ºo]?\.?|#|num(?:[ée]ro)?)?\s*:?\s*([A-Z]{0,4}[-\/]?\d[A-Z0-9\-\/]{2,})/i)
+            ?? text.match(/(?:^|\s)(?:n[°º]|no\.?|#)\s*:?\s*([A-Z]{0,4}[-\/]?\d[A-Z0-9\-\/]{2,})/im);
         if (invoiceNumberMatch) {
             data.invoiceNumber = invoiceNumberMatch[1].trim();
         }
 
-        // Extraction de la date
-        const dateMatch = text.match(/(?:date|du)\s*:?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+        // Date : « Date : 12/09/2026 », « du 12-09-26 », « le 12/09/2026 »
+        const dateMatch = text.match(/(?:date|du|le|émise?\s*le)\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4})/i)
+            ?? text.match(/\b(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4})\b/);
         if (dateMatch) {
             data.date = dateMatch[1];
         }
 
-        // Extraction du fournisseur (première ligne souvent)
-        const lines = text.split('\n').filter(line => line.trim().length > 0);
-        if (lines.length > 0) {
-            data.supplier = lines[0].trim();
+        // Fournisseur : ligne explicite « Fournisseur : X » / « Émetteur : X » /
+        // « Vendeur : X », sinon la première ligne qui n'est ni un en-tête
+        // « FACTURE … », ni une date, ni un montant. La première ligne d'une
+        // facture est très souvent le mot « FACTURE » lui-même.
+        const fournisseurMatch = text.match(/(?:fournisseur|émetteur|emetteur|vendeur|société|societe|raison\s*sociale)\s*:?\s*([^\n]{3,80})/i);
+        if (fournisseurMatch) {
+            data.supplier = fournisseurMatch[1].trim();
+        } else {
+            const candidate = lines.find((l) =>
+                !/^(facture|invoice|proforma|devis|re[çc]u|quittance|bon\s+de)/i.test(l) &&
+                !/^(date|du|le|total|montant|tva|ht|ttc|n[°º]|no\b)/i.test(l) &&
+                !/^[\d\s.,\/\-:]+$/.test(l) &&
+                /[A-Za-zÀ-ÿ]{3,}/.test(l)
+            );
+            if (candidate) data.supplier = candidate.slice(0, 80);
         }
 
         // Extraction des montants
