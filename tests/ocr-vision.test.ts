@@ -64,3 +64,35 @@ describe("LectureVisionSchema", () => {
         expect(LectureVisionSchema.safeParse({ ...base, document: "balance", lignesBalance: [{ numero: "101000", intitule: "x", debit: "1 000", credit: 0, confiance: "haute", illisible: false, remarque: "" }], lignesJournal: [], totauxEcrits: { debit: 0, credit: 0, present: false } }).success).toBe(false);
     });
 });
+
+import { FactureVisionSchema, ocrDataDepuisFacture, type FactureVision } from "@/lib/ocr-vision";
+
+describe("ocrDataDepuisFacture — reçu manuscrit vers ocrData", () => {
+    const lecture: FactureVision = {
+        document: "recu", manuscrite: true, fournisseur: "Quincaillerie Diop", client: "", numero: "", date: "05/09/2026", devise: "FCFA",
+        totalHT: 0, tva: 0, totalTTC: 47_500,
+        lignes: [{ designation: "Ciment 3 sacs", quantite: 3, prixUnitaire: 12_500, montant: 37_500, illisible: false }, { designation: "Clous", quantite: 1, prixUnitaire: 10_000, montant: 10_000, illisible: false }],
+        modePaiement: "espèces",
+        confiance: { fournisseur: "haute", numero: "faible", date: "moyenne", montants: "haute" },
+        champsIllisibles: ["numero"], remarques: ["Pas de TVA mentionnée"],
+    };
+    const o = ocrDataDepuisFacture(lecture, "achat");
+    it("produit le même contrat que l'OCR local, avec les montants et le sens", () => {
+        expect(o.success).toBe(true);
+        expect(o.origine).toBe("IA_VISION");
+        expect(o.sens).toBe("achat");
+        expect(o.invoiceData).toMatchObject({ supplier: "Quincaillerie Diop", totalTTC: 47_500, date: "05/09/2026" });
+        expect(o.invoiceData.tva).toBeUndefined();
+        expect(o.invoiceData.items).toHaveLength(2);
+    });
+    it("signale ce qui manque sans l'inventer", () => {
+        expect(o.validation.valid).toBe(false);
+        expect(o.validation.missing).toEqual(["Numéro de facture"]);
+        expect(o.warnings).toContain("Illisible : numero");
+        expect(o.warnings).toContain("Pas de TVA mentionnée");
+        expect(o.confidence).toBe(Math.round((95 + 45 + 75 + 95) / 4));
+    });
+    it("le schéma refuse une confiance hors liste", () => {
+        expect(FactureVisionSchema.safeParse({ ...lecture, confiance: { ...lecture.confiance, date: "sûre" } }).success).toBe(false);
+    });
+});

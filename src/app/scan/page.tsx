@@ -1,22 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-    ScanLine,
-    UploadCloud,
-    FileCheck,
-    Loader2,
-    Save,
-    X,
-    Camera,
-    Sparkles,
-    AlertTriangle,
-    CheckCircle2,
-    Image as ImageIcon,
-    Download,
-    FileText,
-    FileSpreadsheet
-} from "lucide-react";
+import { ScanLine, UploadCloud, FileCheck, Loader2, Save, X, Camera, Sparkles, AlertTriangle, CheckCircle2, Image as ImageIcon, Download, FileText, FileSpreadsheet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Les pieces numerisees ici etaient enregistrees sans client : elles
@@ -35,6 +20,42 @@ export default function OCRPage() {
     const [clientId, setClientId] = useState<string>("");
     const [sens, setSens] = useState<"achat" | "vente" | "">("");
     const fileInputRef = useRef<HTMLInputElement>(null);
+    // Pièce déposée (id en base + fichier en mémoire) pour la relecture par IA
+    const [documentId, setDocumentId] = useState<string | null>(null);
+    const [fichierDepose, setFichierDepose] = useState<File | null>(null);
+    const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
+    const [iaEnCours, setIaEnCours] = useState(false);
+    const [lectureIA, setLectureIA] = useState<{ manuscrite: boolean; document: string; confiance: Record<string, string>; champsIllisibles: string[]; remarques: string[]; modele: string; cout: number } | null>(null);
+
+    useEffect(() => {
+        fetch("/api/documents/000000000000000000000000/relire-ia").then((r) => r.json()).then((d) => setIaDisponible(!!d.disponible)).catch(() => setIaDisponible(false));
+    }, []);
+
+    // Relecture de la pièce par le modèle de vision (manuscrit, photo
+    // dégradée). Opt-in : le fichier part vers l'API Anthropic.
+    const lireParIA = async () => {
+        if (!documentId || !fichierDepose) return;
+        setIaEnCours(true); setError(null);
+        try {
+            const fd = new FormData(); fd.append("file", fichierDepose); if (sens) fd.append("sens", sens);
+            const r = await fetch(`/api/documents/${documentId}/relire-ia`, { method: "POST", body: fd });
+            const d = await r.json();
+            if (!r.ok) { setError(d.error || "Lecture par IA impossible."); return; }
+            const data = d.ocrResult.invoiceData ?? {};
+            setExtractedData({
+                merchant: data.supplier || "Inconnu",
+                date: data.date || "",
+                total: data.totalTTC ? `${data.totalTTC.toLocaleString()} FCFA` : "",
+                tva: data.tva ? `${data.tva.toLocaleString()} FCFA` : "",
+                confidence: d.ocrResult.confidence ?? 0,
+                invoiceNumber: data.invoiceNumber || "",
+            });
+            setLectureIA({ manuscrite: d.lecture.manuscrite, document: d.lecture.document, confiance: d.lecture.confiance, champsIllisibles: d.lecture.champsIllisibles ?? [], remarques: d.lecture.remarques ?? [], modele: d.modele, cout: d.usage?.coutEstimeUSD ?? 0 });
+            setStep("review");
+        } catch {
+            setError("Lecture par IA impossible.");
+        } finally { setIaEnCours(false); }
+    };
 
     useEffect(() => {
         fetch("/api/clients")
@@ -89,6 +110,9 @@ export default function OCRPage() {
     const processOCR = async (file: File) => {
         setStep("scanning");
         setError(null);
+        setLectureIA(null);
+        setFichierDepose(file);
+        setDocumentId(null);
 
         try {
             const formData = new FormData();
@@ -107,6 +131,7 @@ export default function OCRPage() {
             if (!response.ok) {
                 throw new Error(result.error || "Une erreur est survenue lors de l'OCR");
             }
+            if (result.document?.id) setDocumentId(result.document.id);
 
             if (result.ocrResult?.success && result.ocrResult.invoiceData) {
                 const data = result.ocrResult.invoiceData;
@@ -205,6 +230,16 @@ export default function OCRPage() {
                                 : "border-slate-700 bg-slate-800/20 hover:bg-slate-800/40 hover:border-primary/50 cursor-pointer shadow-inner"
                     )} onClick={step === "upload" ? handleUploadClick : undefined}>
 
+                        {step === "upload" && documentId && iaDisponible && !iaEnCours && (
+                            <div className="relative z-20 mb-6 w-full max-w-md rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-left" onClick={(e) => e.stopPropagation()}>
+                                <p className="text-sm font-bold text-white">L&apos;OCR local n&apos;a pas suffi (écriture manuscrite, photo floue ?)</p>
+                                <p className="text-xs text-slate-400 mt-1">La pièce peut être relue par l&apos;IA : le fichier sera transmis à Anthropic.</p>
+                                <button type="button" onClick={lireParIA} className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold hover:brightness-110"><Sparkles className="w-4 h-4" /> Lire avec l&apos;IA (manuscrit)</button>
+                            </div>
+                        )}
+                        {step === "upload" && iaEnCours && (
+                            <div className="relative z-20 mb-6 text-sm text-slate-300 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Lecture par l&apos;IA en cours (15 à 40 s)…</div>
+                        )}
                         {step === "upload" && (
                             <>
                                 <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 group-hover:brightness-110 transition-all border border-white/5">
@@ -274,11 +309,31 @@ export default function OCRPage() {
                             </div>
                         </div>
                         {extractedData && (
-                            <div className="p-2 bg-emerald-500/10 rounded-xl">
-                                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                            <div className="flex items-center gap-2">
+                                {documentId && iaDisponible && !lectureIA && (
+                                    <button type="button" onClick={lireParIA} disabled={iaEnCours} title="Relire la pièce avec le modèle de vision (manuscrit, photo dégradée). Le fichier sera transmis à Anthropic." className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:brightness-110 disabled:opacity-60">
+                                        {iaEnCours ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} {iaEnCours ? "Lecture…" : "Relire avec l'IA"}
+                                    </button>
+                                )}
+                                <div className="p-2 bg-emerald-500/10 rounded-xl">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                </div>
                             </div>
                         )}
                     </div>
+
+                    {lectureIA && (
+                        <div className="relative z-10 mb-5 rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4 text-sm">
+                            <p className="font-bold text-white flex items-center gap-2"><Sparkles className="w-4 h-4 text-violet-300" /> Lu par l&apos;IA · {lectureIA.modele} · {lectureIA.manuscrite ? "écriture manuscrite" : "imprimé"} · {lectureIA.document} · ≈ {lectureIA.cout.toFixed(3)} $</p>
+                            <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                                {(["fournisseur", "numero", "date", "montants"] as const).map((k) => (
+                                    <span key={k} className={cn("px-2 py-0.5 rounded-full font-bold", lectureIA.confiance[k] === "haute" ? "bg-emerald-500/20 text-emerald-300" : lectureIA.confiance[k] === "moyenne" ? "bg-amber-500/20 text-amber-300" : "bg-rose-500/20 text-rose-300")}>{k} : {lectureIA.confiance[k]}</span>
+                                ))}
+                            </div>
+                            {lectureIA.champsIllisibles.length > 0 && <p className="mt-2 text-rose-300 text-xs">Illisible : {lectureIA.champsIllisibles.join(", ")} — à compléter à la main.</p>}
+                            {lectureIA.remarques.length > 0 && <ul className="mt-2 list-disc pl-5 text-slate-300 text-xs space-y-0.5">{lectureIA.remarques.map((r, i) => <li key={i}>{r}</li>)}</ul>}
+                        </div>
+                    )}
 
                     {extractedData ? (
                         <div className="space-y-6 flex-1 relative z-10">

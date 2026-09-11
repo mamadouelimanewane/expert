@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile } from 'fs/promises';
 import { join } from 'path';
-import { existsSync } from 'fs';
 import prisma from '@/lib/prisma';
 import { processUploadedInvoice } from '@/lib/ocr-engine';
+import { dossierUploads } from '@/lib/uploads';
 
 // L'OCR d'une facture prend 5 à 30 s : au-delà des 10 s par défaut de Vercel
 // la fonction était coupée avant d'écrire le statut final du document.
@@ -81,11 +81,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Créer le dossier uploads s'il n'existe pas
-        const uploadsDir = join(process.cwd(), 'uploads');
-        if (!existsSync(uploadsDir)) {
-            await mkdir(uploadsDir, { recursive: true });
-        }
+        // Dossier inscriptible (UPLOAD_DIR, sinon ./uploads, sinon /tmp sur Vercel)
+        const uploadsDir = dossierUploads();
 
         // Générer un nom de fichier unique
         const timestamp = Date.now();
