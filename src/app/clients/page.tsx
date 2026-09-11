@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 // Build: 2026-01-28 22:15
 
 import { useEffect, useState } from "react";
@@ -88,35 +88,35 @@ export default function ClientsPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700">
-            {/* Actions & Fitlers */}
+            {/* Actions & Filters */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
-                <div className="flex gap-2 p-1 bg-slate-900 border border-white/10 rounded-2xl self-start sm:self-auto">
+                <div className="flex gap-2 p-1 bg-card border border-border rounded-2xl self-start sm:self-auto shadow-sm">
                     <button
                         onClick={() => setViewMode("grid")}
-                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "grid" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "grid" ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:text-foreground")}
                     >
                         <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                     <button
                         onClick={() => setViewMode("list")}
-                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "list" ? "bg-primary text-white shadow-lg" : "text-slate-500 hover:text-white")}
+                        className={cn("p-2 sm:p-3 rounded-xl transition-all", viewMode === "list" ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:text-foreground")}
                     >
                         <List className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                 </div>
 
                 <div className="flex-1 w-full max-w-2xl relative group">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 group-focus-within:text-primary transition-colors" />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
                         placeholder="Rechercher par nom, RCCM, ville..."
-                        className="w-full pl-14 pr-6 py-3 sm:py-4 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-primary/50 outline-none transition-all shadow-inner text-sm"
+                        className="w-full pl-14 pr-6 py-3 sm:py-3.5 bg-card border border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/40 outline-none transition-all shadow-sm text-sm"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
 
-                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/30 active:scale-95">
+                <a href="/clients/new" className="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-primary hover:brightness-110 text-white rounded-2xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-3 transition-all shadow-md shadow-primary/20 active:scale-95">
                     <Briefcase className="w-4 h-4" /> Nouveau Dossier
                 </a>
             </div>
@@ -125,58 +125,56 @@ export default function ClientsPage() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                     <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                    <p className="text-slate-500 font-medium">Chargement de votre portefeuille...</p>
+                    <p className="text-muted-foreground font-medium">Chargement de votre portefeuille...</p>
                 </div>
             ) : filteredClients.length === 0 ? (
-                <div className="apix-card flex flex-col items-center justify-center text-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center shadow-inner">
-                        <Users className="w-10 h-10 text-slate-600" />
+                <div className="apix-card flex flex-col items-center justify-center text-center gap-4 p-8">
+                    <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center shadow-inner">
+                        <Users className="w-10 h-10 text-muted-foreground" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-white mb-1">Aucun client trouvé</h3>
-                        <p className="text-slate-500 max-w-xs mx-auto">Commencez par ajouter votre premier client pour gérer ses missions et sa fiscalité.</p>
+                        <h3 className="text-xl font-bold text-foreground mb-1">Aucun client trouvé</h3>
+                        <p className="text-muted-foreground max-w-xs mx-auto text-sm">Commencez par ajouter votre premier client pour gérer ses missions et sa fiscalité.</p>
                     </div>
-                    <a href="/clients/new" className="mt-4 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-all border border-white/5">
+                    <a href="/clients/new" className="mt-4 px-6 py-2.5 bg-primary text-white hover:brightness-110 rounded-xl font-bold text-xs transition-all shadow-sm">
                         Ajouter un client
                     </a>
                 </div>
             ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     {filteredClients.map((client) => {
                         const name = client.companyName || `${client.firstName} ${client.lastName}`;
-                        // Score de santé réel (calculé et persisté via /api/clients/[id]/health-score),
-                        // remplace l'ancienne formule fictive "isActive ? 85 : 45" ("mock feel").
                         const healthScore = (client as any).healthScore as number | null | undefined;
 
                         return (
-                            <div key={client.id} className="apix-card group hover:scale-[1.02] transition-all relative overflow-hidden flex flex-col justify-between h-full min-h-[250px]">
+                            <div key={client.id} className="apix-card group hover:scale-[1.01] transition-all relative overflow-hidden flex flex-col justify-between h-full min-h-[250px] p-5">
                                 <div className={cn(
-                                    "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-20 rounded-full pointer-events-none transition-all",
-                                    healthScore == null ? "bg-slate-500 group-hover:bg-slate-400" : healthScore > 80 ? "bg-emerald-500 group-hover:bg-emerald-400" : "bg-rose-500 group-hover:bg-rose-400"
+                                    "absolute top-0 right-0 w-24 h-24 blur-[40px] opacity-15 rounded-full pointer-events-none transition-all",
+                                    healthScore == null ? "bg-slate-400 group-hover:bg-slate-300" : healthScore > 80 ? "bg-emerald-500 group-hover:bg-emerald-400" : "bg-rose-500 group-hover:bg-rose-400"
                                 )} />
 
-                                <div className="relative z-10 mb-6">
-                                    <div className="flex justify-between items-start mb-4">
+                                <div className="relative z-10 mb-4">
+                                    <div className="flex justify-between items-start mb-3">
                                         <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-lg",
+                                            "w-11 h-11 rounded-xl flex items-center justify-center border shadow-sm",
                                             client.type === "ENTREPRISE"
                                                 ? "bg-primary/10 text-primary border-primary/20"
-                                                : "bg-cyan-500/10 text-cyan-400 border-cyan-500/20"
+                                                : "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20"
                                         )}>
-                                            {client.type === "ENTREPRISE" ? <Building2 className="w-6 h-6" /> : <Users className="w-6 h-6" />}
+                                            {client.type === "ENTREPRISE" ? <Building2 className="w-5 h-5" /> : <Users className="w-5 h-5" />}
                                         </div>
-                                        <button disabled title="Non implémenté" onClick={(e) => e.preventDefault()} className="text-slate-700 cursor-not-allowed p-2 rounded-xl">
-                                            <MoreHorizontal className="w-5 h-5" />
+                                        <button disabled title="Non implémenté" onClick={(e) => e.preventDefault()} className="text-muted-foreground opacity-50 cursor-not-allowed p-1.5 rounded-lg">
+                                            <MoreHorizontal className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <h3 className="font-bold text-white text-base sm:text-lg leading-tight mb-1 line-clamp-2">{name}</h3>
-                                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{client.sector || "SECTEUR NON DEFINI"}</p>
+                                    <h3 className="font-bold text-foreground text-base leading-tight mb-1 line-clamp-2">{name}</h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{client.sector || "SECTEUR NON DÉFINI"}</p>
                                 </div>
 
-                                <div className="space-y-4 mb-6 relative z-10">
-                                    <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
-                                        <MapPin className="w-3.5 h-3.5" />
-                                        {client.city ? `${client.city}, ` : ""}{client.country}
+                                <div className="space-y-3 mb-4 relative z-10">
+                                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                        <span className="truncate">{client.city ? `${client.city}, ` : ""}{client.country}</span>
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-white/5">
                                         <span className="text-[10px] text-slate-500 font-bold uppercase">Santé Client</span>

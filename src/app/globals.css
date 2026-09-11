@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Même police que la référence de présentation (apix-pap.vercel.app : Inter). */
   --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
@@ -130,83 +132,97 @@
 }
 
 /* =============================================
-   LIGHT THEME — Overrides des classes Tailwind hardcodées
-   Les pages utilisent bg-slate-900/40, text-white, etc.
-   Ces règles les remappent vers des tons clairs.
+   LIGHT THEME — Clean, Crisp & High-Contrast Design
+   Suppression des gris sombres/sales au profit d'un blanc net et lisible
    ============================================= */
 
-/* --- Backgrounds : variantes slate-900 --- */
-.light .bg-slate-900 { background-color: #f8fafc !important; }
-.light .bg-slate-900\/10 { background-color: rgba(248,250,252,0.5) !important; }
-.light .bg-slate-900\/20 { background-color: rgba(255,255,255,0.7) !important; }
-.light .bg-slate-900\/40 { background-color: rgba(255,255,255,0.85) !important; }
-.light .bg-slate-900\/50 { background-color: rgba(255,255,255,0.9) !important; }
-.light .bg-slate-900\/60 { background-color: rgba(255,255,255,0.92) !important; }
-.light .bg-slate-900\/80 { background-color: rgba(255,255,255,0.95) !important; }
-.light .bg-slate-900\/95 { background-color: rgba(255,255,255,0.98) !important; }
+/* --- Inputs, selects et textareas en mode clair --- */
+.light input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+.light select,
+.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
 
-/* --- Backgrounds : variantes slate-800 --- */
-.light .bg-slate-800 { background-color: #f1f5f9 !important; }
-.light .bg-slate-800\/30 { background-color: rgba(241,245,249,0.6) !important; }
-.light .bg-slate-800\/50 { background-color: rgba(241,245,249,0.8) !important; }
-.light .bg-slate-800\/60 { background-color: rgba(241,245,249,0.9) !important; }
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* --- Backgrounds : variantes slate-900 (Conteneurs clairs et nets) --- */
+.light .bg-slate-900 { background-color: #ffffff !important; }
+.light .bg-slate-900\/10 { background-color: #f8fafc !important; }
+.light .bg-slate-900\/20 { background-color: #f8fafc !important; }
+.light .bg-slate-900\/30 { background-color: #f1f5f9 !important; }
+.light .bg-slate-900\/40 { background-color: #f1f5f9 !important; }
+.light .bg-slate-900\/50 { background-color: #ffffff !important; }
+.light .bg-slate-900\/60 { background-color: #ffffff !important; }
+.light .bg-slate-900\/80 { background-color: #ffffff !important; }
+.light .bg-slate-900\/95 { background-color: #ffffff !important; }
+
+/* --- Backgrounds : variantes slate-800 (Cartes blanches impeccables) --- */
+.light .bg-slate-800 { background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
+.light .bg-slate-800\/30 { background-color: #ffffff !important; }
+.light .bg-slate-800\/50 { background-color: #ffffff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important; }
+.light .bg-slate-800\/60 { background-color: #ffffff !important; }
+.light .bg-slate-800\/80 { background-color: #ffffff !important; }
 
 /* --- Backgrounds : variantes slate-700 --- */
-.light .bg-slate-700 { background-color: #e2e8f0 !important; }
-.light .bg-slate-700\/30 { background-color: rgba(226,232,240,0.5) !important; }
-.light .bg-slate-700\/50 { background-color: rgba(226,232,240,0.7) !important; }
+.light .bg-slate-700 { background-color: #f1f5f9 !important; }
+.light .bg-slate-700\/30 { background-color: #f8fafc !important; }
+.light .bg-slate-700\/50 { background-color: #f1f5f9 !important; }
 
 /* --- Backgrounds : indigo dark → indigo clair --- */
-.light .bg-indigo-950\/30 { background-color: rgba(238,242,255,0.6) !important; }
+.light .bg-indigo-950\/30 { background-color: rgba(238,242,255,0.8) !important; }
 
-/* --- Backgrounds : variantes slate-950 ---
-   Seule la variante /20 était couverte ; bg-slate-950 en opacité pleine
-   (littéralement noir, #020617) et ses autres variantes d'opacité
-   (utilisées comme fond de bandeau "hero", d'input, d'en-tête de tableau
-   sur des dizaines de pages) n'étaient remappées nulle part : elles
-   restaient noires quel que soit le thème (bandeau /comptabilite/production
-   signalé par l'utilisateur, entre autres). */
-.light .bg-slate-950 { background-color: #f8fafc !important; }
-.light .bg-slate-950\/10 { background-color: rgba(248,250,252,0.5) !important; }
-.light .bg-slate-950\/20 { background-color: rgba(248,250,252,0.6) !important; }
-.light .bg-slate-950\/30 { background-color: rgba(255,255,255,0.75) !important; }
-.light .bg-slate-950\/40 { background-color: rgba(255,255,255,0.85) !important; }
-.light .bg-slate-950\/50 { background-color: rgba(255,255,255,0.9) !important; }
-.light .bg-slate-950\/60 { background-color: rgba(255,255,255,0.92) !important; }
-.light .bg-slate-950\/80 { background-color: rgba(255,255,255,0.95) !important; }
-.light .bg-slate-950\/90 { background-color: rgba(255,255,255,0.97) !important; }
-.light .bg-slate-950\/95 { background-color: rgba(255,255,255,0.98) !important; }
+/* --- Backgrounds : variantes slate-950 --- */
+.light .bg-slate-950 { background-color: #ffffff !important; }
+.light .bg-slate-950\/10 { background-color: #f8fafc !important; }
+.light .bg-slate-950\/20 { background-color: #f8fafc !important; }
+.light .bg-slate-950\/30 { background-color: #ffffff !important; }
+.light .bg-slate-950\/40 { background-color: #ffffff !important; }
+.light .bg-slate-950\/50 { background-color: #ffffff !important; }
+.light .bg-slate-950\/60 { background-color: #ffffff !important; }
+.light .bg-slate-950\/80 { background-color: #ffffff !important; }
+.light .bg-slate-950\/90 { background-color: #ffffff !important; }
+.light .bg-slate-950\/95 { background-color: #ffffff !important; }
 
-/* --- Textes --- */
+/* --- Textes : Contrastes nets et professionnels --- */
 .light .text-white { color: #0f172a !important; }
 .light .text-slate-200 { color: #1e293b !important; }
 .light .text-slate-300 { color: #334155 !important; }
+.light .text-slate-400 { color: #475569 !important; }
+.light .text-slate-500 { color: #64748b !important; }
 
-/* --- Bordures --- */
-.light .border-white\/5 { border-color: rgba(99,102,241,0.1) !important; }
-.light .border-white\/10 { border-color: rgba(99,102,241,0.15) !important; }
-.light .border-white\/20 { border-color: rgba(99,102,241,0.2) !important; }
+/* --- Bordures : Fines et subtiles en mode clair --- */
+.light .border-white\/5 { border-color: #e2e8f0 !important; }
+.light .border-white\/10 { border-color: #cbd5e1 !important; }
+.light .border-white\/20 { border-color: #94a3b8 !important; }
+.light .border-slate-800 { border-color: #e2e8f0 !important; }
+.light .border-slate-800\/50 { border-color: #e2e8f0 !important; }
+.light .border-slate-700 { border-color: #cbd5e1 !important; }
 
 /* --- Gradients hero sections --- */
-.light .from-slate-900 { --tw-gradient-from: #eef2ff !important; }
-.light .from-slate-900\/80 { --tw-gradient-from: rgba(238,242,255,0.8) !important; }
-.light .to-indigo-950\/30 { --tw-gradient-to: rgba(224,231,255,0.5) !important; }
-.light .to-slate-900 { --tw-gradient-to: #f0f4ff !important; }
-.light .via-slate-900 { --tw-gradient-via: #f4f7ff !important; }
+.light .from-slate-900 { --tw-gradient-from: #f8fafc !important; }
+.light .from-slate-900\/80 { --tw-gradient-from: #f8fafc !important; }
+.light .to-indigo-950\/30 { --tw-gradient-to: #f0fdf4 !important; }
+.light .to-slate-900 { --tw-gradient-to: #f8fafc !important; }
+.light .via-slate-900 { --tw-gradient-via: #f1f5f9 !important; }
 
 /* --- glass-card en mode clair --- */
 .light .glass-card {
   background: #ffffff !important;
   backdrop-filter: none !important;
-  border-color: rgba(99,102,241,0.12) !important;
-  box-shadow: 0 2px 16px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.05) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* --- Hover subtils en mode clair --- */
-.light .hover\:bg-white\/\[0\.02\]:hover { background-color: rgba(79,70,229,0.03) !important; }
-.light .hover\:bg-white\/5:hover { background-color: rgba(79,70,229,0.05) !important; }
-.light .bg-white\/5 { background-color: rgba(79,70,229,0.04) !important; }
-.light .bg-white\/10 { background-color: rgba(79,70,229,0.07) !important; }
+.light .hover\:bg-white\/\[0\.02\]:hover { background-color: #f8fafc !important; }
+.light .hover\:bg-white\/5:hover { background-color: #f1f5f9 !important; }
+.light .bg-white\/5 { background-color: #f8fafc !important; }
+.light .bg-white\/10 { background-color: #f1f5f9 !important; }
 
 /* =============================================
    ÉCRANS IMMERSIFS TOUJOURS SOMBRES (SHERLOCK HOLMES AI,
