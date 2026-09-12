@@ -6,6 +6,9 @@ import {
     calculerParts,
     calculerReductionChargeFamille,
     calculerTrimfMensuel,
+    PLAFOND_IPM,
+    PLAFOND_IPRES_RC,
+    PLAFOND_IPRES_RG,
     TRANSPORT_EXONERE,
     type PayrollParams,
 } from "@/lib/payroll/engines/senegal";
@@ -90,6 +93,12 @@ describe("nombre de parts", () => {
         expect(calculerParts("CELIBATAIRE", 3)).toBe(2.5);
     });
 
+    it("traite le veuf ou le divorcé avec enfants comme un marié, sans enfant comme un célibataire", () => {
+        expect(calculerParts("VEUF", 0)).toBe(1);
+        expect(calculerParts("VEUF", 1)).toBe(2);
+        expect(calculerParts("DIVORCE", 2)).toBe(2.5);
+    });
+
     it("plafonne à 5 parts", () => {
         expect(calculerParts("MARIE", 12)).toBe(5);
     });
@@ -149,6 +158,22 @@ describe("TRIMF (CGI art. 187)", () => {
     it("est nul sur une base nulle", () => {
         expect(calculerTrimfMensuel(0)).toBe(0);
     });
+
+    it("multiplie la TRIMF par les parts (conjoint sans revenu)", () => {
+        expect(calculerTrimfMensuel(5_000_000, 2)).toBeCloseTo((12_000 * 2) / 12, 5);
+    });
+
+    it("assoit la TRIMF sur le brut imposable, pas sur la base après abattement", () => {
+        // Brut 55 000 F/mois = 660 000 F/an → tranche 3 600 F (300 F/mois).
+        // Sur la base après cotisations et abattement (≈ 36 000 F/mois, 436 000 F/an)
+        // elle serait tombée dans la première tranche (75 F/mois).
+        const r = calculateSenegalPayroll(bulletin({ baseSalary: 55_000 }));
+        expect(r.detail.brutImposableAnnuel).toBe(660_000);
+        expect(r.detail.trimf).toBe(300);
+        const avecConjoint = calculateSenegalPayroll(bulletin({ baseSalary: 55_000, conjointsSansRevenu: 1 }));
+        expect(avecConjoint.detail.partsTrimf).toBe(2);
+        expect(avecConjoint.detail.trimf).toBe(600);
+    });
 });
 
 describe("heures supplémentaires (Code du travail)", () => {
@@ -205,10 +230,37 @@ describe("bulletin de paie complet", () => {
         expect(r.detail.ipresRegimeGeneral).toBe(Math.round(230_000 * 0.056));
     });
 
-    it("plafonne l'assiette IPRES du régime général", () => {
+    it("plafonne l'assiette IPRES du régime général à 432 000 F (CLEISS 2026)", () => {
+        expect(PLAFOND_IPRES_RG).toBe(432_000);
         const r = calculateSenegalPayroll(bulletin({ baseSalary: 2_000_000 }));
-        expect(r.detail.ipresRegimeGeneral).toBe(Math.round(360_000 * 0.056));
-        expect(r.detail.ipresRegimeGeneralPatronal).toBe(Math.round(360_000 * 0.084));
+        expect(r.detail.ipresRegimeGeneral).toBe(Math.round(432_000 * 0.056));
+        expect(r.detail.ipresRegimeGeneralPatronal).toBe(Math.round(432_000 * 0.084));
+    });
+
+    it("plafonne le régime complémentaire des cadres à 1 296 000 F", () => {
+        expect(PLAFOND_IPRES_RC).toBe(1_296_000);
+        const r = calculateSenegalPayroll(bulletin({ baseSalary: 3_000_000, isCadre: true }));
+        expect(r.detail.ipresRegimeComplementaire).toBe(Math.round(1_296_000 * 0.024));
+    });
+
+    it("intègre la cotisation maladie IPM quand elle est paramétrée, plafonnée à 250 000 F", () => {
+        const sans = calculateSenegalPayroll(bulletin({ baseSalary: 400_000 }));
+        expect(sans.detail.ipmSalarial).toBe(0);
+
+        const avec = calculateSenegalPayroll(
+            bulletin({ baseSalary: 400_000, ipmRateSalarial: 0.03, ipmRatePatronal: 0.03 })
+        );
+        expect(PLAFOND_IPM).toBe(250_000);
+        expect(avec.detail.ipmSalarial).toBe(7_500);
+        expect(avec.detail.ipmPatronal).toBe(7_500);
+        expect(avec.socialSecurity).toBe(sans.socialSecurity + 7_500);
+        // Part salariale déductible : l'impôt baisse.
+        expect(avec.detail.impotRevenu).toBeLessThan(sans.detail.impotRevenu);
+    });
+
+    it("signale une IPM au-delà de 7,5 % cumulés", () => {
+        const r = calculateSenegalPayroll(bulletin({ ipmRateSalarial: 0.05, ipmRatePatronal: 0.05 }));
+        expect(r.avertissements.join(" ")).toContain("IPM");
     });
 
     it("n'applique le régime complémentaire qu'aux cadres", () => {

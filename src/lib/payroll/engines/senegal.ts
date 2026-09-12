@@ -17,6 +17,20 @@
 //
 // Tous les barèmes sont annuels ; le calcul mensuel annualise la base puis
 // divise le résultat par douze, comme le fait la retenue à la source.
+//
+// Révision (septembre 2026), sources : CLEISS « Les cotisations au Sénégal »
+// (mise à jour 1er janvier 2026, https://www.cleiss.fr/docs/cotisations/senegal.html),
+// AfricaPaieRH « Cotisations sociales et impôts au Sénégal » (août 2024),
+// wiki OpenFisca-Sénégal (art. 173/174) :
+//  4. Les plafonds IPRES étaient obsolètes (360 000 / 1 080 000) : ils sont
+//     de 432 000 F (régime général) et 1 296 000 F (régime complémentaire).
+//  5. La TRIMF s'assoit sur le BRUT imposable annuel (brut + avantages en
+//     nature), pas sur la base après cotisations et abattement, et se
+//     multiplie par le nombre de parts TRIMF (1 + conjoints sans revenu).
+//  6. Cotisation maladie (IPM) : entre 2 % et 7,5 % partagés employeur /
+//     salarié, plafonnée à 250 000 F, taux fixé par l'IPM de l'entreprise —
+//     paramétrable, part salariale déductible de la base imposable.
+//  7. Veuf(ve) ou divorcé(e) avec enfants à charge : parts du marié.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface PayrollParams {
@@ -26,7 +40,10 @@ export interface PayrollParams {
     overtimeHours: number;
     bonuses: number;
     transportAllowance: number;
-    /** "MARIE" ouvre droit à 1,5 part ; toute autre valeur vaut 1 part. */
+    /**
+     * "MARIE" ouvre droit à 1,5 part ; "VEUF" ou "DIVORCE" avec enfants à
+     * charge idem ; toute autre valeur vaut 1 part.
+     */
     maritalStatus: string;
     childrenCount: number;
     /** Un cadre cotise en plus au régime complémentaire IPRES. */
@@ -42,20 +59,34 @@ export interface PayrollParams {
      * la classe de risque de l'entreprise : 1 %, 3 % ou 5 %. Défaut : 1 %.
      */
     accidentRate?: number;
+    /**
+     * Cotisation maladie (IPM) : taux salarial et patronal fixés par
+     * l'institution de l'entreprise (2 % à 7,5 % au total), assiette
+     * plafonnée à 250 000 F. Défaut : 0 (pas d'IPM paramétrée).
+     */
+    ipmRateSalarial?: number;
+    ipmRatePatronal?: number;
+    /** Conjoints sans revenu : chacun ajoute une part TRIMF (défaut 0). */
+    conjointsSansRevenu?: number;
 }
 
 export interface PayrollDetail {
     /** Cotisations salariales. */
     ipresRegimeGeneral: number;
     ipresRegimeComplementaire: number;
+    ipmSalarial: number;
     /** Cotisations patronales. */
     ipresRegimeGeneralPatronal: number;
     ipresRegimeComplementairePatronal: number;
     cssPrestationsFamiliales: number;
     cssAccidentTravail: number;
     cfce: number;
+    ipmPatronal: number;
     /** Impôt. */
     parts: number;
+    partsTrimf: number;
+    /** Brut imposable annuel, assiette de la TRIMF. */
+    brutImposableAnnuel: number;
     baseImposableAnnuelle: number;
     irAvantReduction: number;
     reductionChargeFamille: number;
@@ -81,10 +112,12 @@ export interface PayrollResult {
 
 // ── Barèmes ─────────────────────────────────────────────────────────────────
 
-/** Plafond mensuel de l'assiette IPRES régime général. */
-const PLAFOND_IPRES_RG = 360_000;
-/** Plafond mensuel de l'assiette IPRES régime complémentaire (cadres). */
-const PLAFOND_IPRES_RC = 1_080_000;
+/** Plafond mensuel de l'assiette IPRES régime général (4 968 000 F par an). */
+export const PLAFOND_IPRES_RG = 432_000;
+/** Plafond mensuel de l'assiette IPRES régime complémentaire, cadres (14 904 000 F par an). */
+export const PLAFOND_IPRES_RC = 1_296_000;
+/** Plafond mensuel de l'assiette de la cotisation maladie (IPM). */
+export const PLAFOND_IPM = 250_000;
 /** Plafond mensuel de l'assiette CSS (prestations familiales, accident travail). */
 const PLAFOND_CSS = 63_000;
 /** Indemnité de transport exonérée d'impôt et de cotisations, par mois. */
@@ -154,13 +187,19 @@ export function calculerIrBrutAnnuel(baseAnnuelle: number): number {
 }
 
 /**
- * Nombre de parts : 1 pour un célibataire, 1,5 pour une personne mariée,
- * plus 0,5 par enfant à charge, plafonné à 5 parts.
+ * Nombre de parts (CGI art. 174) : 1 pour un célibataire, 1,5 pour une
+ * personne mariée — ou veuve/divorcée ayant des enfants à charge —, plus
+ * 0,5 par enfant à charge, plafonné à 5 parts.
  */
 export function calculerParts(maritalStatus: string, childrenCount: number): number {
-    const base = maritalStatus?.toUpperCase() === "MARIE" ? 1.5 : 1;
-    const enfants = Math.max(0, Math.floor(childrenCount || 0)) * 0.5;
-    return Math.min(5, base + enfants);
+    const statut = (maritalStatus ?? "").toUpperCase();
+    const enfantsACharge = Math.max(0, Math.floor(childrenCount || 0));
+    const commeMarie =
+        statut === "MARIE" ||
+        ((statut === "VEUF" || statut === "VEUVE" || statut === "DIVORCE" || statut === "DIVORCEE") &&
+            enfantsACharge > 0);
+    const base = commeMarie ? 1.5 : 1;
+    return Math.min(5, base + enfantsACharge * 0.5);
 }
 
 /**
@@ -178,13 +217,18 @@ export function calculerReductionChargeFamille(irBrutAnnuel: number, parts: numb
     return Math.min(encadree, irBrutAnnuel);
 }
 
-/** TRIMF mensuel, déduit du barème annuel. */
-export function calculerTrimfMensuel(baseAnnuelle: number): number {
-    if (baseAnnuelle <= 0) return 0;
+/**
+ * TRIMF mensuelle, déduite du barème annuel appliqué au BRUT imposable
+ * annuel (brut + avantages en nature, avant cotisations et abattement), et
+ * multipliée par les parts TRIMF : 1 pour le salarié + 1 par conjoint sans
+ * revenu.
+ */
+export function calculerTrimfMensuel(brutImposableAnnuel: number, partsTrimf = 1): number {
+    if (brutImposableAnnuel <= 0) return 0;
     const tranche =
-        BAREME_TRIMF_ANNUEL.find((t) => baseAnnuelle < t.plafond) ??
+        BAREME_TRIMF_ANNUEL.find((t) => brutImposableAnnuel < t.plafond) ??
         BAREME_TRIMF_ANNUEL[BAREME_TRIMF_ANNUEL.length - 1];
-    return tranche.montant / 12;
+    return (tranche.montant * Math.max(1, partsTrimf)) / 12;
 }
 
 /**
@@ -227,12 +271,21 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
         overtimeNightHours = 0,
         overtimeHolidayHours = 0,
         accidentRate = 0.01,
+        ipmRateSalarial = 0,
+        ipmRatePatronal = 0,
+        conjointsSansRevenu = 0,
     } = params;
 
     const avertissements: string[] = [];
 
     if (baseSalary < 0) avertissements.push("Salaire de base négatif.");
     if (absencesDays > 30) avertissements.push("Plus de 30 jours d'absence sur un mois.");
+    if (![0.01, 0.03, 0.05].includes(accidentRate)) {
+        avertissements.push("Taux accident du travail hors des classes CSS (1 %, 3 % ou 5 %).");
+    }
+    if (ipmRateSalarial + ipmRatePatronal > 0.075) {
+        avertissements.push("Cotisation IPM supérieure au maximum réglementaire de 7,5 % (parts cumulées).");
+    }
 
     // ── 1. Salaire brut ─────────────────────────────────────────────────────
     const tauxJournalier = baseSalary / 30;
@@ -274,13 +327,18 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
     const cssAccidentTravail = assietteCss * accidentRate;
     const cfce = brutSocial * TAUX.cfce;
 
-    const totalSocialSalarial = ipresRegimeGeneral + ipresRegimeComplementaire;
+    const assietteIpm = Math.min(brutSocial, PLAFOND_IPM);
+    const ipmSalarial = assietteIpm * Math.max(0, ipmRateSalarial);
+    const ipmPatronal = assietteIpm * Math.max(0, ipmRatePatronal);
+
+    const totalSocialSalarial = ipresRegimeGeneral + ipresRegimeComplementaire + ipmSalarial;
     const totalSocialPatronal =
         ipresRegimeGeneralPatronal +
         ipresRegimeComplementairePatronal +
         cssPrestationsFamiliales +
         cssAccidentTravail +
-        cfce;
+        cfce +
+        ipmPatronal;
 
     // ── 3. Assiette fiscale ─────────────────────────────────────────────────
     const brutFiscal = brutSocial - totalSocialSalarial;
@@ -296,7 +354,9 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
     const reductionChargeFamille = calculerReductionChargeFamille(irAvantReduction, parts);
     const impotRevenu = (irAvantReduction - reductionChargeFamille) / 12;
 
-    const trimf = calculerTrimfMensuel(baseImposableAnnuelle);
+    const partsTrimf = 1 + Math.max(0, Math.floor(conjointsSansRevenu));
+    const brutImposableAnnuel = Math.max(0, brutSocial) * 12;
+    const trimf = calculerTrimfMensuel(brutImposableAnnuel, partsTrimf);
     const totalTaxes = impotRevenu + trimf;
 
     // ── 5. Net à payer ──────────────────────────────────────────────────────
@@ -329,12 +389,16 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
         detail: {
             ipresRegimeGeneral: arrondi(ipresRegimeGeneral),
             ipresRegimeComplementaire: arrondi(ipresRegimeComplementaire),
+            ipmSalarial: arrondi(ipmSalarial),
             ipresRegimeGeneralPatronal: arrondi(ipresRegimeGeneralPatronal),
             ipresRegimeComplementairePatronal: arrondi(ipresRegimeComplementairePatronal),
             cssPrestationsFamiliales: arrondi(cssPrestationsFamiliales),
             cssAccidentTravail: arrondi(cssAccidentTravail),
             cfce: arrondi(cfce),
+            ipmPatronal: arrondi(ipmPatronal),
             parts,
+            partsTrimf,
+            brutImposableAnnuel: arrondi(brutImposableAnnuel),
             baseImposableAnnuelle: arrondi(baseImposableAnnuelle),
             irAvantReduction: arrondi(irAvantReduction),
             reductionChargeFamille: arrondi(reductionChargeFamille),

@@ -81,7 +81,12 @@ export async function POST(req: Request) {
         transportAllowance: emp.transportAllowance || 0,
         maritalStatus: emp.maritalStatus || "CELIBATAIRE",
         childrenCount: emp.childrenCount || 0,
-        isCadre: emp.isCadre || false
+        isCadre: emp.isCadre || false,
+        conjointsSansRevenu: emp.conjointsSansRevenu || 0,
+        // Paramètres employeur : laissés undefined pour prendre le défaut du moteur.
+        ...(client.paieAccidentRate != null ? { accidentRate: client.paieAccidentRate } : {}),
+        ...(client.paieIpmSalarial != null ? { ipmRateSalarial: client.paieIpmSalarial } : {}),
+        ...(client.paieIpmPatronal != null ? { ipmRatePatronal: client.paieIpmPatronal } : {}),
       };
 
       const result = calculatePayroll(client.country, payrollParams);

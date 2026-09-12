@@ -112,6 +112,13 @@ model Client {
   sector       String? // Secteur d'activité
   country      String       @default("CI") // CI, SN, CM, etc.
 
+  // Paramètres de paie propres à l'employeur (moteurs src/lib/payroll/engines) :
+  // classe de risque accident du travail (SN : 0.01/0.03/0.05 ; CI : 0.02 à 0.05)
+  // et cotisation maladie IPM (SN, parts salariale/patronale). Null = défaut du moteur.
+  paieAccidentRate  Float?
+  paieIpmSalarial   Float?
+  paieIpmPatronal   Float?
+
   // Adresse
   address    String?
   city       String?
@@ -809,6 +816,8 @@ model Employee {
   childrenCount      Int     @default(0)
   isCadre            Boolean @default(false)
   transportAllowance Float   @default(0)
+  // Conjoints sans revenu : chacun ajoute une part TRIMF (Sénégal).
+  conjointsSansRevenu Int    @default(0)
 
   // Relations
   clientId String @db.ObjectId

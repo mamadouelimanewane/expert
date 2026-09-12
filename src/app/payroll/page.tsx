@@ -226,7 +226,7 @@ export default function PayrollDashboard() {
                   <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">3</span> 
                   Bulletin de Paie & Déclarations
                 </h3>
-                <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (Barème IR, TRIMF, IPRES, CSS)' : countryCode === 'CI' ? "Côte d'Ivoire 🇨🇮 (ITS unifié 2024, RICF, CNPS, CMU, FDFP)" : countryCode}</span></p>
+                <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (barème IR art. 173, réduction charges de famille, TRIMF, IPRES 432 000 / 1 296 000, CSS, CFCE, IPM)' : countryCode === 'CI' ? "Côte d'Ivoire 🇨🇮 (ITS unifié 2024, RICF, CNPS, CMU, FDFP)" : countryCode}</span></p>
               </div>
               {variables && (
                 <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">
