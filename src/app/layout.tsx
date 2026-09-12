@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { AppShell } from "@/components/layout/AppShell";
 import InstallBanner from "@/components/pwa/InstallBanner";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
+import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
   title: "Cabinet 360 - Gestion Expert OHADA",
@@ -37,22 +38,9 @@ export default function RootLayout({
         <html lang="fr" className="light">
           <head>
             <link rel="manifest" href="/manifest.json" />
-            <script dangerouslySetInnerHTML={{
-              __html: `
-                if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    // L'echec d'enregistrement etait silencieux : la promesse
-                    // rejetee remontait en "Uncaught (in promise)" dans la
-                    // console, sans indiquer la cause.
-                    navigator.serviceWorker.register('/sw.js').catch(function (e) {
-                      console.warn('Service worker non enregistre :', e && e.message);
-                    });
-                  });
-                }
-              `
-            }} />
           </head>
           <body className={`${inter.variable} font-sans antialiased text-foreground bg-background`}>
+            <ServiceWorkerRegistration />
             <div className="print:hidden">
               <OfflineIndicator />
               <InstallBanner />

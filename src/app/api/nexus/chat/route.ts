@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
 const SYSTEM_PROMPT = `Tu es Nexus, l'assistant IA intégré au logiciel Cabinet 360 pour experts-comptables en zone OHADA.
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
 
   if (!isLLMConfigured()) {
     return NextResponse.json({
-      response: "L'assistant Nexus IA n'est pas encore connecté à un moteur d'intelligence artificielle (DEEPSEEK_API_KEY manquante). Consultez directement les modules Fiscalité, Dashboard ou Clients pour vos données réelles.",
+      response: `${MESSAGE_LLM_NON_CONFIGURE} Consultez directement les modules Fiscalité, Dashboard ou Clients pour vos données réelles.`,
       suggestions: ["Voir le Dashboard Dirigeant", "Voir les échéances fiscales", "Voir la fiche client"],
       notConfigured: true,
     });

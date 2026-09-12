@@ -257,7 +257,7 @@ export default function LegalDraftingPage() {
                                 <>
                                     {nonConfigure && (
                                         <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-200">
-                                            L&apos;assistant IA n&apos;est pas configuré (DEEPSEEK_API_KEY manquante).
+                                            L&apos;assistant IA n&apos;est pas configuré (ANTHROPIC_API_KEY ou DEEPSEEK_API_KEY manquante).
                                         </div>
                                     )}
                                     <div className="bg-white rounded-lg p-4 sm:p-8 lg:p-12 text-slate-950 font-serif leading-relaxed text-sm shadow-inner whitespace-pre-wrap">

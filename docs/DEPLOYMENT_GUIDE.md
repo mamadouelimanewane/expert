@@ -96,10 +96,19 @@ SMTP_USER="votre-email@gmail.com"
 SMTP_PASSWORD="votre-mot-de-passe-app"
 SMTP_FROM="noreply@cabinet360.com"
 
-# Lecture par IA des documents manuscrits (optionnel) — Claude, Anthropic.
-# Sans clé, seul l'OCR local (Tesseract, sur le serveur) est proposé.
+# Claude (Anthropic) : moteur de Nexus IA (assistant, Nexus Fiscal/Counsel,
+# saisie vocale de paie) et lecture par IA des documents manuscrits.
+# Sans clé, Nexus retombe sur DEEPSEEK_API_KEY si elle existe, sinon répond
+# qu'il n'est pas configuré ; seul l'OCR local (Tesseract) est proposé.
 # Le compte Anthropic doit être crédité (Plans & Billing) : ≈ 0,02–0,05 $ par page.
 ANTHROPIC_API_KEY=""
+ANTHROPIC_MODEL=""            # défaut : claude-opus-5
+
+# Limitation de débit distribuée (Upstash Redis) — RECOMMANDÉE en production.
+# Sans ces variables, le compteur anti-force-brute est local à chaque instance
+# Vercel. Base gratuite sur https://console.upstash.com → onglet REST API.
+UPSTASH_REDIS_REST_URL=""
+UPSTASH_REDIS_REST_TOKEN=""
 
 # WhatsApp Business : sans WHATSAPP_APP_SECRET, toute notification Meta est rejetée
 # (signature_invalide) — le bot est inopérant.

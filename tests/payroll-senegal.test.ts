@@ -337,8 +337,10 @@ describe("routage multi-pays", () => {
         }
     });
 
-    it("refuse aussi la Côte d'Ivoire, dont les taux étaient forfaitaires", () => {
-        expect(() => calculatePayroll("CI", bulletin())).toThrow(PaysNonSupporteError);
+    it("accepte la Côte d'Ivoire depuis l'implémentation du barème ITS 2024", () => {
+        expect(estPaysSupporte("CI")).toBe(true);
+        expect(normaliserPays("Côte d'Ivoire")).toBe("CI");
+        expect(calculatePayroll("CI", bulletin()).taxes).toBeGreaterThan(0);
     });
 
     it("nomme les pays disponibles dans le message d'erreur", () => {

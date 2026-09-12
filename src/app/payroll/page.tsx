@@ -162,7 +162,7 @@ export default function PayrollDashboard() {
                     <Building2 className={cn("w-5 h-5", isSelected ? "text-blue-400" : "text-slate-500")} />
                     <div className="flex-1 min-w-0">
                       <p className={cn("font-bold truncate text-sm flex-1", isSelected ? "text-blue-400" : "text-white")}>{name}</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{client.country === 'SN' ? 'Sénégal 🇸🇳' : client.country}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{client.country === 'SN' ? 'Sénégal 🇸🇳' : client.country === 'CI' ? "Côte d'Ivoire 🇨🇮" : client.country}</p>
                     </div>
                     {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-500" />}
                   </div>
@@ -226,7 +226,7 @@ export default function PayrollDashboard() {
                   <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs">3</span> 
                   Bulletin de Paie & Déclarations
                 </h3>
-                <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (Barème IR, TRIMF, IPRES, CSS)' : countryCode}</span></p>
+                <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (Barème IR, TRIMF, IPRES, CSS)' : countryCode === 'CI' ? "Côte d'Ivoire 🇨🇮 (ITS unifié 2024, RICF, CNPS, CMU, FDFP)" : countryCode}</span></p>
               </div>
               {variables && (
                 <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">
@@ -296,7 +296,7 @@ export default function PayrollDashboard() {
                     <p className="text-2xl font-black text-blue-400 tabular-nums">{totalPayroll.toLocaleString()} F</p>
                   </div>
                   <div className="p-4 bg-orange-500/10 rounded-2xl border border-orange-500/20">
-                    <p className="text-[10px] text-orange-500/70 font-bold uppercase tracking-widest">Impôts Dus (IR/TRIMF)</p>
+                    <p className="text-[10px] text-orange-500/70 font-bold uppercase tracking-widest">{countryCode === 'CI' ? 'Impôt dû (ITS)' : 'Impôts Dus (IR/TRIMF)'}</p>
                     <p className="text-2xl font-black text-orange-400 tabular-nums">{totalTaxes.toLocaleString()} F</p>
                   </div>
                   <div className="p-4 bg-purple-500/10 rounded-2xl border border-purple-500/20">

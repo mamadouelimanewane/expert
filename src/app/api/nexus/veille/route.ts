@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 import { requireStaff } from "@/lib/api-auth";
 
 // Veille reglementaire assistee par IA.
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     if (!isLLMConfigured()) {
         return NextResponse.json({
-            response: "L'analyse d'impact n'est pas encore connectée à un moteur d'intelligence artificielle (DEEPSEEK_API_KEY manquante).",
+            response: `${MESSAGE_LLM_NON_CONFIGURE}`,
             notConfigured: true,
         });
     }

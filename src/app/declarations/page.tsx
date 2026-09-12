@@ -36,6 +36,13 @@ interface TaxDeclaration {
     risk: "faible" | "moyen" | "élevé";
 }
 
+/** Code pays ISO-2 → drapeau emoji (indicateurs régionaux), sans ressource externe. */
+function drapeau(code: string): string {
+    const c = (code || "").toUpperCase();
+    if (!/^[A-Z]{2}$/.test(c)) return "🏳️";
+    return String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
+}
+
 export default function DeclarationsPage() {
     const [activeStatus, setActiveStatus] = useState<string>("tous");
     const [declarations, setDeclarations] = useState<TaxDeclaration[]>([]);
@@ -220,12 +227,10 @@ export default function DeclarationsPage() {
                                     <p className="text-xs font-black text-orange-500 uppercase tracking-widest mb-2">Détails Fiscaux</p>
                                     <h3 className="text-2xl font-black text-white">{selectedDecl.type} • {selectedDecl.month}</h3>
                                 </div>
-                                <div className="p-2 bg-white/5 rounded-xl border border-white/10">
-                                    <img
-                                        src={`https://flagcdn.com/w40/${selectedDecl.country.toLowerCase()}.png`}
-                                        alt={selectedDecl.country}
-                                        className="w-8 h-auto rounded shadow-lg"
-                                    />
+                                {/* Drapeau en emoji régional : l'image externe (flagcdn.com)
+                                    était bloquée par la CSP (img-src 'self'). */}
+                                <div className="p-2 bg-white/5 rounded-xl border border-white/10 text-2xl leading-none" title={selectedDecl.country} aria-label={selectedDecl.country}>
+                                    {drapeau(selectedDecl.country)}
                                 </div>
                             </div>
 

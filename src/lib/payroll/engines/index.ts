@@ -1,10 +1,19 @@
 import {
     calculateSenegalPayroll,
     type PayrollParams,
-    type PayrollResult,
+    type PayrollResult as PayrollResultSN,
 } from "./senegal";
+import { calculateCoteIvoirePayroll, type PayrollResultCI } from "./cote-ivoire";
 
-export type { PayrollParams, PayrollResult, PayrollDetail } from "./senegal";
+export type { PayrollParams, PayrollDetail } from "./senegal";
+export type { PayrollResultCI, PayrollDetailCI } from "./cote-ivoire";
+
+/**
+ * Résultat d'un bulletin, quel que soit le pays : les agrégats sont communs
+ * (brut, imposable, cotisations salariales, impôts, net, charges patronales,
+ * avertissements) ; `detail` est propre à chaque législation.
+ */
+export type PayrollResult = PayrollResultSN | PayrollResultCI;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Routage du calcul de paie par pays.
@@ -20,9 +29,15 @@ export type { PayrollParams, PayrollResult, PayrollDetail } from "./senegal";
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Pays dont le barème est implémenté et couvert par des tests. */
-export const PAYS_SUPPORTES = ["SN"] as const;
+export const PAYS_SUPPORTES = ["SN", "CI"] as const;
 
 export type PaysSupporte = (typeof PAYS_SUPPORTES)[number];
+
+/** Libellé de la législation appliquée, pour les bulletins et l'écran de paie. */
+export const LEGISLATION_PAIE: Record<PaysSupporte, string> = {
+    SN: "Sénégal — barème IR (CGI art. 173), TRIMF, IPRES, CSS, CFCE",
+    CI: "Côte d'Ivoire — ITS unifié (réforme 2024), RICF, CNPS, CMU, FDFP",
+};
 
 /** Levée lorsqu'aucun moteur n'existe pour le pays demandé. */
 export class PaysNonSupporteError extends Error {
@@ -45,6 +60,12 @@ const ALIAS: Record<string, PaysSupporte> = {
     SEN: "SN",
     SENEGAL: "SN",
     "SÉNÉGAL": "SN",
+    CI: "CI",
+    CIV: "CI",
+    "COTE D'IVOIRE": "CI",
+    "CÔTE D'IVOIRE": "CI",
+    "COTE D’IVOIRE": "CI",
+    "CÔTE D’IVOIRE": "CI",
 };
 
 /** Normalise un code ou un nom de pays, ou `null` s'il n'est pas supporté. */
@@ -71,5 +92,7 @@ export function calculatePayroll(countryCode: string, params: PayrollParams): Pa
     switch (pays) {
         case "SN":
             return calculateSenegalPayroll(params);
+        case "CI":
+            return calculateCoteIvoirePayroll(params);
     }
 }

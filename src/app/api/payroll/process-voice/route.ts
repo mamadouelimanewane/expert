@@ -1,45 +1,20 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES } from "@/lib/payroll/engines";
-import { isLLMConfigured } from "@/lib/llm";
+import { completer, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
 type ExtractedVars = { absencesDays: number; overtimeHours: number; bonuses: number };
 
 async function extractPayrollVariables(transcript: string, employeeNames: string[]): Promise<Record<string, ExtractedVars>> {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY non configurée");
-  }
-
-  const res = await fetch("https://api.deepseek.com/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model: "deepseek-chat",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content: `Tu extrais des variables de paie à partir d'une transcription vocale en français, pour un cabinet comptable en zone OHADA.
+  const systeme = `Tu extrais des variables de paie à partir d'une transcription vocale en français, pour un cabinet comptable en zone OHADA.
 Employés concernés (prénoms) : ${employeeNames.join(", ")}.
 Pour chaque employé mentionné, détermine : absencesDays (nombre de jours d'absence, entier), overtimeHours (heures supplémentaires, nombre), bonuses (prime en FCFA, nombre).
 Si un employé n'est pas mentionné ou qu'une info n'est pas donnée, mets 0 pour la valeur correspondante.
-Réponds UNIQUEMENT avec un objet JSON de la forme {"Prénom": {"absencesDays": 0, "overtimeHours": 0, "bonuses": 0}, ...}, sans texte autour.`,
-        },
-        { role: "user", content: transcript },
-      ],
-    }),
-  });
+Réponds UNIQUEMENT avec un objet JSON de la forme {"Prénom": {"absencesDays": 0, "overtimeHours": 0, "bonuses": 0}, ...}, sans texte autour.`;
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Erreur DeepSeek (${res.status}): ${errText}`);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content || "{}";
-  return JSON.parse(content);
+  const content = await completer(systeme, transcript, { json: true, maxTokens: 800 });
+  return JSON.parse(content || "{}");
 }
 
 export async function POST(req: Request) {
@@ -82,7 +57,7 @@ export async function POST(req: Request) {
 
     if (!isLLMConfigured()) {
       return NextResponse.json({
-        error: "La saisie vocale nécessite l'assistant IA (DEEPSEEK_API_KEY non configurée). Utilisez la saisie manuelle des variables de paie en attendant.",
+        error: `La saisie vocale nécessite l'assistant IA. ${MESSAGE_LLM_NON_CONFIGURE} Utilisez la saisie manuelle des variables de paie en attendant.`,
         notConfigured: true,
       }, { status: 503 });
     }

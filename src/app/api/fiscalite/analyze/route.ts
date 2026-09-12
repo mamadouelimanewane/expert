@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
 // Analyse fiscale d'un document fourni par l'utilisateur (contenu texte déjà extrait
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   if (!isLLMConfigured()) {
     return NextResponse.json({
-      response: "Intégration IA non configurée (DEEPSEEK_API_KEY manquante). Aucune analyse automatique du document n'est disponible.",
+      response: `${MESSAGE_LLM_NON_CONFIGURE} Aucune analyse automatique du document n'est disponible.`,
       notConfigured: true,
     });
   }

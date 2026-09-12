@@ -13,26 +13,9 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
   // Force HTTPS pendant 1 an
   { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
-  // Content Security Policy : restreindre les sources de scripts et ressources
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval requis par Next.js dev
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "font-src 'self' data:",
-      "connect-src 'self'",
-      // Déclarés explicitement : sans `worker-src`, tous les navigateurs
-      // n'appliquent pas le repli sur `default-src` de la même façon et
-      // peuvent refuser l'enregistrement du service worker.
-      "worker-src 'self'",
-      "manifest-src 'self'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; "),
-  },
+  // La Content-Security-Policy est posée par le middleware (src/middleware.ts,
+  // src/lib/csp.ts) avec un nonce par requête : une politique statique ici
+  // ne pourrait autoriser les scripts inline de Next qu'avec 'unsafe-inline'.
 ];
 
 const nextConfig: NextConfig = {

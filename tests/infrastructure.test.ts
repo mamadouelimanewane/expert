@@ -12,7 +12,7 @@ import {
     parsePagination,
     reponsePaginee,
 } from "@/lib/pagination";
-import { rateLimit } from "@/lib/rate-limit";
+import { rateLimit, rateLimitMemoire, estRateLimitDistribue } from "@/lib/rate-limit";
 import { balanceDepuisJournal } from "@/lib/ohada/balance-from-journal";
 
 const requete = (corps: unknown) =>
@@ -229,38 +229,47 @@ describe("limitation de débit", () => {
     it("laisse passer jusqu'à la limite puis bloque", () => {
         const cle = `test:${Math.random()}`;
         for (let i = 0; i < 5; i++) {
-            expect(rateLimit(cle, 5, 60).success).toBe(true);
+            expect(rateLimitMemoire(cle, 5, 60).success).toBe(true);
         }
-        expect(rateLimit(cle, 5, 60).success).toBe(false);
+        expect(rateLimitMemoire(cle, 5, 60).success).toBe(false);
     });
 
     it("décompte les tentatives restantes", () => {
         const cle = `test:${Math.random()}`;
-        expect(rateLimit(cle, 3, 60).remaining).toBe(2);
-        expect(rateLimit(cle, 3, 60).remaining).toBe(1);
-        expect(rateLimit(cle, 3, 60).remaining).toBe(0);
+        expect(rateLimitMemoire(cle, 3, 60).remaining).toBe(2);
+        expect(rateLimitMemoire(cle, 3, 60).remaining).toBe(1);
+        expect(rateLimitMemoire(cle, 3, 60).remaining).toBe(0);
     });
 
     it("isole les clés les unes des autres", () => {
         const a = `test:a:${Math.random()}`;
         const b = `test:b:${Math.random()}`;
-        rateLimit(a, 1, 60);
-        expect(rateLimit(a, 1, 60).success).toBe(false);
-        expect(rateLimit(b, 1, 60).success).toBe(true);
+        rateLimitMemoire(a, 1, 60);
+        expect(rateLimitMemoire(a, 1, 60).success).toBe(false);
+        expect(rateLimitMemoire(b, 1, 60).success).toBe(true);
     });
 
     it("rouvre l'accès après expiration de la fenêtre", async () => {
         const cle = `test:${Math.random()}`;
-        expect(rateLimit(cle, 1, 1).success).toBe(true);
-        expect(rateLimit(cle, 1, 1).success).toBe(false);
+        expect(rateLimitMemoire(cle, 1, 1).success).toBe(true);
+        expect(rateLimitMemoire(cle, 1, 1).success).toBe(false);
 
         await new Promise((r) => setTimeout(r, 1100));
-        expect(rateLimit(cle, 1, 1).success).toBe(true);
+        expect(rateLimitMemoire(cle, 1, 1).success).toBe(true);
     });
 
     it("expose une date de réinitialisation dans le futur", () => {
-        const r = rateLimit(`test:${Math.random()}`, 5, 60);
+        const r = rateLimitMemoire(`test:${Math.random()}`, 5, 60);
         expect(r.resetAt).toBeGreaterThan(Date.now());
+    });
+
+    it("sans Upstash configuré, la version asynchrone retombe sur le compteur local", async () => {
+        expect(estRateLimitDistribue()).toBe(false);
+        const cle = `test:${Math.random()}`;
+        const r1 = await rateLimit(cle, 1, 60);
+        const r2 = await rateLimit(cle, 1, 60);
+        expect(r1).toMatchObject({ success: true, backend: "memoire" });
+        expect(r2).toMatchObject({ success: false, backend: "memoire" });
     });
 });
 

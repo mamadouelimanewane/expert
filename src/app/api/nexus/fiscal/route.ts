@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 import { requireStaff } from "@/lib/api-auth";
 import { OBLIGATIONS_FISCALES } from "@/lib/ohada/obligations-fiscales";
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
     if (!isLLMConfigured()) {
         return NextResponse.json({
-            response: "Nexus Fiscal n'est pas encore connecté à un moteur d'intelligence artificielle (DEEPSEEK_API_KEY manquante). Consultez directement le calendrier des échéances dans le module Fiscalité.",
+            response: `${MESSAGE_LLM_NON_CONFIGURE} Consultez directement le calendrier des échéances dans le module Fiscalité.`,
             notConfigured: true,
         });
     }

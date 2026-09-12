@@ -51,7 +51,7 @@ export async function POST(request: Request) {
                 iaResponseContent = "Désolé, une erreur est survenue lors de la génération de la réponse IA. Réessayez dans un instant.";
             }
         } else {
-            iaResponseContent = "Nexus IA n'est pas encore connecté à un moteur d'intelligence artificielle (clé DEEPSEEK_API_KEY absente ou compte sans crédit). Configurez l'intégration pour activer les réponses automatiques.";
+            iaResponseContent = "Nexus IA n'est pas connecté à un moteur d'intelligence artificielle (ANTHROPIC_API_KEY ou DEEPSEEK_API_KEY absente, ou compte sans crédit). Configurez l'intégration pour activer les réponses automatiques.";
         }
 
         const iaMsg = await prisma.communication.create({

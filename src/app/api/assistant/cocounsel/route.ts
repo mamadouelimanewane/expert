@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
 // Nexus Counsel s'appuie sur les connaissances générales du modèle DeepSeek, PAS sur une
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
   if (!isLLMConfigured()) {
     return NextResponse.json({
-      response: "Nexus Counsel n'est pas encore connecté à un moteur d'intelligence artificielle (DEEPSEEK_API_KEY manquante). Aucune réponse juridique ne peut être générée pour l'instant.",
+      response: `${MESSAGE_LLM_NON_CONFIGURE} Aucune réponse juridique ne peut être générée pour l'instant.`,
       notConfigured: true,
     });
   }

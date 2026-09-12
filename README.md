@@ -107,7 +107,7 @@ depuis la fiche client.
 
 L'assistant **Nexus** (`src/lib/llm.ts`) interroge DeepSeek en lui injectant le
 contexte réel du cabinet issu de la base, et lui interdit d'inventer des
-chiffres. **Sans `DEEPSEEK_API_KEY`, il répond qu'il n'est pas configuré** — il
+chiffres. Moteur : Claude (`ANTHROPIC_API_KEY`) en priorité, DeepSeek (`DEEPSEEK_API_KEY`) en repli. **Sans aucune des deux clés, il répond qu'il n'est pas configuré** — il
 ne simule jamais de réponse.
 
 L'imputation comptable automatique fonctionne par règles métier et par

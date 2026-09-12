@@ -325,7 +325,7 @@ export default function ReportingAutomationPage() {
                                 </h2>
                                 {syntheseNonConfiguree && (
                                     <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3">
-                                        L&apos;assistant IA n&apos;est pas configuré (DEEPSEEK_API_KEY manquante).
+                                        L&apos;assistant IA n&apos;est pas configuré (ANTHROPIC_API_KEY ou DEEPSEEK_API_KEY manquante).
                                     </p>
                                 )}
                                 <p className="text-base text-slate-700 leading-relaxed font-serif italic">{synthese}</p>

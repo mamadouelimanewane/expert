@@ -8,9 +8,9 @@ import { BrainCircuit, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 // OpenAI, Anthropic, DeepSeek) avec endpoint et clé API éditables, et un
 // bouton "Enregistrer la configuration" qui ne faisait qu'un setTimeout —
 // rien n'était persisté, et même sauvegardé, ce choix n'aurait rien changé :
-// l'application n'appelle qu'un seul fournisseur, DeepSeek, configuré côté
-// serveur via la variable d'environnement DEEPSEEK_API_KEY
-// (src/lib/llm.ts). Un utilisateur saisissant une vraie clé OpenAI ici
+// l'application choisit son fournisseur côté serveur par variables
+// d'environnement — Claude via ANTHROPIC_API_KEY, sinon DeepSeek via
+// DEEPSEEK_API_KEY (src/lib/llm.ts). Un utilisateur saisissant une vraie clé OpenAI ici
 // aurait cru avoir changé de fournisseur sans que rien ne se produise. La
 // barre "Règles d'imputation (Fallback)" affichait aussi une répartition
 // fixe (60% / 30% / 10%) sans donnée réelle derrière.
@@ -20,7 +20,7 @@ import { BrainCircuit, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function AILlmSettings() {
-    const [statut, setStatut] = useState<{ configured: boolean } | null>(null);
+    const [statut, setStatut] = useState<{ configured: boolean; provider: "anthropic" | "deepseek" | null; model: string | null } | null>(null);
     const [chargement, setChargement] = useState(true);
 
     useEffect(() => {
@@ -52,17 +52,19 @@ export default function AILlmSettings() {
                     <div className="flex items-center gap-3 text-emerald-400">
                         <CheckCircle2 className="w-6 h-6" />
                         <div>
-                            <p className="font-bold">DeepSeek configuré</p>
-                            <p className="text-xs text-slate-500">La clé DEEPSEEK_API_KEY est renseignée côté serveur.</p>
+                            <p className="font-bold">{statut.provider === "anthropic" ? "Claude (Anthropic) configuré" : "DeepSeek configuré"}</p>
+                            <p className="text-xs text-slate-500">
+                                Modèle : {statut.model}. La clé {statut.provider === "anthropic" ? "ANTHROPIC_API_KEY" : "DEEPSEEK_API_KEY"} est renseignée côté serveur.
+                            </p>
                         </div>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3 text-amber-400">
                         <XCircle className="w-6 h-6" />
                         <div>
-                            <p className="font-bold">DeepSeek non configuré</p>
+                            <p className="font-bold">Aucun moteur IA configuré</p>
                             <p className="text-xs text-slate-500">
-                                La variable d&apos;environnement DEEPSEEK_API_KEY n&apos;est pas renseignée. Les
+                                Ni ANTHROPIC_API_KEY ni DEEPSEEK_API_KEY n&apos;est renseignée. Les
                                 fonctionnalités IA répondent honnêtement qu&apos;elles ne sont pas disponibles plutôt que
                                 d&apos;échouer silencieusement.
                             </p>
@@ -72,9 +74,9 @@ export default function AILlmSettings() {
 
                 <div className="pt-4 border-t border-white/5">
                     <p className="text-xs text-slate-500 leading-relaxed">
-                        L&apos;application n&apos;intègre actuellement qu&apos;un seul fournisseur (DeepSeek). Le
-                        changement de fournisseur ou de modèle n&apos;est pas configurable depuis l&apos;interface : il
-                        nécessite une modification du code (src/lib/llm.ts) et un déploiement.
+                        Ordre de priorité : Claude (ANTHROPIC_API_KEY, modèle ANTHROPIC_MODEL, par défaut claude-opus-5)
+                        puis DeepSeek (DEEPSEEK_API_KEY). Le fournisseur se choisit par variables d&apos;environnement,
+                        pas depuis l&apos;interface : la clé ne transite jamais par le navigateur.
                     </p>
                 </div>
             </div>

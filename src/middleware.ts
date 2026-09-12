@@ -2,6 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { construireCsp, genererNonce } from "@/lib/csp";
 
 // ── User-Agents de bots connus à bloquer ──────────────────────────────────
 const BOT_UA_PATTERNS = [
@@ -67,8 +68,12 @@ function botResponse(reason: string) {
   );
 }
 
-function addSecurityHeaders(response: NextResponse): NextResponse {
+function addSecurityHeaders(response: NextResponse, nonce?: string): NextResponse {
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  // CSP avec nonce : next.config.ts porte une politique de repli (sans nonce)
+  // pour les réponses qui ne passent pas par ce middleware ; celle-ci, plus
+  // stricte, la remplace pour toutes les pages servies ici.
+  if (nonce) response.headers.set("Content-Security-Policy", construireCsp(nonce));
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -117,9 +122,17 @@ function requiredRolesFor(pathname: string): string[] {
 }
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const { token } = req.nextauth;
     const pathname = req.nextUrl.pathname;
+    // Nonce CSP propre à cette requête : Next.js le lit dans l'en-tête
+    // Content-Security-Policy de la REQUÊTE pour l'apposer sur ses propres
+    // <script> (hydratation, chunks) — il faut donc le transmettre en amont
+    // ET le renvoyer dans la réponse.
+    const nonce = genererNonce();
+    const enTetesRequete = new Headers(req.headers);
+    enTetesRequete.set("x-nonce", nonce);
+    enTetesRequete.set("Content-Security-Policy", construireCsp(nonce));
     const ip = getClientIp(req);
     const ua = req.headers.get("user-agent");
     const method = req.method;
@@ -151,7 +164,7 @@ export default withAuth(
     for (const rule of RATE_LIMITED_PATHS) {
       if (pathname.startsWith(rule.path)) {
         const key = `rl:${rule.path}:${ip}`;
-        const result = rateLimit(key, rule.limit, rule.window);
+        const result = await rateLimit(key, rule.limit, rule.window);
         if (!result.success) {
           const retryAfter = Math.ceil((result.resetAt - Date.now()) / 1000);
           const resp = new NextResponse(
@@ -170,7 +183,7 @@ export default withAuth(
               },
             }
           );
-          return addSecurityHeaders(resp);
+          return addSecurityHeaders(resp, nonce);
         }
         break;
       }
@@ -183,25 +196,25 @@ export default withAuth(
         ? "/dashboard"
         : "/comptabilite/production";
       const resp = NextResponse.redirect(new URL(dest, req.url));
-      return addSecurityHeaders(resp);
+      return addSecurityHeaders(resp, nonce);
     }
 
     if (pathname.startsWith("/api/") && !isNoSessionApiRoute(pathname)) {
       if (!token) {
         const resp = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        return addSecurityHeaders(resp);
+        return addSecurityHeaders(resp, nonce);
       }
 
       const role = token.role as string | undefined;
       const allowedRoles = requiredRolesFor(pathname);
       if (!role || !allowedRoles.includes(role)) {
         const resp = NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        return addSecurityHeaders(resp);
+        return addSecurityHeaders(resp, nonce);
       }
     }
 
-    const resp = NextResponse.next();
-    return addSecurityHeaders(resp);
+    const resp = NextResponse.next({ request: { headers: enTetesRequete } });
+    return addSecurityHeaders(resp, nonce);
   },
   {
     callbacks: {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { askNexus, isLLMConfigured } from "@/lib/llm";
+import { askNexus, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
 const SYSTEM_PROMPT = `Tu es Nexus, l'assistant IA de diagnostic financier de Cabinet 360 pour experts-comptables en zone OHADA.
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     if (!isLLMConfigured()) {
       return NextResponse.json(
-        { error: "Génération IA non configurée (DEEPSEEK_API_KEY manquante).", notConfigured: true },
+        { error: `${MESSAGE_LLM_NON_CONFIGURE}`, notConfigured: true },
         { status: 503 }
       );
     }

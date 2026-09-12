@@ -1,10 +1,33 @@
 /**
- * Rate limiter en mémoire — sliding window par clé (IP, email…)
+ * Rate limiter — fenêtre glissante par clé (IP, email…)
  *
- * Fonctionne dans l'Edge Runtime (middleware Vercel).
- * Chaque instance lambda garde son propre state ; pour un rate limiting
- * persistent multi-instance, remplacer par @upstash/ratelimit + Redis KV.
+ * Deux implémentations derrière la même signature :
+ *
+ *  - Distribuée (production) : Upstash Redis via REST, compatible Edge
+ *    Runtime, activée dès que UPSTASH_REDIS_REST_URL et
+ *    UPSTASH_REDIS_REST_TOKEN sont définies. Le compteur est partagé par
+ *    toutes les instances Vercel : un attaquant ne peut plus multiplier ses
+ *    tentatives de connexion en tombant sur des lambdas différentes.
+ *
+ *  - En mémoire (repli) : par instance, utilisée sans configuration Redis
+ *    (développement, tests) ou si Redis est injoignable — on préfère laisser
+ *    passer avec un compteur local plutôt que de bloquer toute l'application
+ *    sur une panne du fournisseur (fail open sur l'infrastructure, mais
+ *    toujours limité localement).
  */
+
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+export interface RateLimitResult {
+  success: boolean;
+  remaining: number;
+  resetAt: number;
+  /** "redis" quand le compteur est partagé entre instances, "memoire" sinon. */
+  backend: "redis" | "memoire";
+}
+
+// ── Repli en mémoire ─────────────────────────────────────────────────────────
 
 interface RateLimitEntry {
   count: number;
@@ -24,22 +47,14 @@ function cleanup() {
   }
 }
 
-export interface RateLimitResult {
-  success: boolean;
-  remaining: number;
-  resetAt: number;
-}
-
 /**
+ * Compteur local à l'instance (synchrone). Exporté pour les tests et pour
+ * les rares appelants qui ne peuvent pas attendre une promesse.
  * @param key     Clé unique (ex: `login:${ip}`)
  * @param limit   Nombre max de requêtes autorisées
  * @param window  Fenêtre de temps en secondes
  */
-export function rateLimit(
-  key: string,
-  limit: number,
-  window: number
-): RateLimitResult {
+export function rateLimitMemoire(key: string, limit: number, window: number): RateLimitResult {
   cleanup();
   const now = Date.now();
   const windowMs = window * 1000;
@@ -48,13 +63,60 @@ export function rateLimit(
 
   if (!entry || entry.resetAt < now) {
     store.set(key, { count: 1, resetAt: now + windowMs });
-    return { success: true, remaining: limit - 1, resetAt: now + windowMs };
+    return { success: true, remaining: limit - 1, resetAt: now + windowMs, backend: "memoire" };
   }
 
   if (entry.count >= limit) {
-    return { success: false, remaining: 0, resetAt: entry.resetAt };
+    return { success: false, remaining: 0, resetAt: entry.resetAt, backend: "memoire" };
   }
 
   entry.count += 1;
-  return { success: true, remaining: limit - entry.count, resetAt: entry.resetAt };
+  return { success: true, remaining: limit - entry.count, resetAt: entry.resetAt, backend: "memoire" };
+}
+
+// ── Upstash Redis ────────────────────────────────────────────────────────────
+
+export function estRateLimitDistribue(): boolean {
+  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+let redis: Redis | null = null;
+const limiteurs = new Map<string, Ratelimit>();
+
+function limiteur(limit: number, window: number): Ratelimit {
+  const cle = `${limit}:${window}`;
+  let l = limiteurs.get(cle);
+  if (!l) {
+    redis ??= Redis.fromEnv();
+    l = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(limit, `${window} s`),
+      prefix: "c360:rl",
+      analytics: false,
+    });
+    limiteurs.set(cle, l);
+  }
+  return l;
+}
+
+let derniereErreurRedis = 0;
+
+/**
+ * Limite le nombre d'appels par clé sur une fenêtre glissante.
+ * Distribué via Upstash quand configuré, en mémoire sinon.
+ */
+export async function rateLimit(key: string, limit: number, window: number): Promise<RateLimitResult> {
+  if (!estRateLimitDistribue()) return rateLimitMemoire(key, limit, window);
+
+  try {
+    const r = await limiteur(limit, window).limit(key);
+    return { success: r.success, remaining: r.remaining, resetAt: r.reset, backend: "redis" };
+  } catch (e) {
+    // Une seule trace par minute : une panne Redis ne doit pas inonder les logs.
+    if (Date.now() - derniereErreurRedis > 60_000) {
+      derniereErreurRedis = Date.now();
+      console.warn("[rate-limit] Upstash injoignable, repli sur le compteur local :", (e as Error)?.message);
+    }
+    return rateLimitMemoire(key, limit, window);
+  }
 }
