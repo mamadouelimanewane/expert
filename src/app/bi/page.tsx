@@ -52,7 +52,7 @@ export default async function BusinessIntelligencePage() {
 
       {/* Bandeau d'identité — adaptatif mobile / desktop */}
       <div
-        className="p-5 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-xl text-white"
+        className="c360-bandeau-colore p-5 sm:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-xl text-white"
         style={{
           background: 'linear-gradient(135deg, #006B3F 0%, #009639 100%)',
         }}
