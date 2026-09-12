@@ -122,7 +122,7 @@ export default function DocumentGenerationCenter() {
         {/* Étape 1 : Sélection Client (Col 4) */}
         <div className="lg:col-span-4 space-y-4">
           <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs">1</span> 
+            <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs">1</span> 
             Sélectionner la PMI
           </h3>
           
@@ -161,7 +161,7 @@ export default function DocumentGenerationCenter() {
         {/* Étape 2 : Type de Document (Col 8) */}
         <div className="lg:col-span-8 space-y-4">
           <h3 className="font-black text-white text-sm uppercase tracking-widest flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs">2</span> 
+            <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs">2</span> 
             Type de livrable
           </h3>
           

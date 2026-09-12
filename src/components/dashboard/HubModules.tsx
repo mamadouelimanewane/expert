@@ -68,7 +68,9 @@ export function HubModules() {
             {/* Category header with colored bar + bottom line border */}
             <div className="flex items-center gap-3 border-b-2 border-black/5 dark:border-white/10 pb-2.5">
               <div style={{ width: '6px', height: '24px', background: category.color, borderRadius: '4px', flexShrink: 0 }} className="sm:h-[30px] sm:w-[8px]"></div>
-              <p role="heading" aria-level={2} className="text-lg sm:text-xl lg:text-2xl font-extrabold m-0" style={{ color: category.color }}>
+              {/* Couleur de catégorie assombrie en thème clair via .hub-cat-title
+                  (globals.css) : l'orange APIX #F29400 pur ne faisait que 2,2:1. */}
+              <p role="heading" aria-level={2} className="hub-cat-title text-lg sm:text-xl lg:text-2xl font-extrabold m-0" style={{ ['--cat-color' as any]: category.color }}>
                 {category.title}
               </p>
             </div>
@@ -107,11 +109,8 @@ export function HubModules() {
 
                     <div>
                       <div
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shrink-0"
-                        style={{
-                          background: `${mod.color}15`,
-                          color: mod.color,
-                        }}
+                        className="hub-icon w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4 shrink-0"
+                        style={{ background: `${mod.color}15` }}
                       >
                         <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
@@ -125,10 +124,9 @@ export function HubModules() {
                       </p>
                     </div>
 
-                    <div
-                      className="mt-4 pt-2 flex items-center font-bold text-xs sm:text-sm gap-1.5"
-                      style={{ color: mod.color }}
-                    >
+                    {/* Teinte du module assombrie en thème clair (.hub-cta) : les
+                        pastels (#fde68a, #e0e7ff…) étaient illisibles sur blanc. */}
+                    <div className="hub-cta mt-4 pt-2 flex items-center font-bold text-xs sm:text-sm gap-1.5">
                       Accéder <ArrowRight className="w-4 h-4" />
                     </div>
                   </Link>

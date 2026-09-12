@@ -55,7 +55,7 @@ export default function PresentationPage() {
                     {/* 1. Présentation */}
                     <section className="space-y-4">
                         <h4 contentEditable suppressContentEditableWarning className="text-xl font-bold text-primary flex items-center gap-2 outline-none">
-                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0">1</span>
+                            <span className="bg-primary/10 text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm shrink-0">1</span>
                             Présentation Générale de la Solution
                         </h4>
                         <p contentEditable suppressContentEditableWarning className="text-slate-600 outline-none focus:bg-primary/30 rounded p-1">
@@ -85,7 +85,7 @@ export default function PresentationPage() {
                     {/* 2. Pertinence Marché */}
                     <section className="space-y-4">
                         <h4 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">2</span>
+                            <span className="bg-primary/10 text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">2</span>
                             Pertinence pour le Marché Sénégalais et Sous-Régional
                         </h4>
                         <div className="space-y-3">
@@ -108,7 +108,7 @@ export default function PresentationPage() {
                     {/* 3. Avantage IA */}
                     <section className="space-y-4 break-inside-avoid">
                         <h4 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">3</span>
+                            <span className="bg-primary/10 text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">3</span>
                             Avantage Concurrentiel de l'Intelligence Artificielle
                         </h4>
                         <p className="text-slate-600 text-sm">
@@ -121,7 +121,7 @@ export default function PresentationPage() {
                     {/* 4. Architecture & Sécurité */}
                     <section className="space-y-4 break-inside-avoid">
                         <h4 className="text-xl font-bold text-primary flex items-center gap-2">
-                            <span className="bg-primary text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">4</span>
+                            <span className="bg-primary/10 text-primary w-8 h-8 flex items-center justify-center rounded-lg text-sm">4</span>
                             Architecture Technique & Sécurité
                         </h4>
 
