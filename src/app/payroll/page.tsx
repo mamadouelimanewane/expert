@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GestionSalaries } from "@/components/payroll/GestionSalaries";
+import { HistoriquePaie } from "@/components/payroll/HistoriquePaie";
 
 export default function PayrollDashboard() {
   const [clients, setClients] = useState<any[]>([]);
@@ -22,6 +23,8 @@ export default function PayrollDashboard() {
   const [countryCode, setCountryCode] = useState<string>("SN");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
+  const [periodeValidee, setPeriodeValidee] = useState<{ id: string; periodName: string } | null>(null);
+  const [rafraichirHistorique, setRafraichirHistorique] = useState(0);
 
   useEffect(() => {
     fetch("/api/clients")
@@ -126,7 +129,9 @@ export default function PayrollDashboard() {
         body: JSON.stringify({
           clientId: selectedClient,
           periodName: new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
-          variables,
+          // Seules les variables du mois partent au serveur : les montants
+          // sont recalculés côté serveur à partir des fiches salariés.
+          variables: variables.map((v) => ({ employeeId: v.employeeId, absencesDays: v.absencesDays, overtimeHours: v.overtimeHours, bonuses: v.bonuses })),
         }),
       });
       const data = await res.json();
@@ -134,6 +139,8 @@ export default function PayrollDashboard() {
         setPayError(data.error || "Erreur lors de la validation de la paie");
       } else {
         setIsPaid(true);
+        setPeriodeValidee({ id: data.period.id, periodName: data.period.periodName });
+        setRafraichirHistorique((n) => n + 1);
       }
     } catch (e) {
       setPayError("Erreur de connexion au serveur");
@@ -174,7 +181,7 @@ export default function PayrollDashboard() {
                 return (
                   <div 
                     key={client.id}
-                    onClick={() => { setSelectedClient(client.id); setVariables(null); setIsPaid(false); setManuelles({}); setAvertissementsPaie([]); }}
+                    onClick={() => { setSelectedClient(client.id); setVariables(null); setIsPaid(false); setPeriodeValidee(null); setManuelles({}); setAvertissementsPaie([]); }}
                     className={cn(
                       "cursor-pointer p-4 rounded-2xl border transition-all flex items-center gap-3",
                       isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-800/30 border-transparent hover:bg-slate-800/50"
@@ -239,6 +246,7 @@ export default function PayrollDashboard() {
         {/* Colonne Droite : Variables et Paiement */}
         <div className="lg:col-span-8 space-y-6">
           <GestionSalaries clientId={selectedClient} onChange={() => { setVariables(null); setIsPaid(false); }} />
+          <HistoriquePaie clientId={selectedClient} version={rafraichirHistorique} />
           <div className={cn(
             "bg-slate-900/40 border rounded-[28px] p-8 transition-all duration-500",
             variables ? "border-blue-500/20 shadow-2xl shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
@@ -367,6 +375,13 @@ export default function PayrollDashboard() {
                           <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Le virement Mobile Money automatique n'est pas encore configuré (Wave/Orange/MTN) — à effectuer manuellement pour cette période.</p>
                         </div>
                       </div>
+                      {periodeValidee && (
+                        <div className="flex flex-wrap gap-2">
+                          <a href={`/payroll/bulletins/${periodeValidee.id}`} target="_blank" rel="noopener" className="px-3 py-2 rounded-xl bg-primary text-white text-xs font-bold flex items-center gap-1.5"><FileText className="w-4 h-4" /> Bulletins (PDF)</a>
+                          <a href={`/api/payroll/periodes/${periodeValidee.id}/export?format=xlsx`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">Excel</a>
+                          <a href={`/api/payroll/periodes/${periodeValidee.id}/export?format=csv`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">CSV</a>
+                        </div>
+                      )}
                     </div>
                   )}
                   </div>

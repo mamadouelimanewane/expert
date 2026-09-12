@@ -856,10 +856,19 @@ model PayrollPeriod {
 model Payslip {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  // Variables de paie extraites (IA)
+  // Variables de paie (dictée IA ou saisie manuelle)
   absencesDays  Int   @default(0)
-  overtimeHours Int   @default(0)
+  overtimeHours Float @default(0)
   bonuses       Float @default(0)
+
+  // Éléments figés au moment de la validation : le bulletin doit rester
+  // imprimable à l'identique même si la fiche du salarié change ensuite.
+  baseSalary         Float  @default(0)
+  transportAllowance Float  @default(0)
+  avantagesNature    Float  @default(0)
+  country            String @default("SN")
+  // Détail complet des rubriques produit par le moteur (IPRES, TRIMF, ITS…)
+  detail             Json?
 
   // Calculs finaux
   grossSalary Float
