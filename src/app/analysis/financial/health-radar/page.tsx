@@ -150,12 +150,15 @@ export default function FinancialHealthRadarPage() {
                                 {(selectedClient.ratios || []).map((ratio: any, i: number, arr: any[]) => {
                                     const angle = (360 / arr.length) * i - 90;
                                     const rad = (angle * Math.PI) / 180;
-                                    const x = 50 + 50 * Math.cos(rad);
-                                    const y = 50 + 50 * Math.sin(rad);
+                                    // Libellés à 46 % du rayon, sur deux lignes si besoin : en
+                                    // nowrap au bord du carré, « Conformité fiscale » sortait de
+                                    // l'écran sur mobile.
+                                    const x = 50 + 46 * Math.cos(rad);
+                                    const y = 50 + 46 * Math.sin(rad);
                                     return (
                                         <div
                                             key={i}
-                                            className="absolute font-black text-[10px] text-white uppercase tracking-widest -translate-x-1/2 -translate-y-1/2 whitespace-nowrap"
+                                            className="absolute font-black text-[9px] sm:text-[10px] text-white uppercase tracking-wide -translate-x-1/2 -translate-y-1/2 text-center leading-tight max-w-[32%]"
                                             style={{ left: `${x}%`, top: `${y}%` }}
                                         >
                                             {ratio.label}

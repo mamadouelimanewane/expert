@@ -154,7 +154,7 @@ export default function CACSuitePage() {
                         partir des paramètres que vous saisissez.
                     </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 min-w-0 max-w-full">
                     <select
                         value={clientId}
                         onChange={(e) => setClientId(e.target.value)}

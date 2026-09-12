@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles, X, MessageSquare, Send, Bot, Paperclip, ChevronDown, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -44,18 +44,26 @@ export function NexusCopilot() {
         }
     };
 
-    // Sur mobile/tablette le bouton « + » des actions rapides occupe déjà
-    // l'angle inférieur droit (Sidebar) : Nexus se place au-dessus de lui
-    // pour ne pas être recouvert.
+    // Sur mobile/tablette, deux boutons flottants (Nexus + actions rapides)
+    // recouvraient le tiers droit de chaque écran. Le déclencheur Nexus n'est
+    // affiché qu'à partir de lg ; en dessous, l'assistant s'ouvre depuis le
+    // menu « + » de la Sidebar, qui émet l'événement « nexus:open ».
+    useEffect(() => {
+        const ouvrir = () => setIsOpen(true);
+        window.addEventListener("nexus:open", ouvrir);
+        return () => window.removeEventListener("nexus:open", ouvrir);
+    }, []);
+
+    // La fenêtre ouverte passe au-dessus du bouton « + » (z-70) sur mobile.
     return (
-        <div className="fixed bottom-24 lg:bottom-6 right-4 sm:right-6 z-50">
-            {/* Floating Button */}
+        <div className={cn("fixed bottom-6 right-4 sm:right-6", isOpen ? "z-[80] lg:z-50" : "z-50")}>
+            {/* Floating Button — grands écrans uniquement */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Ouvrir l'assistant Nexus"
                 title="Assistant Nexus"
                 className={cn(
-                    "flex items-center justify-center rounded-full transition-all duration-500 shadow-[0_0_30px_rgba(79,70,229,0.5)]",
+                    "hidden lg:flex items-center justify-center rounded-full transition-all duration-500 shadow-[0_0_30px_rgba(79,70,229,0.5)]",
                     isOpen ? "w-14 h-14 bg-slate-800 text-slate-400 rotate-90 scale-0 opacity-0" : "w-16 h-16 bg-primary text-white hover:scale-110 rotate-0 scale-100 opacity-100"
                 )}
             >
@@ -90,7 +98,7 @@ export function NexusCopilot() {
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors relative z-10">
+                    <button onClick={() => setIsOpen(false)} aria-label="Fermer l'assistant Nexus" className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors relative z-10">
                         <X className="w-5 h-5" />
                     </button>
                 </div>

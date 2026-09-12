@@ -98,10 +98,13 @@ export default function CoCounselPage() {
         setInputValue(action.prompt);
     };
 
+    // Sur mobile, la colonne latérale de 320px et la zone de chat se
+    // partageaient 375px : le chat était hors écran. Empilement vertical
+    // sous lg, deux colonnes au-delà.
     return (
-        <div className="h-[calc(100vh-8rem)] flex gap-6 overflow-hidden animate-in fade-in duration-1000">
+        <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-8rem)] lg:overflow-hidden animate-in fade-in duration-1000">
             {/* Sidebar */}
-            <div className="w-80 flex flex-col gap-6">
+            <div className="w-full lg:w-80 flex flex-col gap-6">
                 {/* Header Card */}
                 <div className="glass-card rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-6">
                     <div className="flex items-center gap-3 mb-4">
@@ -149,9 +152,9 @@ export default function CoCounselPage() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-[60vh] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col overflow-hidden">
                 {/* Messages */}
-                <div className="flex-1 overflow-auto p-8 space-y-6">
+                <div className="flex-1 overflow-auto p-4 sm:p-8 space-y-6">
                     {messages.map(message => (
                         <div
                             key={message.id}

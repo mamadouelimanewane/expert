@@ -218,7 +218,7 @@ export default function MobileMoneyPage() {
                         <Activity className="w-5 h-5 text-emerald-400" />
                         Historique des Flux
                     </h3>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {["ALL", "IN", "OUT", "PENDING"].map(f => (
                             <button
                                 key={f}

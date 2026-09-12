@@ -154,10 +154,10 @@ export function Sidebar() {
     const sousMenu = filter.trim() ? null : sousMenuPour(pathname);
     const sousActif = sousMenu ? entreeSousMenuActive(sousMenu.entrees, pathname) : null;
     const rendreSousMenu = () => sousMenu && (
-        <div className="ml-4 pl-3 border-l border-border/60 my-1 space-y-0.5" role="list" aria-label="Pages du module">
+        <div className="sidebar-submenu ml-4 pl-3 my-1 space-y-0.5" role="list" aria-label="Pages du module">
             {sousMenu.entrees.map((e) => (
                 <Link key={e.href} href={e.href} role="listitem" aria-current={e.href === sousActif ? "page" : undefined}
-                    className={cn("block px-3 py-1.5 rounded-md text-[11px] transition-colors", e.href === sousActif ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:text-foreground hover:bg-muted/60")}>
+                    className={cn("sidebar-sublink block px-3 py-1.5 rounded-md text-[11px] transition-colors", e.href === sousActif && "active")}>
                     {e.label}
                 </Link>
             ))}
@@ -337,7 +337,16 @@ export function Sidebar() {
             </aside>
 
             {/* Mobile Roaming FAB (Floating Action Button) */}
-            <div className="lg:hidden fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[70] flex flex-col items-end gap-3 pb-safe">
+            {/* Voile sous le menu ouvert : les raccourcis blancs se lisaient
+                mal par-dessus les cartes KPI, et un appui hors menu le ferme. */}
+            {isFabOpen && (
+                <div
+                    className="lg:hidden fixed inset-0 z-[65] bg-[rgba(15,23,42,0.45)] backdrop-blur-[2px] animate-in fade-in duration-200"
+                    aria-hidden="true"
+                    onClick={() => setIsFabOpen(false)}
+                />
+            )}
+            <div className={cn("lg:hidden fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-[70] flex-col items-end gap-3 pb-safe", isOpen ? "hidden" : "flex")}>
                 {isFabOpen && (
                     <div className="flex flex-col items-end gap-3 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         {/* Ces raccourcis étaient de simples <button> sans action :
@@ -355,6 +364,16 @@ export function Sidebar() {
                         <Link href="/missions/new" onClick={() => setIsFabOpen(false)} className="flex items-center gap-3 bg-white text-primary px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary">
                             <PlusCircle className="w-4 h-4" /> Nouvelle Mission
                         </Link>
+                        {/* Le bouton flottant Nexus est masqué sous lg (il doublait
+                            celui-ci) : l'assistant s'ouvre d'ici, via un événement
+                            écouté par NexusCopilot. */}
+                        <button
+                            type="button"
+                            onClick={() => { setIsFabOpen(false); window.dispatchEvent(new CustomEvent("nexus:open")); }}
+                            className="flex items-center gap-3 bg-primary text-white px-4 py-3 rounded-2xl font-bold text-xs shadow-2xl shadow-primary/40 border border-primary"
+                        >
+                            <Sparkles className="w-4 h-4" /> Assistant Nexus
+                        </button>
                     </div>
                 )}
                 <button

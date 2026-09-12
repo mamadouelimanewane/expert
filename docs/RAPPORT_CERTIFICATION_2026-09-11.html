@@ -288,6 +288,12 @@
     <p>Tesseract ne lit que l'imprimé : cahiers de caisse, reçus de commerçants informels et balances annotées restaient à ressaisir.</p>
     <p class="fix">Bouton opt-in « Lire avec l'IA » (import de balance, scan de facture) : transcription par modèle de vision avec sortie structurée — type de document, lignes, confiance par champ, illisibles marqués jamais devinés, totaux écrits confrontés aux lignes — puis relecture éditable avant enregistrement ; un cahier de caisse part vers le journal d'écritures. Le document est transmis à Anthropic uniquement sur ce clic ; sans clé ou sans crédits, l'écran l'indique en clair. Test réel : <code>npx tsx scripts/test-vision-manuscrit.ts</code>.</p>
   </div></div>
+  <div class="finding"><div class="id"><b>C-18</b>ergonomie</div><div>
+    <div class="sev"><span class="pill warn">Expérience mobile</span></div>
+    <h4>Simulation mobile (375 × 812) sur 150 écrans</h4>
+    <p>Deux boutons flottants (Nexus et « + ») masquaient le tiers droit de chaque écran ; le sous-menu contextuel de la barre latérale était illisible (gris sur vert) ; les États financiers imposaient une zone de défilement imbriquée ; boutons et onglets de 18 à 28 px, badges de 8 px ; sur le dashboard TPE, Nexus Counsel, la suite CAC, le kit de préparation, Nexus-Go et Mobile Money, des en-têtes ou colonnes sortaient de l'écran.</p>
+    <p class="fix">Un seul bouton flottant sous 1024 px : l'assistant Nexus s'ouvre depuis le menu « + », qui se dote d'un voile et se masque quand le tiroir de navigation est ouvert ; sous-menu en blanc sur la barre (<code>sidebar-sublink</code>) ; mise en page des États financiers en hauteur fixe seulement à partir de <code>lg</code> ; plancher de 40 px pour toute commande tactile, 44 px pour la navigation, 10 px pour tout texte ; <code>min-width: 0</code> sur les enfants de grille et de flex, rangées de trois boutons ou plus repliables ; correctifs ciblés sur les six écrans cités. Balayage automatisé : aucun débordement horizontal ni cible sous 36 px sur les 150 écrans du menu.</p>
+  </div></div>
 
   <h2>Limites à connaître avant la démo</h2>
   <p>Non corrigées dans cette session : soit parce qu'elles relèvent d'une configuration ou d'un prestataire externe, soit parce qu'elles demandent une évolution de modèle de données à décider.</p>

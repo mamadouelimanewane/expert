@@ -173,8 +173,8 @@ export default function CompleteAuditKitPage() {
                         <p className="page-subtitle">Cahier de travail : seuil de signification, risques et programme.</p>
                     </div>
 
-                    <div className="flex flex-col items-end gap-3">
-                        <div className="flex gap-2">
+                    <div className="flex flex-col items-stretch sm:items-end gap-3 min-w-0 max-w-full">
+                        <div className="flex flex-wrap gap-2">
                             <select
                                 value={clientId}
                                 onChange={(e) => setClientId(e.target.value)}

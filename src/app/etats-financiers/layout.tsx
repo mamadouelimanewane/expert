@@ -8,11 +8,11 @@ export default function EtatsFinanciersLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen flex-col bg-slate-50 dark:bg-slate-900 print:h-auto print:block">
+    <div className="flex min-h-full lg:h-screen flex-col bg-slate-50 dark:bg-slate-900 print:h-auto print:block">
       {/* Module Header — masque a l'impression : ce bandeau apparaissait
           jusqu'ici sur les PDF de bilan/resultat generes via window.print(). */}
-      <header className="border-b border-slate-200 bg-white/50 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/50 print:hidden">
-        <div className="flex items-center justify-between">
+      <header className="border-b border-slate-200 bg-white/50 px-4 py-3 sm:px-6 sm:py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/50 print:hidden">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-2">
             <div className="rounded-lg bg-primary p-2 text-white">
               <FileSpreadsheet className="h-6 w-6" />
@@ -38,7 +38,7 @@ export default function EtatsFinanciersLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto p-6 print:overflow-visible print:p-0">
+      <main className="flex-1 p-4 sm:p-6 lg:overflow-auto print:overflow-visible print:p-0">
         <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500 print:max-w-none">
           {children}
         </div>
