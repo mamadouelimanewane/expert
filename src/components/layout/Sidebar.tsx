@@ -51,10 +51,11 @@ import {
     FileDigit
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { hrefActif, ordonnerMenu } from "@/lib/menu-sections";
 
 import { useTheme } from "@/context/ThemeContext";
 import { Moon, Sun, Menu, X, Search } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
@@ -137,27 +138,19 @@ export function Sidebar() {
         setIsFabOpen(false);
     }, [pathname]);
 
-    // Entrée active : le href le plus long qui préfixe l'URL courante, pour
-    // que /clients/123 allume « Clients » et /audit/ai-assisted allume
-    // « Audit Légal IA » plutôt que « Audit & CAC ».
-    const activeHref = menuItems
-        .filter((i) => i.href && (pathname === i.href || pathname.startsWith(i.href + "/")))
-        .sort((a, b) => b.href!.length - a.href!.length)[0]?.href ?? null;
+    // L'entrée active est ramenée dans la zone visible de la barre (utile
+    // quand la section active est longue ou que l'utilisateur arrive par URL).
+    const navRef = useRef<HTMLElement>(null);
+    useEffect(() => {
+        const actif = navRef.current?.querySelector<HTMLElement>('a[aria-current="page"]');
+        actif?.scrollIntoView({ block: "nearest" });
+    }, [pathname]);
 
-    const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const q = normalize(filter.trim());
-    // En cas de filtre, on ne garde que les liens qui correspondent, avec
-    // l'en-tête de leur section pour conserver le contexte.
-    const visibleItems: MenuItem[] = q
-        ? menuItems.reduce<MenuItem[]>((acc, item, idx) => {
-            if (item.header) return acc;
-            if (!normalize(item.label ?? "").includes(q)) return acc;
-            const header = [...menuItems.slice(0, idx)].reverse().find((i) => i.header);
-            if (header && !acc.includes(header)) acc.push(header);
-            acc.push(item);
-            return acc;
-        }, [])
-        : menuItems;
+    // Entrée active (href le plus long qui préfixe l'URL) et menu ordonné :
+    // la section de l'écran ouvert en tête, filtre tolérant aux accents.
+    // Logique dans src/lib/menu-sections.ts, couverte par les tests.
+    const activeHref = hrefActif(menuItems, pathname);
+    const { visibles: visibleItems, enTeteActif } = ordonnerMenu(menuItems, activeHref, filter);
 
     return (
         <>
@@ -225,7 +218,7 @@ export function Sidebar() {
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto custom-scrollbar" aria-label="Navigation principale">
+                <nav ref={navRef} className="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto custom-scrollbar" aria-label="Navigation principale">
                     {visibleItems.length === 0 && (
                         <p className="px-4 py-6 text-xs text-muted-foreground text-center">Aucune entrée ne correspond à « {filter} ».</p>
                     )}
@@ -233,8 +226,8 @@ export function Sidebar() {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
-                                <div key={`header-${idx}`} className="sidebar-header mt-6 mb-2 px-4 py-1">
-                                    <h3 className="text-[9px] font-black pointer-events-none uppercase tracking-[0.2em]">
+                                <div key={`header-${idx}`} className={cn("sidebar-header mb-2 px-4 py-1", idx === 0 ? "mt-1" : "mt-6")}>
+                                    <h3 className={cn("text-[9px] font-black pointer-events-none uppercase tracking-[0.2em]", item === enTeteActif && "text-primary")}>
                                         {item.header}
                                     </h3>
                                 </div>
