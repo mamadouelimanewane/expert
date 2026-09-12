@@ -81,13 +81,13 @@ const menuItems: MenuItem[] = [
     { icon: Calculator, label: "Paie & Social (SN)", href: "/payroll" },
     { icon: FolderPlus, label: "GED Intelligente", href: "/documents" },
     { icon: ArrowRightLeft, label: "Banque & Lettrage", href: "/banking" },
+    { icon: Gauge, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
 
     { header: "AUDIT & CONFORMITÉ" },
     { icon: ShieldAlert, label: "Audit & CAC (FEC)", href: "/audit" },
-    { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit/ai-assisted" },
+    { icon: ShieldCheck, label: "Audit Légal IA", href: "/audit-legal" },
     { icon: UserCheck, label: "KYC & LCB-FT", href: "/compliance/kyc-screening" },
     { icon: Gavel, label: "Gouvernance & AG", href: "/governance" },
-    { icon: Gauge, label: "Rapport Santé PDF", href: "/comptabilite/health-report" },
 
     { header: "STRATÉGIE & CONSEIL" },
     { icon: Rocket, label: "Business Plan & Stratégie", href: "/strategy/business-plan" },

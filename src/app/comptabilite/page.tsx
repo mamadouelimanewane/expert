@@ -8,9 +8,11 @@ import { redirect } from "next/navigation";
 // identifiant de facture inventé (« F-2024-002 ») qui ne correspond à aucune
 // facture réelle. /billing fait déjà tout cela sur des factures réelles
 // (/api/invoices, KPI agrégés côté serveur, PaymentModal branché sur de
-// vrais identifiants). Redirection plutôt que doublon dangereux.
+// vrais identifiants). Redirection plutôt que doublon dangereux — vers la
+// production comptable, page d'entrée naturelle du module « Comptabilité »
+// (le sous-menu contextuel de la barre latérale y renvoie).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function ComptabiliteRootRedirect() {
-    redirect("/billing");
+    redirect("/comptabilite/production");
 }

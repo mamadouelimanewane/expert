@@ -105,27 +105,31 @@ export type EntreeSousMenu = { label: string; href: string };
  */
 export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/etats-financiers": [
-        { label: "Synthèse", href: "/etats-financiers" }, { label: "Import balance", href: "/etats-financiers/import" },
+        { label: "Import balance", href: "/etats-financiers/import" },
         { label: "Bilan", href: "/etats-financiers/bilan" }, { label: "Compte de résultat", href: "/etats-financiers/resultat" },
         { label: "Flux de trésorerie (TFT)", href: "/etats-financiers/tft" }, { label: "Paramètres", href: "/etats-financiers/config" },
     ],
     "/comptabilite": [
-        { label: "Vue d'ensemble", href: "/comptabilite" }, { label: "Production & révision", href: "/comptabilite/production" },
-        { label: "Révision", href: "/comptabilite/revision" }, { label: "Cycles de révision", href: "/comptabilite/revision-cycles" },
+        { label: "Production & révision", href: "/comptabilite/production" },
+        { label: "Révision", href: "/comptabilite/revision" },
         { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" }, { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
     "/comptabilite/tpe-dashboard": [
         { label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" }, { label: "Usine de traitement", href: "/comptabilite/tpe-processing" },
-        { label: "Saisie informel", href: "/comptabilite/informel" },
+        { label: "Saisie informel", href: "/comptabilite/informel" }, { label: "Hub WhatsApp", href: "/dashboard/whatsapp-bot" },
     ],
     "/comptabilite/tpe-processing": [
         { label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" }, { label: "Usine de traitement", href: "/comptabilite/tpe-processing" },
-        { label: "Saisie informel", href: "/comptabilite/informel" },
+        { label: "Saisie informel", href: "/comptabilite/informel" }, { label: "Hub WhatsApp", href: "/dashboard/whatsapp-bot" },
+    ],
+    "/dashboard/whatsapp-bot": [
+        { label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" }, { label: "Usine de traitement", href: "/comptabilite/tpe-processing" },
+        { label: "Saisie informel", href: "/comptabilite/informel" }, { label: "Hub WhatsApp", href: "/dashboard/whatsapp-bot" },
     ],
     "/comptabilite/informel": [
         { label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" }, { label: "Usine de traitement", href: "/comptabilite/tpe-processing" },
-        { label: "Saisie informel", href: "/comptabilite/informel" },
+        { label: "Saisie informel", href: "/comptabilite/informel" }, { label: "Hub WhatsApp", href: "/dashboard/whatsapp-bot" },
     ],
     "/clients": [
         { label: "Portefeuille", href: "/clients" }, { label: "Nouveau dossier", href: "/clients/new" }, { label: "Scoring", href: "/clients/scoring" },
@@ -158,21 +162,22 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "GED", href: "/documents" }, { label: "Scan OCR", href: "/scan" },
     ],
     "/banking": [
-        { label: "Banque & lettrage", href: "/banking" }, { label: "Rapprochement", href: "/bank-reconciliation" }, { label: "Import de flux", href: "/ingest/connectors" },
+        { label: "Banque & lettrage", href: "/banking" }, { label: "Import de flux", href: "/ingest/connectors" },
     ],
     "/ingest": [
         { label: "Ingestion", href: "/ingest" }, { label: "Connecteurs", href: "/ingest/connectors" }, { label: "Banque & lettrage", href: "/banking" },
     ],
     "/audit": [
-        { label: "Audit FEC", href: "/audit" }, { label: "Audit légal IA", href: "/audit/ai-assisted" }, { label: "Suite CAC", href: "/audit/cac-suite" },
+        { label: "Détection de fraude", href: "/audit/fraud-detection" }, { label: "Audit légal IA", href: "/audit-legal" }, { label: "Suite CAC", href: "/audit/cac-suite" },
         { label: "Dossier de travail", href: "/audit/dossier-travail" }, { label: "Missions d'audit", href: "/audit/missions" },
-        { label: "Immobilisations", href: "/audit/fixed-assets" }, { label: "Forensic", href: "/audit/forensic" },
-        { label: "Détection de fraude", href: "/audit/fraud-detection" }, { label: "Risques IA", href: "/audit/ia-risks" }, { label: "Kit de préparation", href: "/audit/prep-kit" },
+        { label: "Immobilisations", href: "/audit/fixed-assets" },
+        { label: "Risques IA", href: "/audit/ia-risks" }, { label: "Kit de préparation", href: "/audit/prep-kit" },
     ],
     "/compliance": [
         { label: "Hub conformité", href: "/compliance" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
         { label: "Vérification d'identité", href: "/compliance/id-verify" }, { label: "Score UEMOA", href: "/compliance/uemoa-score" },
         { label: "Criminalité financière", href: "/compliance/financial-crime" }, { label: "Contrôle fiscal", href: "/compliance/tax-audit" }, { label: "Douanes", href: "/compliance/customs" },
+        { label: "Carte des risques", href: "/compliance/governance/heatmap" },
     ],
     "/governance": [
         { label: "Gouvernance & AG", href: "/governance" }, { label: "Carte des risques", href: "/compliance/governance/heatmap" },
@@ -188,12 +193,10 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Trésorerie prédictive", href: "/analysis/cash-flow-predictive" }, { label: "Rentabilité", href: "/analysis/profitability" },
         { label: "Simulateur d'impôt", href: "/analysis/tax-simulator" }, { label: "Tiers", href: "/analysis/tiers" },
         { label: "Radar clients", href: "/analysis/clients/radar" }, { label: "Investigation", href: "/analysis/deep" },
-    ],
-    "/investment": [
-        { label: "Valorisation & M&A", href: "/investment" }, { label: "Transmission", href: "/valorisation/transmission" }, { label: "Valorisation", href: "/valorisation" },
+        { label: "War room", href: "/analysis/deep/war-room" }, { label: "Credit insights", href: "/analysis/credit-insights" },
     ],
     "/valorisation": [
-        { label: "Valorisation & M&A", href: "/investment" }, { label: "Valorisation", href: "/valorisation" }, { label: "Transmission", href: "/valorisation/transmission" },
+        { label: "Valorisation", href: "/valorisation" }, { label: "Transmission", href: "/valorisation/transmission" },
     ],
     "/corporate": [
         { label: "Consolidation", href: "/corporate/consolidation" }, { label: "Entity hub", href: "/corporate/entity-hub" },
@@ -210,8 +213,8 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Simulateur douanier", href: "/douanes/simulateur" }, { label: "Douanes & conformité", href: "/compliance/customs" },
     ],
     "/nexus": [
-        { label: "Nexus", href: "/nexus" }, { label: "Chat", href: "/nexus/chat" },
-        { label: "WhatsApp", href: "/nexus/whatsapp" }, { label: "Nexus fiscal", href: "/nexus-fiscal" }, { label: "Nexus légal", href: "/nexus-legal" },
+        { label: "Assistant", href: "/assistant" }, { label: "Chat", href: "/nexus/chat" },
+        { label: "WhatsApp", href: "/nexus/whatsapp" }, { label: "Nexus fiscal", href: "/nexus-fiscal" }, { label: "Rédaction juridique", href: "/legal/drafting" },
     ],
     "/assistant": [
         { label: "Assistant", href: "/assistant" }, { label: "Co-counsel", href: "/assistant/cocounsel" },
@@ -233,14 +236,14 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Notes de version", href: "/documentation/release-notes" }, { label: "Brochure", href: "/documentation/brochure" }, { label: "Pack de bienvenue", href: "/documentation/welcome-pack" },
     ],
     "/dashboard": [
-        { label: "Tableau de bord", href: "/dashboard" }, { label: "Exécutif", href: "/dashboard/executive" }, { label: "Associé", href: "/dashboard/partner" },
+        { label: "Hub des modules", href: "/bi" }, { label: "Exécutif", href: "/dashboard/executive" }, { label: "Associé", href: "/dashboard/partner" },
         { label: "Brief du matin", href: "/dashboard/morning-brief" }, { label: "Confidentiel", href: "/dashboard/confidentiel" },
     ],
     "/management": [
         { label: "Pilotage cabinet", href: "/management/practice" }, { label: "Contrôle de gestion", href: "/management/controlling" }, { label: "Capacité", href: "/management/capacity-planning" },
     ],
     "/production": [
-        { label: "Production", href: "/production" }, { label: "Tableau de bord", href: "/production/dashboard" }, { label: "Planning", href: "/production/planning" }, { label: "Analytique", href: "/production/analytics" },
+        { label: "Production comptable", href: "/comptabilite/production" }, { label: "Tableau de bord", href: "/production/dashboard" }, { label: "Planning", href: "/production/planning" }, { label: "Analytique", href: "/production/analytics" },
     ],
     "/collaboration": [
         { label: "Requêtes", href: "/collaboration/requests" }, { label: "Triage", href: "/collaboration/triage" }, { label: "Espaces de travail", href: "/collaboration/workspaces" },

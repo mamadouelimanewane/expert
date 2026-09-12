@@ -54,7 +54,7 @@ import { readdirSync, statSync } from "fs";
 import { join } from "path";
 import { SECTION_PAR_PREFIXE, sectionParChemin } from "@/lib/menu-sections";
 
-const MENU_COMPLET_HREFS = ["/bi","/clients","/missions","/agenda","/timesheets","/billing","/lettres-mission","/supervision/timeline","/comptabilite/production","/comptabilite/liasse-fiscale","/etats-financiers","/fiscalite","/payroll","/documents","/banking","/audit","/audit/ai-assisted","/compliance/kyc-screening","/governance","/comptabilite/health-report","/strategy/business-plan","/strategy/radar","/strategy/zone-franche","/investment","/strategy/devises","/accompagnement/entreprenant","/douanes/simulateur","/comptabilite/tpe-dashboard","/comptabilite/tpe-processing","/dashboard/whatsapp-bot","/mobile-money","/fintech/payments","/fintech/credit","/fintech/scoring","/assistant","/nexus-go","/library","/settings/ai","/onboarding","/portal/tpe-client","/settings/api-keys","/plan"].map((href) => ({ label: href, href }));
+const MENU_COMPLET_HREFS = ["/bi","/clients","/missions","/agenda","/timesheets","/billing","/lettres-mission","/supervision/timeline","/comptabilite/production","/comptabilite/liasse-fiscale","/etats-financiers","/fiscalite","/payroll","/documents","/banking","/audit","/audit-legal","/compliance/kyc-screening","/governance","/comptabilite/health-report","/strategy/business-plan","/strategy/radar","/strategy/zone-franche","/investment","/strategy/devises","/accompagnement/entreprenant","/douanes/simulateur","/comptabilite/tpe-dashboard","/comptabilite/tpe-processing","/dashboard/whatsapp-bot","/mobile-money","/fintech/payments","/fintech/credit","/fintech/scoring","/assistant","/nexus-go","/library","/settings/ai","/onboarding","/portal/tpe-client","/settings/api-keys","/plan"].map((href) => ({ label: href, href }));
 const SECTIONS = ["PILOTAGE & CABINET", "EXPERTISE & PRODUCTION", "AUDIT & CONFORMITÉ", "STRATÉGIE & CONSEIL", "TPE, DOUANES & FINTECH", "NEXUS INTELLIGENCE", "PLATEFORME & ÉCOSYSTÈME"];
 
 function pages(dir: string, base = ""): string[] {
@@ -99,9 +99,8 @@ describe("sous-menu contextuel du module", () => {
     it("propose les pages des états financiers sur /etats-financiers/tft, TFT active", () => {
         const sm = sousMenuPour("/etats-financiers/tft");
         expect(sm?.module).toBe("/etats-financiers");
-        expect(sm?.entrees.map((e) => e.label)).toEqual(["Synthèse", "Import balance", "Bilan", "Compte de résultat", "Flux de trésorerie (TFT)", "Paramètres"]);
+        expect(sm?.entrees.map((e) => e.label)).toEqual(["Import balance", "Bilan", "Compte de résultat", "Flux de trésorerie (TFT)", "Paramètres"]);
         expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers/tft")).toBe("/etats-financiers/tft");
-        expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers")).toBe("/etats-financiers");
         expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers/print/bilan")).toBeNull();
     });
     it("prend le préfixe le plus long (TPE sous /comptabilite)", () => {
