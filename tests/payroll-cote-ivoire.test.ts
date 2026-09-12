@@ -141,6 +141,14 @@ describe("bulletin complet — Côte d'Ivoire", () => {
         expect(calculateCoteIvoirePayroll(bulletin()).avertissements).toEqual([]);
     });
 
+    it("intègre les avantages en nature dans l'assiette ITS/CNPS sans les verser", () => {
+        const r = calculateCoteIvoirePayroll(bulletin({ benefitsInKind: 100_000 }));
+        expect(r.grossSalary).toBe(500_000);
+        expect(r.taxableIncome).toBe(500_000);
+        expect(r.detail.cnpsRetraite).toBe(Math.round(500_000 * 0.063));
+        expect(r.netSalary).toBe(400_000 - r.socialSecurity - r.taxes);
+    });
+
     it("déduit les absences au trentième", () => {
         const r = calculateCoteIvoirePayroll(bulletin({ baseSalary: 300_000, absencesDays: 3 }));
         expect(r.grossSalary).toBe(270_000);

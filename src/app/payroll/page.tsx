@@ -1,12 +1,13 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Calculator, Users, Mic, Play, CheckCircle2, AlertTriangle, 
   Send, Loader2, Smartphone, FileText, ChevronRight, Building2,
   RefreshCw, Globe
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { GestionSalaries } from "@/components/payroll/GestionSalaries";
 
 export default function PayrollDashboard() {
   const [clients, setClients] = useState<any[]>([]);
@@ -60,8 +61,14 @@ export default function PayrollDashboard() {
     recognition.start();
   };
 
-  const handleProcessVoice = async () => {
-    if (!selectedClient || !voiceTranscript) return;
+  const [avertissementsPaie, setAvertissementsPaie] = useState<string[]>([]);
+
+  // Variables corrigées à la main dans le tableau, par salarié. Elles priment
+  // sur l'extraction IA et suffisent à calculer la paie sans aucun moteur IA.
+  const [manuelles, setManuelles] = useState<Record<string, { absencesDays?: number; overtimeHours?: number; bonuses?: number }>>({});
+
+  const handleProcessVoice = async (surcharges = manuelles) => {
+    if (!selectedClient) return;
     setIsProcessingVoice(true);
     setVoiceError(null);
 
@@ -71,13 +78,15 @@ export default function PayrollDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clientId: selectedClient,
-          transcript: voiceTranscript
+          transcript: voiceTranscript,
+          manualVariables: surcharges,
         })
       });
       const data = await res.json();
       if (data.success) {
         setVariables(data.variables);
         setCountryCode(data.country || "SN");
+        setAvertissementsPaie(data.avertissements ?? []);
       } else {
         setVoiceError(data.error || "Erreur lors de l'analyse de la transcription");
       }
@@ -87,6 +96,18 @@ export default function PayrollDashboard() {
       setIsProcessingVoice(false);
     }
   };
+
+  // Une correction dans le tableau relance le calcul serveur (moteur du pays)
+  // avec les variables manuelles ; la transcription n'est pas réanalysée
+  // puisque les valeurs saisies priment.
+  const modifierVariable = (employeeId: string, champ: "absencesDays" | "overtimeHours" | "bonuses", valeur: number) => {
+    const suivantes = { ...manuelles, [employeeId]: { ...(manuelles[employeeId] ?? {}), [champ]: Number.isFinite(valeur) ? valeur : 0 } };
+    setManuelles(suivantes);
+    setVariables((prev) => prev ? prev.map((v) => (v.employeeId === employeeId ? { ...v, [champ]: valeur } : v)) : prev);
+    if (recalcul.current) clearTimeout(recalcul.current);
+    recalcul.current = setTimeout(() => { void handleProcessVoice(suivantes); }, 500);
+  };
+  const recalcul = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalPayroll = variables ? variables.reduce((acc, v) => acc + v.netSalary, 0) : 0;
   const totalTaxes = variables ? variables.reduce((acc, v) => acc + v.taxes, 0) : 0;
@@ -153,7 +174,7 @@ export default function PayrollDashboard() {
                 return (
                   <div 
                     key={client.id}
-                    onClick={() => { setSelectedClient(client.id); setVariables(null); setIsPaid(false); }}
+                    onClick={() => { setSelectedClient(client.id); setVariables(null); setIsPaid(false); setManuelles({}); setAvertissementsPaie([]); }}
                     className={cn(
                       "cursor-pointer p-4 rounded-2xl border transition-all flex items-center gap-3",
                       isSelected ? "bg-blue-600/10 border-blue-500" : "bg-slate-800/30 border-transparent hover:bg-slate-800/50"
@@ -203,19 +224,21 @@ export default function PayrollDashboard() {
             </div>
 
             <button 
-              onClick={handleProcessVoice}
-              disabled={!voiceTranscript || isProcessingVoice}
+              onClick={() => handleProcessVoice()}
+              disabled={isProcessingVoice}
               className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isProcessingVoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
               Lancer le Moteur {countryCode && `(${countryCode})`}
             </button>
             {voiceError && <p className="text-xs text-red-400 font-medium">{voiceError}</p>}
+            <p className="text-[11px] text-slate-500">Sans dictée, le moteur calcule les bulletins à zéro variable ; absences, heures et primes se corrigent ensuite dans le tableau.</p>
           </div>
         </div>
 
         {/* Colonne Droite : Variables et Paiement */}
         <div className="lg:col-span-8 space-y-6">
+          <GestionSalaries clientId={selectedClient} onChange={() => { setVariables(null); setIsPaid(false); }} />
           <div className={cn(
             "bg-slate-900/40 border rounded-[28px] p-8 transition-all duration-500",
             variables ? "border-blue-500/20 shadow-2xl shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
@@ -237,6 +260,16 @@ export default function PayrollDashboard() {
 
             {variables ? (
               <div className="space-y-6">
+                {avertissementsPaie.length > 0 && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 space-y-1">
+                    {avertissementsPaie.map((a, i) => <p key={i} className="flex items-start gap-2"><AlertTriangle className="w-4 h-4 shrink-0" /> {a}</p>)}
+                  </div>
+                )}
+                {variables.some((v) => v.avertissements?.length) && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400 space-y-1">
+                    {variables.flatMap((v) => (v.avertissements ?? []).map((a: string, i: number) => <p key={v.employeeId + i}><span className="font-bold">{v.employeeName} :</span> {a}</p>))}
+                  </div>
+                )}
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left border-collapse min-w-[800px] apix-table">
                     <thead>
@@ -266,14 +299,20 @@ export default function PayrollDashboard() {
                           <td className="py-3 px-3 text-right text-slate-400 text-sm tabular-nums">
                             {v.baseSalary.toLocaleString()} F
                           </td>
-                          <td className="py-3 px-3 text-center text-rose-400 font-mono text-sm">
-                            {v.absencesDays} j
+                          <td className="py-3 px-3 text-center">
+                            <input type="number" min={0} max={30} aria-label={`Absences ${v.employeeName}`} value={v.absencesDays}
+                              onChange={(e) => modifierVariable(v.employeeId, "absencesDays", Number(e.target.value))}
+                              className="w-16 bg-slate-950/50 border border-white/10 rounded-lg px-2 py-1 text-center text-rose-400 font-mono text-sm" />
                           </td>
-                          <td className="py-3 px-3 text-center text-primary font-mono text-sm">
-                            {v.overtimeHours} h
+                          <td className="py-3 px-3 text-center">
+                            <input type="number" min={0} step={0.5} aria-label={`Heures supplémentaires ${v.employeeName}`} value={v.overtimeHours}
+                              onChange={(e) => modifierVariable(v.employeeId, "overtimeHours", Number(e.target.value))}
+                              className="w-16 bg-slate-950/50 border border-white/10 rounded-lg px-2 py-1 text-center text-primary font-mono text-sm" />
                           </td>
-                          <td className="py-3 px-3 text-right text-emerald-400 font-mono text-sm">
-                            {v.bonuses > 0 ? `+${v.bonuses.toLocaleString()}` : "-"}
+                          <td className="py-3 px-3 text-right">
+                            <input type="number" min={0} step={1000} aria-label={`Primes ${v.employeeName}`} value={v.bonuses}
+                              onChange={(e) => modifierVariable(v.employeeId, "bonuses", Number(e.target.value))}
+                              className="w-28 bg-slate-950/50 border border-white/10 rounded-lg px-2 py-1 text-right text-emerald-400 font-mono text-sm" />
                           </td>
                           <td className="py-3 px-3 text-right text-orange-400/80 font-mono text-xs tabular-nums border-l border-white/5 bg-orange-500/5">
                             -{v.taxes.toLocaleString()} F

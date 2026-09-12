@@ -400,6 +400,9 @@
 /* --- Hover subtils en mode clair --- */
 :is(.light, .corporate) .hover\:bg-white\/\[0\.02\]:hover { background-color: #f8fafc !important; }
 :is(.light, .corporate) .hover\:bg-white\/5:hover { background-color: #f1f5f9 !important; }
+/* Survols « sombres » (lignes de tableau, boutons secondaires) : gris clair
+   au lieu d'un gris boueux ; hors conteneurs sombres, qui gardent l'original. */
+:is(.light, .corporate) :is(.hover\:bg-slate-700:hover, .hover\:bg-slate-800:hover, .hover\:bg-slate-900:hover, .hover\:bg-slate-800\/20:hover, .hover\:bg-slate-800\/30:hover, .hover\:bg-slate-800\/40:hover, .hover\:bg-slate-800\/50:hover, .hover\:bg-slate-800\/60:hover, .hover\:bg-slate-800\/80:hover, .hover\:bg-slate-900\/40:hover, .hover\:bg-slate-900\/50:hover, .hover\:bg-slate-900\/60:hover):not([class*="bg-[#0"] *):not([class*="bg-[#1"] *):not(.bg-black *) { background-color: #eef2f7 !important; }
 :is(.light, .corporate) .bg-white\/5 { background-color: #f8fafc !important; }
 :is(.light, .corporate) .bg-white\/10 { background-color: #f1f5f9 !important; }
 

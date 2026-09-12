@@ -816,8 +816,13 @@ model Employee {
   childrenCount      Int     @default(0)
   isCadre            Boolean @default(false)
   transportAllowance Float   @default(0)
-  // Conjoints sans revenu : chacun ajoute une part TRIMF (Sénégal).
+  // Conjoints sans revenu : chacun ajoute une part TRIMF (Sénégal) et, pour
+  // une femme mariée, ouvre la demi-part du conjoint (CGI art. 174).
   conjointsSansRevenu Int    @default(0)
+  // "M" ou "F" : la femme mariée est imposée comme célibataire au Sénégal.
+  sexe               String?
+  // Avantages en nature mensuels (logement, véhicule…), valeur imposable.
+  avantagesNature    Float   @default(0)
 
   // Relations
   clientId String @db.ObjectId

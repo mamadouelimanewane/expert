@@ -31,6 +31,13 @@
 //     salarié, plafonnée à 250 000 F, taux fixé par l'IPM de l'entreprise —
 //     paramétrable, part salariale déductible de la base imposable.
 //  7. Veuf(ve) ou divorcé(e) avec enfants à charge : parts du marié.
+//  8. Femme mariée (art. 174) : considérée comme célibataire — 1 part, plus
+//     0,5 pour le conjoint s'il est sans revenu, plus 0,5 par enfant dont
+//     elle a la charge ; l'homme marié a 1,5 part quel que soit le revenu du
+//     conjoint. Paramètre `sexe` ; sans lui, la règle de l'homme s'applique.
+//  9. Avantages en nature (logement, véhicule, domesticité…) : compris dans
+//     l'assiette sociale et fiscale à leur valeur réelle ou forfaitaire, mais
+//     non versés en espèces — déduits du net à payer.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface PayrollParams {
@@ -68,6 +75,10 @@ export interface PayrollParams {
     ipmRatePatronal?: number;
     /** Conjoints sans revenu : chacun ajoute une part TRIMF (défaut 0). */
     conjointsSansRevenu?: number;
+    /** "F" applique la règle de la femme mariée (art. 174) ; défaut "M". */
+    sexe?: "M" | "F";
+    /** Avantages en nature mensuels (valeur imposable) : dans les assiettes, hors espèces. */
+    benefitsInKind?: number;
 }
 
 export interface PayrollDetail {
@@ -96,6 +107,8 @@ export interface PayrollDetail {
     abattement: number;
     /** Rémunération brute des heures supplémentaires. */
     remunerationHeuresSup: number;
+    /** Avantages en nature retenus dans les assiettes. */
+    avantagesNature: number;
 }
 
 export interface PayrollResult {
@@ -191,14 +204,25 @@ export function calculerIrBrutAnnuel(baseAnnuelle: number): number {
  * personne mariée — ou veuve/divorcée ayant des enfants à charge —, plus
  * 0,5 par enfant à charge, plafonné à 5 parts.
  */
-export function calculerParts(maritalStatus: string, childrenCount: number): number {
+export function calculerParts(
+    maritalStatus: string,
+    childrenCount: number,
+    sexe: "M" | "F" = "M",
+    conjointsSansRevenu = 0
+): number {
     const statut = (maritalStatus ?? "").toUpperCase();
     const enfantsACharge = Math.max(0, Math.floor(childrenCount || 0));
-    const commeMarie =
-        statut === "MARIE" ||
-        ((statut === "VEUF" || statut === "VEUVE" || statut === "DIVORCE" || statut === "DIVORCEE") &&
-            enfantsACharge > 0);
-    const base = commeMarie ? 1.5 : 1;
+    const veufOuDivorce = statut === "VEUF" || statut === "VEUVE" || statut === "DIVORCE" || statut === "DIVORCEE";
+
+    let base: number;
+    if (statut === "MARIE" && sexe === "F") {
+        // Femme mariée : 1 part, + 0,5 si le conjoint est sans revenu.
+        base = conjointsSansRevenu > 0 ? 1.5 : 1;
+    } else if (statut === "MARIE" || (veufOuDivorce && enfantsACharge > 0)) {
+        base = 1.5;
+    } else {
+        base = 1;
+    }
     return Math.min(5, base + enfantsACharge * 0.5);
 }
 
@@ -274,6 +298,8 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
         ipmRateSalarial = 0,
         ipmRatePatronal = 0,
         conjointsSansRevenu = 0,
+        sexe = "M",
+        benefitsInKind = 0,
     } = params;
 
     const avertissements: string[] = [];
@@ -286,6 +312,7 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
     if (ipmRateSalarial + ipmRatePatronal > 0.075) {
         avertissements.push("Cotisation IPM supérieure au maximum réglementaire de 7,5 % (parts cumulées).");
     }
+    if (benefitsInKind < 0) avertissements.push("Avantages en nature négatifs.");
 
     // ── 1. Salaire brut ─────────────────────────────────────────────────────
     const tauxJournalier = baseSalary / 30;
@@ -298,16 +325,20 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
         overtimeHolidayHours
     );
 
-    const grossSalary =
+    const avantagesNature = Math.max(0, benefitsInKind);
+    const brutEspeces =
         baseSalary -
         Math.min(Math.max(absencesDays, 0), 30) * tauxJournalier +
         remunerationHeuresSup +
         bonuses +
         transportAllowance;
+    // Brut total du bulletin : espèces + avantages en nature.
+    const grossSalary = brutEspeces + avantagesNature;
 
     // ── 2. Assiette sociale ─────────────────────────────────────────────────
     // L'indemnité de transport est exonérée jusqu'à 20 800 F ; l'excédent est
-    // réintégré dans les assiettes sociale et fiscale.
+    // réintégré dans les assiettes sociale et fiscale. Les avantages en
+    // nature y entrent en totalité.
     const transportSoumis = Math.max(0, transportAllowance - TRANSPORT_EXONERE);
     const brutSocial = grossSalary - transportAllowance + transportSoumis;
 
@@ -349,7 +380,7 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
     const baseImposableAnnuelle = baseImposableMensuelle * 12;
 
     // ── 4. Impôt sur le revenu ──────────────────────────────────────────────
-    const parts = calculerParts(maritalStatus, childrenCount);
+    const parts = calculerParts(maritalStatus, childrenCount, sexe, conjointsSansRevenu);
     const irAvantReduction = calculerIrBrutAnnuel(baseImposableAnnuelle);
     const reductionChargeFamille = calculerReductionChargeFamille(irAvantReduction, parts);
     const impotRevenu = (irAvantReduction - reductionChargeFamille) / 12;
@@ -360,7 +391,8 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
     const totalTaxes = impotRevenu + trimf;
 
     // ── 5. Net à payer ──────────────────────────────────────────────────────
-    const netSalary = grossSalary - totalSocialSalarial - totalTaxes;
+    // Les avantages en nature ne sont pas versés : ils sortent du net.
+    const netSalary = brutEspeces - totalSocialSalarial - totalTaxes;
 
     if (baseSalary > 0 && grossSalary <= 0) {
         avertissements.push(
@@ -406,6 +438,7 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
             trimf: arrondi(trimf),
             abattement: arrondi(abattement),
             remunerationHeuresSup: arrondi(remunerationHeuresSup),
+            avantagesNature: arrondi(avantagesNature),
         },
         avertissements,
     };

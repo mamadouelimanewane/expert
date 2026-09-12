@@ -147,7 +147,34 @@ export const clientUpdateSchema = z
         postalCode: texteOptionnel(20),
         subjectToTva: z.boolean().optional(),
         isActive: z.boolean().optional(),
+        // Paramètres de paie de l'employeur (null = défaut du moteur)
+        paieAccidentRate: z.number().min(0).max(0.1).nullable().optional(),
+        paieIpmSalarial: z.number().min(0).max(0.075).nullable().optional(),
+        paieIpmPatronal: z.number().min(0).max(0.075).nullable().optional(),
     })
+    .refine((v) => Object.keys(v).length > 0, { message: "Aucun champ à modifier" });
+
+/** Salarié d'un dossier client (module paie). */
+export const employeeSchema = z.object({
+    clientId: z.string().regex(/^[0-9a-f]{24}$/, "Identifiant client invalide"),
+    firstName: z.string().trim().min(1, "Prénom requis").max(100),
+    lastName: z.string().trim().min(1, "Nom requis").max(100),
+    position: texteOptionnel(120),
+    email: z.string().trim().email("Adresse email invalide").optional().or(z.literal("")),
+    phone: texteOptionnel(40),
+    baseSalary: z.number().finite().min(0, "Salaire de base positif attendu"),
+    maritalStatus: z.enum(["CELIBATAIRE", "MARIE", "VEUF", "DIVORCE"]).default("CELIBATAIRE"),
+    sexe: z.enum(["M", "F"]).nullable().optional(),
+    childrenCount: z.number().int().min(0).max(20).default(0),
+    conjointsSansRevenu: z.number().int().min(0).max(4).default(0),
+    isCadre: z.boolean().default(false),
+    transportAllowance: z.number().finite().min(0).default(0),
+    avantagesNature: z.number().finite().min(0).default(0),
+});
+
+export const employeeUpdateSchema = employeeSchema
+    .omit({ clientId: true })
+    .partial()
     .refine((v) => Object.keys(v).length > 0, { message: "Aucun champ à modifier" });
 
 export const invoiceLineSchema = z.object({

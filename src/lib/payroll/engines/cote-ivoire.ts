@@ -45,6 +45,8 @@ export interface PayrollDetailCI {
     its: number;
     /** Rémunération brute des heures supplémentaires. */
     remunerationHeuresSup: number;
+    /** Avantages en nature retenus dans l'assiette. */
+    avantagesNature: number;
 }
 
 export interface PayrollResultCI {
@@ -177,6 +179,7 @@ export function calculateCoteIvoirePayroll(params: PayrollParams): PayrollResult
         overtimeNightHours = 0,
         overtimeHolidayHours = 0,
         accidentRate = 0.02,
+        benefitsInKind = 0,
     } = params;
 
     const avertissements: string[] = [];
@@ -201,12 +204,16 @@ export function calculateCoteIvoirePayroll(params: PayrollParams): PayrollResult
         overtimeHolidayHours
     );
 
-    const grossSalary =
+    const avantagesNature = Math.max(0, benefitsInKind);
+    const brutEspeces =
         baseSalary -
         Math.min(Math.max(absencesDays, 0), 30) * tauxJournalier +
         remunerationHeuresSup +
         bonuses +
         transportAllowance;
+    // Brut total : espèces + avantages en nature (imposables et cotisables
+    // à leur valeur réelle ou au barème administratif, non versés).
+    const grossSalary = brutEspeces + avantagesNature;
 
     // ── 2. Assiettes ────────────────────────────────────────────────────────
     // L'indemnité de transport est exonérée jusqu'à 30 000 F ; l'excédent est
@@ -247,7 +254,7 @@ export function calculateCoteIvoirePayroll(params: PayrollParams): PayrollResult
     const its = itsAvantReduction - reductionChargesFamille;
 
     // ── 4. Net à payer ──────────────────────────────────────────────────────
-    const netSalary = grossSalary - totalSocialSalarial - its;
+    const netSalary = brutEspeces - totalSocialSalarial - its;
 
     if (baseSalary > 0 && grossSalary <= 0) {
         avertissements.push(
@@ -289,6 +296,7 @@ export function calculateCoteIvoirePayroll(params: PayrollParams): PayrollResult
             reductionChargesFamille: arrondi(reductionChargesFamille),
             its: arrondi(its),
             remunerationHeuresSup: arrondi(remunerationHeuresSup),
+            avantagesNature: arrondi(avantagesNature),
         },
         avertissements,
     };

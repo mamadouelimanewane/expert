@@ -99,6 +99,16 @@ describe("nombre de parts", () => {
         expect(calculerParts("DIVORCE", 2)).toBe(2.5);
     });
 
+    // CGI art. 174 : la femme mariée est imposée comme célibataire.
+    it("donne 1 part à une femme mariée, 1,5 si son conjoint est sans revenu", () => {
+        expect(calculerParts("MARIE", 0, "F")).toBe(1);
+        expect(calculerParts("MARIE", 0, "F", 1)).toBe(1.5);
+        expect(calculerParts("MARIE", 2, "F")).toBe(2);
+        // L'homme marié conserve 1,5 part quel que soit le revenu du conjoint.
+        expect(calculerParts("MARIE", 0, "M", 0)).toBe(1.5);
+        expect(calculerParts("MARIE", 0, "M", 1)).toBe(1.5);
+    });
+
     it("plafonne à 5 parts", () => {
         expect(calculerParts("MARIE", 12)).toBe(5);
     });
@@ -256,6 +266,27 @@ describe("bulletin de paie complet", () => {
         expect(avec.socialSecurity).toBe(sans.socialSecurity + 7_500);
         // Part salariale déductible : l'impôt baisse.
         expect(avec.detail.impotRevenu).toBeLessThan(sans.detail.impotRevenu);
+    });
+
+    it("intègre les avantages en nature dans les assiettes sans les verser", () => {
+        const sans = calculateSenegalPayroll(bulletin({ baseSalary: 300_000 }));
+        const avec = calculateSenegalPayroll(bulletin({ baseSalary: 300_000, benefitsInKind: 100_000 }));
+        expect(avec.grossSalary).toBe(400_000);
+        expect(avec.detail.avantagesNature).toBe(100_000);
+        // Cotisations et impôt calculés sur 400 000…
+        expect(avec.detail.ipresRegimeGeneral).toBe(Math.round(400_000 * 0.056));
+        expect(avec.taxes).toBeGreaterThan(sans.taxes);
+        // …mais le net en espèces part des 300 000 réellement versés.
+        expect(avec.netSalary).toBe(300_000 - avec.socialSecurity - avec.taxes);
+        expect(avec.netSalary).toBeLessThan(sans.netSalary);
+    });
+
+    it("applique la règle de la femme mariée au bulletin", () => {
+        const homme = calculateSenegalPayroll(bulletin({ baseSalary: 600_000, maritalStatus: "MARIE", sexe: "M" }));
+        const femme = calculateSenegalPayroll(bulletin({ baseSalary: 600_000, maritalStatus: "MARIE", sexe: "F" }));
+        expect(homme.detail.parts).toBe(1.5);
+        expect(femme.detail.parts).toBe(1);
+        expect(femme.detail.impotRevenu).toBeGreaterThan(homme.detail.impotRevenu);
     });
 
     it("signale une IPM au-delà de 7,5 % cumulés", () => {

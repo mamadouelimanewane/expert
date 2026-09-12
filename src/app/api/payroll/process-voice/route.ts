@@ -22,11 +22,17 @@ export async function POST(req: Request) {
     if (denied) return denied;
 
   try {
-    const { clientId, transcript } = await req.json();
+    const { clientId, transcript, manualVariables } = await req.json();
 
-    if (!clientId || !transcript) {
-      return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+    if (!clientId) {
+      return NextResponse.json({ error: "clientId requis" }, { status: 400 });
     }
+    // Variables saisies à la main : { [employeeId]: { absencesDays, overtimeHours, bonuses } }.
+    // Elles priment sur l'extraction IA et permettent de calculer la paie sans
+    // aucun moteur de langage — la paie ne doit jamais dépendre d'une clé API.
+    const manuelles: Record<string, Partial<ExtractedVars>> =
+      manualVariables && typeof manualVariables === "object" ? manualVariables : {};
+    const texte = typeof transcript === "string" ? transcript.trim() : "";
 
     const client = await prisma.client.findUnique({
       where: { id: clientId },
@@ -55,23 +61,28 @@ export async function POST(req: Request) {
       }, { status: 422 });
     }
 
-    if (!isLLMConfigured()) {
-      return NextResponse.json({
-        error: `La saisie vocale nécessite l'assistant IA. ${MESSAGE_LLM_NON_CONFIGURE} Utilisez la saisie manuelle des variables de paie en attendant.`,
-        notConfigured: true,
-      }, { status: 503 });
-    }
-
-    let extracted: Record<string, ExtractedVars>;
-    try {
-      extracted = await extractPayrollVariables(transcript, employees.map(e => e.firstName));
-    } catch (llmError) {
-      console.error("[Payroll Voice] LLM extraction error:", llmError);
-      return NextResponse.json({ error: "Échec de l'analyse IA de la transcription. Réessayez ou saisissez manuellement." }, { status: 502 });
+    const avertissementsGlobaux: string[] = [];
+    let extracted: Record<string, ExtractedVars> = {};
+    if (texte) {
+      if (!isLLMConfigured()) {
+        avertissementsGlobaux.push(
+          `Transcription ignorée : ${MESSAGE_LLM_NON_CONFIGURE} Saisissez les absences, heures et primes dans le tableau.`
+        );
+      } else {
+        try {
+          extracted = await extractPayrollVariables(texte, employees.map(e => e.firstName));
+        } catch (llmError) {
+          console.error("[Payroll Voice] LLM extraction error:", llmError);
+          avertissementsGlobaux.push(
+            "L'analyse IA de la transcription a échoué : variables à zéro, à compléter dans le tableau."
+          );
+        }
+      }
     }
 
     const finalVariables = employees.map(emp => {
-      const vars = extracted[emp.firstName] || { absencesDays: 0, overtimeHours: 0, bonuses: 0 };
+      const ia = extracted[emp.firstName] || { absencesDays: 0, overtimeHours: 0, bonuses: 0 };
+      const vars = { ...ia, ...(manuelles[emp.id] ?? {}) };
 
       const payrollParams = {
         baseSalary: emp.baseSalary || 0,
@@ -83,6 +94,8 @@ export async function POST(req: Request) {
         childrenCount: emp.childrenCount || 0,
         isCadre: emp.isCadre || false,
         conjointsSansRevenu: emp.conjointsSansRevenu || 0,
+        sexe: emp.sexe === "F" ? ("F" as const) : ("M" as const),
+        benefitsInKind: emp.avantagesNature || 0,
         // Paramètres employeur : laissés undefined pour prendre le défaut du moteur.
         ...(client.paieAccidentRate != null ? { accidentRate: client.paieAccidentRate } : {}),
         ...(client.paieIpmSalarial != null ? { ipmRateSalarial: client.paieIpmSalarial } : {}),
@@ -103,7 +116,10 @@ export async function POST(req: Request) {
       success: true,
       country: client.country,
       variables: finalVariables,
-      message: "Analyse vocale (IA) et calculs pays terminés — vérifiez les valeurs extraites avant validation."
+      avertissements: avertissementsGlobaux,
+      message: texte
+        ? "Analyse vocale (IA) et calculs pays terminés — vérifiez les valeurs extraites avant validation."
+        : "Bulletins calculés — ajustez absences, heures et primes dans le tableau si nécessaire.",
     });
 
   } catch (error) {
