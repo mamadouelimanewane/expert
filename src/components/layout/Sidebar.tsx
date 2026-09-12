@@ -35,7 +35,6 @@ import {
     BrainCircuit,
     Coins,
     Gauge,
-    Anchor,
     Network,
     Plus,
     ScanLine,
@@ -47,11 +46,10 @@ import {
     Ship,
     Scale,
     FolderPlus,
-    Languages,
     FileDigit
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { hrefActif, ordonnerMenu } from "@/lib/menu-sections";
+import { hrefActif, ordonnerMenu, sousMenuPour, entreeSousMenuActive } from "@/lib/menu-sections";
 
 import { useTheme } from "@/context/ThemeContext";
 import { Moon, Sun, Menu, X, Search } from "lucide-react";
@@ -101,7 +99,6 @@ const menuItems: MenuItem[] = [
     { header: "TPE, DOUANES & FINTECH" },
     { icon: Building, label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
     { icon: Ship, label: "Simulateur Douanier", href: "/douanes/simulateur" },
-    { icon: Anchor, label: "Suivi Transitaire", href: "/douanes/transitaire" },
     { icon: Users, label: "Abonnés TPE", href: "/comptabilite/tpe-dashboard" },
     { icon: FileDigit, label: "Usine Traitement IA", href: "/comptabilite/tpe-processing" },
     { icon: MessageSquare, label: "Hub WhatsApp Bot", href: "/dashboard/whatsapp-bot" },
@@ -113,7 +110,6 @@ const menuItems: MenuItem[] = [
     { header: "NEXUS INTELLIGENCE" },
     { icon: Sparkles, label: "Assistant IA Expert", href: "/assistant" },
     { icon: Mic, label: "Nexus-Go (Vocal IA)", href: "/nexus-go" },
-    { icon: Languages, label: "Traduction Liasses", href: "/nexus/traduction" },
     { icon: Library, label: "Bibliothèque OHADA", href: "/library" },
     { icon: BrainCircuit, label: "Moteur IA & LLM", href: "/settings/ai" },
 
@@ -151,6 +147,25 @@ export function Sidebar() {
     // Logique dans src/lib/menu-sections.ts, couverte par les tests.
     const activeHref = hrefActif(menuItems, pathname);
     const { visibles: visibleItems, enTeteActif } = ordonnerMenu(menuItems, activeHref, filter, pathname);
+
+    // Sous-menu contextuel : les écrans du module en cours, affichés sous
+    // l'entrée active (ou sous l'en-tête de section si le module n'a pas
+    // d'entrée dans le menu). Masqué pendant un filtre.
+    const sousMenu = filter.trim() ? null : sousMenuPour(pathname);
+    const sousActif = sousMenu ? entreeSousMenuActive(sousMenu.entrees, pathname) : null;
+    const rendreSousMenu = () => sousMenu && (
+        <div className="ml-4 pl-3 border-l border-border/60 my-1 space-y-0.5" role="list" aria-label="Pages du module">
+            {sousMenu.entrees.map((e) => (
+                <Link key={e.href} href={e.href} role="listitem" aria-current={e.href === sousActif ? "page" : undefined}
+                    className={cn("block px-3 py-1.5 rounded-md text-[11px] transition-colors", e.href === sousActif ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:text-foreground hover:bg-muted/60")}>
+                    {e.label}
+                </Link>
+            ))}
+        </div>
+    );
+    // Le sous-menu s'accroche au lien actif ; sans lien actif, juste après
+    // l'en-tête de la section active.
+    const ancreSousMenu: "lien" | "entete" | null = sousMenu ? (activeHref ? "lien" : enTeteActif ? "entete" : null) : null;
 
     return (
         <>
@@ -226,10 +241,13 @@ export function Sidebar() {
                         // Rendu des en-têtes de section
                         if (item.header) {
                             return (
-                                <div key={`header-${idx}`} className={cn("sidebar-header mb-2 px-4 py-1", idx === 0 ? "mt-1" : "mt-6")}>
-                                    <h3 className={cn("text-[9px] font-black pointer-events-none uppercase tracking-[0.2em]", item === enTeteActif && "text-primary")}>
-                                        {item.header}
-                                    </h3>
+                                <div key={`header-${idx}`}>
+                                    <div className={cn("sidebar-header mb-2 px-4 py-1", idx === 0 ? "mt-1" : "mt-6")}>
+                                        <h3 className={cn("text-[9px] font-black pointer-events-none uppercase tracking-[0.2em]", item === enTeteActif && "text-primary")}>
+                                            {item.header}
+                                        </h3>
+                                    </div>
+                                    {ancreSousMenu === "entete" && item === enTeteActif && rendreSousMenu()}
                                 </div>
                             );
                         }
@@ -238,10 +256,10 @@ export function Sidebar() {
                         const isActive = item.href === activeHref;
 
                         return (
+                            <div key={`${item.href}-${idx}`}>
                             <Link
-                                key={`${item.href}-${idx}`}
                                 href={item.href!}
-                                aria-current={isActive ? "page" : undefined}
+                                aria-current={isActive && !sousActif ? "page" : undefined}
                                 className={cn(
                                     "sidebar-link",
                                     isActive && "active"
@@ -253,6 +271,8 @@ export function Sidebar() {
                                 <Icon className={cn("w-4 h-4 transition-colors", isActive ? "text-primary" : "group-hover:text-foreground")} />
                                 <span className="font-medium text-xs">{item.label}</span>
                             </Link>
+                            {ancreSousMenu === "lien" && isActive && rendreSousMenu()}
+                            </div>
                         );
                     })}
                 </nav>

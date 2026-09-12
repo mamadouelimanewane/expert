@@ -54,7 +54,7 @@ import { readdirSync, statSync } from "fs";
 import { join } from "path";
 import { SECTION_PAR_PREFIXE, sectionParChemin } from "@/lib/menu-sections";
 
-const MENU_COMPLET_HREFS = ["/bi","/clients","/missions","/agenda","/timesheets","/billing","/lettres-mission","/supervision/timeline","/comptabilite/production","/comptabilite/liasse-fiscale","/etats-financiers","/fiscalite","/payroll","/documents","/banking","/audit","/audit/ai-assisted","/compliance/kyc-screening","/governance","/comptabilite/health-report","/strategy/business-plan","/strategy/radar","/strategy/zone-franche","/investment","/strategy/devises","/accompagnement/entreprenant","/douanes/simulateur","/douanes/transitaire","/comptabilite/tpe-dashboard","/comptabilite/tpe-processing","/dashboard/whatsapp-bot","/mobile-money","/fintech/payments","/fintech/credit","/fintech/scoring","/assistant","/nexus-go","/nexus/traduction","/library","/settings/ai","/onboarding","/portal/tpe-client","/settings/api-keys","/plan"].map((href) => ({ label: href, href }));
+const MENU_COMPLET_HREFS = ["/bi","/clients","/missions","/agenda","/timesheets","/billing","/lettres-mission","/supervision/timeline","/comptabilite/production","/comptabilite/liasse-fiscale","/etats-financiers","/fiscalite","/payroll","/documents","/banking","/audit","/audit/ai-assisted","/compliance/kyc-screening","/governance","/comptabilite/health-report","/strategy/business-plan","/strategy/radar","/strategy/zone-franche","/investment","/strategy/devises","/accompagnement/entreprenant","/douanes/simulateur","/comptabilite/tpe-dashboard","/comptabilite/tpe-processing","/dashboard/whatsapp-bot","/mobile-money","/fintech/payments","/fintech/credit","/fintech/scoring","/assistant","/nexus-go","/library","/settings/ai","/onboarding","/portal/tpe-client","/settings/api-keys","/plan"].map((href) => ({ label: href, href }));
 const SECTIONS = ["PILOTAGE & CABINET", "EXPERTISE & PRODUCTION", "AUDIT & CONFORMITÉ", "STRATÉGIE & CONSEIL", "TPE, DOUANES & FINTECH", "NEXUS INTELLIGENCE", "PLATEFORME & ÉCOSYSTÈME"];
 
 function pages(dir: string, base = ""): string[] {
@@ -90,5 +90,37 @@ describe("sectionParChemin — écrans hors menu", () => {
         const { visibles, enTeteActif } = ordonnerMenu(MENU, null, "", "/comptabilite/revision");
         expect(enTeteActif?.header).toBe("EXPERTISE & PRODUCTION");
         expect(visibles[0].header).toBe("EXPERTISE & PRODUCTION");
+    });
+});
+
+import { SOUS_MENUS, sousMenuPour, entreeSousMenuActive } from "@/lib/menu-sections";
+
+describe("sous-menu contextuel du module", () => {
+    it("propose les pages des états financiers sur /etats-financiers/tft, TFT active", () => {
+        const sm = sousMenuPour("/etats-financiers/tft");
+        expect(sm?.module).toBe("/etats-financiers");
+        expect(sm?.entrees.map((e) => e.label)).toEqual(["Synthèse", "Import balance", "Bilan", "Compte de résultat", "Flux de trésorerie (TFT)", "Paramètres"]);
+        expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers/tft")).toBe("/etats-financiers/tft");
+        expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers")).toBe("/etats-financiers");
+        expect(entreeSousMenuActive(sm!.entrees, "/etats-financiers/print/bilan")).toBeNull();
+    });
+    it("prend le préfixe le plus long (TPE sous /comptabilite)", () => {
+        expect(sousMenuPour("/comptabilite/tpe-processing")?.module).toBe("/comptabilite/tpe-processing");
+        expect(sousMenuPour("/comptabilite/revision")?.module).toBe("/comptabilite");
+        expect(sousMenuPour("/clients/697a1ee4ff1c1106cbf92b04")?.module).toBe("/clients");
+        expect(sousMenuPour("/bi")).toBeNull();
+    });
+    it("chaque page de sous-menu existe réellement dans src/app", () => {
+        const ecrans = new Set(pages(join(process.cwd(), "src/app")).filter((p) => !p.startsWith("/api")));
+        const manquantes = Object.values(SOUS_MENUS).flat().map((e) => e.href).filter((h) => !ecrans.has(h));
+        expect(manquantes).toEqual([]);
+    });
+});
+
+describe("liens du menu latéral", () => {
+    it("pointent tous sur une page existante (les liens morts Suivi Transitaire et Traduction ont été retirés)", () => {
+        const ecrans = new Set(pages(join(process.cwd(), "src/app")).filter((p) => !p.startsWith("/api")).map((p) => p.replace(/\/\[[^\]]+\]/g, "/x")));
+        const morts = MENU_COMPLET_HREFS.map((e) => e.href).filter((h) => !ecrans.has(h) && !ecrans.has(h.replace(/\/[^/]+$/, "/x")));
+        expect(morts).toEqual([]);
     });
 });
