@@ -150,7 +150,7 @@ export function Sidebar() {
     // la section de l'écran ouvert en tête, filtre tolérant aux accents.
     // Logique dans src/lib/menu-sections.ts, couverte par les tests.
     const activeHref = hrefActif(menuItems, pathname);
-    const { visibles: visibleItems, enTeteActif } = ordonnerMenu(menuItems, activeHref, filter);
+    const { visibles: visibleItems, enTeteActif } = ordonnerMenu(menuItems, activeHref, filter, pathname);
 
     return (
         <>

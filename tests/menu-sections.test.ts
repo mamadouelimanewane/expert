@@ -49,3 +49,46 @@ describe("ordonnerMenu — section de l'écran ouvert en tête", () => {
         expect(ordonnerMenu(MENU, null, "zzz").visibles).toEqual([]);
     });
 });
+
+import { readdirSync, statSync } from "fs";
+import { join } from "path";
+import { SECTION_PAR_PREFIXE, sectionParChemin } from "@/lib/menu-sections";
+
+const MENU_COMPLET_HREFS = ["/bi","/clients","/missions","/agenda","/timesheets","/billing","/lettres-mission","/supervision/timeline","/comptabilite/production","/comptabilite/liasse-fiscale","/etats-financiers","/fiscalite","/payroll","/documents","/banking","/audit","/audit/ai-assisted","/compliance/kyc-screening","/governance","/comptabilite/health-report","/strategy/business-plan","/strategy/radar","/strategy/zone-franche","/investment","/strategy/devises","/accompagnement/entreprenant","/douanes/simulateur","/douanes/transitaire","/comptabilite/tpe-dashboard","/comptabilite/tpe-processing","/dashboard/whatsapp-bot","/mobile-money","/fintech/payments","/fintech/credit","/fintech/scoring","/assistant","/nexus-go","/nexus/traduction","/library","/settings/ai","/onboarding","/portal/tpe-client","/settings/api-keys","/plan"].map((href) => ({ label: href, href }));
+const SECTIONS = ["PILOTAGE & CABINET", "EXPERTISE & PRODUCTION", "AUDIT & CONFORMITÉ", "STRATÉGIE & CONSEIL", "TPE, DOUANES & FINTECH", "NEXUS INTELLIGENCE", "PLATEFORME & ÉCOSYSTÈME"];
+
+function pages(dir: string, base = ""): string[] {
+    const out: string[] = [];
+    for (const e of readdirSync(dir)) {
+        const p = join(dir, e);
+        if (statSync(p).isDirectory()) out.push(...pages(p, base + "/" + e));
+        else if (e === "page.tsx") out.push(base || "/");
+    }
+    return out;
+}
+
+describe("sectionParChemin — écrans hors menu", () => {
+    it("choisit le préfixe le plus long", () => {
+        expect(sectionParChemin("/comptabilite/informel")).toBe("TPE, DOUANES & FINTECH");
+        expect(sectionParChemin("/comptabilite/revision")).toBe("EXPERTISE & PRODUCTION");
+        expect(sectionParChemin("/corporate/audit-assurance")).toBe("AUDIT & CONFORMITÉ");
+        expect(sectionParChemin("/corporate/consolidation")).toBe("STRATÉGIE & CONSEIL");
+        expect(sectionParChemin("/portal/x")).toBeNull();
+    });
+    it("ne référence que des sections existantes", () => {
+        for (const [, section] of SECTION_PAR_PREFIXE) expect(SECTIONS).toContain(section);
+    });
+    it("couvre chaque écran de l'application (hors portail, login, hub)", () => {
+        const ecrans = pages(join(process.cwd(), "src/app"))
+            .filter((p) => !p.startsWith("/api") && !p.startsWith("/portal") && !["/", "/login", "/bi"].includes(p))
+            .map((p) => p.replace(/\/\[[^\]]+\]/g, "/x"));
+        const orphelins = ecrans.filter((p) => !hrefActif(MENU_COMPLET_HREFS, p) && !sectionParChemin(p));
+        expect(ecrans.length).toBeGreaterThan(150);
+        expect(orphelins).toEqual([]);
+    });
+    it("remonte la section déduite quand l'écran n'est pas dans le menu", () => {
+        const { visibles, enTeteActif } = ordonnerMenu(MENU, null, "", "/comptabilite/revision");
+        expect(enTeteActif?.header).toBe("EXPERTISE & PRODUCTION");
+        expect(visibles[0].header).toBe("EXPERTISE & PRODUCTION");
+    });
+});
