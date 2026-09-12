@@ -106,8 +106,8 @@
   /* Slate 50 */
   --card: #1e293b;
   --card-foreground: #f8fafc;
-  --primary: #6366f1;
-  /* Indigo 500 */
+  --primary: #4f46e5;
+  /* Indigo 600 : blanc dessus = 6,3:1 (l'indigo 500 ne faisait que 4,5) */
   --primary-foreground: #ffffff;
   --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
@@ -915,7 +915,7 @@ body {
 }
 .dark .sidebar-link.active {
   background: rgba(99, 102, 241, 0.15) !important;
-  color: #6366f1 !important;
+  color: #a5b4fc !important; /* indigo 300 : 8:1 sur la barre sombre (500 = 3,4) */
   border: 1px solid rgba(99, 102, 241, 0.2) !important;
 }
 .dark .sidebar-active-indicator {
@@ -1659,6 +1659,132 @@ button:disabled, [aria-disabled="true"] {
 .hub-cat-title { color: var(--cat-color); }
 :is(.light, .corporate) .hub-cta, :is(.light, .corporate) .hub-icon { color: color-mix(in srgb, var(--hover-color) 42%, #0f172a); }
 :is(.light, .corporate) .hub-cat-title { color: color-mix(in srgb, var(--cat-color) 60%, #0f172a); }
+
+/* ── Thème sombre : audit de contraste (177 écrans) ───────────────────────
+   Les libellés text-slate-500/600 sur ardoise (2,1 à 3,7:1) et text-primary
+   indigo 500 sur fond sombre (3 à 3,8:1) étaient les deux motifs
+   systémiques. Les boutons pleins amber/teal/sky-600 + blanc passaient
+   sous 4,5 ; même assombrissement qu'en thème clair. */
+.dark .text-slate-500, .dark .text-slate-600, .dark .text-slate-700,
+.dark .dark\:text-slate-500, .dark .dark\:text-slate-600 { color: #a5b0c2 !important; } /* ≥ 4,7:1 sur slate-700 (en-têtes de tableau) */
+.dark .text-primary { color: #a5b4fc !important; }
+.dark .text-\[var\(--primary\)\] { color: #a5b4fc !important; }
+/* Nuances 600/700 (conçues pour fond clair) sur fond sombre → 400 */
+/* …et les 500 des teintes foncées (rose-500 sur slate-700 = 2,8:1) */
+.dark .text-rose-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #fb7185 !important; }
+.dark .text-red-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #f87171 !important; }
+.dark .text-blue-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #60a5fa !important; }
+.dark .text-indigo-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #818cf8 !important; }
+.dark .text-violet-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #a78bfa !important; }
+.dark .text-purple-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #c084fc !important; }
+.dark .text-pink-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #f472b6 !important; }
+.dark .text-fuchsia-500:not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #e879f9 !important; }
+.dark :is(.text-emerald-600, .text-emerald-700, .text-emerald-800):not(.bg-emerald-50):not(.bg-emerald-100):not(.bg-emerald-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #34d399 !important; }
+.dark :is(.text-rose-600, .text-rose-700, .text-rose-800):not(.bg-rose-50):not(.bg-rose-100):not(.bg-rose-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #fb7185 !important; }
+.dark :is(.text-amber-600, .text-amber-700, .text-amber-800):not(.bg-amber-50):not(.bg-amber-100):not(.bg-amber-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #fbbf24 !important; }
+.dark :is(.text-cyan-600, .text-cyan-700, .text-cyan-800):not(.bg-cyan-50):not(.bg-cyan-100):not(.bg-cyan-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #22d3ee !important; }
+.dark :is(.text-red-600, .text-red-700, .text-red-800):not(.bg-red-50):not(.bg-red-100):not(.bg-red-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #f87171 !important; }
+.dark :is(.text-blue-600, .text-blue-700, .text-blue-800):not(.bg-blue-50):not(.bg-blue-100):not(.bg-blue-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #60a5fa !important; }
+.dark :is(.text-teal-600, .text-teal-700, .text-teal-800):not(.bg-teal-50):not(.bg-teal-100):not(.bg-teal-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #2dd4bf !important; }
+.dark :is(.text-violet-600, .text-violet-700, .text-violet-800):not(.bg-violet-50):not(.bg-violet-100):not(.bg-violet-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #a78bfa !important; }
+.dark :is(.text-sky-600, .text-sky-700, .text-sky-800):not(.bg-sky-50):not(.bg-sky-100):not(.bg-sky-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #38bdf8 !important; }
+.dark :is(.text-purple-600, .text-purple-700, .text-purple-800):not(.bg-purple-50):not(.bg-purple-100):not(.bg-purple-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #c084fc !important; }
+.dark :is(.text-orange-600, .text-orange-700, .text-orange-800):not(.bg-orange-50):not(.bg-orange-100):not(.bg-orange-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #fb923c !important; }
+.dark :is(.text-yellow-600, .text-yellow-700, .text-yellow-800):not(.bg-yellow-50):not(.bg-yellow-100):not(.bg-yellow-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #facc15 !important; }
+.dark :is(.text-indigo-600, .text-indigo-700, .text-indigo-800):not(.bg-indigo-50):not(.bg-indigo-100):not(.bg-indigo-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #818cf8 !important; }
+.dark :is(.text-green-600, .text-green-700, .text-green-800):not(.bg-green-50):not(.bg-green-100):not(.bg-green-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #4ade80 !important; }
+.dark :is(.text-pink-600, .text-pink-700, .text-pink-800):not(.bg-pink-50):not(.bg-pink-100):not(.bg-pink-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #f472b6 !important; }
+.dark :is(.text-fuchsia-600, .text-fuchsia-700, .text-fuchsia-800):not(.bg-fuchsia-50):not(.bg-fuchsia-100):not(.bg-fuchsia-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #e879f9 !important; }
+.dark :is(.text-lime-600, .text-lime-700, .text-lime-800):not(.bg-lime-50):not(.bg-lime-100):not(.bg-lime-200):not(.bg-white:not([class*="dark:bg-"])):not(.bg-white:not([class*="dark:bg-"]) *) { color: #a3e635 !important; }
+.dark .dark\:text-primary, .dark .page-title { color: #a5b4fc !important; }
+.dark .bg-white.text-primary, .dark .bg-white .text-primary { color: #4f46e5 !important; }
+/* Documents « papier » (aperçu de facture, lettres…) : conteneur bg-white
+   même en sombre → les libellés gardent leurs gris du thème clair. */
+.dark .bg-white:not([class*="dark:bg-"]) :is(.text-slate-500, .text-slate-600, .text-slate-700, .text-slate-400) { color: #475569 !important; }
+.dark .bg-white:not([class*="dark:bg-"]):is(.text-slate-500, .text-slate-600, .text-slate-700, .text-slate-400) { color: #475569 !important; }
+.dark .bg-white:not([class*="dark:bg-"]) { color: #0f172a; }
+.dark [class*="text-primary/"] { color: rgba(165, 180, 252, 0.85) !important; }
+.dark .bg-white:not([class*="dark:bg-"]) :is(.text-slate-800, .text-slate-900, .text-foreground) { color: #0f172a !important; }
+/* Encart sombre (bg-slate-900) à l'intérieur d'un document papier : ses
+   textes reprennent les valeurs sombres (déclaré après les règles papier). */
+.dark .bg-white .bg-slate-900 .text-primary { color: #a5b4fc !important; }
+.dark .bg-white .bg-slate-900 :is(.text-slate-500, .text-slate-600, .text-slate-700) { color: #94a3b8 !important; }
+.dark .bg-white .bg-slate-900 { color: #f8fafc; }
+.dark .bg-primary .text-primary, .dark .bg-primary.text-primary { color: #ffffff !important; }
+.dark .hub-cta, .dark .hub-icon { color: color-mix(in srgb, var(--hover-color) 65%, #ffffff); }
+.dark .hub-cat-title { color: color-mix(in srgb, var(--cat-color) 55%, #ffffff); }
+.dark .bg-emerald-500.text-white { background-color: #047857 !important; }
+.dark .bg-rose-500.text-white { background-color: #be123c !important; }
+.dark .bg-amber-500.text-white { background-color: #b45309 !important; }
+.dark .bg-cyan-500.text-white { background-color: #0e7490 !important; }
+.dark .bg-red-500.text-white { background-color: #b91c1c !important; }
+.dark .bg-blue-500.text-white { background-color: #1d4ed8 !important; }
+.dark .bg-teal-500.text-white { background-color: #0f766e !important; }
+.dark .bg-violet-500.text-white { background-color: #6d28d9 !important; }
+.dark .bg-sky-500.text-white { background-color: #0369a1 !important; }
+.dark .bg-purple-500.text-white { background-color: #7e22ce !important; }
+.dark .bg-orange-500.text-white { background-color: #c2410c !important; }
+.dark .bg-yellow-500.text-white { background-color: #a16207 !important; }
+.dark .bg-indigo-500.text-white { background-color: #4338ca !important; }
+.dark .bg-green-500.text-white { background-color: #15803d !important; }
+.dark .bg-pink-500.text-white { background-color: #be185d !important; }
+.dark .bg-fuchsia-500.text-white { background-color: #a21caf !important; }
+.dark .bg-lime-500.text-white { background-color: #4d7c0f !important; }
+.dark .bg-emerald-600.text-white { background-color: #047857 !important; }
+.dark .bg-amber-600.text-white { background-color: #b45309 !important; }
+.dark .bg-cyan-600.text-white { background-color: #0e7490 !important; }
+.dark .bg-teal-600.text-white { background-color: #0f766e !important; }
+.dark .bg-orange-600.text-white { background-color: #c2410c !important; }
+.dark .bg-lime-600.text-white { background-color: #4d7c0f !important; }
+.dark .bg-yellow-600.text-white { background-color: #a16207 !important; }
+.dark .bg-green-600.text-white { background-color: #15803d !important; }
+.dark .bg-sky-600.text-white { background-color: #0369a1 !important; }
+.dark .bg-rose-600.text-white { background-color: #be123c !important; }
+
+/* Dégradés pastel (from-/to-{teinte}-400) portant du texte blanc — pages
+   formation : blanc sur teal-400 = 2,4:1 quel que soit le thème. Le
+   départ/l'arrivée du dégradé passent en 600 quand l'élément contient du
+   texte blanc. */
+.from-teal-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0d9488 !important; }
+.to-teal-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0d9488 !important; }
+.from-cyan-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0891b2 !important; }
+.to-cyan-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0891b2 !important; }
+.from-sky-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0284c7 !important; }
+.to-sky-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0284c7 !important; }
+.from-emerald-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #059669 !important; }
+.to-emerald-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #059669 !important; }
+.from-green-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #16a34a !important; }
+.to-green-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #16a34a !important; }
+.from-lime-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #65a30d !important; }
+.to-lime-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #65a30d !important; }
+.from-amber-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #d97706 !important; }
+.to-amber-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #d97706 !important; }
+.from-yellow-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #ca8a04 !important; }
+.to-yellow-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #ca8a04 !important; }
+.from-orange-400:is(.text-white, :has(.text-white)) { --tw-gradient-from: #ea580c !important; }
+.to-orange-400:is(.text-white, :has(.text-white)) { --tw-gradient-to: #ea580c !important; }
+/* Idem pour les 500 de ces teintes claires (blanc sur teal-500 = 2,4:1) */
+.from-teal-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0f766e !important; }
+.to-teal-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0f766e !important; }
+.from-cyan-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0e7490 !important; }
+.to-cyan-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0e7490 !important; }
+.from-sky-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #0369a1 !important; }
+.to-sky-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #0369a1 !important; }
+.from-emerald-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #047857 !important; }
+.to-emerald-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #047857 !important; }
+.from-green-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #15803d !important; }
+.to-green-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #15803d !important; }
+.from-lime-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #4d7c0f !important; }
+.to-lime-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #4d7c0f !important; }
+.from-amber-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #b45309 !important; }
+.to-amber-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #b45309 !important; }
+.from-yellow-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #a16207 !important; }
+.to-yellow-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #a16207 !important; }
+.from-orange-500:is(.text-white, :has(.text-white)) { --tw-gradient-from: #c2410c !important; }
+.to-orange-500:is(.text-white, :has(.text-white)) { --tw-gradient-to: #c2410c !important; }
+/* Panneaux bg-primary/40-60 en sombre : teinte lavande claire, texte primaire
+   ou ardoise moyenne dessus → indigo très foncé. */
+.dark :is(.bg-primary\/40, .bg-primary\/50, .bg-primary\/60) :is(.text-primary, .text-slate-600, .text-slate-500, strong) { color: #1e1b4b !important; }
 
 /* Halos colorés (shadow-primary/30…) trop lourds : ramenés à une ombre douce */
 [class*="shadow-primary/"] {
