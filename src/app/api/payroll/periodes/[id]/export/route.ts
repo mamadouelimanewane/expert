@@ -3,6 +3,7 @@ import * as XLSX from "xlsx";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { ligneLivreDePaie } from "@/lib/payroll/rubriques";
+import { bordereauxDeclarations } from "@/lib/payroll/declarations";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -26,7 +27,7 @@ export async function GET(req: Request, { params }: Params) {
         where: { id },
         include: {
             client: { select: { companyName: true, firstName: true, lastName: true, country: true } },
-            payslips: { include: { employee: { select: { firstName: true, lastName: true, position: true } } }, orderBy: { employee: { lastName: "asc" } } },
+            payslips: { include: { employee: { select: { firstName: true, lastName: true, position: true, isCadre: true } } }, orderBy: { employee: { lastName: "asc" } } },
         },
     });
     if (!periode) return NextResponse.json({ error: "Période introuvable" }, { status: 404 });
@@ -68,7 +69,7 @@ export async function GET(req: Request, { params }: Params) {
     if (format === "csv") {
         const feuille = XLSX.utils.json_to_sheet(lignes);
         // BOM + point-virgule : ouverture directe dans Excel en français.
-        const csv = "﻿" + XLSX.utils.sheet_to_csv(feuille, { FS: ";" });
+        const csv = "\ufeff" + XLSX.utils.sheet_to_csv(feuille, { FS: ";" });
         return new NextResponse(csv, {
             headers: {
                 "Content-Type": "text/csv; charset=utf-8",
@@ -80,44 +81,50 @@ export async function GET(req: Request, { params }: Params) {
     const classeur = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(classeur, XLSX.utils.json_to_sheet(lignes), "Livre de paie");
 
-    // Récapitulatif par organisme (hors ligne TOTAL du livre)
-    const detailLignes = lignes.slice(0, -1);
-    const somme = (cle: string) => detailLignes.reduce((a, l) => a + (Number(l[cle]) || 0), 0);
-    type Recap = { Organisme: string; Rubrique: string; "Part salariale": number; "Part patronale": number; Total: number };
-    const ligne = (Organisme: string, Rubrique: string, sal: number, pat: number): Recap => ({
-        Organisme, Rubrique, "Part salariale": sal, "Part patronale": pat, Total: sal + pat,
-    });
-    const recap: Recap[] =
-        periode.client.country === "CI"
-            ? [
-                  ligne("CNPS", "Retraite", somme("CNPS retraite (sal.)"), somme("CNPS retraite (pat.)")),
-                  ligne("CNPS", "Prestations familiales", 0, somme("CNPS PF")),
-                  ligne("CNPS", "Assurance maternité", 0, somme("CNPS maternité")),
-                  ligne("CNPS", "Accidents du travail", 0, somme("CNPS AT")),
-                  ligne("CNAM", "CMU", somme("CMU (sal.)"), somme("CMU (pat.)")),
-                  ligne("DGI", "ITS retenu", somme("ITS retenu"), 0),
-                  ligne("FDFP", "Taxe d'apprentissage", 0, somme("Taxe d'apprentissage")),
-                  ligne("FDFP", "Formation professionnelle continue", 0, somme("Formation professionnelle")),
-              ]
-            : [
-                  ligne("IPRES", "Régime général", somme("IPRES RG (sal.)"), somme("IPRES RG (pat.)")),
-                  ligne("IPRES", "Régime complémentaire cadres", somme("IPRES RC (sal.)"), somme("IPRES RC (pat.)")),
-                  ligne("CSS", "Prestations familiales", 0, somme("CSS PF")),
-                  ligne("CSS", "Accidents du travail", 0, somme("CSS AT")),
-                  ligne("IPM", "Cotisation maladie", somme("IPM (sal.)"), somme("IPM (pat.)")),
-                  ligne("DGID", "Impôt sur le revenu (retenue)", somme("IR retenu"), 0),
-                  ligne("DGID", "TRIMF", somme("TRIMF"), 0),
-                  ligne("DGID", "CFCE", 0, somme("CFCE")),
-              ];
-    recap.push(
-        ligne(
-            "TOTAL",
-            "",
-            recap.reduce((a, r) => a + r["Part salariale"], 0),
-            recap.reduce((a, r) => a + r["Part patronale"], 0)
-        )
+    // Bordereaux par organisme : récapitulatif, puis une feuille nominative
+    // par organisme (mêmes chiffres que la page « Déclarations » imprimable).
+    const bordereaux = bordereauxDeclarations(
+        periode.client.country,
+        periode.payslips.map((p) => ({
+            salarie: `${p.employee.firstName} ${p.employee.lastName}`,
+            poste: p.employee.position,
+            isCadre: p.employee.isCadre,
+            grossSalary: p.grossSalary,
+            taxableIncome: p.taxableIncome,
+            transportAllowance: p.transportAllowance,
+            employeeSocials: p.employeeSocials,
+            employerSocials: p.employerSocials,
+            taxes: p.taxes,
+            detail: (p.detail as Record<string, number> | null) ?? null,
+        }))
     );
+    const recap = bordereaux.flatMap((b) =>
+        b.lignes.map((l) => ({
+            Organisme: b.organisme,
+            Rubrique: l.libelle,
+            Assiette: l.assiette ?? "",
+            "Taux salarial": l.tauxSalarial ?? "",
+            "Taux patronal": l.tauxPatronal ?? "",
+            "Part salariale": l.salarial,
+            "Part patronale": l.patronal,
+            Total: l.total,
+        }))
+    );
+    recap.push({
+        Organisme: "TOTAL",
+        Rubrique: "",
+        Assiette: "",
+        "Taux salarial": "",
+        "Taux patronal": "",
+        "Part salariale": bordereaux.reduce((a, b) => a + b.totalSalarial, 0),
+        "Part patronale": bordereaux.reduce((a, b) => a + b.totalPatronal, 0),
+        Total: bordereaux.reduce((a, b) => a + b.total, 0),
+    });
     XLSX.utils.book_append_sheet(classeur, XLSX.utils.json_to_sheet(recap), "Déclarations");
+    for (const b of bordereaux) {
+        const totaux = b.colonnes.map((_, i) => (i === 0 ? "TOTAL" : typeof b.nominatif[0]?.[i] === "number" && b.colonnes[i] !== "Parts" ? b.nominatif.reduce((a, l) => a + (Number(l[i]) || 0), 0) : ""));
+        XLSX.utils.book_append_sheet(classeur, XLSX.utils.aoa_to_sheet([b.colonnes, ...b.nominatif, totaux]), b.organisme.slice(0, 31));
+    }
 
     const infos = XLSX.utils.aoa_to_sheet([
         ["Employeur", nomClient],

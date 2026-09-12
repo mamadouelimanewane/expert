@@ -109,6 +109,12 @@ export interface PayrollDetail {
     remunerationHeuresSup: number;
     /** Avantages en nature retenus dans les assiettes. */
     avantagesNature: number;
+    /** Assiettes (pour les bordereaux de déclaration). */
+    brutSocial: number;
+    assietteIpresRg: number;
+    assietteIpresRc: number;
+    assietteCss: number;
+    assietteIpm: number;
 }
 
 export interface PayrollResult {
@@ -132,7 +138,7 @@ export const PLAFOND_IPRES_RC = 1_296_000;
 /** Plafond mensuel de l'assiette de la cotisation maladie (IPM). */
 export const PLAFOND_IPM = 250_000;
 /** Plafond mensuel de l'assiette CSS (prestations familiales, accident travail). */
-const PLAFOND_CSS = 63_000;
+export const PLAFOND_CSS = 63_000;
 /** Indemnité de transport exonérée d'impôt et de cotisations, par mois. */
 export const TRANSPORT_EXONERE = 20_800;
 /** Durée légale mensuelle du travail. */
@@ -439,6 +445,11 @@ export function calculateSenegalPayroll(params: PayrollParams): PayrollResult {
             abattement: arrondi(abattement),
             remunerationHeuresSup: arrondi(remunerationHeuresSup),
             avantagesNature: arrondi(avantagesNature),
+            brutSocial: arrondi(brutSocial),
+            assietteIpresRg: arrondi(Math.min(brutSocial, PLAFOND_IPRES_RG)),
+            assietteIpresRc: isCadre ? arrondi(Math.min(brutSocial, PLAFOND_IPRES_RC)) : 0,
+            assietteCss: arrondi(assietteCss),
+            assietteIpm: arrondi(assietteIpm),
         },
         avertissements,
     };

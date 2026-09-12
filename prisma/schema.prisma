@@ -824,6 +824,13 @@ model Employee {
   // Avantages en nature mensuels (logement, véhicule…), valeur imposable.
   avantagesNature    Float   @default(0)
 
+  // Règlement du salaire (ordre de paiement) : VIREMENT, WAVE, ORANGE_MONEY,
+  // FREE_MONEY, ESPECES, CHEQUE.
+  modePaiement      String?
+  banque            String?
+  iban              String? // IBAN ou RIB
+  numeroMobileMoney String?
+
   // Relations
   clientId String @db.ObjectId
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -840,6 +847,11 @@ model PayrollPeriod {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
   periodName String // Ex: "Juin 2026"
   status     String @default("DRAFT") // DRAFT, VALIDATED, PAID
+
+  // Paiement constaté (saisie manuelle : aucun virement n'est émis par l'application)
+  paidAt      DateTime?
+  paymentMode String? // VIREMENT, WAVE, ORANGE_MONEY, FREE_MONEY, ESPECES, CHEQUE
+  paymentRef  String?
 
   // Relations
   clientId String @db.ObjectId

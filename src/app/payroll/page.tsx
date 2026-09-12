@@ -246,7 +246,7 @@ export default function PayrollDashboard() {
         {/* Colonne Droite : Variables et Paiement */}
         <div className="lg:col-span-8 space-y-6">
           <GestionSalaries clientId={selectedClient} onChange={() => { setVariables(null); setIsPaid(false); }} />
-          <HistoriquePaie clientId={selectedClient} version={rafraichirHistorique} />
+          <HistoriquePaie clientId={selectedClient} version={rafraichirHistorique} onChange={() => { setIsPaid(false); setPeriodeValidee(null); }} />
           <div className={cn(
             "bg-slate-900/40 border rounded-[28px] p-8 transition-all duration-500",
             variables ? "border-blue-500/20 shadow-2xl shadow-blue-500/5" : "border-white/5 opacity-50 pointer-events-none"
@@ -372,14 +372,15 @@ export default function PayrollDashboard() {
                         <CheckCircle2 className="w-6 h-6" />
                         <div>
                           <p className="font-black text-sm">Fiches de paie validées et enregistrées</p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Le virement Mobile Money automatique n'est pas encore configuré (Wave/Orange/MTN) — à effectuer manuellement pour cette période.</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5 text-white/70">Aucun virement n'est émis par l'application : exportez l'ordre de paiement, exécutez-le auprès de la banque ou de l'opérateur Mobile Money, puis marquez la période payée dans la liste ci-dessous.</p>
                         </div>
                       </div>
                       {periodeValidee && (
                         <div className="flex flex-wrap gap-2">
                           <a href={`/payroll/bulletins/${periodeValidee.id}`} target="_blank" rel="noopener" className="px-3 py-2 rounded-xl bg-primary text-white text-xs font-bold flex items-center gap-1.5"><FileText className="w-4 h-4" /> Bulletins (PDF)</a>
-                          <a href={`/api/payroll/periodes/${periodeValidee.id}/export?format=xlsx`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">Excel</a>
-                          <a href={`/api/payroll/periodes/${periodeValidee.id}/export?format=csv`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">CSV</a>
+                          <a href={`/payroll/declarations/${periodeValidee.id}`} target="_blank" rel="noopener" className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">Déclarations</a>
+                          <a href={`/api/payroll/periodes/${periodeValidee.id}/ordre-paiement?format=xlsx`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">Ordre de paiement</a>
+                          <a href={`/api/payroll/periodes/${periodeValidee.id}/export?format=xlsx`} className="px-3 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 hover:bg-white/5">Livre de paie</a>
                         </div>
                       )}
                     </div>

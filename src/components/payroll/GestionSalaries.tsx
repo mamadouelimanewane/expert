@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2, Pencil, Plus, Save, Trash2, Users, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
+import { MODES_PAIEMENT } from "@/lib/payroll/declarations";
 
 /**
  * Salariés et paramètres de paie d'un dossier client.
@@ -29,6 +30,10 @@ interface Salarie {
   isCadre: boolean;
   transportAllowance: number;
   avantagesNature: number;
+  modePaiement: string | null;
+  banque: string | null;
+  iban: string | null;
+  numeroMobileMoney: string | null;
 }
 
 interface ParametresEmployeur {
@@ -50,6 +55,10 @@ const SALARIE_VIDE = {
   isCadre: false,
   transportAllowance: 0,
   avantagesNature: 0,
+  modePaiement: "VIREMENT",
+  banque: "",
+  iban: "",
+  numeroMobileMoney: "",
 };
 
 type Formulaire = typeof SALARIE_VIDE;
@@ -110,6 +119,10 @@ export function GestionSalaries({ clientId, onChange }: { clientId: string | nul
         isCadre: s.isCadre,
         transportAllowance: s.transportAllowance,
         avantagesNature: s.avantagesNature,
+        modePaiement: s.modePaiement ?? "VIREMENT",
+        banque: s.banque ?? "",
+        iban: s.iban ?? "",
+        numeroMobileMoney: s.numeroMobileMoney ?? "",
       },
     });
 
@@ -117,7 +130,13 @@ export function GestionSalaries({ clientId, onChange }: { clientId: string | nul
     if (!edition || !clientId) return;
     setEnregistrement(true);
     try {
-      const corps = { ...edition.form, position: edition.form.position || undefined };
+      const corps = {
+        ...edition.form,
+        position: edition.form.position || undefined,
+        banque: edition.form.banque || null,
+        iban: edition.form.iban || null,
+        numeroMobileMoney: edition.form.numeroMobileMoney || null,
+      };
       const res = edition.id
         ? await fetch(`/api/payroll/employes/${edition.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) })
         : await fetch(`/api/payroll/employes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...corps, clientId }) });
@@ -238,6 +257,7 @@ export function GestionSalaries({ clientId, onChange }: { clientId: string | nul
                 <th className="py-2 pr-3">Situation</th>
                 <th className="py-2 pr-3 text-right">Transport</th>
                 <th className="py-2 pr-3 text-right">Av. nature</th>
+                <th className="py-2 pr-3">Règlement</th>
                 <th className="py-2"></th>
               </tr>
             </thead>
@@ -255,6 +275,11 @@ export function GestionSalaries({ clientId, onChange }: { clientId: string | nul
                   </td>
                   <td className="py-2 pr-3 text-right tabular-nums text-slate-300">{fmt(s.transportAllowance)}</td>
                   <td className="py-2 pr-3 text-right tabular-nums text-slate-300">{fmt(s.avantagesNature)}</td>
+                  <td className="py-2 pr-3 text-slate-300 text-xs">
+                    {s.modePaiement ? MODES_PAIEMENT[s.modePaiement] ?? s.modePaiement : <span className="text-amber-400">À préciser</span>}
+                    {s.modePaiement === "VIREMENT" && s.iban && <span className="block text-[10px] text-slate-400">{s.banque ? `${s.banque} · ` : ""}{s.iban}</span>}
+                    {["WAVE", "ORANGE_MONEY", "FREE_MONEY"].includes(s.modePaiement ?? "") && s.numeroMobileMoney && <span className="block text-[10px] text-slate-400">{s.numeroMobileMoney}</span>}
+                  </td>
                   <td className="py-2 text-right whitespace-nowrap">
                     <button type="button" onClick={() => ouvrirEdition(s)} aria-label="Modifier" className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"><Pencil className="w-4 h-4" /></button>
                     <button type="button" onClick={() => supprimer(s)} aria-label="Supprimer" className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"><Trash2 className="w-4 h-4" /></button>
@@ -302,6 +327,17 @@ export function GestionSalaries({ clientId, onChange }: { clientId: string | nul
               <input type="checkbox" checked={f.isCadre} onChange={(e) => set({ isCadre: e.target.checked })} />
               Cadre{pays === "SN" ? " (régime complémentaire IPRES)" : ""}
             </label>
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-slate-400 pt-2 border-t border-white/5">Règlement du salaire (ordre de paiement)</p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {champ("Mode de paiement",
+              <select className={inputCls} value={f.modePaiement} onChange={(e) => set({ modePaiement: e.target.value })}>
+                {Object.entries(MODES_PAIEMENT).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>)}
+            {f.modePaiement === "VIREMENT" && champ("Banque", <input className={inputCls} value={f.banque} onChange={(e) => set({ banque: e.target.value })} />)}
+            {f.modePaiement === "VIREMENT" && champ("IBAN / RIB", <input className={inputCls} value={f.iban} onChange={(e) => set({ iban: e.target.value })} />)}
+            {["WAVE", "ORANGE_MONEY", "FREE_MONEY"].includes(f.modePaiement) &&
+              champ("Numéro Mobile Money", <input className={inputCls} value={f.numeroMobileMoney} onChange={(e) => set({ numeroMobileMoney: e.target.value })} placeholder="+221 77 000 00 00" />)}
           </div>
           <div className="flex justify-end gap-2">
             <button type="button" onClick={() => setEdition(null)} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:bg-white/5">Annuler</button>

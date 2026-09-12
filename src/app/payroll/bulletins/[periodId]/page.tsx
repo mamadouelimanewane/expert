@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { rubriquesBulletin, type BulletinEntree } from "@/lib/payroll/rubriques";
 import { LEGISLATION_PAIE, type PaysSupporte } from "@/lib/payroll/engines";
+import { MODES_PAIEMENT } from "@/lib/payroll/declarations";
 
 /**
  * Bulletins de paie d'une période, prêts à imprimer ou enregistrer en PDF
@@ -29,7 +30,7 @@ interface Payslip {
     taxes: number;
     employeeSocials: number;
     employerSocials: number;
-    employee: { id: string; firstName: string; lastName: string; position: string | null; maritalStatus: string | null; childrenCount: number; isCadre: boolean; sexe: string | null };
+    employee: { id: string; firstName: string; lastName: string; position: string | null; maritalStatus: string | null; childrenCount: number; isCadre: boolean; sexe: string | null; modePaiement: string | null; banque: string | null; iban: string | null; numeroMobileMoney: string | null };
 }
 
 interface Periode {
@@ -37,12 +38,23 @@ interface Periode {
     periodName: string;
     status: string;
     createdAt: string;
+    paidAt: string | null;
+    paymentMode: string | null;
     client: { companyName: string | null; firstName: string | null; lastName: string | null; address: string | null; city: string | null; country: string; ninea: string | null; rccm: string | null; ifu: string | null };
     payslips: Payslip[];
 }
 
 const fmt = (n: number) => Math.round(n).toLocaleString("fr-FR");
 const pct = (t?: number) => (t === undefined ? "" : `${(t * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %`);
+
+/** « Virement — CBAO, SN08 … » ou « Wave — +221 … » selon le mode de règlement du salarié. */
+function reglement(e: Payslip["employee"]): string {
+    if (!e.modePaiement) return "";
+    const mode = MODES_PAIEMENT[e.modePaiement] ?? e.modePaiement;
+    if (e.modePaiement === "VIREMENT") return [mode, e.banque, e.iban].filter(Boolean).join(" — ");
+    if (["WAVE", "ORANGE_MONEY", "FREE_MONEY"].includes(e.modePaiement)) return [mode, e.numeroMobileMoney].filter(Boolean).join(" — ");
+    return mode;
+}
 
 export default function BulletinsPage() {
     const { periodId } = useParams<{ periodId: string }>();
@@ -136,7 +148,8 @@ export default function BulletinsPage() {
                                 <p className="text-[9px] uppercase tracking-widest text-slate-500 mb-1">Période</p>
                                 <p>Paie de <span className="font-bold">{periode.periodName}</span></p>
                                 <p>Absences : {p.absencesDays} j · Heures sup. : {p.overtimeHours} h</p>
-                                <p>Statut : {periode.status === "PAID" ? "payé" : "validé"} le {new Date(periode.createdAt).toLocaleDateString("fr-FR")}</p>
+                                <p>Statut : {periode.status === "PAID" ? `payé le ${new Date(periode.paidAt ?? periode.createdAt).toLocaleDateString("fr-FR")}${periode.paymentMode ? ` (${MODES_PAIEMENT[periode.paymentMode] ?? periode.paymentMode})` : ""}` : `validé le ${new Date(periode.createdAt).toLocaleDateString("fr-FR")}`}</p>
+                                {reglement(p.employee) && <p>Règlement : {reglement(p.employee)}</p>}
                             </div>
                         </section>
 

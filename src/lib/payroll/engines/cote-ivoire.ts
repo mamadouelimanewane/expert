@@ -47,6 +47,10 @@ export interface PayrollDetailCI {
     remunerationHeuresSup: number;
     /** Avantages en nature retenus dans l'assiette. */
     avantagesNature: number;
+    /** Assiettes (pour les bordereaux de déclaration). */
+    brutImposable: number;
+    assietteRetraite: number;
+    assiettePf: number;
 }
 
 export interface PayrollResultCI {
@@ -297,6 +301,9 @@ export function calculateCoteIvoirePayroll(params: PayrollParams): PayrollResult
             its: arrondi(its),
             remunerationHeuresSup: arrondi(remunerationHeuresSup),
             avantagesNature: arrondi(avantagesNature),
+            brutImposable: arrondi(brutImposable),
+            assietteRetraite: arrondi(assietteRetraite),
+            assiettePf: arrondi(assiettePf),
         },
         avertissements,
     };

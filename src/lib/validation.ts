@@ -155,6 +155,8 @@ export const clientUpdateSchema = z
     .refine((v) => Object.keys(v).length > 0, { message: "Aucun champ à modifier" });
 
 /** Salarié d'un dossier client (module paie). */
+export const modePaiementSalaire = z.enum(["VIREMENT", "WAVE", "ORANGE_MONEY", "FREE_MONEY", "ESPECES", "CHEQUE"]);
+
 export const employeeSchema = z.object({
     clientId: z.string().regex(/^[0-9a-f]{24}$/, "Identifiant client invalide"),
     firstName: z.string().trim().min(1, "Prénom requis").max(100),
@@ -170,6 +172,19 @@ export const employeeSchema = z.object({
     isCadre: z.boolean().default(false),
     transportAllowance: z.number().finite().min(0).default(0),
     avantagesNature: z.number().finite().min(0).default(0),
+    // Règlement du salaire (ordre de paiement)
+    modePaiement: modePaiementSalaire.nullable().optional(),
+    banque: texteOptionnel(100).nullable(),
+    iban: texteOptionnel(50).nullable(),
+    numeroMobileMoney: texteOptionnel(30).nullable(),
+});
+
+/** Constat du paiement d'une période de paie (aucun virement n'est émis). */
+export const periodePaiementSchema = z.object({
+    status: z.enum(["PAID", "VALIDATED"]),
+    paidAt: dateISO.optional(),
+    paymentMode: modePaiementSalaire.optional(),
+    paymentRef: texteOptionnel(100),
 });
 
 export const employeeUpdateSchema = employeeSchema
