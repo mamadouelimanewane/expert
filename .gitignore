@@ -52,3 +52,6 @@ docs/**/CREDENTIALS*.md
 # Données de langue Tesseract téléchargées à l exécution
 *.traineddata
 *.traineddata.gz
+
+# Comptes de démonstration (mots de passe locaux, jamais versionnés)
+scripts/comptes-demo.local.json

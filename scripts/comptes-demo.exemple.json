@@ -1,0 +1,5 @@
+[
+  { "email": "admin@cabinet360.com",  "prenom": "Mamadou",  "nom": "Dia",    "role": "ADMIN",        "motDePasse": "REMPLACER-12-caracteres-minimum" },
+  { "email": "expert@cabinet360.com", "prenom": "Awa",      "nom": "Ndiaye", "role": "EXPERT",       "motDePasse": "REMPLACER-12-caracteres-minimum" },
+  { "email": "collab@cabinet360.com", "prenom": "Ibrahima", "nom": "Fall",   "role": "COLLABORATOR", "motDePasse": "REMPLACER-12-caracteres-minimum" }
+]

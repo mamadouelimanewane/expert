@@ -17,6 +17,7 @@
     "routes:generate": "node scripts/generate-routes.mjs",
     "seed:admin": "npx tsx scripts/seed-admin.ts",
     "seed:admin:prod": "npx tsx scripts/seed-admin-production.ts",
+    "comptes:demo": "npx tsx scripts/creer-comptes-demo.ts",
     "seed:demo": "npx tsx scripts/seed-demo-uemoa.ts",
     "seed:invoices": "npx tsx scripts/seed-demo.ts",
     "start": "next start",
