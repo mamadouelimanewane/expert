@@ -11,6 +11,14 @@ import InstallBanner from "@/components/pwa/InstallBanner";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 
+// Rendu dynamique pour toute l'application : la CSP à nonce (middleware)
+// exige que Next appose le nonce de CHAQUE requête sur ses balises <script>,
+// ce qu'il ne peut pas faire sur une page prérendue à la construction. La page
+// de connexion, statique, se retrouvait sans aucun JavaScript exécutable
+// (tous ses scripts bloqués par la CSP) : le formulaire partait alors en
+// soumission native GET, mot de passe dans l'URL, sans jamais authentifier.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Cabinet 360 - Gestion Expert OHADA",
   description: "Logiciel de gestion pour cabinets d'expertise comptable (Zone OHADA)",
