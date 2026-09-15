@@ -32,6 +32,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#006B3F",
+  // Sans cette déclaration, Chrome Android et Samsung Internet en « thème
+  // sombre » assombrissent d'autorité les sites (Auto Dark Theme) : les
+  // testeurs sur téléphone voyaient l'application en sombre alors que le
+  // thème choisi était le clair. Le thème sombre de l'application reste
+  // disponible via le sélecteur (classe .dark, color-scheme: dark en CSS).
+  colorScheme: "light",
 };
 
 // Même police que la référence de présentation (apix-pap.vercel.app : Inter).

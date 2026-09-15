@@ -127,6 +127,13 @@
   --footer-bg: rgba(15, 23, 42, 0.5);
 }
 
+/* Le navigateur ne doit pas assombrir lui-même les thèmes clairs (Auto Dark
+   Theme de Chrome Android / Samsung Internet) : `only light` l'en empêche.
+   Le thème sombre déclare `dark` pour que formulaires et barres de défilement
+   natifs suivent. */
+:is(.light, .corporate) { color-scheme: only light; }
+.dark { color-scheme: dark; }
+
 .light {
   /* Inherits from :root */
 }

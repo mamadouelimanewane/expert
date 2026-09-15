@@ -4,8 +4,8 @@
   "description": "Plateforme d'Expertise Comptable 3.0",
   "start_url": "/dashboard/executive",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "theme_color": "#006B3F",
   "icons": [
     {
       "src": "/icon-192.png",
