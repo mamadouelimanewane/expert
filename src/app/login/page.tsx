@@ -11,6 +11,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [honeypot, setHoneypot] = useState(""); // doit rester vide — bots remplissent
     const [error, setError] = useState("");
+    const MODE_TEST = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true";
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -31,7 +32,7 @@ export default function LoginPage() {
         const res = await signIn("credentials", {
             redirect: false,
             email,
-            password,
+            password: password || (MODE_TEST ? "-" : ""),
             _hp: honeypot, // transmis au serveur pour double vérification
         });
 
@@ -74,6 +75,12 @@ export default function LoginPage() {
                     </p>
                     <p style={{ color: '#94a3b8' }}>Gestion Expert-Comptable OHADA</p>
                 </div>
+
+                {MODE_TEST && (
+                    <div role="status" style={{ background: '#FDF0D8', border: '1px solid #F29400', color: '#7a4a00', borderRadius: '10px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
+                        <strong>Mode test cabinet.</strong> Saisissez votre e-mail ; le mot de passe n&apos;est pas vérifié pendant la période d&apos;essai.
+                    </div>
+                )}
 
                 {error && (
                     <div style={{
@@ -135,8 +142,8 @@ export default function LoginPage() {
                                 autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required
+                                placeholder={MODE_TEST ? "non vérifié pendant les tests" : "••••••••"}
+                                required={!MODE_TEST}
                                 style={{ width: '100%', padding: '0.85rem 3rem 0.85rem 0.85rem', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '1rem' }}
                             />
                             <button

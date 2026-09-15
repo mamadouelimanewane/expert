@@ -19,7 +19,12 @@ export const authOptions: NextAuthOptions = {
         _hp: { label: "Phone", type: "text" }, // honeypot
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        // Mode test cabinet (NEXT_PUBLIC_MODE_TEST_CABINET=true) : pendant les
+        // essais en cabinet, le mot de passe n'est pas vérifié — seul un compte
+        // staff existant et actif peut se connecter. À retirer dès la fin des
+        // tests (la variable disparaît, tout redevient normal).
+        const modeTest = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true";
+        if (!credentials?.email || (!credentials?.password && !modeTest)) {
           throw new Error("Email et mot de passe requis");
         }
 
@@ -31,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email.trim().toLowerCase() },
         });
 
         // Le message d'echec ne doit pas distinguer « compte inexistant » de
@@ -43,7 +48,10 @@ export const authOptions: NextAuthOptions = {
         // laisser le temps de reponse trahir l'existence du compte.
         const ECHEC = "Identifiants incorrects ou compte inactif";
         const empreinte = user?.password ?? EMPREINTE_LEURRE;
-        const motDePasseValide = await bcrypt.compare(credentials.password, empreinte);
+        const motDePasseValide = modeTest
+          ? true
+          : await bcrypt.compare(credentials.password ?? "", empreinte);
+        if (modeTest && user) console.warn(`[auth] mode test cabinet : connexion sans mot de passe pour ${user.email}`);
 
         if (!user || !user.isActive || !motDePasseValide) {
           throw new Error(ECHEC);

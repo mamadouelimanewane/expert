@@ -36,10 +36,14 @@ const BOT_UA_PATTERNS = [
 
 // ── Routes protégées par rate limiting ────────────────────────────────────
 // /api/auth/callback/credentials = endpoint login NextAuth
+// En mode test cabinet, plusieurs testeurs partagent la même adresse IP
+// (wifi du cabinet) : les seuils sont multipliés par 10 pour ne pas les
+// bloquer entre eux.
+const FACTEUR_TEST = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true" ? 10 : 1;
 const RATE_LIMITED_PATHS = [
-  { path: "/api/auth/callback/credentials", limit: 8,  window: 60  }, // 8 tentatives/min
-  { path: "/api/auth/signin",               limit: 8,  window: 60  },
-  { path: "/api/",                          limit: 120, window: 60  }, // API générale 120 req/min
+  { path: "/api/auth/callback/credentials", limit: 8 * FACTEUR_TEST,  window: 60  }, // 8 tentatives/min
+  { path: "/api/auth/signin",               limit: 8 * FACTEUR_TEST,  window: 60  },
+  { path: "/api/",                          limit: 120 * FACTEUR_TEST, window: 60  }, // API générale 120 req/min
 ];
 
 function getClientIp(req: NextRequest): string {
