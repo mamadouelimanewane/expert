@@ -98,6 +98,7 @@ const NO_SESSION_API_PREFIXES = [
   "/api/payments/webhook",
   "/api/webhooks",
   "/api/saas/subscribe", // Création session Wave — appelée depuis la landing page publique
+  "/api/saas/webhook",   // Confirmation paiement Wave abonnements SaaS
 ];
 
 function isNoSessionApiRoute(pathname: string): boolean {

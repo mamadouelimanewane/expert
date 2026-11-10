@@ -11,6 +11,51 @@ datasource db {
 }
 
 // ============================================
+// SAAS — CABINETS & ABONNEMENTS
+// ============================================
+
+enum SaasPlan {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum SaasStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+/// Un cabinet = un tenant SaaS. Chaque cabinet regroupe ses utilisateurs,
+/// ses dossiers clients et son abonnement Wave/mobile-money.
+model Cabinet {
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  slug                String     @unique
+  nom                 String
+  plan                SaasPlan   @default(STARTER)
+  statut              SaasStatus @default(TRIAL)
+  trialExpiresAt      DateTime?
+  pays                String     @default("SN")
+  phone               String?
+  /// Référence de paiement Wave (client_reference) pour rapprochement webhook
+  waveClientRef       String?    @unique
+  /// Date d'activation du dernier paiement Wave confirmé
+  lastPaidAt          DateTime?
+  /// Période couverte par le dernier paiement (en mois)
+  lastPaidMonths      Int?
+  maxDossiers         Int        @default(25)
+  maxCollaborateurs   Int        @default(2)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  // Relations
+  users               User[]
+
+  @@map("cabinets")
+}
+
+// ============================================
 // AUTHENTICATION & USERS
 // ============================================
 
@@ -39,6 +84,10 @@ model User {
   lastLoginAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  // Lien tenant SaaS (optionnel en Phase 1, requis en Phase 2)
+  cabinetId   String?   @db.ObjectId
+  cabinet     Cabinet?  @relation(fields: [cabinetId], references: [id])
 
   // Relations
   assignedMissions     Mission[]            @relation("AssignedTo")

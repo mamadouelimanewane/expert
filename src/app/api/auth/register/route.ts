@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import { slugifyCabinet, PLAN_LIMITS } from "@/lib/tenant";
 
 export async function POST(req: Request) {
   try {
@@ -13,10 +14,12 @@ export async function POST(req: Request) {
     }
 
     const emailNormalise = email.trim().toLowerCase();
+    const nomCabinetPropre = (cabinetName || "Cabinet").trim();
 
     // Vérifier si l'utilisateur existe déjà
     const existant = await prisma.user.findUnique({
       where: { email: emailNormalise },
+      include: { cabinet: true },
     });
 
     if (existant) {
@@ -28,17 +31,42 @@ export async function POST(req: Request) {
       });
     }
 
-    // Mot de passe par défaut ou généré
-    const motDePasseFinal = password && password.length >= 8 
-      ? password 
+    // Mot de passe par défaut ou généré aléatoirement
+    const motDePasseFinal = password && password.length >= 8
+      ? password
       : randomBytes(8).toString("hex") + "A1!";
     const hashedPassword = await bcrypt.hash(motDePasseFinal, 10);
 
-    const nomCabinetPropre = (cabinetName || "Cabinet").trim();
     const [prenom, ...resteNom] = nomCabinetPropre.split(" ");
     const nomFamille = resteNom.join(" ") || "Expertise";
 
-    // Créer le compte utilisateur EXPERT
+    // ── 1. Créer le Cabinet SaaS (tenant) ──────────────────────────────
+    const slug = slugifyCabinet(nomCabinetPropre);
+    const trialExpiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // +14 jours
+
+    // Dédupliquer le slug en cas de collision
+    let slugFinal = slug;
+    const existing = await prisma.cabinet.findUnique({ where: { slug } });
+    if (existing) {
+      slugFinal = `${slug}-${randomBytes(3).toString("hex")}`;
+    }
+
+    const limits = PLAN_LIMITS.STARTER;
+    const cabinet = await prisma.cabinet.create({
+      data: {
+        slug: slugFinal,
+        nom: nomCabinetPropre,
+        plan: "STARTER",
+        statut: "TRIAL",
+        trialExpiresAt,
+        pays: country || "SN",
+        phone: phone || null,
+        maxDossiers: limits.dossiers,
+        maxCollaborateurs: limits.collaborateurs,
+      },
+    });
+
+    // ── 2. Créer le compte utilisateur EXPERT lié au cabinet ───────────
     const newUser = await prisma.user.create({
       data: {
         email: emailNormalise,
@@ -48,10 +76,11 @@ export async function POST(req: Request) {
         role: "EXPERT",
         phone: phone || null,
         isActive: true,
+        cabinetId: cabinet.id,
       },
     });
 
-    // Créer une notification d'accueil dans le système
+    // ── 3. Notification d'accueil ───────────────────────────────────────
     try {
       await prisma.notification.create({
         data: {
@@ -70,6 +99,8 @@ export async function POST(req: Request) {
       message: "Votre espace cabinet a été initialisé avec succès !",
       email: newUser.email,
       password: motDePasseFinal,
+      cabinetSlug: slugFinal,
+      trialExpiresAt: trialExpiresAt.toISOString(),
       isNew: true,
     });
   } catch (error: any) {

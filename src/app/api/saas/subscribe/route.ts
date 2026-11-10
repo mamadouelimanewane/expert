@@ -84,6 +84,20 @@ export async function POST(req: Request) {
     const waveData = await waveRes.json();
     const checkoutUrl: string = waveData.wave_launch_url || waveData.checkout_url || "";
 
+    // ---- Lier la waveClientRef au cabinet si l'utilisateur est déjà inscrit ----
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email: email.trim().toLowerCase() },
+        select: { cabinetId: true },
+      });
+      if (user?.cabinetId) {
+        await prisma.cabinet.update({
+          where: { id: user.cabinetId },
+          data: { waveClientRef: ref },
+        });
+      }
+    } catch { /* non bloquant */ }
+
     // ---- Journaliser la tentative de souscription ----
     try {
       await prisma.auditLog.create({

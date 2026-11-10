@@ -12,7 +12,9 @@ const DEMO_PASSWORD = "DemoTrial2026!";
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const demoMode = searchParams.get("demo") === "1";
+    const demoMode      = searchParams.get("demo")       === "1";
+    const subscribed    = searchParams.get("subscribed") === "1";
+    const refPaiement   = searchParams.get("ref") || "";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -179,6 +181,25 @@ function LoginContent() {
                     <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500, whiteSpace: "nowrap" }}>ou connectez-vous avec votre compte</span>
                     <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e2e8f0" }} />
                 </div>
+
+                {/* Bannière succès abonnement Wave */}
+                {subscribed && (
+                    <div style={{
+                        background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                        border: "1px solid #34d399",
+                        borderRadius: "12px",
+                        padding: "1rem",
+                        marginBottom: "1.25rem",
+                        textAlign: "center",
+                    }}>
+                        <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>🎉</div>
+                        <p style={{ fontWeight: 700, color: "#065f46", margin: "0 0 0.25rem" }}>Paiement confirmé !</p>
+                        <p style={{ fontSize: "0.8rem", color: "#059669", margin: 0 }}>
+                            Votre abonnement Cabinet 360 est actif. Connectez-vous pour commencer.
+                            {refPaiement && <span style={{ display: "block", opacity: 0.7, marginTop: "0.25rem" }}>Réf : {refPaiement}</span>}
+                        </p>
+                    </div>
+                )}
 
                 {MODE_TEST && (
                     <div role="status" style={{ background: "#FDF0D8", border: "1px solid #F29400", color: "#7a4a00", borderRadius: "10px", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
