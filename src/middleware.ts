@@ -93,10 +93,11 @@ function addSecurityHeaders(response: NextResponse, nonce?: string): NextRespons
 //  - /api/payments/webhook, /api/webhooks : webhooks providers (signature/verify_token)
 const NO_SESSION_API_PREFIXES = [
   "/api/health",
-  "/api/auth",
+  "/api/auth",          // NextAuth + route /api/auth/register (inscription essai)
   "/api/portal",
   "/api/payments/webhook",
   "/api/webhooks",
+  "/api/saas/subscribe", // Création session Wave — appelée depuis la landing page publique
 ];
 
 function isNoSessionApiRoute(pathname: string): boolean {

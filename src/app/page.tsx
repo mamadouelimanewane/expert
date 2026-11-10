@@ -65,17 +65,43 @@ export default function SaaSGrandLandingPage() {
   // Simulateur ROI Gain de Temps Cabinet TPE/PME
   const [tpeCount, setTpeCount] = useState<number>(35);
 
+  const [trialPassword, setTrialPassword] = useState("");
+  const [trialError, setTrialError] = useState("");
+
   const toggleFaq = (index: number) => {
     setFaqOpen(faqOpen === index ? null : index);
   };
 
   const handleTrialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setTrialError("");
     setIsSubmittingTrial(true);
-    // Simulation enregistrement essai
-    await new Promise((r) => setTimeout(r, 1000));
-    setIsSubmittingTrial(false);
-    setTrialFormSubmitted(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cabinetName: trialCabinetName,
+          email: trialEmail,
+          phone: trialPhone,
+          country: trialCountry,
+          dossiersCount: trialDossiers,
+          password: trialPassword || "DemoTrial2026!",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Une erreur est survenue lors de l'inscription.");
+      }
+
+      setTrialFormSubmitted(true);
+    } catch (err: any) {
+      setTrialError(err.message || "Erreur lors de la création de votre essai.");
+    } finally {
+      setIsSubmittingTrial(false);
+    }
   };
 
   // Calculs ROI
@@ -1225,16 +1251,22 @@ export default function SaaSGrandLandingPage() {
                   </div>
                 </div>
 
+                {trialError && (
+                  <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300">
+                    ⚠️ {trialError}
+                  </div>
+                )}
+
                 <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isSubmittingTrial}
-                    className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all"
+                    className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-70"
                   >
                     {isSubmittingTrial ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Création de votre instance en cours...</span>
+                        <span>Création de votre espace en cours...</span>
                       </>
                     ) : (
                       <>
@@ -1246,23 +1278,36 @@ export default function SaaSGrandLandingPage() {
                 </div>
               </form>
             ) : (
-              <div className="text-center py-6 space-y-4">
+              <div className="text-center py-6 space-y-5">
                 <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
                   <CheckCircle className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">
-                  Félicitations, Votre Essai est Prêt !
+                  🎉 Votre Espace Cabinet est Prêt !
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-sm mx-auto">
-                  Votre espace cabinet <strong>{trialCabinetName}</strong> a été initialisé avec 14 jours d'accès complet. Vous pouvez vous connecter immédiatement.
+                  Compte créé pour <strong>{trialCabinetName || trialEmail}</strong>. Connectez-vous avec votre e-mail et le mot de passe choisi.
                 </p>
-                <div className="pt-4">
+
+                {/* Accès démo 1 clic */}
+                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 text-left space-y-1">
+                  <p className="font-bold">💡 Conseil : Explorez d'abord la démo complète</p>
+                  <p>Le dossier <strong>SARL Diallo & Fils</strong> est déjà chargé avec bilan, 124 bulletins de paie et flux Wave. Cliquez sur « Démo 1 Clic » ci-dessous.</p>
+                </div>
+
+                <div className="pt-2 flex flex-col gap-3">
                   <Link
-                    href="/login"
+                    href="/login?demo=1"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all"
                   >
-                    <span>Entrer dans l'Application</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>🚀 Démo 1 Clic — Dossier SARL Diallo & Fils</span>
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all text-xs"
+                  >
+                    <span>Se connecter avec mon compte ({trialEmail})</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
