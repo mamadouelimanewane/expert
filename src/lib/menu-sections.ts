@@ -182,6 +182,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Optimisation", href: "/fiscalite/optimization" }, { label: "Dépôt de pièces", href: "/fiscalite/drop-zone" },
         { label: "Cadrage TVA", href: "/fiscalite/cadrage-tva" },
         { label: "Matrice des Risques Fiscaux", href: "/fiscalite/matrice-risques" },
+        { label: "Défense Contrôle Fiscal", href: "/fiscalite/controle-defense" },
         { label: "Résultat Fiscal (IS)", href: "/fiscalite/resultat-fiscal" },
         { label: "Déficits reportables IS", href: "/fiscalite/deficits-reportables" },
         { label: "Scénarios Optimisation IS", href: "/fiscalite/optimisation-scenarios" },
