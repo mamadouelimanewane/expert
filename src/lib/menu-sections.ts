@@ -39,7 +39,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/simulator", "EXPERTISE & PRODUCTION"], ["/industries", "EXPERTISE & PRODUCTION"], ["/data", "EXPERTISE & PRODUCTION"],
     ["/data-center", "EXPERTISE & PRODUCTION"], ["/diagnostic", "EXPERTISE & PRODUCTION"],
     // Audit & conformité
-    ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
+    ["/conformite", "AUDIT & CONFORMITÉ"], ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
     ["/kyc", "AUDIT & CONFORMITÉ"], ["/expert-judiciaire", "AUDIT & CONFORMITÉ"], ["/legal", "AUDIT & CONFORMITÉ"],
     ["/corporate/audit-assurance", "AUDIT & CONFORMITÉ"], ["/corporate/legal-archive", "AUDIT & CONFORMITÉ"],
     ["/audit/circularisation", "AUDIT & CONFORMITÉ"], ["/audit/rapport-cac", "AUDIT & CONFORMITÉ"],
@@ -149,6 +149,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/payroll": [
         { label: "Bulletins de paie", href: "/payroll" },
+        { label: "Anomalies Paie IA", href: "/payroll/anomaly-detection" },
         { label: "Cadrage Paie vs Comptabilité", href: "/payroll/cadrage" },
         { label: "Indemnités & Solde de Tout Compte", href: "/payroll/indemnites" },
         { label: "Déclarations sociales", href: "/declarations" },
@@ -168,6 +169,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Cadrage TVA", href: "/fiscalite/cadrage-tva" },
         { label: "Matrice des Risques Fiscaux", href: "/fiscalite/matrice-risques" },
         { label: "Résultat Fiscal (IS)", href: "/fiscalite/resultat-fiscal" },
+        { label: "Déficits reportables IS", href: "/fiscalite/deficits-reportables" },
         { label: "Conventions internationales", href: "/fiscalite/conventions" },
         { label: "Export FEC", href: "/fiscalite/fec" },
         { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
@@ -199,7 +201,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Rapports CAC (ISA 700)", href: "/audit/rapport-cac" },
     ],
     "/compliance": [
-        { label: "Hub conformité", href: "/compliance" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
+        { label: "Hub conformité", href: "/compliance" }, { label: "Tableau de bord OHADA", href: "/conformite/dashboard" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
         { label: "Vérification d'identité", href: "/compliance/id-verify" }, { label: "Score UEMOA", href: "/compliance/uemoa-score" },
         { label: "Criminalité financière", href: "/compliance/financial-crime" }, { label: "Contrôle fiscal", href: "/compliance/tax-audit" }, { label: "Douanes", href: "/compliance/customs" },
         { label: "Carte des risques", href: "/compliance/governance/heatmap" },
