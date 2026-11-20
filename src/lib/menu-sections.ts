@@ -190,6 +190,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Scénarios Optimisation IS", href: "/fiscalite/optimisation-scenarios" },
         { label: "Conventions internationales", href: "/fiscalite/conventions" },
         { label: "Prix de Transfert & Management Fees", href: "/fiscalite/prix-transfert" },
+        { label: "Comparateur Fiscal UEMOA", href: "/fiscalite/comparateur-regional" },
         { label: "Export FEC", href: "/fiscalite/fec" },
         { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
         { label: "Quittances OCR", href: "/fiscalite/quittance-ocr" },
