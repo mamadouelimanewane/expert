@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 248 écrans sans devenir
+// La barre latérale ne peut pas exposer les 250 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -842,6 +842,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Obligations"
             },
             {
+                "href": "/fiscalite/optimisation-scenarios",
+                "label": "Optimisation Scenarios"
+            },
+            {
                 "href": "/fiscalite/optimization",
                 "label": "Optimization"
             },
@@ -922,6 +926,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
     {
         "nom": "Juridique",
         "pages": [
+            {
+                "href": "/legal/actes",
+                "label": "Actes"
+            },
             {
                 "href": "/legal/ag-generator",
                 "label": "ag Generator"

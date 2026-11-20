@@ -170,6 +170,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Matrice des Risques Fiscaux", href: "/fiscalite/matrice-risques" },
         { label: "Résultat Fiscal (IS)", href: "/fiscalite/resultat-fiscal" },
         { label: "Déficits reportables IS", href: "/fiscalite/deficits-reportables" },
+        { label: "Scénarios Optimisation IS", href: "/fiscalite/optimisation-scenarios" },
         { label: "Conventions internationales", href: "/fiscalite/conventions" },
         { label: "Export FEC", href: "/fiscalite/fec" },
         { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
@@ -210,6 +211,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Gouvernance & AG", href: "/governance" }, { label: "Carte des risques", href: "/compliance/governance/heatmap" },
     ],
     "/legal": [
+        { label: "Rédacteur d'actes v2", href: "/legal/actes" },
         { label: "Rédaction d'actes", href: "/legal/drafting" },
         { label: "Générateur AGOA", href: "/legal/ag-generator" },
         { label: "Recouvrement AUPSRVE", href: "/legal/recouvrement" },
