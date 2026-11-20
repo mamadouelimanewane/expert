@@ -124,6 +124,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" },
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
         { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
+        { label: "Rapport de Gestion & AGOA", href: "/liasse/rapport-gestion" },
         { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
@@ -160,6 +161,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/liasse": [
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
         { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
+        { label: "Rapport de Gestion & AGOA", href: "/liasse/rapport-gestion" },
     ],
     "/payroll": [
         { label: "Bulletins de paie", href: "/payroll" },
