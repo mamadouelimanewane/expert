@@ -4,7 +4,7 @@ import { join } from 'path';
 import prisma from '@/lib/prisma';
 import { processUploadedInvoice } from '@/lib/ocr-engine';
 import { dossierUploads } from '@/lib/uploads';
-import { stockerPiece } from '@/lib/stockage-pieces';
+import { stockerPiece, supprimerPiece } from '@/lib/stockage-pieces';
 import { unlink } from 'fs/promises';
 
 // L'OCR d'une facture prend 5 à 30 s : au-delà des 10 s par défaut de Vercel
@@ -19,16 +19,30 @@ const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 const TYPES_DOCUMENT = [
     'FACTURE', 'RELEVE_BANCAIRE', 'CONTRAT', 'RAPPORT', 'DECLARATION', 'PIECE_IDENTITE', 'AUTRE',
 ];
+const TAILLE_MAX_FICHIER = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
+    let stockagePartiel: Awaited<ReturnType<typeof stockerPiece>> | null = null;
+    let fichierTemporaire: string | null = null;
+    let documentPartielId: string | null = null;
+    let televersementPersiste = false;
     try {
         const session = await AuthService.getSession();
         if (!session) {
             return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
         }
+        if (!session.cabinetId) {
+            return NextResponse.json({ error: 'Aucun cabinet associé à cette session.' }, { status: 403 });
+        }
+
+        const tailleAnnoncee = Number(request.headers.get('content-length'));
+        if (Number.isFinite(tailleAnnoncee) && tailleAnnoncee > TAILLE_MAX_FICHIER + 1024 * 1024) {
+            return NextResponse.json({ error: 'Requête trop volumineuse. Limite fichier : 10 Mo.' }, { status: 413 });
+        }
 
         const formData = await request.formData();
-        const file = formData.get('file') as File;
+        const fichierFormulaire = formData.get('file');
+        const file = fichierFormulaire instanceof File ? fichierFormulaire : null;
         const clientId = formData.get('clientId') as string;
         const documentType = formData.get('type') as string || 'FACTURE';
         // Sens comptable de la piece : sans lui, l'export presumait un achat et
@@ -75,12 +89,29 @@ export async function POST(request: NextRequest) {
         }
 
         // Validation de la taille (10MB max)
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        if (file.size > maxSize) {
+        if (file.size === 0 || file.size > TAILLE_MAX_FICHIER) {
             return NextResponse.json(
                 { error: 'File too large. Maximum size is 10MB.' },
                 { status: 400 }
             );
+        }
+        if (!file.name.trim() || file.name.length > 255) {
+            return NextResponse.json({ error: 'Le nom du fichier doit contenir entre 1 et 255 caractères.' }, { status: 400 });
+        }
+
+        // Le Content-Type fourni par le navigateur est contrôlable par le
+        // client. Vérifier la signature réelle des formats autorisés avant de
+        // persister la pièce ou de la servir avec un type MIME de confiance.
+        const signature = Buffer.from(await file.slice(0, 12).arrayBuffer());
+        const signatureValide = file.type === 'application/pdf'
+            ? signature.subarray(0, 5).toString('ascii') === '%PDF-'
+            : file.type === 'image/png'
+                ? signature.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+                : file.type === 'image/webp'
+                    ? signature.subarray(0, 4).toString('ascii') === 'RIFF' && signature.subarray(8, 12).toString('ascii') === 'WEBP'
+                    : signature.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]));
+        if (!signatureValide) {
+            return NextResponse.json({ error: 'Le contenu du fichier ne correspond pas à son format déclaré.' }, { status: 400 });
         }
 
         // Nom de fichier unique (identifiant de la pièce dans les journaux)
@@ -92,10 +123,18 @@ export async function POST(request: NextRequest) {
         // Stockage durable (GridFS sur MongoDB Atlas). Le disque du serveur est
         // en lecture seule sur Vercel et /tmp y est éphémère : une pièce y
         // déposée n'était plus rouvrable quelques minutes plus tard.
-        const stockage = await stockerPiece(buffer, fileName, file.type, { originalName: file.name, clientId: clientId || null, type: documentType });
+        const stockage = await stockerPiece(buffer, fileName, file.type, {
+            originalName: file.name,
+            clientId: clientId || null,
+            cabinetId: session.cabinetId,
+            uploadedById: session.id,
+            type: documentType,
+        });
+        stockagePartiel = stockage;
 
         // L'OCR travaille sur un fichier : copie temporaire, supprimée ensuite.
         const filePath = join(dossierUploads(), fileName);
+        fichierTemporaire = filePath;
         await writeFile(filePath, buffer);
 
         // Créer l'entrée dans la base de données
@@ -114,6 +153,7 @@ export async function POST(request: NextRequest) {
                 uploadedById: session.id,
             },
         });
+        documentPartielId = document.id;
 
         // Le fichier est servi par une route authentifiée (Next.js ne sert pas
         // /uploads/ : le lien « Voir » de la GED ouvrait une 404).
@@ -191,6 +231,7 @@ export async function POST(request: NextRequest) {
         // GridFS. Sans stockage durable (pas de DATABASE_URL), on la garde.
         if (stockage.support === 'gridfs') await unlink(filePath).catch(() => {});
 
+        televersementPersiste = true;
         return NextResponse.json({
             success: statutFinal !== 'ERROR',
             document: {
@@ -205,6 +246,11 @@ export async function POST(request: NextRequest) {
         });
     } catch (error) {
         console.error('❌ Upload error:', error);
+        if (!televersementPersiste) {
+            if (documentPartielId) await prisma.document.delete({ where: { id: documentPartielId } }).catch(() => {});
+            if (stockagePartiel) await supprimerPiece(stockagePartiel.cle).catch(() => {});
+            if (fichierTemporaire) await unlink(fichierTemporaire).catch(() => {});
+        }
         return NextResponse.json(
             { error: 'Failed to upload file' },
             { status: 500 }

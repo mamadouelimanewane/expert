@@ -9,13 +9,14 @@
  *
  * Idempotent : relançable sans doublon (client par e-mail, salariés par nom,
  * périodes par libellé). Le lien du portail n'est jamais affiché : il se lit
- * dans la fiche client (bouton « Portail »). ATTENTION : base de PRODUCTION.
+ * dans la fiche client (bouton « Portail »). Réservé aux environnements hors production.
  */
 import { PrismaClient } from "@prisma/client";
 import { randomBytes } from "crypto";
 import { calculatePayroll } from "../src/lib/payroll/engines";
+import { installerPorteeSeed, type PrismaSeedScopeClient } from "./tenant-seed-scope";
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 const APPLY = process.argv.includes("--apply");
 const log = (m: string) => console.log(`${APPLY ? "✔" : "·"} ${m}`);
 
@@ -91,12 +92,13 @@ const BALANCE_DEMO = [
 ];
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient, { willWrite: APPLY });
     console.log(APPLY ? "Application du dossier de démonstration…\n" : "Simulation (ajoutez --apply pour appliquer)\n");
     const admin = await prisma.user.findFirst({ where: { role: "ADMIN", isActive: true }, orderBy: { createdAt: "asc" }, select: { id: true } });
     if (!admin) throw new Error("Aucun administrateur actif.");
 
     // 1. Client
-    let client = await prisma.client.findUnique({ where: { email: CLIENT.email } });
+    let client = await prisma.client.findFirst({ where: { email: CLIENT.email } });
     log(`${client ? "Mettre à jour" : "Créer"} le client « ${CLIENT.companyName} »`);
     if (APPLY) {
         client = client

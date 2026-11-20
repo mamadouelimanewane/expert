@@ -1,20 +1,18 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getPortalClient } from '@/lib/portal-auth';
+import { portalTokenFromRequest, withPortalClient } from '@/lib/portal-auth';
 import { analyserMontantOptionnel, normaliserDateISO } from '@/lib/validation';
 
 export async function POST(req: Request) {
   try {
-    const client = await getPortalClient(req);
-    if (!client) {
-      return NextResponse.json({ error: 'Portail introuvable ou désactivé' }, { status: 401 });
-    }
-
+    const contentLength = Number(req.headers.get("content-length") ?? 0);
+    if (contentLength > 1_000_000) return NextResponse.json({ error: "Dépôt trop volumineux." }, { status: 413 });
     const data = await req.json();
+    const response = await withPortalClient(portalTokenFromRequest(req), async (client) => {
     // Expected data format: { entries: [{ date, libelle, entree, sortie }] }
     // Le clientId n'est jamais accepté depuis le body : il est résolu via le portalToken.
 
-    if (!data.entries || !Array.isArray(data.entries)) {
+    if (!data.entries || !Array.isArray(data.entries) || data.entries.length === 0 || data.entries.length > 500) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
 
@@ -26,6 +24,11 @@ export async function POST(req: Request) {
     // être lue — un import partiel serait pire, le client croyant tout déposé.
     const businessName = client.companyName || `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim();
     const periode = new Date().toISOString().substring(0, 7); // YYYY-MM
+    const lock = await prisma.accountingPeriodLock.findUnique({
+      where: { clientId_periode: { clientId: client.id, periode } },
+      select: { id: true },
+    });
+    if (lock) return NextResponse.json({ error: `La période ${periode} est clôturée. Le dépôt n'a pas été enregistré.` }, { status: 409 });
     const lignesRejetees: string[] = [];
     const tpeJournals = [];
 
@@ -38,10 +41,18 @@ export async function POST(req: Request) {
         lignesRejetees.push(`Ligne ${numero} : libellé manquant.`);
         continue;
       }
+      if (libelle.length > 500) {
+        lignesRejetees.push(`Ligne ${numero} : libellé supérieur à 500 caractères.`);
+        continue;
+      }
 
       const dateISO = normaliserDateISO(entry.date);
       if (dateISO === null) {
         lignesRejetees.push(`Ligne ${numero} (${libelle}) : date illisible « ${entry.date ?? ""} ».`);
+        continue;
+      }
+      if (dateISO.slice(0, 7) !== periode) {
+        lignesRejetees.push(`Ligne ${numero} (${libelle}) : la date ${dateISO} ne correspond pas à la période ${periode}.`);
         continue;
       }
 
@@ -103,6 +114,8 @@ export async function POST(req: Request) {
     // Pour l'instant, c'est fait lors de la lecture côté cabinet
 
     return NextResponse.json({ success: true, count: tpeJournals.length });
+    });
+    return response ?? NextResponse.json({ error: 'Portail introuvable ou désactivé' }, { status: 401 });
   } catch (error) {
     console.error('Upload Journal Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

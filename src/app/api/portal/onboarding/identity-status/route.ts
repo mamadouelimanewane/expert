@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { clientDuPortail } from "@/lib/portal-auth";
+import { withPortalClient } from "@/lib/portal-auth";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 const STATUT_VERS_KYC: Record<string, string> = {
@@ -17,11 +17,8 @@ export async function GET(request: NextRequest) {
     const token = new URL(request.url).searchParams.get("token");
     if (!token) return NextResponse.json({ error: "token requis" }, { status: 400 });
 
-    const client = await clientDuPortail(token);
-    if (!client) return NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
-    if (!client.stripeIdentitySessionId) {
-      return NextResponse.json({ status: null });
-    }
+    const response = await withPortalClient(token, async (client) => {
+    if (!client.stripeIdentitySessionId) return NextResponse.json({ status: null });
 
     const session = await getStripe().identity.verificationSessions.retrieve(client.stripeIdentitySessionId);
 
@@ -31,6 +28,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ status: session.status });
+    });
+    return response ?? NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
   } catch (error) {
     console.error("Erreur GET onboarding/identity-status:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

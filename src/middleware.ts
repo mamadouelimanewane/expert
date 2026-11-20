@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { construireCsp, genererNonce } from "@/lib/csp";
+import { decideTenantGate, isObjectId, tenantIsolationIsReady } from "@/lib/tenant-security";
 
 // ── User-Agents de bots connus à bloquer ──────────────────────────────────
 const BOT_UA_PATTERNS = [
@@ -36,14 +37,10 @@ const BOT_UA_PATTERNS = [
 
 // ── Routes protégées par rate limiting ────────────────────────────────────
 // /api/auth/callback/credentials = endpoint login NextAuth
-// En mode test cabinet, plusieurs testeurs partagent la même adresse IP
-// (wifi du cabinet) : les seuils sont multipliés par 10 pour ne pas les
-// bloquer entre eux.
-const FACTEUR_TEST = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true" ? 10 : 1;
 const RATE_LIMITED_PATHS = [
-  { path: "/api/auth/callback/credentials", limit: 8 * FACTEUR_TEST,  window: 60  }, // 8 tentatives/min
-  { path: "/api/auth/signin",               limit: 8 * FACTEUR_TEST,  window: 60  },
-  { path: "/api/",                          limit: 120 * FACTEUR_TEST, window: 60  }, // API générale 120 req/min
+  { path: "/api/auth/callback/credentials", limit: 8,  window: 60  }, // 8 tentatives/min
+  { path: "/api/auth/signin",               limit: 8,  window: 60  },
+  { path: "/api/",                          limit: 120, window: 60  }, // API générale 120 req/min
 ];
 
 function getClientIp(req: NextRequest): string {
@@ -112,6 +109,8 @@ function isNoSessionApiRoute(pathname: string): boolean {
 // staff authentifié. STAFF_ROLES s'applique par défaut ; ROLE_RULES permet de
 // restreindre davantage certains préfixes (ex: /api/admin → ADMIN uniquement).
 const STAFF_ROLES = ["ADMIN", "EXPERT", "COLLABORATOR", "ASSISTANT"];
+// Fail closed by default. Enable only after tenant backfill and verification.
+const TENANT_DATA_ISOLATION_READY = tenantIsolationIsReady(process.env.TENANT_DATA_ISOLATION_READY);
 
 const ROLE_RULES: { prefix: string; roles: string[] }[] = [
   { prefix: "/api/admin", roles: ["ADMIN"] },
@@ -139,9 +138,67 @@ export default withAuth(
     const enTetesRequete = new Headers(req.headers);
     enTetesRequete.set("x-nonce", nonce);
     enTetesRequete.set("Content-Security-Policy", construireCsp(nonce));
+    // Never trust client-supplied tenant context. The signed NextAuth token is
+    // the only source for cabinetId; overwrite both internal headers here.
+    enTetesRequete.delete("x-c360-cabinet-id");
+    enTetesRequete.delete("x-c360-user-id");
+    enTetesRequete.delete("x-c360-role");
+    enTetesRequete.delete("x-c360-request-id");
+    enTetesRequete.delete("x-c360-context");
+    if (isObjectId(token?.cabinetId)) {
+      enTetesRequete.set("x-c360-cabinet-id", token.cabinetId);
+    }
+    if (isObjectId(token?.id)) {
+      enTetesRequete.set("x-c360-user-id", token.id);
+    }
+    if (typeof token?.role === "string" && STAFF_ROLES.includes(token.role as (typeof STAFF_ROLES)[number])) {
+      enTetesRequete.set("x-c360-role", token.role);
+    }
+    enTetesRequete.set("x-c360-request-id", nonce);
+    if (pathname.startsWith("/api/auth")) enTetesRequete.set("x-c360-context", "auth");
+    else if (pathname === "/api/health") enTetesRequete.set("x-c360-context", "health");
     const ip = getClientIp(req);
     const ua = req.headers.get("user-agent");
     const method = req.method;
+
+    // No route with access to business data is safe to serve until ownership
+    // has been migrated and every read/write path is tenant-scoped. This also
+    // covers portal tokens and machine webhooks, which do not carry staff JWTs.
+    const tenantGate = decideTenantGate({
+      pathname,
+      isolationReady: TENANT_DATA_ISOLATION_READY,
+      hasTenantContext:
+        enTetesRequete.has("x-c360-cabinet-id") &&
+        enTetesRequete.has("x-c360-user-id") &&
+        enTetesRequete.has("x-c360-role"),
+    });
+    if (!tenantGate.allowed && tenantGate.reason === "isolation_not_ready") {
+      if (pathname.startsWith("/api/")) {
+        return addSecurityHeaders(
+          NextResponse.json(
+            { error: "Espace temporairement suspendu pendant la sécurisation de son cloisonnement." },
+            { status: 503 }
+          ),
+          nonce
+        );
+      }
+      return addSecurityHeaders(
+        NextResponse.redirect(new URL("/cabinet-indisponible", req.url)),
+        nonce
+      );
+    }
+
+    if (
+      !tenantGate.allowed && tenantGate.reason === "tenant_context_missing"
+    ) {
+      if (pathname.startsWith("/api/")) {
+        return addSecurityHeaders(
+          NextResponse.json({ error: "Aucun cabinet valide n'est associé à cette session." }, { status: 403 }),
+          nonce,
+        );
+      }
+      return addSecurityHeaders(NextResponse.redirect(new URL("/login", req.url)), nonce);
+    }
 
     // ── 1. DÉTECTION BOT USER-AGENT ────────────────────────────────────────
     // Exclure les routes NextAuth internes (_next, api/auth/session…)
@@ -173,6 +230,15 @@ export default withAuth(
         const result = await rateLimit(key, rule.limit, rule.window);
         if (!result.success) {
           const retryAfter = Math.ceil((result.resetAt - Date.now()) / 1000);
+          if (result.backend === "indisponible") {
+            return addSecurityHeaders(
+              NextResponse.json(
+                { error: "Service de limitation de débit indisponible. Réessayez plus tard." },
+                { status: 503, headers: { "Retry-After": String(retryAfter) } },
+              ),
+              nonce,
+            );
+          }
           const resp = new NextResponse(
             JSON.stringify({
               error: "Too Many Requests",
@@ -197,6 +263,9 @@ export default withAuth(
 
     // ── 3. LOGIQUE AUTHENTIFICATION EXISTANTE ──────────────────────────────
     if ((pathname === "/login" || pathname === "/") && token) {
+      if (pathname === "/login" && (token.cabinetId || token.scopeVersion !== 1)) {
+        return addSecurityHeaders(NextResponse.next(), nonce);
+      }
       const role = token.role as string;
       const dest = role === "EXPERT" || role === "ADMIN"
         ? "/dashboard"
@@ -229,6 +298,8 @@ export default withAuth(
         if (
           pathname === "/login" ||
           pathname === "/" ||
+          pathname === "/cabinet-indisponible" ||
+          pathname === "/onboarding/digital" ||
           pathname === "/api/health" ||
           pathname.startsWith("/api/auth")
         ) {
@@ -248,7 +319,7 @@ export default withAuth(
         if (pathname.startsWith("/portal")) {
           return true;
         }
-        return !!token;
+        return Boolean(token && STAFF_ROLES.includes(token.role as (typeof STAFF_ROLES)[number]));
       },
     },
   }

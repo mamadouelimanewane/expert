@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Lock, Mail, Loader2, Eye, EyeOff, ShieldCheck, Zap, Play } from "lucide-react";
-
-// Identifiants du dossier de démonstration (compte EXPERT démo)
-const DEMO_EMAIL = "demo@cabinet360.com";
-const DEMO_PASSWORD = "DemoTrial2026!";
+import Link from "next/link";
+import { Lock, Mail, Loader2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const demoMode      = searchParams.get("demo")       === "1";
+    const demoUnavailable = searchParams.get("demo") === "1";
     const subscribed    = searchParams.get("subscribed") === "1";
     const refPaiement   = searchParams.get("ref") || "";
 
@@ -20,39 +17,8 @@ function LoginContent() {
     const [password, setPassword] = useState("");
     const [honeypot, setHoneypot] = useState("");
     const [error, setError] = useState("");
-    const MODE_TEST = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true";
     const [isLoading, setIsLoading] = useState(false);
-    const [isDemoLoading, setIsDemoLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
-    // Si ?demo=1 dans l'URL : connexion automatique au compte démo au chargement
-    useEffect(() => {
-        if (demoMode) {
-            handleDemoLogin();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const handleDemoLogin = async () => {
-        setIsDemoLoading(true);
-        setError("");
-        const res = await signIn("credentials", {
-            redirect: false,
-            email: DEMO_EMAIL,
-            password: DEMO_PASSWORD,
-            _hp: "",
-        });
-        if (res?.ok) {
-            router.push("/bi");
-        } else {
-            // Le compte démo n'existe pas encore en base : rediriger vers /login normal avec message
-            setIsDemoLoading(false);
-            setEmail(DEMO_EMAIL);
-            setError(
-                "Le compte démo n'est pas encore configuré sur cette instance. Contactez l'équipe Cabinet 360 ou connectez-vous avec vos identifiants."
-            );
-        }
-    };
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,7 +35,7 @@ function LoginContent() {
         const res = await signIn("credentials", {
             redirect: false,
             email,
-            password: password || (MODE_TEST ? "-" : ""),
+            password,
             _hp: honeypot,
         });
 
@@ -84,43 +50,6 @@ function LoginContent() {
             router.push("/bi");
         }
     };
-
-    // Écran de chargement pendant la connexion démo automatique
-    if (isDemoLoading || demoMode) {
-        return (
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "100vh",
-                background: "linear-gradient(135deg, #006B3F 0%, #009639 100%)",
-                gap: "1.5rem",
-                color: "white",
-                textAlign: "center",
-                padding: "2rem",
-            }}>
-                <div style={{
-                    width: "64px", height: "64px", borderRadius: "16px",
-                    background: "rgba(255,255,255,0.15)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "2rem",
-                }}>
-                    🚀
-                </div>
-                <div>
-                    <p style={{ fontSize: "1.5rem", fontWeight: 800, margin: "0 0 0.5rem" }}>
-                        Chargement de la démo…
-                    </p>
-                    <p style={{ opacity: 0.8, margin: 0, fontSize: "0.95rem" }}>
-                        Dossier <strong>SARL Diallo & Fils</strong> • Bilan SYSCOHADA • 124 Bulletins de Paie • Flux Wave
-                    </p>
-                </div>
-                <Loader2 style={{ width: "32px", height: "32px", animation: "spin 1s linear infinite" }} />
-                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-            </div>
-        );
-    }
 
     return (
         <div style={{
@@ -147,40 +76,11 @@ function LoginContent() {
                     <p style={{ color: "#94a3b8", margin: 0, fontSize: "0.875rem" }}>Gestion Expert-Comptable OHADA</p>
                 </div>
 
-                {/* Bouton Démo 1 Clic */}
-                <button
-                    type="button"
-                    onClick={handleDemoLogin}
-                    disabled={isDemoLoading}
-                    style={{
-                        width: "100%",
-                        padding: "0.9rem 1rem",
-                        marginBottom: "1.5rem",
-                        background: "linear-gradient(135deg, #F29400 0%, #f59e0b 100%)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "12px",
-                        fontWeight: 700,
-                        fontSize: "0.95rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "0.6rem",
-                        boxShadow: "0 4px 14px rgba(242,148,0,0.4)",
-                        transition: "all 0.2s",
-                    }}
-                >
-                    <Play size={16} style={{ fill: "white" }} />
-                    🚀 Démo 1 Clic — SARL Diallo & Fils
-                </button>
-
-                {/* Séparateur */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
-                    <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e2e8f0" }} />
-                    <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 500, whiteSpace: "nowrap" }}>ou connectez-vous avec votre compte</span>
-                    <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e2e8f0" }} />
-                </div>
+                {demoUnavailable && (
+                    <div role="status" style={{ background: "#fff7ed", border: "1px solid #fdba74", color: "#9a3412", borderRadius: "10px", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
+                        La démo est suspendue pendant la sécurisation des espaces cabinets. Aucun compte réel ne sera utilisé pour une démonstration.
+                    </div>
+                )}
 
                 {/* Bannière succès abonnement Wave */}
                 {subscribed && (
@@ -193,19 +93,14 @@ function LoginContent() {
                         textAlign: "center",
                     }}>
                         <div style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>🎉</div>
-                        <p style={{ fontWeight: 700, color: "#065f46", margin: "0 0 0.25rem" }}>Paiement confirmé !</p>
+                        <p style={{ fontWeight: 700, color: "#065f46", margin: "0 0 0.25rem" }}>Retour de paiement reçu</p>
                         <p style={{ fontSize: "0.8rem", color: "#059669", margin: 0 }}>
-                            Votre abonnement Cabinet 360 est actif. Connectez-vous pour commencer.
+                            Le fournisseur de paiement nous a redirigés ici. Le statut de votre abonnement doit être confirmé par le serveur avant son activation.
                             {refPaiement && <span style={{ display: "block", opacity: 0.7, marginTop: "0.25rem" }}>Réf : {refPaiement}</span>}
                         </p>
                     </div>
                 )}
 
-                {MODE_TEST && (
-                    <div role="status" style={{ background: "#FDF0D8", border: "1px solid #F29400", color: "#7a4a00", borderRadius: "10px", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
-                        <strong>Mode test cabinet.</strong> Saisissez votre e-mail ; le mot de passe n&apos;est pas vérifié pendant la période d&apos;essai.
-                    </div>
-                )}
 
                 {error && (
                     <div style={{
@@ -269,8 +164,8 @@ function LoginContent() {
                                 autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder={MODE_TEST ? "non vérifié pendant les tests" : "••••••••"}
-                                required={!MODE_TEST}
+                                placeholder="••••••••••••"
+                                required
                                 style={{ width: "100%", padding: "0.85rem 3rem 0.85rem 0.85rem", border: "1px solid #cbd5e1", borderRadius: "10px", fontSize: "1rem", boxSizing: "border-box" }}
                             />
                             <button
@@ -315,9 +210,9 @@ function LoginContent() {
 
                 {/* Lien vers landing */}
                 <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
-                    <a href="/" style={{ fontSize: "0.8rem", color: "#006B3F", textDecoration: "none", fontWeight: 600 }}>
+                    <Link href="/" style={{ fontSize: "0.8rem", color: "#006B3F", textDecoration: "none", fontWeight: 600 }}>
                         ← Retour à l'accueil Cabinet 360 SaaS
-                    </a>
+                    </Link>
                 </div>
 
                 {/* Badge sécurité */}

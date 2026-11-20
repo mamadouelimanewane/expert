@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
+import { DeclarationStatus, DeclarationType } from '@prisma/client';
+import { isObjectId } from '@/lib/tenant-security';
+import { AuditService } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
     try {
@@ -62,6 +65,11 @@ export async function GET(request: NextRequest) {
                 // declaration reellement a zero.
                 amountToPay: d.amount === null || d.amount === undefined ? null : d.amount.toLocaleString("fr-FR"),
                 status: d.status === "VALIDATED" ? "payee" : (d.status === "SUBMITTED" ? "teletransmise" : (d.status === "PENDING" ? "validation" : "a_preparer")),
+                rawStatus: d.status,
+                obligationCode: d.obligationCode,
+                reference: d.reference,
+                filingReceipt: d.filingReceipt,
+                paymentReference: d.paymentReference,
                 deadline: new Date(d.dueDate).toLocaleDateString("fr-FR", { day: 'numeric', month: 'short' }),
                 risk
             };
@@ -103,5 +111,61 @@ export async function GET(request: NextRequest) {
             { error: 'Failed to fetch declarations' },
             { status: 500 }
         );
+    }
+}
+
+/** Crée une déclaration réelle à préparer, associée à un client du cabinet. */
+export async function POST(request: NextRequest) {
+    const session = await AuthService.getSession();
+    if (!session) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    if (!isObjectId(session.cabinetId)) return NextResponse.json({ error: 'Cabinet invalide' }, { status: 403 });
+    if (!['ADMIN', 'EXPERT', 'COLLABORATOR'].includes(session.role)) {
+        return NextResponse.json({ error: 'Droits insuffisants' }, { status: 403 });
+    }
+
+    try {
+        const body = await request.json();
+        const { clientId, type, period, dueDate, amount, obligationCode, calculationNotes } = body ?? {};
+        if (!isObjectId(clientId)) return NextResponse.json({ error: 'Client invalide' }, { status: 400 });
+        if (!Object.values(DeclarationType).includes(type)) return NextResponse.json({ error: 'Type de déclaration invalide' }, { status: 400 });
+        if (typeof period !== 'string' || !/^\d{4}-(\d{2}|T[1-4]|A)$/.test(period)) {
+            return NextResponse.json({ error: 'Période invalide. Utilisez AAAA-MM, AAAA-T1…T4 ou AAAA-A.' }, { status: 400 });
+        }
+        const due = new Date(dueDate);
+        if (!dueDate || Number.isNaN(due.getTime())) return NextResponse.json({ error: 'Échéance invalide' }, { status: 400 });
+        if (amount !== undefined && amount !== null && (typeof amount !== 'number' || !Number.isFinite(amount) || amount < 0)) {
+            return NextResponse.json({ error: 'Montant invalide' }, { status: 400 });
+        }
+
+        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: 'Client introuvable dans ce cabinet' }, { status: 404 });
+
+        const existing = await prisma.taxDeclaration.findFirst({
+            where: {
+                clientId, type, period,
+                ...(obligationCode ? { OR: [{ obligationCode }, { obligationCode: null }] } : {}),
+            },
+            select: { id: true },
+        });
+        if (existing) return NextResponse.json({ error: 'Une déclaration de ce type existe déjà pour ce client et cette période.' }, { status: 409 });
+
+        const declaration = await prisma.taxDeclaration.create({
+            data: {
+                cabinetId: session.cabinetId,
+                clientId,
+                type,
+                period,
+                dueDate: due,
+                amount: amount ?? null,
+                obligationCode: typeof obligationCode === 'string' ? obligationCode : null,
+                calculationNotes: typeof calculationNotes === 'string' ? calculationNotes.slice(0, 4000) : null,
+                status: DeclarationStatus.DRAFT,
+            },
+        });
+        await AuditService.log({ action: 'CREATE', entity: 'TAX_DECLARATION', entityId: declaration.id, details: `Brouillon ${declaration.type} créé pour ${declaration.period}.` });
+        return NextResponse.json({ declaration }, { status: 201 });
+    } catch (error) {
+        console.error('Erreur création déclaration fiscale:', error);
+        return NextResponse.json({ error: 'Impossible de créer la déclaration' }, { status: 500 });
     }
 }

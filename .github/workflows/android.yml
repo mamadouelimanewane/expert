@@ -28,8 +28,13 @@ jobs:
       - name: Next.js Build
         run: npm run build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # Un build Android ne doit jamais recevoir les secrets d'une base
+          # ou d'une instance réelle. Ces valeurs factices suffisent au build.
+          DATABASE_URL: mongodb://localhost:27017/ci
+          JWT_SECRET: ci-secret-not-used-outside-of-this-job
+          NEXTAUTH_SECRET: ci-secret-not-used-outside-of-this-job
+          NEXTAUTH_URL: http://localhost:3000
+          TENANT_DATA_ISOLATION_READY: "false"
 
       - name: Capacitor Sync
         run: npx cap sync

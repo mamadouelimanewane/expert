@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import {
     FileCheck,
@@ -30,11 +30,17 @@ interface TaxDeclaration {
     type: "TVA" | "AIR" | "BIC" | "CSS" | "PATENTE" | "IMF" | string;
     month: string;
     country: string;
-    amountToPay: string;
+    amountToPay: string | null;
     status: "a_preparer" | "validation" | "prete" | "teletransmise" | "payee";
+    rawStatus: "DRAFT" | "PENDING" | "SUBMITTED" | "VALIDATED" | "REJECTED";
+    reference?: string | null;
+    filingReceipt?: string | null;
+    paymentReference?: string | null;
+    obligationCode?: string | null;
     deadline: string;
     risk: "faible" | "moyen" | "élevé";
 }
+type AnnualTask = { id: string; clientId: string; titre: string; categorie: string; period: string; echeance: string; reference: string };
 
 /** Code pays ISO-2 → drapeau emoji (indicateurs régionaux), sans ressource externe. */
 function drapeau(code: string): string {
@@ -49,6 +55,52 @@ export default function DeclarationsPage() {
     const [selectedDecl, setSelectedDecl] = useState<TaxDeclaration | null>(null);
     const [kpis, setKpis] = useState({ totalToPay: 0, nextDeadline: "N/A" });
     const [loading, setLoading] = useState(true);
+    const [showCreate, setShowCreate] = useState(false);
+    const [clients, setClients] = useState<{ id: string; companyName: string | null; firstName: string; lastName: string; country: string }[]>([]);
+    const [draft, setDraft] = useState({ clientId: "", type: "TVA", obligationCode: "", period: new Date().toISOString().slice(0, 7), dueDate: "", amount: "" });
+    const [formError, setFormError] = useState("");
+    const [preuveDepot, setPreuveDepot] = useState("");
+    const [preuvePaiement, setPreuvePaiement] = useState("");
+    const [obligationsClient, setObligationsClient] = useState<{ id: string; titre: string; categorie: string; echeance: string; periodeReference: string }[]>([]);
+    const [echeancesAnnuelles, setEcheancesAnnuelles] = useState<AnnualTask[]>([]);
+
+    useEffect(() => {
+        fetch("/api/clients?isActive=true&limit=500").then(r => r.json()).then(data => {
+            const rows = Array.isArray(data.clients) ? data.clients : [];
+            setClients(rows);
+            if (rows.length) setDraft(current => ({ ...current, clientId: current.clientId || rows[0].id }));
+        }).catch(() => setClients([]));
+    }, []);
+
+    useEffect(() => {
+        const country = clients.find(client => client.id === draft.clientId)?.country;
+        if (!country || !showCreate) return;
+        fetch(`/api/fiscalite/obligations?pays=${encodeURIComponent(country)}`).then(r => r.json()).then(data => {
+            const rows = Array.isArray(data.obligations) ? data.obligations : [];
+            setObligationsClient(rows);
+            const annual = Array.isArray(data.echeancesAnnuelles) ? data.echeancesAnnuelles : [];
+            setEcheancesAnnuelles(annual);
+            const clientAnnual = annual.filter((row: AnnualTask) => row.clientId === draft.clientId);
+            const chosen = clientAnnual.find((row: AnnualTask) => row.id === draft.obligationCode)
+                ?? rows.find((row: { id: string }) => row.id === draft.obligationCode)
+                ?? rows[0];
+            if (chosen) setDraft(current => ({ ...current, obligationCode: chosen.id, period: ("period" in chosen ? chosen.period : chosen.periodeReference) ?? current.period, dueDate: chosen.echeance?.slice(0, 10) ?? current.dueDate }));
+        }).catch(() => { setObligationsClient([]); setEcheancesAnnuelles([]); });
+    }, [clients, draft.clientId, showCreate]);
+
+    const createDeclaration = async (event: FormEvent) => {
+        event.preventDefault();
+        setFormError("");
+        const response = await fetch("/api/declarations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientId: draft.clientId, type: draft.type, obligationCode: draft.obligationCode || undefined, period: draft.period, dueDate: draft.dueDate, amount: draft.amount === "" ? null : Number(draft.amount) }),
+        });
+        const data = await response.json();
+        if (!response.ok) { setFormError(data.error || "Création impossible"); return; }
+        setShowCreate(false);
+        fetchDeclarations();
+    };
 
     useEffect(() => {
         fetchDeclarations();
@@ -61,7 +113,7 @@ export default function DeclarationsPage() {
             const data = await res.json();
             if (data.declarations) {
                 setDeclarations(data.declarations);
-                if (data.declarations.length > 0 && !selectedDecl) setSelectedDecl(data.declarations[0]);
+                if (data.declarations.length > 0) setSelectedDecl((current) => data.declarations.find((item: TaxDeclaration) => item.id === current?.id) ?? current ?? data.declarations[0]);
             }
             if (data.kpis) setKpis(data.kpis);
         } catch (error) {
@@ -69,6 +121,17 @@ export default function DeclarationsPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const transitionDeclaration = async (status: string, evidence: Record<string, string>) => {
+        if (!selectedDecl) return;
+        const response = await fetch(`/api/declarations/${selectedDecl.id}`, {
+            method: "PATCH", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status, ...evidence }),
+        });
+        const data = await response.json();
+        if (!response.ok) { setFormError(data.error || "Mise à jour impossible"); return; }
+        await fetchDeclarations();
     };
 
     return (
@@ -120,6 +183,10 @@ export default function DeclarationsPage() {
                                 </button>
                             ))}
                         </div>
+                        <button
+                            onClick={() => setShowCreate(value => !value)}
+                            className="px-4 py-3 rounded-xl bg-orange-500 text-white text-xs font-black uppercase"
+                        >+ Nouvelle déclaration</button>
                         <button 
                             onClick={fetchDeclarations}
                             className={cn("p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors", loading && "animate-spin")}
@@ -127,6 +194,27 @@ export default function DeclarationsPage() {
                             <RefreshCw className="w-5 h-5" />
                         </button>
                     </div>
+
+                    {showCreate && <form onSubmit={createDeclaration} className="grid md:grid-cols-5 gap-3 rounded-2xl border border-orange-500/20 bg-slate-900/70 p-5">
+                        <select required value={draft.clientId} onChange={e => setDraft({ ...draft, clientId: e.target.value })} className="rounded-lg bg-slate-800 p-3 text-sm text-white">
+                            {clients.map(client => <option key={client.id} value={client.id}>{client.companyName || `${client.firstName} ${client.lastName}`}</option>)}
+                        </select>
+                        <select value={draft.obligationCode} onChange={e => {
+                            const obligation = obligationsClient.find(row => row.id === e.target.value);
+                            const annual = echeancesAnnuelles.find(row => row.id === e.target.value && row.clientId === draft.clientId);
+                            const source = annual ?? obligation;
+                            const type = source?.categorie === "TVA" ? "TVA" : source?.categorie === "IS" ? "IS" : source?.categorie === "SOCIAL" ? "COTISATION_SOCIALE" : source?.categorie === "RAS" ? "IRPP" : "AUTRE";
+                            setDraft({ ...draft, obligationCode: e.target.value, type, ...(annual ? { period: annual.period, dueDate: annual.echeance.slice(0, 10) } : obligation ? { period: obligation.periodeReference, dueDate: obligation.echeance.slice(0, 10) } : {}) });
+                        }} className="rounded-lg bg-slate-800 p-3 text-sm text-white">
+                            {obligationsClient.map(obligation => <option key={obligation.id} value={obligation.id}>{obligation.titre} · périodique</option>)}
+                            {echeancesAnnuelles.filter(task => task.clientId === draft.clientId).map(task => <option key={task.id} value={task.id}>{task.titre} · {new Date(task.echeance).toLocaleDateString("fr-FR")}</option>)}
+                        </select>
+                        <input required aria-label="Période" placeholder="AAAA-MM / AAAA-T1 / AAAA-A" value={draft.period} onChange={e => setDraft({ ...draft, period: e.target.value })} className="rounded-lg bg-slate-800 p-3 text-sm text-white" />
+                        <input required type="date" aria-label="Échéance" value={draft.dueDate} onChange={e => setDraft({ ...draft, dueDate: e.target.value })} className="rounded-lg bg-slate-800 p-3 text-sm text-white" />
+                        <input type="number" min="0" step="1" aria-label="Montant estimé en FCFA" placeholder="Montant (FCFA)" value={draft.amount} onChange={e => setDraft({ ...draft, amount: e.target.value })} className="rounded-lg bg-slate-800 p-3 text-sm text-white" />
+                        <div className="md:col-span-5 flex items-center justify-between gap-4"><p className="text-xs text-slate-400">La déclaration est créée en brouillon. Le dépôt doit être effectué sur le portail officiel.</p><button disabled={!clients.length} className="rounded-lg bg-orange-500 px-5 py-3 text-xs font-bold text-white disabled:opacity-50">Créer le brouillon</button></div>
+                        {formError && <p className="md:col-span-5 text-sm text-rose-300">{formError}</p>}
+                    </form>}
 
                     {/* Table Card */}
                     <div className="glass-card rounded-[32px] border border-white/5 overflow-hidden bg-slate-900/20">
@@ -184,7 +272,7 @@ export default function DeclarationsPage() {
                                                 <span className="px-3 py-1 bg-slate-800 rounded-lg text-[10px] font-black uppercase text-slate-300 border border-white/5">{decl.month}</span>
                                             </td>
                                             <td className="px-6 py-6 text-right">
-                                                <span className="font-mono font-bold text-white">{decl.amountToPay}</span>
+                                                <span className="font-mono font-bold text-white">{decl.amountToPay ?? "À calculer"}</span>
                                             </td>
                                             <td className="px-6 py-6 text-center">
                                                 <span className={cn(
@@ -248,10 +336,12 @@ export default function DeclarationsPage() {
                                         <span className="text-slate-400 font-medium">Échéance</span>
                                         <span className="text-slate-300 font-mono">{selectedDecl.deadline}</span>
                                     </div>
+                                    {selectedDecl.filingReceipt && <div className="flex justify-between gap-4 text-sm"><span className="text-slate-400">Preuve de dépôt</span><span className="break-all text-right text-slate-300 font-mono">{selectedDecl.filingReceipt}</span></div>}
+                                    {selectedDecl.paymentReference && <div className="flex justify-between gap-4 text-sm"><span className="text-slate-400">Référence paiement</span><span className="break-all text-right text-slate-300 font-mono">{selectedDecl.paymentReference}</span></div>}
                                     <div className="h-px bg-white/10 my-2" />
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-black text-white uppercase tracking-wider">Net à Payer</span>
-                                        <span className="text-xl font-black text-orange-400 font-mono">{selectedDecl.amountToPay}</span>
+                                        <span className="text-xl font-black text-orange-400 font-mono">{selectedDecl.amountToPay ?? "À calculer"}</span>
                                     </div>
                                 </div>
                             </div>
@@ -271,6 +361,10 @@ export default function DeclarationsPage() {
                                         Justificatifs
                                     </button>
                                 </div>
+                                {selectedDecl.rawStatus === "DRAFT" && <button onClick={() => transitionDeclaration("PENDING", {})} className="w-full rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-bold text-amber-200">Soumettre à la revue interne</button>}
+                                {selectedDecl.rawStatus === "PENDING" && <div className="space-y-2"><input value={preuveDepot} onChange={e => setPreuveDepot(e.target.value)} placeholder="Référence / quittance du dépôt officiel" className="w-full rounded-xl bg-slate-800 p-3 text-xs text-white" /><button disabled={!preuveDepot.trim()} onClick={() => transitionDeclaration("SUBMITTED", { filingReceipt: preuveDepot, reference: preuveDepot })} className="w-full rounded-xl bg-primary p-3 text-xs font-bold text-white disabled:opacity-50">Enregistrer le dépôt effectué</button></div>}
+                                {selectedDecl.rawStatus === "SUBMITTED" && <div className="space-y-2"><input value={preuvePaiement} onChange={e => setPreuvePaiement(e.target.value)} placeholder="Référence du paiement" className="w-full rounded-xl bg-slate-800 p-3 text-xs text-white" /><button disabled={!preuvePaiement.trim()} onClick={() => transitionDeclaration("VALIDATED", { paymentReference: preuvePaiement })} className="w-full rounded-xl bg-emerald-600 p-3 text-xs font-bold text-white disabled:opacity-50">Confirmer le paiement et clôturer</button></div>}
+                                {formError && <p className="text-xs text-rose-300">{formError}</p>}
                             </div>
                         </div>
                     ) : (

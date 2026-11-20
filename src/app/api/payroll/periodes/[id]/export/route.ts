@@ -131,11 +131,23 @@ export async function GET(req: Request, { params }: Params) {
         ["Pays", periode.client.country],
         ["Période", periode.periodName],
         ["Statut", periode.status],
+        ["Version des règles paie", periode.ruleVersion ?? "Ancienne période — référentiel non figé"],
         ["Bulletins", periode.payslips.length],
         ["Généré le", new Date().toLocaleString("fr-FR")],
         ["Logiciel", "Cabinet 360"],
     ]);
     XLSX.utils.book_append_sheet(classeur, infos, "Période");
+
+    if (periode.ruleInfo && typeof periode.ruleInfo === "object") {
+        const info = periode.ruleInfo as { sources?: { sujet?: string; reference?: string; applicableFrom?: string; url?: string }[]; avertissements?: string[]; statutValidation?: string };
+        const provenance = [
+            ["Validation", info.statutValidation ?? "REVUE_EXPERT_REQUISE"],
+            ["Sujet", "Référence", "Date d'effet déclarée", "Source"],
+            ...(info.sources ?? []).map((s) => [s.sujet ?? "", s.reference ?? "", s.applicableFrom ?? "", s.url ?? ""]),
+            ["Avertissements", (info.avertissements ?? []).join(" | ")],
+        ];
+        XLSX.utils.book_append_sheet(classeur, XLSX.utils.aoa_to_sheet(provenance), "Référentiel paie");
+    }
 
     const buffer = XLSX.write(classeur, { type: "buffer", bookType: "xlsx" }) as Buffer;
     return new NextResponse(new Uint8Array(buffer), {

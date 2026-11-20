@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X, ScanLine, Plus, Loader2, Sparkles, BookOpen } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, AlertTriangle, Trash2, ArrowRight, X, ScanLine, Plus, Loader2, Sparkles, BookOpen, LockKeyhole, LockKeyholeOpen } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,10 @@ export default function ImportBalancePage() {
     const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
     const [journal, setJournal] = useState<LigneJournal[]>([]);
     const [journalEnvoi, setJournalEnvoi] = useState(false);
+    const [verrou, setVerrou] = useState<{ lockedAt: string; reason: string } | null>(null);
+    const [verrouEnCours, setVerrouEnCours] = useState(false);
+    const { data: session } = useSession();
+    const estAdmin = (session?.user as { role?: string } | undefined)?.role === "ADMIN";
 
     useEffect(() => {
         fetch("/api/comptabilite/balance/ia").then((r) => r.json()).then((d) => setIaDisponible(!!d.disponible)).catch(() => setIaDisponible(false));
@@ -80,9 +85,22 @@ export default function ImportBalancePage() {
     }, []);
 
     useEffect(() => {
+        const requestedClientId = new URLSearchParams(window.location.search).get("clientId");
+        if (requestedClientId && clients.some((client) => client.id === requestedClientId)) setClientId(requestedClientId);
+    }, [clients]);
+
+    useEffect(() => {
         if (!clientId) { setExistantes([]); return; }
         fetch(`/api/comptabilite/balance?clientId=${clientId}`).then((r) => r.json()).then((d) => setExistantes(d.balances ?? [])).catch(() => {});
     }, [clientId, resultat]);
+
+    useEffect(() => {
+        if (!clientId || !/^\d{4}-\d{2}$/.test(periode)) { setVerrou(null); return; }
+        fetch(`/api/comptabilite/periodes/lock?clientId=${clientId}&periode=${periode}`)
+            .then((r) => r.json())
+            .then((d) => setVerrou(d.verrouillee ? d.lock : null))
+            .catch(() => setVerrou(null));
+    }, [clientId, periode]);
 
     const totaux = useMemo(() => {
         const debit = lignes.reduce((s, l) => s + l.debit, 0);
@@ -233,10 +251,31 @@ export default function ImportBalancePage() {
     const ajouterLigne = () => setLignes((ls) => [...ls, { numero: "", intitule: "", debit: 0, credit: 0, confiance: "haute" }]);
 
     const supprimer = async (p: string) => {
+        if (verrou?.lockedAt && p === periode) { toast.error("Cette période est verrouillée."); return; }
         if (!window.confirm(`Supprimer la balance ${p} ? Les états financiers de cette période reviendront au journal d'écritures.`)) return;
         const r = await fetch(`/api/comptabilite/balance?clientId=${clientId}&periode=${p}`, { method: "DELETE" });
         if (r.ok) { toast.success("Balance supprimée"); setExistantes((x) => x.filter((b) => b.periode !== p)); }
         else toast.error("Suppression impossible");
+    };
+
+    const changerVerrou = async () => {
+        if (!clientId) { toast.warning("Sélectionnez le dossier client."); return; }
+        const reason = window.prompt(verrou ? "Motif de réouverture (10 caractères minimum) :" : "Motif de clôture (10 caractères minimum) :");
+        if (!reason || reason.trim().length < 10) return;
+        setVerrouEnCours(true);
+        try {
+            const r = await fetch("/api/comptabilite/periodes/lock", {
+                method: verrou ? "DELETE" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId, periode, reason }),
+            });
+            const d = await r.json();
+            if (!r.ok) { toast.error(d.error || "Action de clôture refusée."); return; }
+            setVerrou(d.verrouillee ? d.lock : null);
+            toast.success(d.verrouillee ? `Période ${periode} verrouillée.` : `Période ${periode} rouverte.`);
+        } catch {
+            toast.error("Impossible de modifier le verrouillage de la période.");
+        } finally { setVerrouEnCours(false); }
     };
 
     const drag = (e: React.DragEvent, actif: boolean) => { e.preventDefault(); e.stopPropagation(); setDragActive(actif); };
@@ -265,6 +304,23 @@ export default function ImportBalancePage() {
                             <span className="block mt-1 text-[11px] text-muted-foreground">Balance annuelle : indiquez le mois de clôture (ex. décembre 2025).</span>
                         </label>
                     </div>
+                    {clientId && (
+                        <div className={cn("apix-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3", verrou ? "border-amber-400/60" : "")}>
+                            <div className="flex items-start gap-3">
+                                {verrou ? <LockKeyhole className="mt-0.5 h-5 w-5 text-amber-600" /> : <LockKeyholeOpen className="mt-0.5 h-5 w-5 text-emerald-600" />}
+                                <div>
+                                    <p className="text-sm font-bold">{verrou ? `Période ${periode} verrouillée` : `Période ${periode} ouverte`}</p>
+                                    <p className="text-xs text-muted-foreground">{verrou ? `${verrou.reason} · ${new Date(verrou.lockedAt).toLocaleDateString("fr-FR")}` : "La clôture exige zéro écriture en attente. L’action est réservée aux administrateurs."}</p>
+                                </div>
+                            </div>
+                            {estAdmin && (
+                                <button type="button" onClick={changerVerrou} disabled={verrouEnCours} className={cn("inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-bold disabled:opacity-50", verrou ? "border border-border hover:bg-muted" : "bg-amber-600 text-white hover:bg-amber-700")}>
+                                    {verrou ? <LockKeyholeOpen className="h-4 w-4" /> : <LockKeyhole className="h-4 w-4" />}
+                                    {verrouEnCours ? "Traitement…" : verrou ? "Rouvrir la période" : "Verrouiller la période"}
+                                </button>
+                            )}
+                        </div>
+                    )}
 
                     <div className="tabs-scroll flex gap-1 p-1 rounded-xl bg-muted/40 border border-border w-fit">
                         {([["fichier", "Fichier Excel / CSV", FileSpreadsheet], ["scan", "Balance scannée (PDF / image)", ScanLine]] as const).map(([k, l, I]) => (
@@ -361,7 +417,7 @@ export default function ImportBalancePage() {
                             </div>
                             <div className="p-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
                                 <p className="text-[11px] text-muted-foreground">Lignes <span className="px-1 rounded bg-rose-100 text-rose-800">rouge</span> : illisibles ou douteuses (non envoyées tant qu&apos;elles ne sont pas corrigées). Survolez pour lire la remarque du modèle.</p>
-                                <button onClick={envoyerJournal} disabled={journalEnvoi || !clientId} className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">
+                                <button onClick={envoyerJournal} disabled={journalEnvoi || !clientId || !!verrou} className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">
                                     {journalEnvoi ? "Envoi…" : `Envoyer au journal (${journal.filter((l) => !l.illisible && (l.entree > 0 || l.sortie > 0) && l.libelle).length})`}
                                 </button>
                             </div>
@@ -409,7 +465,7 @@ export default function ImportBalancePage() {
                             </div>
                             <div className="p-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
                                 {!totaux.equilibree && <p className="text-xs text-rose-600">La balance sera enregistrée telle quelle : l&apos;écart sera visible dans les contrôles du bilan.</p>}
-                                <button onClick={enregistrer} disabled={envoi || !clientId} className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">
+                                <button onClick={enregistrer} disabled={envoi || !clientId || !!verrou} className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm">
                                     {envoi ? "Enregistrement…" : `Enregistrer la balance ${periode}`}
                                 </button>
                             </div>

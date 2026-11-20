@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "./prisma";
+import { isCabinetActif } from "./tenant";
 
 // Empreinte bcrypt d'une valeur qui n'est le mot de passe d'aucun compte :
 // elle sert uniquement a faire travailler bcrypt lorsque l'adresse saisie
@@ -19,12 +20,10 @@ export const authOptions: NextAuthOptions = {
         _hp: { label: "Phone", type: "text" }, // honeypot
       },
       async authorize(credentials) {
-        // Mode test cabinet (NEXT_PUBLIC_MODE_TEST_CABINET=true) : pendant les
-        // essais en cabinet, le mot de passe n'est pas vérifié — seul un compte
-        // staff existant et actif peut se connecter. À retirer dès la fin des
-        // tests (la variable disparaît, tout redevient normal).
-        const modeTest = process.env.NEXT_PUBLIC_MODE_TEST_CABINET === "true";
-        if (!credentials?.email || (!credentials?.password && !modeTest)) {
+        // L'authentification réelle ne doit jamais dépendre d'un indicateur
+        // public de configuration : un mode « test » sans mot de passe
+        // exposerait chaque compte actif si la variable était activée en prod.
+        if (!credentials?.email || !credentials?.password) {
           throw new Error("Email et mot de passe requis");
         }
 
@@ -35,9 +34,14 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Identifiants incorrects ou compte inactif");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.trim().toLowerCase() },
-        });
+        const emailNormalise = credentials.email.trim().toLowerCase();
+        // The former public demo account had a shared/default password and
+        // an expert role. Keep it disabled until a separate read-only demo
+        // tenant exists; removing its button alone would not revoke its login.
+        const compteDemoPartage = emailNormalise === "demo@cabinet360.com";
+        const user = compteDemoPartage
+          ? null
+          : await prisma.user.findUnique({ where: { email: emailNormalise } });
 
         // Le message d'echec ne doit pas distinguer « compte inexistant » de
         // « mot de passe faux » : la version precedente repondait
@@ -48,20 +52,25 @@ export const authOptions: NextAuthOptions = {
         // laisser le temps de reponse trahir l'existence du compte.
         const ECHEC = "Identifiants incorrects ou compte inactif";
         const empreinte = user?.password ?? EMPREINTE_LEURRE;
-        const motDePasseValide = modeTest
-          ? true
-          : await bcrypt.compare(credentials.password ?? "", empreinte);
-        if (modeTest && user) console.warn(`[auth] mode test cabinet : connexion sans mot de passe pour ${user.email}`);
+        const motDePasseValide = await bcrypt.compare(credentials.password, empreinte);
 
         if (!user || !user.isActive || !motDePasseValide) {
           throw new Error(ECHEC);
         }
+
+        // A valid staff password is not sufficient without an owning cabinet.
+        // Also enforce the subscription state at login; authorization is
+        // rechecked on subsequent requests before tenant access is restored.
+        if (!user.cabinetId) throw new Error(ECHEC);
+        const cabinet = await prisma.cabinet.findUnique({ where: { id: user.cabinetId } });
+        if (!cabinet || !isCabinetActif(cabinet as any)) throw new Error(ECHEC);
 
         return {
           id: user.id,
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
           role: user.role,
+          cabinetId: user.cabinetId ?? null,
         } as any;
       },
     }),
@@ -74,13 +83,16 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.cabinetId = (user as any).cabinetId ?? null;
       }
+      token.scopeVersion = 1;
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        (session.user as any).cabinetId = token.cabinetId ?? null;
       }
       return session;
     },
@@ -106,6 +118,7 @@ export class AuthService {
       email: session.user.email as string,
       name: session.user.name as string,
       role: (session.user as any).role as string,
+      cabinetId: ((session.user as any).cabinetId as string | null) ?? null,
     };
   }
 

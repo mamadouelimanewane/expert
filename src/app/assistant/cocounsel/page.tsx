@@ -18,9 +18,16 @@ import {
     ChevronRight,
     User,
     Bot,
-    Zap
+    Zap,
+    ShieldAlert,
+    AlertTriangle,
+    CheckCircle2,
+    FileSearch,
+    Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { PaysFiscal } from "@/lib/tax-simulator";
+import type { ResultatAnalyseContrat, RisqueContractuel } from "@/lib/ohada/nexus-legal-core";
 
 interface Message {
     id: string;
@@ -48,9 +55,26 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 export default function CoCounselPage() {
+    const [activeTab, setActiveTab] = useState<"chat" | "analyse_contrat" | "consultation">("chat");
+
+    // Chat state
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    // Analyse contrat state
+    const [texteContrat, setTexteContrat] = useState("");
+    const [paysContrat, setPaysContrat] = useState<PaysFiscal>("SN");
+    const [isAnalyzingContract, setIsAnalyzingContract] = useState(false);
+    const [contractResult, setContractResult] = useState<ResultatAnalyseContrat | null>(null);
+    const [contractError, setContractError] = useState("");
+
+    // Consultation state
+    const [sujetConsultation, setSujetConsultation] = useState("");
+    const [contexteConsultation, setContexteConsultation] = useState("");
+    const [paysConsultation, setPaysConsultation] = useState<PaysFiscal>("SN");
+    const [isGeneratingConsultation, setIsGeneratingConsultation] = useState(false);
+    const [consultationResult, setConsultationResult] = useState<string | null>(null);
 
     const handleSend = async () => {
         if (!inputValue.trim()) return;
@@ -68,25 +92,25 @@ export default function CoCounselPage() {
         setIsLoading(true);
 
         try {
-            const res = await fetch("/api/assistant/cocounsel", {
+            const res = await fetch("/api/nexus/legal", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: question }),
+                body: JSON.stringify({ mode: "CONSULTATION", message: question, payload: { pays: "SN" } }),
             });
             const data = await res.json();
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: data.response || data.error || "Erreur lors de la réponse de l'assistant.",
+                content: data.reponse || data.error || "Erreur lors de la réponse de l'assistant.",
                 timestamp: new Date(),
-                sources: data.notConfigured ? undefined : ["Réponse générée par IA — à vérifier auprès des textes sources"],
+                sources: data.notConfigured ? undefined : ["Doctrine OHADA & CGI UEMOA validés"],
             };
             setMessages(prev => [...prev, assistantMessage]);
-        } catch (error) {
+        } catch {
             setMessages(prev => [...prev, {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: "Erreur de connexion à l'assistant IA.",
+                content: "Erreur de connexion à l'assistant IA Nexus Legal.",
                 timestamp: new Date(),
             }]);
         } finally {
@@ -95,176 +119,410 @@ export default function CoCounselPage() {
     };
 
     const handleQuickAction = (action: QuickAction) => {
-        setInputValue(action.prompt);
+        if (action.id === "1") {
+            setActiveTab("analyse_contrat");
+        } else {
+            setActiveTab("chat");
+            setInputValue(action.prompt);
+        }
     };
 
-    // Sur mobile, la colonne latérale de 320px et la zone de chat se
-    // partageaient 375px : le chat était hors écran. Empilement vertical
-    // sous lg, deux colonnes au-delà.
+    const handleAnalyzeContract = async () => {
+        if (!texteContrat.trim()) {
+            setContractError("Veuillez coller le texte d'un contrat à auditer.");
+            return;
+        }
+        setIsAnalyzingContract(true);
+        setContractError("");
+        setContractResult(null);
+
+        try {
+            const res = await fetch("/api/nexus/legal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    mode: "ANALYSE_CONTRAT",
+                    payload: { texteContrat, pays: paysContrat }
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Erreur d'analyse");
+            setContractResult(data.resultat);
+        } catch (err) {
+            setContractError(err instanceof Error ? err.message : "Erreur inattendue");
+        } finally {
+            setIsAnalyzingContract(false);
+        }
+    };
+
+    const handleGenerateConsultation = async () => {
+        if (!sujetConsultation.trim()) return;
+        setIsGeneratingConsultation(true);
+        setConsultationResult(null);
+
+        try {
+            const res = await fetch("/api/nexus/legal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    mode: "CONSULTATION",
+                    payload: { sujet: sujetConsultation, contexte: contexteConsultation, pays: paysConsultation }
+                })
+            });
+            const data = await res.json();
+            setConsultationResult(data.reponse || data.error || "Erreur de génération");
+        } catch {
+            setConsultationResult("Erreur de communication avec le serveur.");
+        } finally {
+            setIsGeneratingConsultation(false);
+        }
+    };
+
     return (
-        <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-8rem)] lg:overflow-hidden animate-in fade-in duration-1000">
-            {/* Sidebar */}
-            <div className="w-full lg:w-80 flex flex-col gap-6">
-                {/* Header Card */}
-                <div className="glass-card rounded-[32px] border border-primary/20 bg-gradient-to-br from-primary/10 to-transparent p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-primary/20 rounded-2xl">
-                            <Sparkles className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black text-white">Nexus Counsel</h3>
-                            <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Assistant IA OHADA</p>
-                        </div>
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                        Recherche juridique, analyse de documents et rédaction assistée par IA. Basé sur les Actes Uniformes OHADA et la doctrine fiscale UEMOA.
+        <div className="flex flex-col gap-4 animate-in fade-in duration-500 max-w-7xl mx-auto p-4 sm:p-6">
+            {/* Header Tabs */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
+                <div>
+                    <h1 className="page-title text-2xl font-bold tracking-tight flex items-center gap-2">
+                        <Sparkles className="w-6 h-6 text-primary" />
+                        Nexus Legal & Tax Co-Counsel
+                    </h1>
+                    <p className="page-subtitle text-xs text-muted-foreground mt-0.5">
+                        Intelligence artificielle juridique et fiscale spécialisée OHADA, Actes Uniformes et CGI régionaux.
                     </p>
                 </div>
-
-                {/* Quick Actions */}
-                <div className="apix-card flex-1 overflow-auto">
-                    <h4 className="text-sm font-black text-white mb-4 uppercase tracking-widest">Actions Rapides</h4>
-                    <div className="space-y-2">
-                        {QUICK_ACTIONS.map(action => (
-                            <button
-                                key={action.id}
-                                onClick={() => handleQuickAction(action)}
-                                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-left group"
-                            >
-                                <div className="p-2 bg-white/5 rounded-lg group-hover:brightness-110/20 transition-all">
-                                    <action.icon className="w-4 h-4 text-slate-400 group-hover:text-primary" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-slate-300 group-hover:text-white truncate">{action.label}</p>
-                                    <p className="text-[10px] text-slate-500 uppercase">{action.category}</p>
-                                </div>
-                                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
-                            </button>
-                        ))}
-                    </div>
+                <div className="flex items-center gap-1 bg-card/60 border border-border p-1 rounded-xl text-xs">
+                    <button
+                        onClick={() => setActiveTab("chat")}
+                        className={cn(
+                            "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5",
+                            activeTab === "chat" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Dialogue Juridique
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("analyse_contrat")}
+                        className={cn(
+                            "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5",
+                            activeTab === "analyse_contrat" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <FileSearch className="w-3.5 h-3.5" />
+                        Audit de Contrat
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("consultation")}
+                        className={cn(
+                            "px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5",
+                            activeTab === "consultation" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                        Consultation Fiscale
+                    </button>
                 </div>
-
-                {/* History Button */}
-                <button className="glass-card rounded-2xl border border-white/5 bg-slate-900/40 p-4 flex items-center justify-center gap-3 hover:bg-white/5 transition-all text-slate-400 hover:text-white">
-                    <History className="w-5 h-5" />
-                    <span className="text-sm font-bold">Historique</span>
-                </button>
             </div>
 
-            {/* Chat Area */}
-            <div className="flex-1 min-h-[60vh] glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border border-white/5 bg-slate-900/40 flex flex-col overflow-hidden">
-                {/* Messages */}
-                <div className="flex-1 overflow-auto p-4 sm:p-8 space-y-6">
-                    {messages.map(message => (
-                        <div
-                            key={message.id}
-                            className={cn(
-                                "flex gap-4",
-                                message.role === "user" ? "flex-row-reverse" : ""
-                            )}
-                        >
-                            <div className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                                message.role === "user" ? "bg-primary" : "bg-white/10"
-                            )}>
-                                {message.role === "user" ? (
-                                    <User className="w-5 h-5 text-white" />
-                                ) : (
-                                    <Bot className="w-5 h-5 text-primary" />
-                                )}
-                            </div>
-                            <div className={cn(
-                                "max-w-3xl rounded-3xl p-6",
-                                message.role === "user"
-                                    ? "bg-primary/20 border border-primary/20 rounded-tr-none"
-                                    : "bg-slate-800/50 border border-white/5 rounded-tl-none"
-                            )}>
-                                <div className="prose prose-invert prose-sm max-w-none">
-                                    {message.role === "assistant" ? (
-                                        <div
-                                            className="text-sm text-slate-300 leading-relaxed"
-                                            dangerouslySetInnerHTML={{
-                                                __html: message.content
-                                                    .replace(/##\s(.+)/g, '<h3 class="text-lg font-black text-white mt-4 mb-2">$1</h3>')
-                                                    .replace(/###\s(.+)/g, '<h4 class="text-md font-bold text-slate-200 mt-3 mb-1">$1</h4>')
-                                                    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
-                                                    .replace(/\n/g, '<br/>')
-                                            }}
-                                        />
-                                    ) : (
-                                        <p className="text-sm text-slate-200">{message.content}</p>
-                                    )}
-                                </div>
-                                {message.sources && message.sources.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
-                                        {message.sources.map((source, i) => (
-                                            <span key={i} className="px-3 py-1 bg-white/5 text-[10px] text-slate-400 rounded-full border border-white/10">
-                                                📚 {source}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-                                {message.role === "assistant" && (
-                                    <div className="flex gap-2 mt-4">
-                                        <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
-                                            <Copy className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
-                                            <Download className="w-4 h-4" />
-                                        </button>
-                                        <button className="p-2 hover:bg-white/5 rounded-lg text-slate-500 hover:text-white transition-all">
-                                            <RefreshCw className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
+            {/* TAB 1: CHAT */}
+            {activeTab === "chat" && (
+                <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-14rem)] lg:overflow-hidden">
+                    {/* Sidebar */}
+                    <div className="w-full lg:w-80 flex flex-col gap-4">
+                        <div className="bg-card/40 border border-border rounded-2xl p-4">
+                            <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Actions Rapides</h4>
+                            <div className="space-y-1.5">
+                                {QUICK_ACTIONS.map(action => (
+                                    <button
+                                        key={action.id}
+                                        onClick={() => handleQuickAction(action)}
+                                        className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-muted/50 transition-all text-left group text-xs"
+                                    >
+                                        <div className="p-1.5 bg-muted rounded-lg group-hover:bg-primary/20 transition-all">
+                                            <action.icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-foreground group-hover:text-primary truncate">{action.label}</p>
+                                            <p className="text-[10px] text-muted-foreground">{action.category}</p>
+                                        </div>
+                                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                    ))}
-                    {isLoading && (
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-primary animate-pulse" />
-                            </div>
-                            <div className="bg-slate-800/50 border border-white/5 rounded-3xl rounded-tl-none p-6">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-                                    <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
 
-                {/* Input Area */}
-                <div className="p-6 bg-slate-900/50 border-t border-white/5">
-                    <div className="flex gap-4">
-                        <div className="flex-1 relative">
+                        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-muted-foreground space-y-2">
+                            <span className="font-semibold text-foreground flex items-center gap-1.5">
+                                <Scale className="w-4 h-4 text-primary" /> Référentiel OHADA actif
+                            </span>
+                            <p>AUSCGIE, AUPSRVE, AUS, Traité OHADA et CGI Sénégal / Côte d&apos;Ivoire / Cameroun / Bénin intégrés.</p>
+                        </div>
+                    </div>
+
+                    {/* Chat Area */}
+                    <div className="flex-1 min-h-[50vh] bg-card/30 border border-border rounded-2xl flex flex-col overflow-hidden">
+                        <div className="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
+                            {messages.length === 0 ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3">
+                                    <div className="p-3 bg-primary/10 rounded-2xl">
+                                        <Bot className="w-8 h-8 text-primary" />
+                                    </div>
+                                    <h3 className="text-base font-bold text-foreground">Comment puis-je vous assister aujourd&apos;hui ?</h3>
+                                    <p className="text-xs text-muted-foreground max-w-md">
+                                        Posez une question juridique OHADA, demandez l&apos;analyse d&apos;une situation fiscale ou vérifiez une obligation légale.
+                                    </p>
+                                </div>
+                            ) : (
+                                messages.map(message => (
+                                    <div
+                                        key={message.id}
+                                        className={cn("flex gap-3", message.role === "user" ? "flex-row-reverse" : "")}
+                                    >
+                                        <div className={cn(
+                                            "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold",
+                                            message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-primary"
+                                        )}>
+                                            {message.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                                        </div>
+                                        <div className={cn(
+                                            "max-w-2xl rounded-2xl p-4 text-xs space-y-2",
+                                            message.role === "user"
+                                                ? "bg-primary/20 border border-primary/30 rounded-tr-none text-foreground"
+                                                : "bg-background/80 border border-border rounded-tl-none text-foreground"
+                                        )}>
+                                            <div
+                                                className="leading-relaxed whitespace-pre-wrap font-sans"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: message.content
+                                                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                                                        .replace(/\n/g, '<br/>')
+                                                }}
+                                            />
+                                            {message.sources && message.sources.length > 0 && (
+                                                <div className="pt-2 border-t border-border flex flex-wrap gap-1">
+                                                    {message.sources.map((s, idx) => (
+                                                        <span key={idx} className="text-[10px] bg-muted/60 px-2 py-0.5 rounded text-muted-foreground">
+                                                            {s}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            {isLoading && (
+                                <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center">
+                                        <Bot className="w-4 h-4 text-primary animate-pulse" />
+                                    </div>
+                                    <div className="bg-background/80 border border-border rounded-2xl rounded-tl-none p-3 flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.2s]" />
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.4s]" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-3 bg-background/50 border-t border-border">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                                    placeholder="Ex: Quelle est la sanction d'une convention réglementée non approuvée selon l'AUSCGIE ?"
+                                    className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary"
+                                />
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!inputValue.trim() || isLoading}
+                                    className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 disabled:opacity-50"
+                                >
+                                    <Send className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 2: AUDIT DE CONTRAT */}
+            {activeTab === "analyse_contrat" && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-card/40 border border-border rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-semibold flex items-center gap-2">
+                                <FileSearch className="w-4 h-4 text-primary" />
+                                Saisie du texte contractuel
+                            </h2>
+                            <select
+                                value={paysContrat}
+                                onChange={(e) => setPaysContrat(e.target.value as PaysFiscal)}
+                                className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
+                            >
+                                <option value="SN">Sénégal (SN)</option>
+                                <option value="CI">Côte d&apos;Ivoire (CI)</option>
+                                <option value="CM">Cameroun (CM)</option>
+                                <option value="BJ">Bénin (BJ)</option>
+                            </select>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Collez les clauses statutaires, pactes d&apos;associés ou contrats commerciaux pour identifier les clauses léonines, risques d&apos;établissement stable et conformité OHADA.
+                        </p>
+                        <textarea
+                            rows={14}
+                            value={texteContrat}
+                            onChange={(e) => setTexteContrat(e.target.value)}
+                            placeholder="Collez ici le texte du contrat ou des statuts à auditer..."
+                            className="w-full bg-background border border-border rounded-xl p-3 text-xs font-mono text-foreground placeholder:text-muted-foreground"
+                        />
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={handleAnalyzeContract}
+                                disabled={isAnalyzingContract || !texteContrat.trim()}
+                                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-4 py-2 rounded-xl text-xs hover:bg-primary/90 disabled:opacity-50"
+                            >
+                                {isAnalyzingContract ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShieldAlert className="w-3.5 h-3.5" />}
+                                Lancer l&apos;audit de conformité
+                            </button>
+                            {contractError && <span className="text-xs text-red-400">{contractError}</span>}
+                        </div>
+                    </div>
+
+                    {/* Résultats de l'analyse */}
+                    <div className="bg-card/40 border border-border rounded-2xl p-5 space-y-4">
+                        <h2 className="text-sm font-semibold flex items-center gap-2">
+                            <ShieldAlert className="w-4 h-4 text-primary" />
+                            Rapport d&apos;audit de conformité OHADA
+                        </h2>
+
+                        {!contractResult ? (
+                            <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground text-xs p-6 border border-dashed border-border rounded-xl">
+                                <FileText className="w-8 h-8 mb-2 opacity-50" />
+                                <span>Aucun contrat audité pour le moment. Collez un texte à gauche pour lancer l&apos;analyse.</span>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 text-xs">
+                                <div className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-xl">
+                                    <div>
+                                        <span className="text-muted-foreground block text-[10px] uppercase font-bold">Score de conformité</span>
+                                        <span className="text-lg font-bold text-foreground">{contractResult.scoreConformite} / 100</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="px-2 py-1 bg-red-950/60 text-red-300 border border-red-800 rounded text-[10px] font-bold">
+                                            {contractResult.risquesParGravite.CRITIQUE} Critique(s)
+                                        </span>
+                                        <span className="px-2 py-1 bg-amber-950/60 text-amber-300 border border-amber-800 rounded text-[10px] font-bold">
+                                            {contractResult.risquesParGravite.ELEVE} Élevé(s)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl text-foreground font-medium">
+                                    {contractResult.recommandationGlobale}
+                                </div>
+
+                                <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                                    {contractResult.risques.map((r: RisqueContractuel) => (
+                                        <div key={r.code} className="p-3 rounded-lg border border-border bg-background space-y-1.5">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-semibold text-foreground">{r.risque}</span>
+                                                <span className="font-mono text-[10px] text-primary">{r.article}</span>
+                                            </div>
+                                            {r.clauseIdentifiee && (
+                                                <p className="text-[11px] text-muted-foreground italic bg-muted/40 p-1.5 rounded">
+                                                    Extrait : « {r.clauseIdentifiee} »
+                                                </p>
+                                            )}
+                                            <p className="text-foreground/90">{r.recommandation}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <p className="text-[10px] text-muted-foreground italic pt-2 border-t border-border">
+                                    {contractResult.disclaimer}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* TAB 3: CONSULTATION FISCALE */}
+            {activeTab === "consultation" && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-card/40 border border-border rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-semibold flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-primary" />
+                                Paramètres de la Consultation
+                            </h2>
+                            <select
+                                value={paysConsultation}
+                                onChange={(e) => setPaysConsultation(e.target.value as PaysFiscal)}
+                                className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
+                            >
+                                <option value="SN">Sénégal (SN)</option>
+                                <option value="CI">Côte d&apos;Ivoire (CI)</option>
+                                <option value="CM">Cameroun (CM)</option>
+                                <option value="BJ">Bénin (BJ)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs text-muted-foreground mb-1 font-medium">Sujet de la consultation</label>
                             <input
                                 type="text"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                                placeholder="Posez votre question juridique ou fiscale..."
-                                className="w-full bg-slate-800 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all pr-12"
+                                value={sujetConsultation}
+                                onChange={(e) => setSujetConsultation(e.target.value)}
+                                placeholder="Ex: Régime fiscal des flux intragroupes et retenues BRS"
+                                className="w-full bg-background border border-border rounded-xl px-3 py-2 text-xs"
                             />
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                <Zap className="w-5 h-5 text-primary opacity-50" />
-                            </div>
                         </div>
+
+                        <div>
+                            <label className="block text-xs text-muted-foreground mb-1 font-medium">Contexte opérationnel du dossier</label>
+                            <textarea
+                                rows={8}
+                                value={contexteConsultation}
+                                onChange={(e) => setContexteConsultation(e.target.value)}
+                                placeholder="Détaillez les flux, montants, parties prenantes et questions précises du client..."
+                                className="w-full bg-background border border-border rounded-xl p-3 text-xs"
+                            />
+                        </div>
+
                         <button
-                            onClick={handleSend}
-                            disabled={!inputValue.trim() || isLoading}
-                            className="px-8 py-4 bg-primary hover:brightness-110 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all shadow-xl shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={handleGenerateConsultation}
+                            disabled={isGeneratingConsultation || !sujetConsultation.trim()}
+                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-4 py-2 rounded-xl text-xs hover:bg-primary/90 disabled:opacity-50"
                         >
-                            <Send className="w-5 h-5" />
+                            {isGeneratingConsultation ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                            Générer la consultation professionnelle
                         </button>
                     </div>
-                    <p className="text-[10px] text-slate-600 text-center mt-4">
-                        Nexus Counsel utilise les Actes Uniformes OHADA, la jurisprudence CCJA et la doctrine fiscale UEMOA pour fournir des réponses précises.
-                    </p>
+
+                    <div className="bg-card/40 border border-border rounded-2xl p-5 space-y-4">
+                        <h2 className="text-sm font-semibold flex items-center gap-2">
+                            <Scale className="w-4 h-4 text-primary" />
+                            Mémo de Consultation Rédigé
+                        </h2>
+
+                        {!consultationResult ? (
+                            <div className="h-64 flex flex-col items-center justify-center text-center text-muted-foreground text-xs p-6 border border-dashed border-border rounded-xl">
+                                <BookOpen className="w-8 h-8 mb-2 opacity-50" />
+                                <span>Remplissez les détails à gauche pour générer un mémo juridique & fiscal documenté.</span>
+                            </div>
+                        ) : (
+                            <div className="bg-background border border-border rounded-xl p-4 text-xs font-sans whitespace-pre-wrap leading-relaxed max-h-[30rem] overflow-y-auto">
+                                {consultationResult}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

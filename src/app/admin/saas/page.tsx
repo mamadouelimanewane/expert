@@ -64,8 +64,6 @@ export default function AdminSaasPage() {
   const [total,     setTotal]     = useState(0);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState<string | null>(null);
-  const [seeding,   setSeeding]   = useState(false);
-  const [seedMsg,   setSeedMsg]   = useState<string | null>(null);
 
   // Rediriger si non ADMIN
   useEffect(() => {
@@ -86,23 +84,6 @@ export default function AdminSaasPage() {
       .catch(() => setError("Impossible de charger les cabinets."))
       .finally(() => setLoading(false));
   }, [status]);
-
-  async function initialiserDemo() {
-    setSeeding(true);
-    setSeedMsg(null);
-    try {
-      const res = await fetch("/api/admin/seed-demo", { method: "POST" });
-      const data = await res.json();
-      setSeedMsg(data.success
-        ? `✅ Compte démo initialisé : ${data.email}`
-        : `❌ Erreur : ${data.error}`
-      );
-    } catch {
-      setSeedMsg("❌ Erreur réseau.");
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   // Calculer le MRR estimé sur les abonnements actifs
   const mrrEstime = cabinets
@@ -129,13 +110,6 @@ export default function AdminSaasPage() {
           <p className="text-emerald-200 text-sm mt-0.5">Administration Cabinet 360 — Abonnements &amp; Tenants</p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={initialiserDemo}
-            disabled={seeding}
-            className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition disabled:opacity-50"
-          >
-            {seeding ? "Initialisation…" : "⚡ Init compte démo"}
-          </button>
           <a
             href="/bi"
             className="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-4 py-2 rounded-lg transition"
@@ -147,12 +121,6 @@ export default function AdminSaasPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
 
-        {/* Message de seed démo */}
-        {seedMsg && (
-          <div className={`rounded-lg p-4 text-sm font-medium ${seedMsg.startsWith("✅") ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-red-50 text-red-800 border border-red-200"}`}>
-            {seedMsg}
-          </div>
-        )}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-sm">{error}</div>
         )}
@@ -229,18 +197,9 @@ export default function AdminSaasPage() {
           </div>
         </div>
 
-        {/* Guide rapide */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-sm text-amber-900">
-          <h3 className="font-semibold mb-2">🔧 Guide d'activation — Compte démo</h3>
-          <ol className="list-decimal list-inside space-y-1 text-amber-800">
-            <li>Cliquer sur <strong>"⚡ Init compte démo"</strong> ci-dessus (crée demo@cabinet360.com en base)</li>
-            <li>S'assurer que la variable <code>DEMO_PASSWORD</code> est définie sur Vercel (sinon : DemoTrial2026!)</li>
-            <li>Vérifier la démo sur <a href="https://expert-pi.vercel.app/login" className="underline" target="_blank">expert-pi.vercel.app/login</a></li>
-          </ol>
-          <p className="mt-2 text-xs text-amber-700">
-            Pour activer le webhook Wave abonnements SaaS, configurez <code>WAVE_WEBHOOK_SECRET</code> sur Vercel et pointez Wave vers :<br/>
-            <code>https://expert-pi.vercel.app/api/saas/webhook/wave</code>
-          </p>
+        <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          <h3 className="mb-2 font-semibold">Création de démonstration suspendue</h3>
+          <p>Le compte partagé avait un rôle avec accès en écriture. Il restera désactivé jusqu&apos;à la livraison d&apos;un tenant de démonstration isolé et en lecture seule.</p>
         </div>
       </main>
     </div>

@@ -14,6 +14,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import AuditReviewPanel from "./AuditReviewPanel";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Kit de préparation d'audit.
@@ -392,6 +393,7 @@ export default function CompleteAuditKitPage() {
                     )}
                 </div>
             )}
+            <AuditReviewPanel clientId={clientId} />
             </>
             )}
 

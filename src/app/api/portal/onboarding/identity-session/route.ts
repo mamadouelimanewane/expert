@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { clientDuPortail } from "@/lib/portal-auth";
+import { withPortalClient } from "@/lib/portal-auth";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 // Cree une session Stripe Identity hebergee pour le depot de piece d'identite.
@@ -20,8 +20,7 @@ export async function POST(request: NextRequest) {
     const { token } = await request.json();
     if (!token) return NextResponse.json({ error: "token requis" }, { status: 400 });
 
-    const client = await clientDuPortail(token);
-    if (!client) return NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
+    const response = await withPortalClient(token, async (client) => {
 
     const returnUrl = new URL(`${baseUrl(request)}/onboarding/digital`);
     returnUrl.searchParams.set("token", token);
@@ -36,6 +35,8 @@ export async function POST(request: NextRequest) {
     await prisma.client.update({ where: { id: client.id }, data: { stripeIdentitySessionId: session.id } });
 
     return NextResponse.json({ url: session.url });
+    });
+    return response ?? NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
   } catch (error) {
     console.error("Erreur POST onboarding/identity-session:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

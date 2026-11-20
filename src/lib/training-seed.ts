@@ -1,4 +1,4 @@
-import prisma from "./prisma";
+import { prismaSystem as prisma } from "./prisma";
 
 // Contenu de catalogue de démarrage (formations génériques réelles pour experts-comptables
 // OHADA — contenu de référence, pas des statistiques d'engagement inventées : aucun nombre

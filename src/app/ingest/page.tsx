@@ -113,24 +113,34 @@ export default function IngestPage() {
         if (res.ok) {
             setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, status: "APPROVED" } : e)));
             setValidatedCount((c) => c + 1);
+            setError(null);
+            return true;
         }
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "La validation n'a pas pu être enregistrée.");
+        return false;
     };
 
     const rejectEntry = async (id: string) => {
+        const reason = window.prompt("Motif du rejet (5 à 500 caractères) :")?.trim();
+        if (!reason || reason.length < 5 || reason.length > 500) return;
         const res = await fetch("/api/tpe/journals", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, status: "REJECTED" }),
+            body: JSON.stringify({ id, status: "REJECTED", reason }),
         });
         if (res.ok) {
             setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, status: "REJECTED" } : e)));
+        } else {
+            const data = await res.json().catch(() => ({}));
+            setError(data.error || "Le rejet n'a pas pu être enregistré.");
         }
     };
 
     const validateAll = async () => {
         const pending = entries.filter((e) => e.status === "PENDING");
         for (const e of pending) {
-            await validateEntry(e.id);
+            if (!(await validateEntry(e.id))) return;
         }
         setStep("success");
     };
@@ -150,7 +160,7 @@ export default function IngestPage() {
                         <Database className="w-8 h-8 text-emerald-400" />
                         Import & Saisie Automatisée
                     </h2>
-                    <p className="page-subtitle">Saisissez les recettes/dépenses transmises par le client (WhatsApp, dictée) avec imputation OHADA automatique.</p>
+                    <p className="page-subtitle">Saisissez une opération à la fois. Des règles de mots-clés préparent une imputation provisoire qui doit être revue avant comptabilisation.</p>
                 </div>
             </div>
 
@@ -210,7 +220,7 @@ export default function IngestPage() {
                                 className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono resize-none"
                             />
                             <p className="text-[11px] text-slate-500">
-                                Le moteur détecte automatiquement le sens (recette/dépense) et suggère les comptes OHADA correspondants.
+                                Les règles détectent le sens et proposent un compte. Un montant absent ou plusieurs montants interrompent la saisie; une nature inconnue reste en compte d&apos;attente.
                             </p>
                         </div>
 
@@ -257,8 +267,8 @@ export default function IngestPage() {
                                         <th className="p-3 font-medium">Date</th>
                                         <th className="p-3 font-medium">Libellé Saisi</th>
                                         <th className="p-3 font-medium text-right">Montant</th>
-                                        <th className="p-3 font-medium">Comptes OHADA (moteur)</th>
-                                        <th className="p-3 font-medium text-center">Confiance</th>
+                                        <th className="p-3 font-medium">Comptes proposés par règle</th>
+                                        <th className="p-3 font-medium text-center">Indice de confiance</th>
                                         <th className="p-3 font-medium text-right">Actions</th>
                                     </tr>
                                 </thead>

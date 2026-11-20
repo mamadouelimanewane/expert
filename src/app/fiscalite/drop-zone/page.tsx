@@ -20,6 +20,7 @@ export default function DropZoneFiscalePage() {
     const [analysisText, setAnalysisText] = useState<string | null>(null);
     const [notConfigured, setNotConfigured] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [externalProcessingConfirmed, setExternalProcessingConfirmed] = useState(false);
 
     const extractTextFromFile = async (file: File): Promise<string | null> => {
         const name = file.name.toLowerCase();
@@ -61,7 +62,7 @@ export default function DropZoneFiscalePage() {
             const res = await fetch("/api/fiscalite/analyze", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content, fileName: file.name }),
+                body: JSON.stringify({ content, fileName: file.name, externalProcessingConfirmed }),
             });
             const data = await res.json();
 
@@ -84,15 +85,17 @@ export default function DropZoneFiscalePage() {
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
+        if (!externalProcessingConfirmed) { setError("Confirmez le traitement externe du document avant de le déposer."); return; }
         const file = e.dataTransfer.files[0];
         if (file) {
             setUploadedFile(file);
             runAnalysis(file);
         }
-    }, []);
+    }, [externalProcessingConfirmed]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        if (file && !externalProcessingConfirmed) { setError("Confirmez le traitement externe du document avant de le sélectionner."); e.target.value = ""; return; }
         if (file) {
             setUploadedFile(file);
             runAnalysis(file);
@@ -137,8 +140,12 @@ export default function DropZoneFiscalePage() {
                         Drop Zone <span className="text-emerald-400">Fiscale</span>
                     </h2>
                     <p className="page-subtitle">
-                        Déposez un fichier Excel/CSV (déclaration, balance, liasse) : son contenu est envoyé à l'assistant IA pour identifier des pistes d'optimisation et de risque — jamais des résultats prédéfinis.
+                        L’analyse transmet le contenu extrait à un fournisseur d’IA configuré. N’envoyez que les documents autorisés par votre client et votre politique de confidentialité.
                     </p>
+                    <label className="mt-5 flex max-w-3xl items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs text-amber-100">
+                        <input type="checkbox" checked={externalProcessingConfirmed} onChange={e => setExternalProcessingConfirmed(e.target.checked)} className="mt-0.5" />
+                        <span>Je confirme être autorisé à transmettre le contenu de ce document au fournisseur d’IA configuré pour cette analyse.</span>
+                    </label>
                 </div>
             </div>
 
@@ -151,7 +158,7 @@ export default function DropZoneFiscalePage() {
                     className={cn(
                         "glass-card rounded-[20px] sm:rounded-[36px] lg:rounded-[48px] border-2 border-dashed p-20 text-center transition-all duration-300",
                         isDragging ? "border-emerald-500 bg-emerald-500/5" : "border-white/10 bg-slate-900/40",
-                        isAnalyzing && "pointer-events-none"
+                        (isAnalyzing || !externalProcessingConfirmed) && "pointer-events-none opacity-60"
                     )}
                 >
                     {isAnalyzing ? (
@@ -179,7 +186,7 @@ export default function DropZoneFiscalePage() {
                                 <p className="text-slate-500">Formats analysables : Excel (.xlsx, .xls), CSV, XML, texte</p>
                             </div>
                             <label className="px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] cursor-pointer transition-all shadow-lg shadow-emerald-600/30">
-                                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.xlsx,.xls,.xml,.csv,.txt" />
+                                <input type="file" className="hidden" onChange={handleFileSelect} accept=".pdf,.xlsx,.xls,.xml,.csv,.txt" disabled={!externalProcessingConfirmed} />
                                 Ou sélectionner un fichier
                             </label>
 

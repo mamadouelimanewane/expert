@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Radar, Loader2, AlertTriangle, Send } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,10 +25,26 @@ export default function RadarImpactPage() {
     const [nonConfigure, setNonConfigure] = useState(false);
     const [enCours, setEnCours] = useState(false);
     const [erreur, setErreur] = useState<string | null>(null);
+    const [fournisseur, setFournisseur] = useState<{ provider: string | null; model: string | null; configured: boolean } | null>(null);
+    const [consentement, setConsentement] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/nexus/veille")
+            .then(async (res) => {
+                if (!res.ok) throw new Error("Impossible de vérifier la configuration IA.");
+                const data = await res.json();
+                setFournisseur(data.llm);
+            })
+            .catch((e) => setErreur(e instanceof Error ? e.message : "Configuration IA indisponible."));
+    }, []);
 
     const analyser = async () => {
         if (texteLoi.trim().length < 20) {
             setErreur("Collez le texte de la loi, du décret ou de la circulaire à analyser (20 caractères minimum).");
+            return;
+        }
+        if (!consentement) {
+            setErreur("Confirmez la transmission au fournisseur IA pour continuer.");
             return;
         }
         setEnCours(true);
@@ -38,7 +54,7 @@ export default function RadarImpactPage() {
             const res = await fetch("/api/nexus/veille", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ texteLoi, pays: pays || undefined }),
+                body: JSON.stringify({ texteLoi, pays: pays || undefined, consentementTransmission: true }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Échec de l'analyse.");
@@ -77,10 +93,21 @@ export default function RadarImpactPage() {
                     placeholder="Collez ici le texte de la loi de finances, du décret ou de la circulaire…"
                     className="w-full h-48 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm text-slate-900 dark:text-white resize-none focus:outline-none focus:border-rose-500"
                 />
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-slate-300">
+                    <p>
+                        Pour produire l&apos;analyse, le texte collé et un résumé de données du cabinet (nombre de clients, factures en retard, échéances fiscales et missions en cours) seront envoyés au fournisseur IA configuré
+                        {fournisseur?.provider ? ` (${fournisseur.provider}${fournisseur.model ? ` · ${fournisseur.model}` : ""})` : ""}.
+                        N&apos;incluez pas de données personnelles ou confidentielles inutiles.
+                    </p>
+                    <label className="mt-3 flex cursor-pointer items-start gap-2">
+                        <input type="checkbox" checked={consentement} onChange={(e) => setConsentement(e.target.checked)} className="mt-1 accent-rose-500" />
+                        <span>Je confirme que ce texte peut être transmis à ce fournisseur IA pour analyse.</span>
+                    </label>
+                </div>
                 {erreur && <p className="text-sm text-red-400">{erreur}</p>}
                 <button
                     onClick={analyser}
-                    disabled={enCours}
+                    disabled={enCours || !consentement || !fournisseur?.configured}
                     className="w-full py-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all"
                 >
                     {enCours ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

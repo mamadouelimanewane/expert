@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
+import { scopedPrismaForCabinet, type PrismaSeedScopeClient } from '../scripts/tenant-seed-scope';
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 // Aucun mot de passe n'est codé en dur dans ce fichier versionné : chaque compte
 // de démonstration reçoit un secret aléatoire, affiché une seule fois en fin de
@@ -23,6 +24,20 @@ async function main() {
     }
 
     console.log('🌱 Starting database seed...');
+
+    const cabinet = await prisma.cabinet.upsert({
+        where: { slug: 'cabinet-360-local-seed' },
+        update: { statut: 'ACTIVE', trialExpiresAt: null },
+        create: {
+            slug: 'cabinet-360-local-seed',
+            nom: 'Cabinet 360 — environnement local',
+            plan: 'STARTER',
+            statut: 'ACTIVE',
+            pays: 'CI',
+        },
+    });
+    const cabinetId = cabinet.id;
+    prisma = scopedPrismaForCabinet(prisma as unknown as PrismaClient, cabinetId);
 
     // Cleanup existing data for demo repeatability
     await prisma.invoice.deleteMany();
@@ -82,7 +97,7 @@ async function main() {
 
     // Create Sample Clients
     const client1 = await prisma.client.upsert({
-        where: { email: 'contact@sib-ci.com' },
+        where: { cabinetId_email: { cabinetId, email: 'contact@sib-ci.com' } },
         update: {},
         create: {
             type: 'ENTREPRISE',
@@ -104,7 +119,7 @@ async function main() {
     console.log('✅ Client created:', client1.companyName);
 
     const client2 = await prisma.client.upsert({
-        where: { email: 'traore@import-export.sn' },
+        where: { cabinetId_email: { cabinetId, email: 'traore@import-export.sn' } },
         update: {},
         create: {
             type: 'ENTREPRISE',
@@ -126,7 +141,7 @@ async function main() {
     console.log('✅ Client created:', client2.companyName);
 
     const client3 = await prisma.client.upsert({
-        where: { email: 'contact@boulangerie-plateau.ci' },
+        where: { cabinetId_email: { cabinetId, email: 'contact@boulangerie-plateau.ci' } },
         update: {},
         create: {
             type: 'ENTREPRISE',

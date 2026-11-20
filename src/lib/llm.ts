@@ -75,16 +75,16 @@ export async function buildCabinetContext() {
   ]);
 
   const lines = [
-    `Nombre total de clients au cabinet : ${clientCount}.`,
+    `[Source: compteur Clients] Nombre total de clients au cabinet : ${clientCount}.`,
     overdueInvoices.length > 0
-      ? `Factures impayées en retard : ${overdueInvoices.map(i => `${i.invoiceNumber} (${i.client.companyName || "client"}, ${i.total.toLocaleString("fr-FR")} FCFA)`).join("; ")}.`
-      : "Aucune facture en retard.",
+      ? `Factures impayées en retard : ${overdueInvoices.map(i => `[Source: facture ${i.invoiceNumber}, dossier ${i.id}] ${i.client.companyName || "client"}, échéance ${new Date(i.dueDate).toLocaleDateString("fr-FR")}, ${i.total.toLocaleString("fr-FR")} FCFA`).join("; ")}.`
+      : "[Source: liste des factures de statut OVERDUE] Aucune facture en retard.",
     upcomingDeclarations.length > 0
-      ? `Déclarations fiscales dues sous 7 jours : ${upcomingDeclarations.map(d => `${d.type} (${d.client.companyName || "client"}, échéance ${new Date(d.dueDate).toLocaleDateString("fr-FR")})`).join("; ")}.`
-      : "Aucune déclaration fiscale urgente sous 7 jours.",
+      ? `Déclarations fiscales dues sous 7 jours : ${upcomingDeclarations.map(d => `[Source: déclaration ${d.type}, dossier ${d.id}] ${d.client.companyName || "client"}, échéance ${new Date(d.dueDate).toLocaleDateString("fr-FR")}`).join("; ")}.`
+      : "[Source: liste des déclarations PENDING dues sous 7 jours] Aucune déclaration fiscale urgente.",
     activeMissions.length > 0
-      ? `Missions en cours : ${activeMissions.map(m => `${m.title} (${m.client.companyName || "client"})`).join("; ")}.`
-      : "Aucune mission en cours.",
+      ? `Missions en cours : ${activeMissions.map(m => `[Source: mission ${m.id}] ${m.title} (${m.client.companyName || "client"})`).join("; ")}.`
+      : "[Source: liste des missions IN_PROGRESS] Aucune mission en cours.",
   ];
 
   return lines.join("\n");
@@ -178,7 +178,7 @@ export async function askNexus(userMessage: string, systemPreamble: string) {
   const context = await buildCabinetContext();
 
   return completer(
-    `${systemPreamble}\n\nDonnées réelles et à jour du cabinet (n'invente jamais de chiffres en dehors de ce contexte, et dis clairement quand une information n'est pas disponible) :\n${context}`,
+    `${systemPreamble}\n\nRègles de restitution : les lignes entre crochets [Source: ...] sont les seules données réelles du cabinet fournies à cette réponse. Cite la source correspondante près de chaque constat chiffré ou factuel sur le cabinet. N'affirme pas qu'une pièce ou un dossier a été consulté s'il n'apparaît pas dans ces données. Dis clairement quand un élément manque. Sépare les constats vérifiables des suggestions dès que tu proposes une action; présente toute suggestion comme telle, jamais comme un fait ou une conclusion professionnelle validée.\n\nContexte réel du cabinet (ne complète ni n'invente les valeurs absentes) :\n${context}`,
     userMessage
   );
 }

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/api-auth";
+import { requireWriteAccess } from "@/lib/api-auth";
 import { AccountingEngine } from "@/lib/accounting-engine";
 import { analyserMontant, normaliserDateISO, normaliserPeriode } from "@/lib/validation";
+import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
 
 // Import d'écritures depuis un export externe (Wave, CSV générique...).
 //
@@ -35,7 +36,7 @@ const SENS_DEPENSE = new Set([
 ]);
 
 export async function POST(request: Request) {
-    const { denied } = await requireStaff();
+    const { denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -65,6 +66,8 @@ export async function POST(request: Request) {
         if (!periodeRetenue) {
             return NextResponse.json({ error: "Période illisible : attendu AAAA-MM (ex. 2026-09)." }, { status: 400 });
         }
+        const verrou = await ensureAccountingPeriodOpen(clientId, periodeRetenue);
+        if (!verrou.open) return NextResponse.json({ error: `La période ${periodeRetenue} est verrouillée : import refusé.` }, { status: 409 });
 
         let aQualifier = 0;
         const lignesJournal: {
@@ -127,6 +130,10 @@ export async function POST(request: Request) {
                 : normaliserDateISO(tx.date);
             if (dateISO === null) {
                 lignesRejetees.push(`Ligne ${numero} (${libelle}) : date illisible « ${tx.date} ».`);
+                continue;
+            }
+            if (dateISO.slice(0, 7) !== periodeRetenue) {
+                lignesRejetees.push(`Ligne ${numero} (${libelle}) : la date ${dateISO} ne correspond pas à la période ${periodeRetenue}.`);
                 continue;
             }
 

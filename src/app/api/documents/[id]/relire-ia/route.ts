@@ -66,7 +66,18 @@ export async function POST(request: Request, { params }: Params) {
             const status = r.raison === "non_configure" ? 503 : r.raison === "refus" || r.raison === "illisible" ? 422 : 502;
             return NextResponse.json({ error: r.message, raison: r.raison }, { status });
         }
-        const ocrData = ocrDataDepuisFacture(r.lecture, sens);
+        const proposition = ocrDataDepuisFacture(r.lecture, sens);
+        const ancienneDonnee = document.ocrData && typeof document.ocrData === "object" && !Array.isArray(document.ocrData)
+            ? document.ocrData as Record<string, unknown>
+            : {};
+        const anciennesVersions = Array.isArray(ancienneDonnee.extractionHistory) ? ancienneDonnee.extractionHistory : [];
+        const ocrData = {
+            ...proposition,
+            originalExtraction: ancienneDonnee.originalExtraction ?? ancienneDonnee.invoiceData ?? proposition.invoiceData,
+            extractionHistory: [...anciennesVersions, ...(ancienneDonnee.invoiceData ? [{ at: new Date().toISOString(), origine: ancienneDonnee.origine ?? "OCR_LOCAL", invoiceData: ancienneDonnee.invoiceData }] : [])],
+            humanReviewHistory: Array.isArray(ancienneDonnee.humanReviewHistory) ? ancienneDonnee.humanReviewHistory : [],
+            manualReview: { status: "PENDING", resetAt: new Date().toISOString(), reason: "Nouvelle lecture IA à vérifier." },
+        };
         const majDocument = await prisma.document.update({
             where: { id },
             data: { status: "PROCESSED", ocrData: ocrData as object, ocrProcessedAt: new Date() },

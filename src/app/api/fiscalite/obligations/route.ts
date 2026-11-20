@@ -7,6 +7,8 @@ import {
     urgenceDe,
     type ObligationFiscale,
 } from "@/lib/ohada/obligations-fiscales";
+import { echeanceTVA } from "@/lib/ohada/tax-deadlines";
+import { echeancesFiscalesAnnuelles } from "@/lib/ohada/annual-tax-calendar";
 
 // Calendrier des obligations fiscales du cabinet.
 //
@@ -50,10 +52,21 @@ export async function GET(request: Request) {
 
         const periode = periodeDe(annee, mois);
 
-        // Déclarations de la période, groupées par type et par statut.
+        // Charger les déclarations et les profils du portefeuille : un client
+        // actif sans déclaration correspondante doit apparaître comme restant
+        // à traiter, pas disparaître du calendrier.
+        const trimestre = Math.floor(mois / 3) + 1;
+        const dateMoisPrecedent = new Date(Date.UTC(annee, mois - 1, 1));
+        const periodeMensuelleDue = periodeDe(dateMoisPrecedent.getUTCFullYear(), dateMoisPrecedent.getUTCMonth());
+        const periodesRecherche = [
+            periode,
+            periodeMensuelleDue,
+            ...[1, 2, 3, 4].map((q) => `${annee}-T${q}`),
+            ...[annee - 2, annee - 1, annee].map((y) => `${y}-A`),
+        ];
         const declarations = await prisma.taxDeclaration.findMany({
             where: {
-                period: periode,
+                period: { in: periodesRecherche },
                 ...(paysFiltre ? { client: { country: paysFiltre } } : {}),
             },
             select: {
@@ -61,8 +74,16 @@ export async function GET(request: Request) {
                 status: true,
                 amount: true,
                 clientId: true,
+                obligationCode: true,
+                period: true,
+                dueDate: true,
                 client: { select: { country: true } },
             },
+        });
+
+        const clients = await prisma.client.findMany({
+            where: { isActive: true, ...(paysFiltre ? { country: paysFiltre } : {}) },
+            select: { id: true, type: true, country: true, companyName: true, firstName: true, lastName: true, sector: true, fiscalRegime: true, subjectToTva: true, taxProfile: true },
         });
 
         const catalogue: ObligationFiscale[] = paysFiltre
@@ -70,17 +91,59 @@ export async function GET(request: Request) {
             : OBLIGATIONS_FISCALES;
 
         const obligations = catalogue.map((obligation) => {
+            const periodeObligation = obligation.periodicite === "ANNUELLE"
+                ? `${annee - 1}-A`
+                : obligation.periodicite === "TRIMESTRIELLE"
+                  ? `${annee}-T${trimestre}`
+                  : periodeMensuelleDue;
+            const eligible = clients.filter((client) => {
+                if (!obligation.pays.includes(client.country)) return false;
+                const profil = client.taxProfile && typeof client.taxProfile === "object" && !Array.isArray(client.taxProfile)
+                    ? client.taxProfile as Record<string, unknown>
+                    : {};
+                if (obligation.categorie === "TVA") return client.subjectToTva || profil.vatRegistered === true;
+                if (obligation.categorie === "SOCIAL") return profil.employer === true;
+                if (obligation.id === "irpp-salaires") return profil.employer === true;
+                if (obligation.id === "ras-bnc") return profil.withholdingAgent === true;
+                return client.type === "ENTREPRISE" || client.type === "ASSOCIATION";
+            });
             const concernees = declarations.filter(
                 (d) =>
                     obligation.typesDeclaration.includes(d.type) &&
-                    obligation.pays.includes(d.client.country)
+                    obligation.pays.includes(d.client.country) &&
+                    d.period === periodeObligation &&
+                    (d.obligationCode ? d.obligationCode === obligation.id : true)
             );
 
             const restantes = concernees.filter((d) =>
                 (STATUTS_RESTANTS as readonly string[]).includes(d.status)
             );
+            const clientsAvecDeclarationOuverte = new Set(restantes.map((d) => d.clientId));
+            const clientsAvecDeclarationDeposee = new Set(concernees
+                .filter((d) => d.status === "SUBMITTED" || d.status === "VALIDATED")
+                .map((d) => d.clientId));
+            const clientsSansDeclaration = eligible.filter((client) =>
+                !clientsAvecDeclarationOuverte.has(client.id) && !clientsAvecDeclarationDeposee.has(client.id)
+            );
+            const nbDossiersRestants = new Set([...restantes.map((d) => d.clientId), ...clientsSansDeclaration.map((c) => c.id)]).size;
 
-            const echeance = echeancePour(obligation, annee, mois);
+            const echeancesParClient = eligible.map((client) => {
+                const declaration = concernees.find((d) => d.clientId === client.id);
+                const profil = client.taxProfile && typeof client.taxProfile === "object" && !Array.isArray(client.taxProfile)
+                    ? client.taxProfile as Record<string, unknown>
+                    : {};
+                const echeance = declaration?.dueDate ?? (obligation.id === "tva-mensuelle"
+                    ? echeanceTVA({ country: client.country, sector: client.sector, taxCenter: typeof profil.taxCenter === "string" ? profil.taxCenter : null }, annee, mois)
+                    : echeancePour(obligation, annee, mois));
+                return { clientId: client.id, date: echeance };
+            });
+            const parDate = new Map<string, number>();
+            for (const row of echeancesParClient) {
+                const key = row.date.toISOString();
+                parDate.set(key, (parDate.get(key) ?? 0) + 1);
+            }
+            const datesTriees = [...parDate.entries()].sort(([a], [b]) => a.localeCompare(b));
+            const echeance = datesTriees.length > 0 ? new Date(datesTriees[0][0]) : echeancePour(obligation, annee, mois);
 
             return {
                 id: obligation.id,
@@ -91,20 +154,49 @@ export async function GET(request: Request) {
                 reference: obligation.reference,
                 periodicite: obligation.periodicite,
                 echeance: echeance.toISOString(),
+                echeancesParDate: datesTriees.map(([date, dossiers]) => ({ echeance: date, dossiers })),
                 urgence: urgenceDe(echeance, maintenant),
 
                 // Agrégats calculés sur les déclarations réelles.
-                nbDossiers: new Set(concernees.map((d) => d.clientId)).size,
-                nbRestants: new Set(restantes.map((d) => d.clientId)).size,
+                nbDossiers: eligible.length,
+                nbRestants: nbDossiersRestants,
+                periodeReference: periodeObligation,
                 montantADeclarer: restantes.reduce((s, d) => s + (d.amount ?? 0), 0),
                 montantTotal: concernees.reduce((s, d) => s + (d.amount ?? 0), 0),
                 statut:
-                    concernees.length === 0
+                    nbDossiersRestants > 0
+                        ? "EN_COURS"
+                        : concernees.length === 0
                         ? "AUCUNE_DECLARATION"
                         : restantes.length === 0
                           ? "VALIDE"
                           : "EN_COURS",
             };
+        });
+
+        const echeancesAnnuelles = clients.flatMap((client) => {
+            const tasks = echeancesFiscalesAnnuelles({
+                id: client.id, country: client.country, type: client.type,
+                fiscalRegime: client.fiscalRegime, sector: client.sector, taxProfile: client.taxProfile,
+            }, annee);
+            return tasks.map((task) => {
+                const declaration = declarations.find((d) =>
+                    d.clientId === client.id && d.period === task.period && d.obligationCode === task.code
+                );
+                const dueDate = declaration?.dueDate ?? task.dueDate;
+                const deposee = declaration?.status === "SUBMITTED" || declaration?.status === "VALIDATED";
+                return {
+                    id: task.code, clientId: client.id,
+                    client: client.companyName || [client.firstName, client.lastName].filter(Boolean).join(" ") || "Client",
+                    titre: task.titre, categorie: task.categorie, period: task.period,
+                    echeance: dueDate.toISOString(), reference: task.reference, source: task.source,
+                    statut: deposee ? declaration!.status : declaration ? declaration.status : "MANQUANTE",
+                    montant: declaration?.amount ?? null,
+                    montantADeclarer: declaration && !deposee ? declaration.amount : null,
+                    nbRestants: deposee ? 0 : 1,
+                    urgence: urgenceDe(dueDate, maintenant),
+                };
+            });
         });
 
         const clientsActifs = await prisma.client.count({
@@ -116,10 +208,13 @@ export async function GET(request: Request) {
             annee,
             mois,
             pays: paysFiltre,
+            statutReglementaire: "INDICATIF_A_VERIFIER",
+            avertissement: "Le catalogue n'est pas encore validé par pays, régime et exercice. Confirmez l'assujettissement et les échéances dans les textes officiels avant toute déclaration.",
             obligations,
+            echeancesAnnuelles,
             synthese: {
                 clientsActifs,
-                declarationsPeriode: declarations.length,
+            declarationsPeriode: declarations.filter((d) => d.period === periodeMensuelleDue).length,
                 montantADeclarer: obligations.reduce((s, o) => s + o.montantADeclarer, 0),
                 obligationsImminentes: obligations.filter((o) => o.urgence === "IMMINENTE").length,
                 obligationsDepassees: obligations.filter((o) => o.urgence === "DEPASSEE").length,
@@ -128,7 +223,7 @@ export async function GET(request: Request) {
             // Signalé à l'interface : sans déclaration saisie pour la période,
             // les compteurs sont nuls parce que la base est vide, pas parce que
             // le cabinet est à jour.
-            aucuneDonnee: declarations.length === 0,
+            aucuneDonnee: declarations.filter((d) => d.period === periodeMensuelleDue).length === 0,
         });
     } catch (error) {
         console.error("Erreur API obligations fiscales:", error);

@@ -38,9 +38,11 @@ describe("catalogue des obligations fiscales", () => {
 
     it("couvre les obligations sénégalaises structurantes", () => {
         const ids = obligationsPourPays("SN").map((o) => o.id);
-        for (const attendu of ["tva-mensuelle", "ipres-css", "cfce", "impot-minimum"]) {
+        for (const attendu of ["tva-mensuelle", "ipres-css", "cfce"]) {
             expect(ids, attendu).toContain(attendu);
         }
+        // L'IS minimum sénégalais est annuel et calculé depuis le profil fiscal.
+        expect(ids).not.toContain("impot-minimum");
     });
 
     it("filtre par pays sans tenir compte de la casse ni des espaces", () => {
@@ -54,7 +56,7 @@ describe("catalogue des obligations fiscales", () => {
 
 describe("calcul des échéances", () => {
     const tva = OBLIGATIONS_FISCALES.find((o) => o.id === "tva-mensuelle")!;
-    const annuelle = OBLIGATIONS_FISCALES.find((o) => o.id === "impot-minimum")!;
+    const annuelle = { ...OBLIGATIONS_FISCALES.find((o) => o.id === "tva-mensuelle")!, jourEcheance: 30 };
 
     it("place l'échéance au jour prévu", () => {
         const d = echeancePour(tva, 2026, 5); // juin

@@ -21,6 +21,8 @@ export async function GET(req: Request) {
             id: p.id,
             periodName: p.periodName,
             status: p.status,
+            ruleVersion: p.ruleVersion,
+            ruleInfo: p.ruleInfo,
             createdAt: p.createdAt,
             paidAt: p.paidAt,
             paymentMode: p.paymentMode,

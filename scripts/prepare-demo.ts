@@ -19,8 +19,9 @@
  *     sénégalais sans balance, pour montrer le bilan depuis une balance.
  */
 import { PrismaClient } from "@prisma/client";
+import { installerPorteeSeed, type PrismaSeedScopeClient } from "./tenant-seed-scope";
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 const APPLY = process.argv.includes("--apply");
 const log = (msg: string) => console.log(`${APPLY ? "✔" : "·"} ${msg}`);
 
@@ -58,6 +59,7 @@ const BALANCE_DEMO = [
 ];
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient, { willWrite: APPLY });
     console.log(APPLY ? "Application des changements…" : "SIMULATION — ajoutez --apply pour appliquer.\n");
 
     const admin = await prisma.user.findFirst({ where: { role: "ADMIN" }, select: { id: true } });

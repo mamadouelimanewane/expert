@@ -2,10 +2,12 @@ import { calculateComplianceScore } from '../src/lib/compliance-engine';
 import { calculateDCF, calculateEBITDAMultiple, calculateANR } from '../src/lib/valuation-engine';
 import { AuditService } from '../src/lib/audit';
 import { PrismaClient } from '@prisma/client';
+import { installerPorteeSeed, type PrismaSeedScopeClient } from './tenant-seed-scope';
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 async function runAdvancedScenarios() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     console.log('🏁 --- RUNNING ADVANCED MODULES & ENGINES TESTING --- 🏁\n');
 
     // ==========================================

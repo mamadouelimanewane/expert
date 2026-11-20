@@ -9,34 +9,6 @@ function clientName(c: { companyName: string | null; firstName: string | null; l
     return c.companyName || `${c.firstName ?? ""} ${c.lastName ?? ""}`.trim() || "Client sans nom";
 }
 
-// Taux de référence OHADA/UEMOA appliqués aux données réelles du client.
-// Ce sont des taux indicatifs couramment utilisés dans la zone (IS "réel" ~25%,
-// impôt minimum forfaitaire ~1% du CA, contribution globale unique ~2% du CA) —
-// à ajuster selon la législation exacte du pays d'immatriculation du client.
-const TAX_RATES = {
-    REEL_NORMAL: { label: "Réel Normal", rateOnNetResult: 0.25 },
-    REEL_SIMPLIFIE: { label: "Réel Simplifié", rateOnNetResult: 0.25 },
-    CME: { label: "CME (Impôt Minimum Forfaitaire)", rateOnCA: 0.01 },
-    MICRO_ENTREPRISE: { label: "Micro-Entreprise (Contribution Globale Unique)", rateOnCA: 0.02 },
-};
-
-function buildTaxRegimeComparison(ca: number, netResult: number) {
-    const positiveResult = Math.max(netResult, 0);
-    return (Object.keys(TAX_RATES) as (keyof typeof TAX_RATES)[]).map((key) => {
-        const regime = TAX_RATES[key];
-        const tax = "rateOnNetResult" in regime
-            ? positiveResult * regime.rateOnNetResult
-            : ca * (regime as any).rateOnCA;
-        return {
-            regime: key,
-            label: regime.label,
-            baseImposable: "rateOnNetResult" in regime ? positiveResult : ca,
-            baseLabel: "rateOnNetResult" in regime ? "Résultat net" : "Chiffre d'affaires",
-            estimatedTax: Math.round(tax),
-        };
-    });
-}
-
 export async function GET(request: NextRequest) {
     try {
         await AuthService.requireAuth();
@@ -60,6 +32,7 @@ export async function GET(request: NextRequest) {
                 financialData: null,
                 declarations: [],
                 taxRegimeComparison: null,
+                taxRegimeComparisonUnavailable: "Aucun comparatif n'est fourni sans barèmes versionnés et vérifiés pour le pays et l'exercice du client.",
             });
         }
 
@@ -75,7 +48,10 @@ export async function GET(request: NextRequest) {
         ]);
 
         const financialData = financialDataRows[0] || null;
-        const taxRegimeComparison = financialData ? buildTaxRegimeComparison(financialData.ca, financialData.netResult) : null;
+        // Ne pas chiffrer des taux génériques d'un pays à l'autre : le calcul
+        // comparatif reste désactivé tant que les barèmes et critères d'éligibilité
+        // ne sont pas rattachés à un paquet réglementaire vérifié par exercice.
+        const taxRegimeComparison = null;
 
         return NextResponse.json({
             clients: clients.map((c) => ({ id: c.id, name: clientName(c), country: c.country, fiscalRegime: c.fiscalRegime })),
@@ -85,6 +61,7 @@ export async function GET(request: NextRequest) {
             financialData,
             declarations,
             taxRegimeComparison,
+            taxRegimeComparisonUnavailable: "Comparatif suspendu : barèmes nationaux et conditions d'éligibilité non versionnés pour cet exercice.",
         });
     } catch (error) {
         console.error("Erreur GET fiscalite/risks:", error);
@@ -92,9 +69,9 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// Scan à base de règles réelles, appliqué aux données existantes (pas d'IA, pas de délai fictif) :
-// 1. Déclarations en retard (PENDING avec échéance dépassée)
-// 2. Croissance du CA sans déclaration IS correspondante sur la période la plus récente
+// Repérage de travaux à vérifier, sans en déduire automatiquement une infraction :
+// 1. Déclarations en retard (échéance enregistrée et statut non déposé)
+// 2. Variation marquée du CA à analyser par le collaborateur (signal indicatif).
 async function runFiscalScan(clientId: string) {
     const [declarations, financialRows] = await Promise.all([
         prisma.taxDeclaration.findMany({ where: { clientId } }),
@@ -108,7 +85,7 @@ async function runFiscalScan(clientId: string) {
     const now = new Date();
 
     // Règle 1 : déclarations en retard
-    const lateDeclarations = declarations.filter((d) => d.status === "PENDING" && new Date(d.dueDate) < now);
+    const lateDeclarations = declarations.filter((d) => ["DRAFT", "PENDING", "REJECTED"].includes(d.status) && new Date(d.dueDate) < now);
     for (const decl of lateDeclarations) {
         const title = `Déclaration ${decl.type} en retard — période ${decl.period}`;
         if (existingTitles.has(title)) continue;
@@ -126,19 +103,20 @@ async function runFiscalScan(clientId: string) {
         created++;
     }
 
-    // Règle 2 : croissance du CA sans déclaration IS sur l'exercice le plus récent
+    // Signal de revue : une variation de CA ne prouve pas l'absence d'une
+    // déclaration fiscale. On la présente comme un point à analyser, pas comme
+    // un risque de non-déclaration.
     if (financialRows.length === 2) {
         const [current, previous] = financialRows;
         const growth = previous.ca !== 0 ? (current.ca - previous.ca) / previous.ca : 0;
-        const hasISDeclaration = declarations.some((d) => d.type === "IS" && d.period.includes(String(current.year)));
-        if (growth > 0.1 && !hasISDeclaration) {
-            const title = `Croissance du CA sans déclaration IS — exercice ${current.year}`;
+        if (growth > 0.1) {
+            const title = `Variation du CA à analyser — exercice ${current.year}`;
             if (!existingTitles.has(title)) {
                 await prisma.fiscalRisk.create({
                     data: {
                         title,
-                        description: `Le chiffre d'affaires a progressé de ${Math.round(growth * 100)}% entre ${previous.year} et ${current.year} (${previous.ca.toLocaleString("fr-FR")} → ${current.ca.toLocaleString("fr-FR")} FCFA), mais aucune déclaration IS n'a été enregistrée pour l'exercice ${current.year}.`,
-                        level: "MOYEN",
+                        description: `Le chiffre d'affaires a progressé de ${Math.round(growth * 100)}% entre ${previous.year} et ${current.year} (${previous.ca.toLocaleString("fr-FR")} → ${current.ca.toLocaleString("fr-FR")} FCFA). Vérifiez les seuils de régime, la TVA et les obligations applicables au pays et à l'activité. Ce signal ne constate aucune irrégularité.`,
+                        level: "FAIBLE",
                         status: "IDENTIFIE",
                         potentialImpact: null,
                         clientId,

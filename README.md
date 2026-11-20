@@ -6,40 +6,38 @@
 ![Tests](https://img.shields.io/badge/Tests-322-brightgreen)
 ![Licence](https://img.shields.io/badge/Licence-Propri%C3%A9taire-red)
 
-Logiciel de gestion intégré pour **un** cabinet d'expertise comptable exerçant
-en zone OHADA : production comptable, missions, temps, facturation, paie,
+Logiciel de gestion destiné aux cabinets d'expertise comptable en zone OHADA :
+production comptable, missions, temps, facturation, paie,
 fiscalité et états financiers SYSCOHADA.
 
 ---
 
-## Périmètre : déploiement mono-cabinet
+## Statut : cloisonnement multi-cabinet en préparation
 
-**Cette application sert un seul cabinet par déploiement.** Le schéma de données
-ne comporte aucune notion de locataire (`cabinetId`, `tenantId`) : tous les
-utilisateurs d'une instance partagent le même portefeuille de clients. Pour
-servir plusieurs cabinets, il faut aujourd'hui **une instance et une base par
-cabinet**.
+Le code local contient le schéma et les contrôles nécessaires au cloisonnement
+par `cabinetId`, ainsi qu'un verrou de déploiement qui reste fermé par défaut.
+Les inscriptions publiques et la souscription en libre-service sont suspendues
+pendant cette phase. **Ne définissez pas `TENANT_DATA_ISOLATION_READY=true`**
+avant d'avoir effectué le backfill, vérifié chaque route et passé les tests
+d'isolation décrits dans [le plan de sécurisation](docs/securisation-multi-cabinet.md).
 
-C'est un choix assumé, pas un oubli. Le passage au multi-cabinet suppose
-d'introduire la notion de locataire sur les modèles métier, de cloisonner les
-123 routes API et de migrer les données existantes. Le suivi est dans
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+La présence d'un champ `cabinetId` dans le schéma ne suffit pas à prouver que
+toutes les données sont isolées. Cette branche ne doit pas être considérée
+comme prête pour des cabinets indépendants avant validation de la migration,
+des traitements hors HTTP, du portail et des scénarios à deux cabinets.
 
-> Les documents `docs/ANALYSE_*.md` et `docs/PROJECT_REPORT.md` sont des
-> comptes rendus historiques : ils décrivent des états antérieurs du projet et
-> parlent encore d'une « plateforme SaaS ». Ils ne sont pas maintenus.
+> Les documents `docs/ANALYSE_*.md`, `docs/PROJECT_REPORT.md`,
+> `docs/MANUEL_UTILISATEUR.md`, `docs/DEPLOYMENT_GUIDE.md` et
+> `docs/IMPLEMENTATION_PLAN_OHADA.md` sont historiques. Le manuel et le guide
+> de déploiement décrivent des fonctions SaaS et PostgreSQL qui ne correspondent
+> pas au code actuel (MongoDB); ne les utilisez pas comme procédures produit
+> ou de mise en production.
 
 ---
 
-## Chiffres du projet
-
-| | |
-|---|---|
-| Code | ~68 000 lignes TypeScript / TSX |
-| Interface | 217 pages, dont 214 statiques inventoriées |
-| API | 123 routes |
-| Données | 107 modèles et énumérations Prisma (MongoDB) |
-| Tests | 322, dont 1 000 balances en test de propriété |
+Les nombres de pages, routes, modèles et tests changent au fil du développement;
+ils ne sont pas publiés ici comme garanties produit. La CI est décrite dans
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
@@ -147,12 +145,15 @@ cd expert/cabinet-expert-ohada
 npm install
 ```
 
-Copiez `.env.example` vers `.env` et renseignez au minimum `DATABASE_URL`,
-`NEXTAUTH_SECRET` et `NEXTAUTH_URL`.
+Pour un environnement local uniquement, copiez `.env.example` vers `.env` et renseignez au minimum `DATABASE_URL`,
+`NEXTAUTH_SECRET` et `NEXTAUTH_URL`. Pour le rate limiting distribué en
+production, configurez également `UPSTASH_REDIS_REST_URL` et
+`UPSTASH_REDIS_REST_TOKEN`; sans Redis distribué, les requêtes API échouent
+fermées en environnement de production.
 
 ```bash
 npx prisma generate
-npx prisma db push
+npx prisma db push      # base locale jetable uniquement; jamais directement en production
 npm run seed:admin      # crée l'admin, affiche son mot de passe une seule fois
 npm run dev
 ```

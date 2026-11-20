@@ -19,7 +19,7 @@
 
 export type PaysFiscal = "sn" | "ci" | "cm" | "bj";
 export type RegimeFiscal = "reel" | "simplifie";
-export type SecteurActivite = "services" | "commerce" | "industrie";
+export type SecteurActivite = "services" | "commerce" | "industrie" | "construction" | "immobilier" | "station_service" | "telecommunications" | "enseignement_prive" | "autre";
 
 export interface TaxSimulation {
     /** Résultat fiscal (bénéfice imposable). Peut être négatif. */
@@ -31,6 +31,16 @@ export interface TaxSimulation {
     chiffreAffaires?: number;
     /** Masse salariale brute annuelle — assiette de la CFCE au Sénégal. */
     masseSalariale?: number;
+    /** CA TTC, requis pour fiabiliser l'IMF ivoirien. */
+    chiffreAffairesTTC?: number;
+    /** Produits encaissables, base des minima du CGI béninois. */
+    produitsEncaissables?: number;
+    /** CA HT de l'exercice précédent, base du minimum camerounais. */
+    chiffreAffairesAnneePrecedente?: number;
+    /** Centre fiscal requis pour établir l'éligibilité au taux PME camerounais. */
+    centreFiscal?: "DGE" | "CIME" | "CDI" | "CSI";
+    /** Taux minimum camerounais selon le régime/activité (CAC inclus). */
+    minimumCamerounais?: "STANDARD" | "MARGE_ADMINISTREE";
 }
 
 export interface ResultatSimulation {
@@ -50,6 +60,9 @@ export interface ResultatSimulation {
     tvaMoyenne: number;
     tauxIS: number;
     tauxTVA: number;
+    editionReglementaire: string;
+    sourceReglementaire: string;
+    couvertureReglementaire: "PARTIELLE";
     hypotheses: string[];
     avertissements: string[];
 }
@@ -58,12 +71,13 @@ interface RegleFiscale {
     libelle: string;
     /** Taux normal d'impôt sur les sociétés. */
     tauxIS: number;
-    /** Taux réduit éventuel applicable au régime simplifié. */
-    tauxISSimplifie?: number;
+    /** Taux applicables sous conditions en fonction du pays, du régime ou de l'activité. */
+    tauxISPourCA?: { seuil: number; taux: number };
+    tauxISParSecteur?: Partial<Record<SecteurActivite, number>>;
     /** Taux de TVA de droit commun. */
     tauxTVA: number;
     /** Impôt minimum : taux appliqué au chiffre d'affaires, plancher et plafond. */
-    minimum: { taux: number; plancher: number; plafond?: number };
+    minimum: { taux: number; plancher: number; plafond?: number; tauxParSecteur?: Partial<Record<SecteurActivite, number>>; plancherParSecteur?: Partial<Record<SecteurActivite, number>>; base: "CA_HT" | "CA_TTC" | "PRODUITS_ENCAISSABLES" };
     /** Contribution assise sur la masse salariale (CFCE sénégalaise). */
     cfceSurMasseSalariale?: number;
 }
@@ -77,28 +91,31 @@ export const REGLES_FISCALES: Record<PaysFiscal, RegleFiscale> = {
         libelle: "Sénégal",
         tauxIS: 0.3,
         tauxTVA: 0.18,
-        minimum: { taux: 0.005, plancher: 500_000, plafond: 5_000_000 },
+        minimum: { taux: 0.005, plancher: 0, plafond: 5_000_000, base: "CA_HT" },
         cfceSurMasseSalariale: 0.03,
     },
     ci: {
         libelle: "Côte d'Ivoire",
         tauxIS: 0.25,
+        tauxISParSecteur: { telecommunications: 0.3 },
         tauxTVA: 0.18,
-        minimum: { taux: 0.005, plancher: 3_000_000, plafond: 35_000_000 },
+        minimum: { taux: 0.005, plancher: 3_000_000, plafond: 35_000_000, base: "CA_TTC" },
     },
     cm: {
         libelle: "Cameroun",
-        // 30 % majorés de 10 % de centimes additionnels communaux.
+        // Taux effectifs incluant les CAC de 10 %. Le taux SME est conditionné
+        // au CA annuel <= 3 Md et aux critères de rattachement administratif.
         tauxIS: 0.33,
-        tauxISSimplifie: 0.33,
+        tauxISPourCA: { seuil: 3_000_000_000, taux: 0.275 },
         tauxTVA: 0.1925,
-        minimum: { taux: 0.022, plancher: 0 },
+        minimum: { taux: 0.022, plancher: 0, base: "CA_HT" },
     },
     bj: {
         libelle: "Bénin",
         tauxIS: 0.3,
         tauxTVA: 0.18,
-        minimum: { taux: 0.01, plancher: 250_000 },
+        tauxISParSecteur: { enseignement_prive: 0.25 },
+        minimum: { taux: 0.015, plancher: 500_000, tauxParSecteur: { construction: 0.03, immobilier: 0.1 }, plancherParSecteur: { station_service: 250_000 }, base: "PRODUITS_ENCAISSABLES" },
     },
 };
 
@@ -111,6 +128,19 @@ const MARGE_PAR_SECTEUR: Record<SecteurActivite, number> = {
     services: 0.25,
     commerce: 0.08,
     industrie: 0.15,
+    construction: 0.2,
+    immobilier: 0.25,
+    station_service: 0.04,
+    telecommunications: 0.3,
+    enseignement_prive: 0.3,
+    autre: 0.2,
+};
+
+const EDITIONS: Record<PaysFiscal, { edition: string; source: string }> = {
+    sn: { edition: "CGI Sénégal 2025 — à réviser avec la LFI 2026", source: "https://dgid-digitale.dgid.sn/loi-reglement" },
+    ci: { edition: "CGI Côte d’Ivoire 2025 + Annexe fiscale 2026", source: "https://www.fiscalitelocale.dgi.gouv.ci/legislation.php" },
+    cm: { edition: "CGI Cameroun mis à jour au 1er janvier 2026", source: "https://www.impots.cm/fr/documents/39" },
+    bj: { edition: "CGI Bénin 2026", source: "https://api.impots.bj/media/6984ebbbb7bc0_B%C3%A9nin-Code%20G%C3%A9n%C3%A9ral%20des%20Imp%C3%B4ts%202026.pdf" },
 };
 
 export function simulateCorporateTax(params: TaxSimulation): ResultatSimulation {
@@ -137,21 +167,54 @@ export function simulateCorporateTax(params: TaxSimulation): ResultatSimulation 
     }
 
     // ── Impôt sur les sociétés ──────────────────────────────────────────────
-    const tauxIS =
-        params.regime === "simplifie" && regle.tauxISSimplifie !== undefined
-            ? regle.tauxISSimplifie
-            : regle.tauxIS;
+    let tauxIS = regle.tauxIS;
+    const chiffreAffairesExplicite = Number(params.chiffreAffaires) > 0;
+    if (regle.tauxISPourCA && chiffreAffairesExplicite && chiffreAffaires <= regle.tauxISPourCA.seuil && ["CIME", "CDI", "CSI"].includes(params.centreFiscal ?? "")) {
+        tauxIS = regle.tauxISPourCA.taux;
+    } else if (regle.tauxISPourCA && chiffreAffairesExplicite && chiffreAffaires <= regle.tauxISPourCA.seuil && !params.centreFiscal) {
+        avertissements.push("Le CA passe le seuil PME camerounais, mais le centre fiscal n’est pas indiqué : le taux de droit commun est retenu faute de pouvoir confirmer l’éligibilité.");
+    } else if (regle.tauxISPourCA && !chiffreAffairesExplicite) {
+        avertissements.push("Chiffre d’affaires manquant : le taux réduit conditionnel ne peut pas être évalué ; le taux de droit commun est retenu.");
+    }
+    if (regle.tauxISParSecteur?.[params.secteur] !== undefined) {
+        tauxIS = regle.tauxISParSecteur[params.secteur]!;
+    }
 
     const is = Math.max(0, base) * tauxIS;
 
     // ── Impôt minimum forfaitaire ───────────────────────────────────────────
     // Dû même en l'absence de bénéfice : c'est précisément le cas que la
     // version précédente chiffrait à zéro.
-    let impotMinimum = chiffreAffaires * regle.minimum.taux;
-    impotMinimum = Math.max(impotMinimum, regle.minimum.plancher);
+    let assietteMinimum = chiffreAffaires;
+    if (params.pays === "cm") {
+        assietteMinimum = Number(params.chiffreAffairesAnneePrecedente) || chiffreAffaires;
+        if (!params.chiffreAffairesAnneePrecedente) hypotheses.push("CA de l’exercice précédent non fourni : le minimum camerounais est estimé avec le CA courant.");
+    }
+    if (regle.minimum.base === "PRODUITS_ENCAISSABLES") {
+        assietteMinimum = Number(params.produitsEncaissables) || chiffreAffaires;
+        if (!params.produitsEncaissables) hypotheses.push("Produits encaissables non fournis : le chiffre d’affaires est utilisé comme approximation du minimum fiscal.");
+    }
+    if (regle.minimum.base === "CA_TTC") {
+        assietteMinimum = Number(params.chiffreAffairesTTC) || chiffreAffaires * (1 + regle.tauxTVA);
+        if (!params.chiffreAffairesTTC) hypotheses.push("CA TTC non fourni : estimé au taux normal, sans distinguer exonérations, taux réduits ou opérations hors champ.");
+    }
+    const tauxMinimum = regle.minimum.tauxParSecteur?.[params.secteur] ?? regle.minimum.taux;
+    let impotMinimum = assietteMinimum * tauxMinimum;
+    if (params.pays === "cm") {
+        const tauxMinimumCm = params.regime === "simplifie"
+            ? 0.055
+            : params.minimumCamerounais === "MARGE_ADMINISTREE" ? 0.154 : 0.022;
+        impotMinimum = assietteMinimum * tauxMinimumCm;
+        if (params.regime !== "simplifie" && !params.minimumCamerounais) {
+            avertissements.push("La catégorie du minimum camerounais (2 % ou 14 %, majorée des CAC) n’est pas renseignée : le taux standard est utilisé à titre indicatif.");
+        }
+    }
+    const plancherMinimum = regle.minimum.plancherParSecteur?.[params.secteur] ?? regle.minimum.plancher;
+    impotMinimum = Math.max(impotMinimum, plancherMinimum);
     if (regle.minimum.plafond !== undefined) {
         impotMinimum = Math.min(impotMinimum, regle.minimum.plafond);
     }
+    if (params.pays === "cm") avertissements.push("Minimum camerounais : taux et base varient selon l’activité, le régime et les règles du CGI. Le montant affiché est une estimation à confirmer.");
 
     const isDu = Math.max(is, impotMinimum);
     const minimumApplique = impotMinimum > is;
@@ -195,6 +258,9 @@ export function simulateCorporateTax(params: TaxSimulation): ResultatSimulation 
         tvaMoyenne,
         tauxIS,
         tauxTVA: regle.tauxTVA,
+        editionReglementaire: EDITIONS[params.pays].edition,
+        sourceReglementaire: EDITIONS[params.pays].source,
+        couvertureReglementaire: "PARTIELLE",
         hypotheses,
         avertissements,
     };

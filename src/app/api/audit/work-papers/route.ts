@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       where: { clientId_type: { clientId, type } },
     });
 
-    return NextResponse.json({ data: workPaper?.data ?? null });
+    return NextResponse.json({ data: workPaper?.data ?? null, id: workPaper?.id ?? null, updatedAt: workPaper?.updatedAt ?? null });
   } catch (error) {
     console.error("Erreur GET audit/work-papers:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

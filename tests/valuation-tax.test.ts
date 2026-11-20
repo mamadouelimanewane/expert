@@ -173,11 +173,12 @@ describe("impôt minimum forfaitaire", () => {
         expect(r.impotMinimum).toBe(1_000_000);
     });
 
-    it("respecte le plancher", () => {
+    it("n'applique pas de plancher non publié dans le référentiel du Sénégal", () => {
         const r = simulateCorporateTax(
             simulation({ baseImposable: 0, chiffreAffaires: 1_000_000, pays: "sn" })
         );
-        expect(r.impotMinimum).toBe(REGLES_FISCALES.sn.minimum.plancher);
+        expect(REGLES_FISCALES.sn.minimum.plancher).toBe(0);
+        expect(r.impotMinimum).toBe(5_000);
     });
 
     it("respecte le plafond", () => {
@@ -246,6 +247,58 @@ describe("CFCE et TVA", () => {
     it("applique le taux de TVA propre au Cameroun", () => {
         expect(simulateCorporateTax(simulation({ pays: "cm" })).tauxTVA).toBe(0.1925);
         expect(simulateCorporateTax(simulation({ pays: "sn" })).tauxTVA).toBe(0.18);
+    });
+
+    it("applique le taux PME camerounais au CA sous le seuil, CAC inclus", () => {
+        const r = simulateCorporateTax(simulation({ pays: "cm", baseImposable: 10_000_000, chiffreAffaires: 2_000_000_000, centreFiscal: "CDI" }));
+        expect(r.tauxIS).toBe(0.275);
+        expect(r.is).toBe(2_750_000);
+        expect(r.avertissements.join(" ")).not.toContain("centre fiscal n’est pas indiqué");
+    });
+
+    it("garde le taux camerounais de droit commun au-dessus du seuil PME", () => {
+        const r = simulateCorporateTax(simulation({ pays: "cm", chiffreAffaires: 3_000_000_001 }));
+        expect(r.tauxIS).toBe(0.33);
+    });
+
+    it("ne retient pas le taux PME camerounais à partir d'un chiffre d'affaires estimé", () => {
+        const r = simulateCorporateTax(simulation({ pays: "cm", chiffreAffaires: undefined }));
+        expect(r.tauxIS).toBe(0.33);
+        expect(r.avertissements.join(" ")).toContain("taux réduit conditionnel");
+    });
+
+    it("exige un centre fiscal éligible au taux PME camerounais", () => {
+        const dge = simulateCorporateTax(simulation({ pays: "cm", chiffreAffaires: 2_000_000_000, centreFiscal: "DGE" }));
+        const inconnu = simulateCorporateTax(simulation({ pays: "cm", chiffreAffaires: 2_000_000_000 }));
+        expect(dge.tauxIS).toBe(0.33);
+        expect(inconnu.tauxIS).toBe(0.33);
+        expect(inconnu.avertissements.join(" ")).toContain("centre fiscal n’est pas indiqué");
+    });
+
+    it("différencie les assiettes minimales camerounaises selon l'activité et le régime", () => {
+        const standard = simulateCorporateTax(simulation({ pays: "cm", baseImposable: 0, chiffreAffaires: 100_000_000, minimumCamerounais: "STANDARD" }));
+        const marge = simulateCorporateTax(simulation({ pays: "cm", baseImposable: 0, chiffreAffaires: 100_000_000, minimumCamerounais: "MARGE_ADMINISTREE" }));
+        const simplifie = simulateCorporateTax(simulation({ pays: "cm", baseImposable: 0, chiffreAffaires: 100_000_000, regime: "simplifie" }));
+        expect(standard.impotMinimum).toBe(2_200_000);
+        expect(marge.impotMinimum).toBe(15_400_000);
+        expect(simplifie.impotMinimum).toBe(5_500_000);
+    });
+
+    it("applique les minima béninois par activité et conserve les sources", () => {
+        const standard = simulateCorporateTax(simulation({ pays: "bj", baseImposable: 0, chiffreAffaires: 10_000_000, produitsEncaissables: 10_000_000 }));
+        const btp = simulateCorporateTax(simulation({ pays: "bj", baseImposable: 0, chiffreAffaires: 10_000_000, produitsEncaissables: 10_000_000, secteur: "construction" }));
+        const station = simulateCorporateTax(simulation({ pays: "bj", baseImposable: 0, chiffreAffaires: 1_000_000, secteur: "station_service" }));
+        expect(standard.impotMinimum).toBe(500_000);
+        expect(btp.impotMinimum).toBe(500_000);
+        expect(station.impotMinimum).toBe(250_000);
+        expect(standard.editionReglementaire).toContain("2026");
+        expect(standard.sourceReglementaire).toContain("impots.bj");
+        expect(standard.couvertureReglementaire).toBe("PARTIELLE");
+    });
+
+    it("applique le taux sectoriel ivoirien des télécommunications", () => {
+        const r = simulateCorporateTax(simulation({ pays: "ci", secteur: "telecommunications" }));
+        expect(r.tauxIS).toBe(0.3);
     });
 
     it("rejette un pays inconnu", () => {

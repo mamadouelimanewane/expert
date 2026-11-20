@@ -18,13 +18,17 @@ export async function POST(req: Request) {
 
   // `await req.json()` etait hors du try : un corps mal forme remontait en
   // exception non capturee, donc en 500 generique de Next.
-  let body: { content?: unknown; fileName?: unknown };
+  let body: { content?: unknown; fileName?: unknown; externalProcessingConfirmed?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Corps JSON invalide" }, { status: 400 });
   }
   const { content, fileName } = body;
+
+  if (body.externalProcessingConfirmed !== true) {
+    return NextResponse.json({ error: "Confirmez l'autorisation de traitement externe avant l'analyse." }, { status: 400 });
+  }
 
   if (!content || typeof content !== "string") {
     return NextResponse.json({ error: "Contenu du document requis" }, { status: 400 });

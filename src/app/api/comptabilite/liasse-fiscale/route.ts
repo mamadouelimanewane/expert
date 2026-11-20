@@ -73,6 +73,16 @@ export async function GET(request: Request) {
                 lignesServies: etats.resultat.filter((l) => l.netN !== 0).length,
             },
             {
+                id: "resultat-fiscal",
+                titre: "Tableau 7 — Résultat fiscal & Liquidation IS",
+                code: "Tableau 7",
+                etat: servi(etats.resultat) ? "COMPLET" : "VIDE",
+                detail: servi(etats.resultat)
+                    ? "Passage du résultat comptable au résultat fiscal et calcul de l'IS/IMF."
+                    : "Aucun résultat comptable à réintégrer.",
+                lignesServies: servi(etats.resultat) ? 1 : 0,
+            },
+            {
                 id: "tft",
                 titre: "Tableau des flux de trésorerie",
                 code: "Tableau 4",
@@ -92,11 +102,13 @@ export async function GET(request: Request) {
             },
         ];
 
+        // Une liasse n'est jamais déclarée déposable si un tableau obligatoire
+        // (notamment TFT ou notes annexes) manque. Le moteur ne fournit pas
+        // encore ces tableaux : on garde donc explicitement deposable=false.
         const deposable =
-            tableaux
-                .filter((t) => t.etat !== "NON_IMPLEMENTE")
-                .every((t) => t.etat === "COMPLET") &&
-            etats.anomalies.length === 0;
+            tableaux.every((t) => t.etat === "COMPLET") &&
+            etats.anomalies.length === 0 &&
+            balance.length > 0;
 
         return NextResponse.json({
             tableaux,

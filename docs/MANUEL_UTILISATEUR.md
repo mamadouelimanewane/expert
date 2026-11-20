@@ -1,4 +1,8 @@
 # 📘 MANUEL D'UTILISATION COMPLET — CABINET 360 v3.0
+> **Manuel historique, non validé pour la version actuelle.** Il décrit des
+> modules SaaS (paiements, webhooks, administration globale) qui peuvent être
+> incomplets ou suspendus. Le verrou `TENANT_DATA_ISOLATION_READY` désactive les
+> parcours métier tant que la sécurisation multi-cabinet n'est pas achevée.
 
 Bienvenue dans le manuel d'utilisation officiel de **Cabinet 360**, l'ERP de nouvelle génération conçu pour les experts-comptables de la zone OHADA. Ce "handbook" détaille de manière exhaustive l'intégralité des modules, pages et fonctionnalités de la plateforme.
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AuthService } from "./auth";
+import { isObjectId } from "./tenant-security";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Contrôle d'accès au niveau de chaque route API — défense en profondeur.
@@ -16,6 +17,7 @@ export type ApiSession = {
     email: string;
     name: string;
     role: string;
+    cabinetId: string | null;
 };
 
 /** Rôles internes au cabinet, autorisés par défaut sur les routes métier. */
@@ -53,6 +55,19 @@ export async function requireStaff(
         return {
             session: null,
             denied: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+        };
+    }
+
+    // Do not let a valid legacy JWT without a tenant context reach handlers.
+    // The database layer also scopes every query, but route-level checks are
+    // needed for handlers that perform work before their first Prisma call.
+    if (!isObjectId(session.cabinetId)) {
+        return {
+            session: null,
+            denied: NextResponse.json(
+                { error: "Aucun cabinet valide n'est associé à cette session." },
+                { status: 403 }
+            ),
         };
     }
 

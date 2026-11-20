@@ -9,11 +9,9 @@
  *    toutes les instances Vercel : un attaquant ne peut plus multiplier ses
  *    tentatives de connexion en tombant sur des lambdas différentes.
  *
- *  - En mémoire (repli) : par instance, utilisée sans configuration Redis
- *    (développement, tests) ou si Redis est injoignable — on préfère laisser
- *    passer avec un compteur local plutôt que de bloquer toute l'application
- *    sur une panne du fournisseur (fail open sur l'infrastructure, mais
- *    toujours limité localement).
+ *  - En mémoire : développement et tests uniquement. En production, l'absence
+ *    ou la panne de Redis échoue fermée : un compteur local ne protège pas
+ *    contre la répartition des requêtes sur plusieurs instances.
  */
 
 import { Ratelimit } from "@upstash/ratelimit";
@@ -24,7 +22,7 @@ export interface RateLimitResult {
   remaining: number;
   resetAt: number;
   /** "redis" quand le compteur est partagé entre instances, "memoire" sinon. */
-  backend: "redis" | "memoire";
+  backend: "redis" | "memoire" | "indisponible";
 }
 
 // ── Repli en mémoire ─────────────────────────────────────────────────────────
@@ -106,12 +104,24 @@ let derniereErreurRedis = 0;
  * Distribué via Upstash quand configuré, en mémoire sinon.
  */
 export async function rateLimit(key: string, limit: number, window: number): Promise<RateLimitResult> {
-  if (!estRateLimitDistribue()) return rateLimitMemoire(key, limit, window);
+  if (!estRateLimitDistribue()) {
+    if (process.env.NODE_ENV === "production") {
+      return { success: false, remaining: 0, resetAt: Date.now() + window * 1000, backend: "indisponible" };
+    }
+    return rateLimitMemoire(key, limit, window);
+  }
 
   try {
     const r = await limiteur(limit, window).limit(key);
     return { success: r.success, remaining: r.remaining, resetAt: r.reset, backend: "redis" };
   } catch (e) {
+    if (process.env.NODE_ENV === "production") {
+      if (Date.now() - derniereErreurRedis > 60_000) {
+        derniereErreurRedis = Date.now();
+        console.error("[rate-limit] Upstash indisponible en production; requête refusée.", (e as Error)?.message);
+      }
+      return { success: false, remaining: 0, resetAt: Date.now() + window * 1000, backend: "indisponible" };
+    }
     // Une seule trace par minute : une panne Redis ne doit pas inonder les logs.
     if (Date.now() - derniereErreurRedis > 60_000) {
       derniereErreurRedis = Date.now();

@@ -13,7 +13,7 @@
 //     charge de famille encadrée par un plancher et un plafond (art. 174).
 //  2. Le TRIMF est un impôt ANNUEL. Les montants du barème étaient prélevés
 //     chaque mois, soit douze fois le montant dû.
-//  3. Le barème s'arrêtait à 37 % : la tranche supérieure à 40 % manquait.
+//  3. Le barème s'arrêtait à 37 % : les tranches marginales à 40 % puis 43 % manquaient.
 //
 // Tous les barèmes sont annuels ; le calcul mensuel annualise la base puis
 // divise le résultat par douze, comme le fait la retenue à la source.
@@ -160,7 +160,8 @@ const BAREME_IR_ANNUEL: { plafond: number; taux: number }[] = [
     { plafond: 4_000_000, taux: 0.30 },
     { plafond: 8_000_000, taux: 0.35 },
     { plafond: 13_500_000, taux: 0.37 },
-    { plafond: Infinity, taux: 0.40 },
+    { plafond: 50_000_000, taux: 0.40 },
+    { plafond: Infinity, taux: 0.43 },
 ];
 
 /** Réduction pour charge de famille (CGI art. 174), montants annuels. */

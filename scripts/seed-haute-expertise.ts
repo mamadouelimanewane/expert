@@ -1,9 +1,11 @@
 
 import { PrismaClient } from '@prisma/client';
+import { installerPorteeSeed, type PrismaSeedScopeClient } from './tenant-seed-scope';
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     console.log('💎 Démarrage de l\'injection de la HAUTE EXPERTISE (Données Réelles)...');
 
     // 1. Nettoyage partiel (Optionnel mais recommandé pour les tests)
@@ -87,11 +89,10 @@ async function main() {
     console.log('📦 Mise à jour des clients stratégiques...');
     const clients = [];
     for (const data of clientsData) {
-        const client = await prisma.client.upsert({
-            where: { email: data.email },
-            update: data,
-            create: data
-        });
+        const clientExistant = await prisma.client.findFirst({ where: { email: data.email } });
+        const client = clientExistant
+            ? await prisma.client.update({ where: { id: clientExistant.id }, data })
+            : await prisma.client.create({ data });
         clients.push(client);
     }
 

@@ -1,39 +1,28 @@
-import prisma from "./prisma";
+import { prismaSystem } from "./prisma";
+import { runWithPortalTenantContext } from "./tenant-context";
+import { isCabinetActif } from "./tenant";
 
 /**
- * Résout le client propriétaire d'un portalToken opaque, transmis soit via
- * le header `x-portal-token`, soit via `?token=` en query string.
- * Retourne `null` si le token est absent, invalide, ou si le portail a été
- * désactivé par le cabinet — dans tous les cas le caller doit répondre 401/403.
+ * Resolve an opaque client token through the narrowly scoped system client,
+ * then run the callback with a request-local context restricted to that one
+ * client and its cabinet. App Prisma queries inside the callback are scoped
+ * again by the tenant extension.
  */
-export async function getPortalClient(req: Request) {
-  const url = new URL(req.url);
-  const token =
-    req.headers.get("x-portal-token") || url.searchParams.get("token");
+export async function withPortalClient<T>(token: unknown, callback: (client: any) => Promise<T>): Promise<T | null> {
+  if (typeof token !== "string" || token.length < 32 || token.length > 512) return null;
 
-  if (!token) return null;
+  const client = await prismaSystem.client.findFirst({ where: { portalToken: token } });
+  if (!client || !client.portalEnabled || !client.cabinetId) return null;
+  const cabinet = await prismaSystem.cabinet.findUnique({ where: { id: client.cabinetId } });
+  if (!cabinet || !isCabinetActif(cabinet as any)) return null;
 
-  const client = await prisma.client.findFirst({ where: { portalToken: token } });
-  if (!client || !client.portalEnabled) return null;
-
-  return client;
+  return runWithPortalTenantContext(
+    { cabinetId: client.cabinetId, clientId: client.id },
+    () => callback(client),
+  );
 }
 
-/**
- * Même résolution, mais à partir d'un token déjà extrait par l'appelant
- * (corps JSON d'un POST, paramètre d'URL nommé autrement…).
- *
- * Les routes d'onboarding interrogeaient `client.findFirst({ portalToken })`
- * en direct, sans vérifier `portalEnabled` : le token d'un client dont le
- * cabinet avait désactivé le portail — client sorti du portefeuille, ou token
- * compromis — permettait toujours d'ouvrir une session de vérification
- * d'identité ou d'enregistrer un mandat de prélèvement SEPA.
- */
-export async function clientDuPortail(token: unknown) {
-  if (typeof token !== "string" || token.trim() === "") return null;
-
-  const client = await prisma.client.findFirst({ where: { portalToken: token } });
-  if (!client || !client.portalEnabled) return null;
-
-  return client;
+export function portalTokenFromRequest(req: Request): string | null {
+  const url = new URL(req.url);
+  return req.headers.get("x-portal-token") || url.searchParams.get("token");
 }

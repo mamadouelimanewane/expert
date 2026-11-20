@@ -5,10 +5,12 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { installerPorteeSeed, type PrismaSeedScopeClient } from "./tenant-seed-scope";
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     console.log("🌱 Seeding demo data...\n");
 
     // 1. Récupérer des clients existants

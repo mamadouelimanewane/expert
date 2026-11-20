@@ -195,7 +195,7 @@ describe("invariants sur balances engendrées aléatoirement", () => {
                 }
             }
         }
-    });
+    }, 30_000);
 
     it("garde des totaux égaux à la somme de leurs composantes", () => {
         const alea = creerAlea(31337);

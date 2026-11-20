@@ -13,7 +13,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user as { role?: string } | undefined)?.role !== "ADMIN") {
     return NextResponse.json({ error: "Réservé aux administrateurs." }, { status: 403 });
   }
 

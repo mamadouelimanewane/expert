@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
     clientCreateSchema,
     invoiceCreateSchema,
@@ -270,6 +270,22 @@ describe("limitation de débit", () => {
         const r2 = await rateLimit(cle, 1, 60);
         expect(r1).toMatchObject({ success: true, backend: "memoire" });
         expect(r2).toMatchObject({ success: false, backend: "memoire" });
+    });
+
+    it("refuse les requêtes en production si le limiteur distribué n'est pas configuré", async () => {
+        vi.stubEnv("NODE_ENV", "production");
+        vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+        vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
+        try {
+            expect(estRateLimitDistribue()).toBe(false);
+            expect(await rateLimit(`production:${Math.random()}`, 10, 60)).toMatchObject({
+                success: false,
+                remaining: 0,
+                backend: "indisponible",
+            });
+        } finally {
+            vi.unstubAllEnvs();
+        }
     });
 });
 

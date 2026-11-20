@@ -12,6 +12,7 @@ import {
     TRANSPORT_EXONERE,
     type PayrollParams,
 } from "@/lib/payroll/engines/senegal";
+import { obtenirReglesPaie } from "@/lib/payroll/engines";
 import {
     calculatePayroll,
     estPaysSupporte,
@@ -30,6 +31,23 @@ const bulletin = (o: Partial<PayrollParams> = {}): PayrollParams => ({
     childrenCount: 0,
     isCadre: false,
     ...o,
+});
+
+describe("provenance des référentiels de paie", () => {
+    it("fournit une version, les sources et l'avertissement de revue pour chaque pays calculé", () => {
+        for (const pays of PAYS_SUPPORTES) {
+            const info = obtenirReglesPaie(pays);
+            expect(info?.version).toBeTruthy();
+            expect(info?.statutValidation).toBe("REVUE_EXPERT_REQUISE");
+            expect(info?.sources.length).toBeGreaterThan(0);
+            expect(info?.sources.every((source) => /^https:\/\//.test(source.url))).toBe(true);
+            expect(info?.avertissements.length).toBeGreaterThan(0);
+        }
+    });
+
+    it("ne retourne aucun référentiel pour un pays non pris en charge", () => {
+        expect(obtenirReglesPaie("CM")).toBeNull();
+    });
 });
 
 describe("barème progressif de l'impôt sur le revenu (CGI art. 173)", () => {
@@ -54,11 +72,14 @@ describe("barème progressif de l'impôt sur le revenu (CGI art. 173)", () => {
         expect(calculerIrBrutAnnuel(13_500_000)).toBeCloseTo(4_359_000, 0);
     });
 
-    // Régression : le barème s'arrêtait à 37 %, la tranche à 40 % manquait.
-    it("applique la tranche marginale à 40 % au-delà de 13,5 M", () => {
+    it("applique les tranches marginales à 40 % puis 43 % au-delà de 50 M", () => {
         const a = calculerIrBrutAnnuel(13_500_000);
         const b = calculerIrBrutAnnuel(14_500_000);
+        const c = calculerIrBrutAnnuel(50_000_000);
+        const d = calculerIrBrutAnnuel(60_000_000);
         expect(b - a).toBeCloseTo(400_000, 0);
+        expect(c).toBeCloseTo(18_959_000, 0);
+        expect(d - c).toBeCloseTo(4_300_000, 0);
     });
 
     it("est monotone croissant", () => {
@@ -70,9 +91,9 @@ describe("barème progressif de l'impôt sur le revenu (CGI art. 173)", () => {
         }
     });
 
-    it("ne produit jamais un taux effectif supérieur au taux marginal maximal", () => {
+    it("ne produit jamais un taux effectif supérieur au taux marginal maximal de 43 %", () => {
         for (const base of [1_000_000, 5_000_000, 20_000_000, 100_000_000]) {
-            expect(calculerIrBrutAnnuel(base) / base).toBeLessThanOrEqual(0.4);
+            expect(calculerIrBrutAnnuel(base) / base).toBeLessThanOrEqual(0.43);
         }
     });
 });

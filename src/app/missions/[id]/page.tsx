@@ -22,7 +22,7 @@ type Mission = {
     client: { id: string; companyName?: string | null; firstName?: string | null; lastName?: string | null; country: string; email: string; phone: string };
     assignedTo?: { id: string; firstName: string; lastName: string } | null;
     createdBy?: { firstName: string; lastName: string } | null;
-    tasks: { id: string; title: string; status: string; dueDate?: string | null }[];
+    tasks: { id: string; title: string; status: string; dueDate?: string | null; completedAt?: string | null }[];
     timeEntries: { id: string; date: string; duration: number; category: string; description?: string | null; user?: { firstName: string; lastName: string } }[];
     expenses: { id: string; label: string; amount: number; category: string; status: string; expenseDate: string }[];
     engagementLetters: { id: string; reference: string; status: string; fees?: number | null; signedAt?: string | null }[];
@@ -49,6 +49,7 @@ export default function MissionDetailPage() {
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [taskBusy, setTaskBusy] = useState<string | null>(null);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState({ title: "", description: "", type: "TENUE_COMPTABLE", deadline: "", budget: "" });
 
@@ -86,6 +87,31 @@ export default function MissionDetailPage() {
             setEditing(false);
             await charger();
         } finally { setBusy(false); }
+    };
+
+    const appliquerModeleTaches = async () => {
+        setTaskBusy("template");
+        try {
+            const response = await fetch(`/api/missions/${id}/tasks`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "APPLY_TEMPLATE" }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Impossible d'ajouter le modèle.");
+            toast.success(`${data.created} tâches adaptées au type de mission ont été ajoutées.`);
+            await charger();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Impossible d'ajouter le modèle.");
+        } finally { setTaskBusy(null); }
+    };
+
+    const definirTacheTerminee = async (taskId: string, completed: boolean) => {
+        setTaskBusy(taskId);
+        try {
+            const response = await fetch(`/api/missions/${id}/tasks/${taskId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ completed }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Impossible de mettre à jour la tâche.");
+            setMission((current) => current ? { ...current, tasks: current.tasks.map((task) => task.id === taskId ? data.task : task) } : current);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Impossible de mettre à jour la tâche.");
+        } finally { setTaskBusy(null); }
     };
 
     if (notFound) return <EmptyState icon={Briefcase} title="Mission introuvable" description="Cette mission n'existe pas ou a été supprimée." action={{ label: "Retour aux missions", href: "/missions" }} />;
@@ -193,9 +219,12 @@ export default function MissionDetailPage() {
 
                 <div className="lg:col-span-2 space-y-6">
                     <div className="apix-card p-5">
-                        <h2 className="font-bold text-base flex items-center gap-2 mb-3"><CheckSquare className="w-4 h-4 text-primary" /> Tâches <span className="text-xs text-muted-foreground font-normal">({mission.tasks.length})</span></h2>
+                        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <h2 className="font-bold text-base flex items-center gap-2"><CheckSquare className="w-4 h-4 text-primary" /> Tâches <span className="text-xs text-muted-foreground font-normal">({mission.tasks.filter((task) => task.status === "COMPLETED").length}/{mission.tasks.length} terminées)</span></h2>
+                            {mission.tasks.length === 0 && mission.status !== "COMPLETED" && mission.status !== "CANCELLED" && <button onClick={appliquerModeleTaches} disabled={taskBusy !== null} className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{taskBusy === "template" ? "Ajout…" : `Initialiser la liste ${TYPES[mission.type] ?? "de la mission"}`}</button>}
+                        </div>
                         {mission.tasks.length === 0 ? <p className="text-sm text-muted-foreground">Aucune tâche rattachée.</p> : (
-                            <ul className="divide-y divide-border">{mission.tasks.map((t) => <li key={t.id} className="py-2 flex justify-between text-sm"><span>{t.title}</span><span className="text-xs text-muted-foreground">{t.status}{t.dueDate ? ` · ${dateFr(t.dueDate)}` : ""}</span></li>)}</ul>
+                            <ul className="divide-y divide-border">{mission.tasks.map((t) => <li key={t.id} className="py-2 flex items-center justify-between gap-3 text-sm"><label className="flex min-w-0 items-center gap-2"><input type="checkbox" checked={t.status === "COMPLETED"} disabled={taskBusy !== null || mission.status === "COMPLETED" || mission.status === "CANCELLED"} onChange={(e) => void definirTacheTerminee(t.id, e.target.checked)} /><span className={cn("truncate", t.status === "COMPLETED" && "text-muted-foreground line-through")}>{t.title}</span></label><span className="text-xs text-muted-foreground shrink-0">{t.status === "COMPLETED" ? "Terminée" : "À faire"}{t.dueDate ? ` · ${dateFr(t.dueDate)}` : ""}</span></li>)}</ul>
                         )}
                     </div>
                     <div className="apix-card p-5">

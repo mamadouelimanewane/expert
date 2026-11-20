@@ -46,7 +46,9 @@ import {
     Ship,
     Scale,
     FolderPlus,
-    FileDigit
+    FileDigit,
+    Bell,
+    ClipboardCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hrefActif, ordonnerMenu, sousMenuPour, entreeSousMenuActive } from "@/lib/menu-sections";
@@ -57,6 +59,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 type MenuItem = { header: string; icon?: never; label?: never; href?: never } | { icon: React.ComponentType<{ className?: string }>; label: string; href: string; header?: never };
+type SearchResult = { id: string; type: "CLIENT" | "MISSION" | "FACTURE" | "DOCUMENT"; label: string; detail: string; href: string };
 
 // Sélection dédoublonnée des écrans les plus utilisés (le plan complet est
 // dans /plan). Chaque destination n'apparaît qu'une fois : les anciens
@@ -64,6 +67,7 @@ type MenuItem = { header: string; icon?: never; label?: never; href?: never } | 
 // rendaient la barre illisible et faisaient hésiter sur le bon lien.
 const menuItems: MenuItem[] = [
     { header: "PILOTAGE & CABINET" },
+    { icon: Bell, label: "Boîte de réception", href: "/inbox" },
     { icon: LayoutGrid, label: "Hub des modules", href: "/bi" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },
@@ -75,6 +79,7 @@ const menuItems: MenuItem[] = [
 
     { header: "EXPERTISE & PRODUCTION" },
     { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },
+    { icon: ClipboardCheck, label: "Clôture annuelle", href: "/comptabilite/cloture-annuelle" },
     { icon: FileSpreadsheet, label: "Liasse Fiscale Auto", href: "/comptabilite/liasse-fiscale" },
     { icon: FilePieChart, label: "États Financiers SYSCOHADA", href: "/etats-financiers" },
     { icon: CalendarDays, label: "Fiscalité & Simulateur", href: "/fiscalite" },
@@ -126,13 +131,36 @@ export function Sidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isFabOpen, setIsFabOpen] = useState(false);
     const [filter, setFilter] = useState("");
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [searchLoading, setSearchLoading] = useState(false);
     const { data: session } = useSession();
 
     // Close sidebar on navigation (mobile)
     useEffect(() => {
         setIsOpen(false);
         setIsFabOpen(false);
+        setFilter("");
     }, [pathname]);
+
+    useEffect(() => {
+        const query = filter.trim();
+        if (query.length < 2) { setSearchResults([]); setSearchLoading(false); return; }
+        const controller = new AbortController();
+        const timer = setTimeout(async () => {
+            setSearchLoading(true);
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error ?? "Recherche indisponible.");
+                setSearchResults(data.results ?? []);
+            } catch {
+                if (!controller.signal.aborted) setSearchResults([]);
+            } finally {
+                if (!controller.signal.aborted) setSearchLoading(false);
+            }
+        }, 250);
+        return () => { clearTimeout(timer); controller.abort(); };
+    }, [filter]);
 
     // L'entrée active est ramenée dans la zone visible de la barre (utile
     // quand la section active est longue ou que l'utilisateur arrive par URL).
@@ -225,10 +253,17 @@ export function Sidebar() {
                             type="search"
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            placeholder="Filtrer le menu…"
-                            aria-label="Filtrer le menu"
+                            placeholder="Chercher modules, clients, missions…"
+                            aria-label="Filtrer les modules ou chercher des dossiers"
                             className="w-full pl-8 pr-3 py-2 rounded-lg text-xs bg-muted/40 border border-border/60 text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background outline-none transition-colors"
                         />
+                        {filter.trim().length >= 2 && <div className="absolute left-0 right-0 top-full z-[80] mt-2 max-h-[55vh] overflow-y-auto rounded-xl border border-border bg-background shadow-2xl" role="listbox" aria-label="Résultats de recherche">
+                            {searchLoading ? <p className="p-3 text-xs text-muted-foreground">Recherche…</p> : searchResults.length === 0 ? <p className="p-3 text-xs text-muted-foreground">Aucun dossier correspondant. Les modules restent filtrés ci-dessous.</p> : searchResults.map((result) => <Link key={`${result.type}-${result.id}`} href={result.href} role="option" onClick={() => { setFilter(""); setIsOpen(false); }} className="block border-b border-border/50 p-3 last:border-0 hover:bg-muted/60 focus:bg-muted/60 outline-none">
+                                <span className="block text-[9px] font-black uppercase tracking-widest text-primary">{result.type === "CLIENT" ? "Client" : result.type === "MISSION" ? "Mission" : result.type === "FACTURE" ? "Facture" : "Document"}</span>
+                                <span className="mt-0.5 block truncate text-xs font-semibold text-foreground">{result.label}</span>
+                                <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{result.detail}</span>
+                            </Link>)}
+                        </div>}
                     </div>
                 </div>
 

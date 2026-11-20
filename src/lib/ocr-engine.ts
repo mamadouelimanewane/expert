@@ -30,6 +30,35 @@ export interface InvoiceItem {
     total?: number;
 }
 
+const normalizeePourRecherche = (value: string) => value.toLocaleLowerCase("fr-FR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+
+/** Extraits OCR courts à comparer avec la pièce affichée avant validation humaine. */
+export function buildInvoiceFieldEvidence(text: string, invoiceData: InvoiceData, confidence: number) {
+    const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const fields: Array<{ key: keyof InvoiceData; value: string | number | undefined; labels: RegExp }> = [
+        { key: "supplier", value: invoiceData.supplier, labels: /fournisseur|emetteur|vendeur|societe|raison sociale/i },
+        { key: "invoiceNumber", value: invoiceData.invoiceNumber, labels: /facture|invoice|n[°ºo]|numero/i },
+        { key: "date", value: invoiceData.date, labels: /date|emise? le|\bdu\b/i },
+        { key: "totalHT", value: invoiceData.totalHT, labels: /total\s*ht|montant\s*ht|sous[-\s]total/i },
+        { key: "totalTTC", value: invoiceData.totalTTC, labels: /total\s*ttc|montant\s*(total|a payer)/i },
+        { key: "tva", value: invoiceData.tva, labels: /tva|taxe/i },
+    ];
+    return Object.fromEntries(fields.map(({ key, value, labels }) => {
+        if (value === undefined || value === "") return [key, { value: null, sourceText: null, confidence: 0, needsReview: true }];
+        const expected = normalizeePourRecherche(String(value));
+        const sourceText = lines.find((line) => {
+            const normalizedLine = normalizeePourRecherche(line);
+            if (normalizedLine.includes(expected)) return true;
+            if (typeof value === "number") {
+                const digits = String(value).replace(/\D/g, "");
+                return labels.test(line) && digits.length > 0 && line.replace(/\D/g, "").includes(digits);
+            }
+            return labels.test(line);
+        }) ?? null;
+        return [key, { value, sourceText: sourceText?.slice(0, 300) ?? null, confidence: sourceText ? confidence : 0, needsReview: true }];
+    }));
+}
+
 /**
  * OCR Engine pour extraire le texte des images/PDF
  */
@@ -239,6 +268,7 @@ export async function processUploadedInvoice(filePath: string) {
         ocrText: result.text,
         confidence: result.confidence,
         invoiceData: result.data,
+        fieldEvidence: buildInvoiceFieldEvidence(result.text, result.data ?? {}, result.confidence),
         validation,
         warnings: validation.missing.length > 0
             ? `Données manquantes : ${validation.missing.join(', ')}`

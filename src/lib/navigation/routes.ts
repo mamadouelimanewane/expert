@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 220 écrans sans devenir
+// La barre latérale ne peut pas exposer les 245 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -51,6 +51,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/",
                 "label": "Accueil"
+            }
+        ]
+    },
+    {
+        "nom": "Admin",
+        "pages": [
+            {
+                "href": "/admin/saas",
+                "label": "Saas"
             }
         ]
     },
@@ -172,6 +181,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Cac Suite"
             },
             {
+                "href": "/audit/circularisation",
+                "label": "Circularisation"
+            },
+            {
                 "href": "/audit/dossier-travail",
                 "label": "Dossier Travail"
             },
@@ -210,6 +223,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/audit/prep-kit",
                 "label": "Prep Kit"
+            },
+            {
+                "href": "/audit/rapport-cac",
+                "label": "Rapport Cac"
             }
         ]
     },
@@ -293,6 +310,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         ]
     },
     {
+        "nom": "Cabinet Indisponible",
+        "pages": [
+            {
+                "href": "/cabinet-indisponible",
+                "label": "Cabinet Indisponible"
+            }
+        ]
+    },
+    {
         "nom": "Clients",
         "pages": [
             {
@@ -361,6 +387,18 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         "nom": "Comptabilité",
         "pages": [
             {
+                "href": "/comptabilite/auxiliaire",
+                "label": "Auxiliaire"
+            },
+            {
+                "href": "/comptabilite/caisse",
+                "label": "Caisse"
+            },
+            {
+                "href": "/comptabilite/cloture-annuelle",
+                "label": "Cloture Annuelle"
+            },
+            {
                 "href": "/comptabilite",
                 "label": "Comptabilité"
             },
@@ -385,6 +423,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Production"
             },
             {
+                "href": "/comptabilite/rapprochement-bancaire",
+                "label": "Rapprochement Bancaire"
+            },
+            {
                 "href": "/comptabilite/reporting",
                 "label": "Reporting"
             },
@@ -399,6 +441,18 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/comptabilite/revision-cycles",
                 "label": "Revision Cycles"
+            },
+            {
+                "href": "/comptabilite/smt",
+                "label": "Smt"
+            },
+            {
+                "href": "/comptabilite/stocks",
+                "label": "Stocks"
+            },
+            {
+                "href": "/comptabilite/tableau-bord-pme",
+                "label": "Tableau Bord Pme"
             },
             {
                 "href": "/comptabilite/tpe-dashboard",
@@ -739,12 +793,36 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         "nom": "Fiscalité",
         "pages": [
             {
+                "href": "/fiscalite/attestation-brs",
+                "label": "Attestation Brs"
+            },
+            {
+                "href": "/fiscalite/cadrage-tva",
+                "label": "Cadrage Tva"
+            },
+            {
+                "href": "/fiscalite/conventions",
+                "label": "Conventions"
+            },
+            {
                 "href": "/fiscalite/drop-zone",
                 "label": "Drop Zone"
             },
             {
+                "href": "/fiscalite/fec",
+                "label": "Fec"
+            },
+            {
                 "href": "/fiscalite",
                 "label": "Fiscalité"
+            },
+            {
+                "href": "/fiscalite/loi-finances",
+                "label": "Loi Finances"
+            },
+            {
+                "href": "/fiscalite/matrice-risques",
+                "label": "Matrice Risques"
             },
             {
                 "href": "/fiscalite/obligations",
@@ -753,6 +831,14 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/fiscalite/optimization",
                 "label": "Optimization"
+            },
+            {
+                "href": "/fiscalite/quittance-ocr",
+                "label": "Quittance Ocr"
+            },
+            {
+                "href": "/fiscalite/resultat-fiscal",
+                "label": "Resultat Fiscal"
             }
         ]
     },
@@ -803,6 +889,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         ]
     },
     {
+        "nom": "Inbox",
+        "pages": [
+            {
+                "href": "/inbox",
+                "label": "Inbox"
+            }
+        ]
+    },
+    {
         "nom": "Investissement",
         "pages": [
             {
@@ -815,8 +910,16 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         "nom": "Juridique",
         "pages": [
             {
+                "href": "/legal/ag-generator",
+                "label": "ag Generator"
+            },
+            {
                 "href": "/legal/drafting",
                 "label": "Drafting"
+            },
+            {
+                "href": "/legal/recouvrement",
+                "label": "Recouvrement"
             }
         ]
     },
@@ -870,6 +973,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/missions/budget",
                 "label": "Budget"
+            },
+            {
+                "href": "/missions/budget-sentinel",
+                "label": "Budget Sentinel"
             },
             {
                 "href": "/missions/creation",
@@ -980,6 +1087,14 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
     {
         "nom": "Paie",
         "pages": [
+            {
+                "href": "/payroll/cadrage",
+                "label": "Cadrage"
+            },
+            {
+                "href": "/payroll/indemnites",
+                "label": "Indemnites"
+            },
             {
                 "href": "/payroll",
                 "label": "Paie"

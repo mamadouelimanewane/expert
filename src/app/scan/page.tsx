@@ -26,6 +26,9 @@ export default function OCRPage() {
     const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
     const [iaEnCours, setIaEnCours] = useState(false);
     const [lectureIA, setLectureIA] = useState<{ manuscrite: boolean; document: string; confiance: Record<string, string>; champsIllisibles: string[]; remarques: string[]; modele: string; cout: number } | null>(null);
+    const [sauvegardeRevue, setSauvegardeRevue] = useState(false);
+    const [doublons, setDoublons] = useState<{ id: string; name: string; createdAt: string }[]>([]);
+    const [validationEnCours, setValidationEnCours] = useState(false);
 
     useEffect(() => {
         fetch("/api/documents/000000000000000000000000/relire-ia").then((r) => r.json()).then((d) => setIaDisponible(!!d.disponible)).catch(() => setIaDisponible(false));
@@ -49,7 +52,10 @@ export default function OCRPage() {
                 tva: data.tva ? `${data.tva.toLocaleString()} FCFA` : "",
                 confidence: d.ocrResult.confidence ?? 0,
                 invoiceNumber: data.invoiceNumber || "",
+                fieldEvidence: d.ocrResult.fieldEvidence,
+                ocrText: d.ocrResult.ocrText,
             });
+            setSauvegardeRevue(false); setDoublons([]);
             setLectureIA({ manuscrite: d.lecture.manuscrite, document: d.lecture.document, confiance: d.lecture.confiance, champsIllisibles: d.lecture.champsIllisibles ?? [], remarques: d.lecture.remarques ?? [], modele: d.modele, cout: d.usage?.coutEstimeUSD ?? 0 });
             setStep("review");
         } catch {
@@ -111,6 +117,7 @@ export default function OCRPage() {
         setStep("scanning");
         setError(null);
         setLectureIA(null);
+        setSauvegardeRevue(false); setDoublons([]);
         setFichierDepose(file);
         setDocumentId(null);
 
@@ -141,7 +148,9 @@ export default function OCRPage() {
                     total: data.totalTTC ? `${data.totalTTC.toLocaleString()} FCFA` : "",
                     tva: data.tva ? `${data.tva.toLocaleString()} FCFA` : "",
                     confidence: Math.round(result.ocrResult.confidence) || 0,
-                    invoiceNumber: data.invoiceNumber || ""
+                    invoiceNumber: data.invoiceNumber || "",
+                    fieldEvidence: result.ocrResult.fieldEvidence,
+                    ocrText: result.ocrResult.ocrText,
                 });
                 setStep("review");
             } else {
@@ -153,6 +162,30 @@ export default function OCRPage() {
             setStep("upload");
             setPreviewUrl(null);
         }
+    };
+
+    const validerExtraction = async (acknowledgeDuplicates = false) => {
+        if (!documentId || !extractedData) return;
+        setValidationEnCours(true); setError(null);
+        try {
+            const response = await fetch(`/api/documents/${documentId}/review`, {
+                method: "PATCH", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ supplier: extractedData.merchant, date: extractedData.date, invoiceNumber: extractedData.invoiceNumber, totalTTC: extractedData.total, tva: extractedData.tva, acknowledgeDuplicates }),
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                if (result.duplicateCandidates) setDoublons(result.duplicateCandidates);
+                throw new Error(result.error || "Validation de l’extraction impossible.");
+            }
+            setSauvegardeRevue(true); setDoublons([]);
+        } catch (e) { setError(e instanceof Error ? e.message : "Validation de l’extraction impossible."); }
+        finally { setValidationEnCours(false); }
+    };
+
+    const hintSource = (key: string) => {
+        const evidence = extractedData?.fieldEvidence?.[key];
+        if (evidence?.sourceText) return <p className="mt-1 text-[11px] text-slate-400">Extrait OCR : « {evidence.sourceText} » · confiance globale {evidence.confidence}% — vérifiez sur la pièce.</p>;
+        return <p className="mt-1 text-[11px] text-amber-300">Extrait textuel non isolé : vérification visuelle sur la pièce requise.</p>;
     };
 
     const handleUploadClick = () => {
@@ -306,6 +339,7 @@ export default function OCRPage() {
                                         Confiance IA: <span className="text-emerald-400">{extractedData.confidence}%</span>
                                     </p>
                                 )}
+                                {extractedData && <p className={`mt-1 text-[11px] font-bold ${sauvegardeRevue ? "text-emerald-300" : "text-amber-300"}`}>{sauvegardeRevue ? "Correction humaine enregistrée · extraction validée" : "Proposition OCR · en attente de validation humaine"}</p>}
                             </div>
                         </div>
                         {extractedData && (
@@ -344,11 +378,12 @@ export default function OCRPage() {
                                         <input
                                             type="text"
                                             value={extractedData.merchant}
-                                            onChange={(e) => setExtractedData({ ...extractedData, merchant: e.target.value })}
+                                            onChange={(e) => { setExtractedData({ ...extractedData, merchant: e.target.value }); setSauvegardeRevue(false); }}
                                             className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                                     </div>
+                                    {hintSource("supplier")}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-5">
@@ -357,18 +392,20 @@ export default function OCRPage() {
                                         <input
                                             type="text"
                                             value={extractedData.date}
-                                            onChange={(e) => setExtractedData({ ...extractedData, date: e.target.value })}
+                                            onChange={(e) => { setExtractedData({ ...extractedData, date: e.target.value }); setSauvegardeRevue(false); }}
                                             className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
+                                        {hintSource("date")}
                                     </div>
                                     <div className="group">
                                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">N° Facture</label>
                                         <input
                                             type="text"
                                             value={extractedData.invoiceNumber}
-                                            onChange={(e) => setExtractedData({ ...extractedData, invoiceNumber: e.target.value })}
+                                            onChange={(e) => { setExtractedData({ ...extractedData, invoiceNumber: e.target.value }); setSauvegardeRevue(false); }}
                                             className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                         />
+                                        {hintSource("invoiceNumber")}
                                     </div>
                                 </div>
 
@@ -378,9 +415,10 @@ export default function OCRPage() {
                                         <input
                                             type="text"
                                             value={extractedData.total}
-                                            onChange={(e) => setExtractedData({ ...extractedData, total: e.target.value })}
+                                            onChange={(e) => { setExtractedData({ ...extractedData, total: e.target.value }); setSauvegardeRevue(false); }}
                                             className="w-full bg-slate-800 border border-primary/50 group-focus-within:border-primary rounded-2xl px-4 py-3 text-emerald-400 font-black text-lg transition-all outline-none shadow-lg shadow-primary/5"
                                         />
+                                        {hintSource("totalTTC")}
                                     </div>
                                     <div className="group">
                                         <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">TVA (18%)</label>
@@ -388,12 +426,17 @@ export default function OCRPage() {
                                             <input
                                                 type="text"
                                                 value={extractedData.tva}
-                                                onChange={(e) => setExtractedData({ ...extractedData, tva: e.target.value })}
+                                                onChange={(e) => { setExtractedData({ ...extractedData, tva: e.target.value }); setSauvegardeRevue(false); }}
                                                 className="w-full bg-slate-800/50 border border-slate-700 group-focus-within:border-primary rounded-2xl px-4 py-3 text-white font-bold transition-all outline-none"
                                             />
                                         </div>
+                                        {hintSource("tva")}
                                     </div>
                                 </div>
+
+                                {extractedData.ocrText && <details className="rounded-xl border border-white/10 bg-slate-950/50 p-3"><summary className="cursor-pointer text-xs font-bold text-slate-300">Afficher le texte OCR source</summary><pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-xs text-slate-400">{extractedData.ocrText}</pre></details>}
+
+                                {doublons.length > 0 && <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-100"><p className="font-bold">Factures similaires détectées. Vérifiez avant confirmation :</p>{doublons.map((doublon) => <p key={doublon.id} className="mt-1">{doublon.name} · {new Date(doublon.createdAt).toLocaleDateString("fr-FR")}</p>)}<button disabled={validationEnCours} onClick={() => void validerExtraction(true)} className="mt-3 rounded-lg bg-amber-600 px-3 py-2 font-bold text-white disabled:opacity-50">J’ai vérifié les doublons, confirmer</button></div>}
 
                                 {/* Aucun controle anti-fraude (format Facture-X/FEC, IBAN, doublons)
                                     n'est effectue par l'application : ce bloc affichait auparavant
@@ -402,7 +445,7 @@ export default function OCRPage() {
                                 <div className="p-5 rounded-2xl bg-slate-800/50 border border-amber-500/20 flex items-start gap-3">
                                     <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                                     <p className="text-xs text-amber-200/90 leading-relaxed">
-                                        Aucune vérification anti-fraude automatisée (format, IBAN, doublons) n&apos;est effectuée : vérifiez ce document manuellement avant de l&apos;enregistrer.
+                                        Le contrôle de doublon porte sur le numéro et le fournisseur déjà extraits pour ce client. Il ne vérifie pas les IBAN ni l’authenticité du document : confrontez les valeurs à la pièce originale.
                                     </p>
                                 </div>
 
@@ -445,9 +488,9 @@ export default function OCRPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3 pt-2">
-                                    <button disabled title="Non implémenté : le document est extrait mais aucune écriture comptable n'est encore générée automatiquement" className="flex-1 py-4 bg-slate-800/50 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 cursor-not-allowed">
+                                    <button disabled={validationEnCours || !documentId} onClick={() => void validerExtraction(false)} title="Enregistre les corrections humaines et leur historique sans créer d’écriture comptable." className="flex-1 py-4 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3">
                                         <Save className="w-5 h-5" />
-                                        Enregistrer l'écriture
+                                        {validationEnCours ? "Validation…" : sauvegardeRevue ? "Corrections enregistrées" : "Valider l’extraction"}
                                     </button>
                                     <button className="p-4 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all border border-white/5 shadow-lg" onClick={() => { setStep("upload"); setExtractedData(null); setPreviewUrl(null); }}>
                                         <X className="w-6 h-6" />

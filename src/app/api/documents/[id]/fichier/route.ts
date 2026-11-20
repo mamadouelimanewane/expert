@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { lirePiece } from "@/lib/stockage-pieces";
+import { AuditService } from "@/lib/audit";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -25,6 +26,15 @@ export async function GET(request: Request, { params }: Params) {
         if (!piece) return NextResponse.json({ error: "Le fichier de cette pièce n'est plus disponible." }, { status: 410 });
         const telecharger = new URL(request.url).searchParams.get("download") === "1";
         const nom = encodeURIComponent(doc.originalName || doc.fileName);
+        await AuditService.log({
+            action: "DOWNLOAD",
+            entity: "DOCUMENT",
+            entityId: id,
+            details: telecharger ? "Pièce justificative téléchargée par un membre du cabinet." : "Pièce justificative consultée par un membre du cabinet.",
+            newValue: { mode: telecharger ? "download" : "inline" },
+            ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
+            userAgent: request.headers.get("user-agent") ?? undefined,
+        });
         return new Response(new Uint8Array(piece.contenu), {
             headers: {
                 "Content-Type": doc.mimeType || piece.mimeType,

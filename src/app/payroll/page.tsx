@@ -11,6 +11,7 @@ import { GestionSalaries } from "@/components/payroll/GestionSalaries";
 import { HistoriquePaie } from "@/components/payroll/HistoriquePaie";
 
 export default function PayrollDashboard() {
+  type InfoReglesPaie = { version: string; statutValidation: string; sources: { sujet: string; reference: string; applicableFrom: string; url: string }[]; avertissements: string[] };
   const [clients, setClients] = useState<any[]>([]);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   
@@ -33,6 +34,13 @@ export default function PayrollDashboard() {
         if (data.clients) setClients(data.clients);
       });
   }, []);
+
+  useEffect(() => {
+    const requestedClientId = new URLSearchParams(window.location.search).get("clientId");
+    if (requestedClientId && clients.some((client) => client.id === requestedClientId)) {
+      setSelectedClient(requestedClientId);
+    }
+  }, [clients]);
 
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
@@ -65,6 +73,7 @@ export default function PayrollDashboard() {
   };
 
   const [avertissementsPaie, setAvertissementsPaie] = useState<string[]>([]);
+  const [infoReglesPaie, setInfoReglesPaie] = useState<InfoReglesPaie | null>(null);
 
   // Variables corrigées à la main dans le tableau, par salarié. Elles priment
   // sur l'extraction IA et suffisent à calculer la paie sans aucun moteur IA.
@@ -89,6 +98,7 @@ export default function PayrollDashboard() {
       if (data.success) {
         setVariables(data.variables);
         setCountryCode(data.country || "SN");
+        setInfoReglesPaie(data.reglesPaie ?? null);
         setAvertissementsPaie(data.avertissements ?? []);
       } else {
         setVoiceError(data.error || "Erreur lors de l'analyse de la transcription");
@@ -139,6 +149,7 @@ export default function PayrollDashboard() {
         setPayError(data.error || "Erreur lors de la validation de la paie");
       } else {
         setIsPaid(true);
+        setInfoReglesPaie(data.reglesPaie ?? infoReglesPaie);
         setPeriodeValidee({ id: data.period.id, periodName: data.period.periodName });
         setRafraichirHistorique((n) => n + 1);
       }
@@ -158,8 +169,8 @@ export default function PayrollDashboard() {
           <Calculator className="w-8 h-8 text-blue-400" />
         </div>
         <div className="flex-1">
-          <h2 className="page-title">Paie & Social IA Multi-Pays</h2>
-          <p className="page-subtitle">Générez la paie sans saisie. Le moteur fiscal s'adapte automatiquement au pays du client (Sénégal, CI, etc.).</p>
+          <h2 className="page-title">Paie & Social</h2>
+          <p className="page-subtitle">Calculs disponibles pour le Sénégal et la Côte d&apos;Ivoire. Les pays sans barème implémenté sont refusés.</p>
         </div>
       </div>
 
@@ -258,6 +269,15 @@ export default function PayrollDashboard() {
                   Bulletin de Paie & Déclarations
                 </h3>
                 <p className="text-xs text-slate-400 mt-1 ml-8">Calculé selon la législation de : <span className="font-bold text-white">{countryCode === 'SN' ? 'Sénégal 🇸🇳 (barème IR art. 173, réduction charges de famille, TRIMF, IPRES 432 000 / 1 296 000, CSS, CFCE, IPM)' : countryCode === 'CI' ? "Côte d'Ivoire 🇨🇮 (ITS unifié 2024, RICF, CNPS, CMU, FDFP)" : countryCode}</span></p>
+                {infoReglesPaie && (
+                  <div className="mt-3 ml-8 rounded-xl border border-amber-500/25 bg-amber-500/5 p-3 text-xs text-amber-200 space-y-2">
+                    <p className="font-bold">Référentiel {infoReglesPaie.version} · validation professionnelle requise</p>
+                    {infoReglesPaie.sources.map((source) => (
+                      <p key={source.sujet}><span className="font-semibold">{source.sujet} :</span> {source.reference} — {source.applicableFrom} · <a href={source.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">source</a></p>
+                    ))}
+                    {infoReglesPaie.avertissements.map((warning) => <p key={warning} className="text-amber-100">{warning}</p>)}
+                  </div>
+                )}
               </div>
               {variables && (
                 <div className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-black uppercase flex items-center gap-1">

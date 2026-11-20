@@ -29,6 +29,8 @@ type Invoice = { id: string; invoiceNumber: string; total: number; status: strin
 type TimeEntry = { id: string; date: string; duration: number; category: string; description?: string | null; clientId?: string; user?: { firstName: string; lastName: string } };
 type Doc = { id: string; fileName: string; type: string; status: string; createdAt: string };
 type Letter = { id: string; reference: string; status: string; fees?: number | null; clientId: string; signedAt?: string | null };
+type PayrollPeriod = { id: string; periodName: string; status: string; ruleVersion?: string | null; bulletins: number; totalBrut: number; totalNet: number; totalImpots: number; totalCotisations: number };
+type Balance = { id: string; periode: string; fichier?: string | null; nbLignes: number; totalDebit: number; totalCredit: number; equilibree: boolean; createdAt: string };
 
 const REGIMES: Record<string, string> = { REEL_NORMAL: "Réel normal", REEL_SIMPLIFIE: "Réel simplifié", CME: "CME", MICRO_ENTREPRISE: "Micro-entreprise" };
 const STATUT_MISSION: Record<string, { label: string; cls: string }> = {
@@ -63,9 +65,12 @@ export default function ClientDetailPage() {
     const [times, setTimes] = useState<TimeEntry[]>([]);
     const [docs, setDocs] = useState<Doc[]>([]);
     const [letters, setLetters] = useState<Letter[]>([]);
+    const [payrollPeriods, setPayrollPeriods] = useState<PayrollPeriod[]>([]);
+    const [balances, setBalances] = useState<Balance[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const [notFound, setNotFound] = useState(false);
-    const [onglet, setOnglet] = useState<"missions" | "factures" | "temps" | "documents" | "lettres">("missions");
+    const [onglet, setOnglet] = useState<"missions" | "factures" | "temps" | "documents" | "lettres" | "paie" | "comptabilite">("missions");
 
     // Édition
     const [editing, setEditing] = useState(false);
@@ -78,23 +83,36 @@ export default function ClientDetailPage() {
 
     const charger = useCallback(async () => {
         setLoading(true);
+        setLoadError(null);
         try {
             const rc = await fetch(`/api/clients/${id}`);
             if (rc.status === 404) { setNotFound(true); return; }
+            if (!rc.ok) throw new Error("Impossible de charger la fiche client.");
             const { client: c } = await rc.json();
             setClient(c);
-            const [rm, ri, rt, rd, rl] = await Promise.all([
-                fetch(`/api/missions?clientId=${id}`).then((r) => r.json()).catch(() => ({})),
-                fetch(`/api/invoices?status=tous`).then((r) => r.json()).catch(() => ({})),
-                fetch(`/api/timesheets`).then((r) => r.json()).catch(() => ({})),
-                fetch(`/api/documents?clientId=${id}`).then((r) => r.json()).catch(() => ({})),
-                fetch(`/api/engagement-letters`).then((r) => r.json()).catch(() => ({})),
+            const lireJson = async (url: string) => {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Chargement indisponible (${response.status}).`);
+                return response.json();
+            };
+            const [rm, ri, rt, rd, rl, rp, rb] = await Promise.all([
+                lireJson(`/api/missions?clientId=${id}`),
+                lireJson(`/api/invoices?status=tous&clientId=${id}&limit=200`),
+                lireJson(`/api/timesheets`),
+                lireJson(`/api/documents?clientId=${id}`),
+                lireJson(`/api/engagement-letters?clientId=${id}`),
+                lireJson(`/api/payroll/periodes?clientId=${id}`),
+                lireJson(`/api/comptabilite/balance?clientId=${id}`),
             ]);
             setMissions(rm.missions ?? []);
-            setInvoices((ri.invoices ?? []).filter((i: Invoice) => i.clientId === id));
+            setInvoices(ri.invoices ?? []);
             setTimes((rt.entries ?? []).filter((t: TimeEntry) => t.clientId === id));
             setDocs(Array.isArray(rd) ? rd : rd.documents ?? []);
-            setLetters((rl.letters ?? []).filter((l: Letter) => l.clientId === id));
+            setLetters(rl.letters ?? []);
+            setPayrollPeriods(rp.periodes ?? []);
+            setBalances(rb.balances ?? []);
+        } catch (error) {
+            setLoadError(error instanceof Error ? error.message : "Une erreur a empêché le chargement du dossier.");
         } finally {
             setLoading(false);
         }
@@ -185,6 +203,9 @@ export default function ClientDetailPage() {
     if (notFound) {
         return <EmptyState icon={Building2} title="Client introuvable" description="Ce dossier n'existe pas ou a été supprimé." action={{ label: "Retour aux clients", href: "/clients" }} />;
     }
+    if (loadError) {
+        return <div role="alert" className="mx-auto max-w-xl apix-card p-6 text-center space-y-4"><AlertTriangle className="mx-auto h-8 w-8 text-amber-500" /><h1 className="font-bold">Le dossier n’a pas pu être chargé</h1><p className="text-sm text-muted-foreground">{loadError}</p><button onClick={() => void charger()} disabled={loading} className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white disabled:opacity-50">{loading ? "Chargement…" : "Réessayer"}</button></div>;
+    }
     if (loading || !client) {
         return <LoadingState label="Chargement du dossier client…" skeleton="cards" count={3} />;
     }
@@ -225,6 +246,7 @@ export default function ClientDetailPage() {
                     {!editing ? (
                         <>
                             <button onClick={demarrerEdition} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white font-bold text-sm"><Pencil className="w-4 h-4" /> Modifier</button>
+                            <Link href={`/clients/${client.id}/fiscal`} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card font-bold text-sm hover:border-primary"><FileText className="w-4 h-4" /> Profil fiscal</Link>
                             <Link href={`/missions/new?clientId=${client.id}`} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card font-bold text-sm hover:border-primary"><Briefcase className="w-4 h-4" /> Nouvelle mission</Link>
                             <Link href={`/billing/new?clientId=${client.id}`} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card font-bold text-sm hover:border-primary"><Receipt className="w-4 h-4" /> Facturer</Link>
                             {client.isActive && <button onClick={archiver} className="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border text-muted-foreground hover:text-rose-600 hover:border-rose-300 text-sm" title="Archiver le client"><Archive className="w-4 h-4" /></button>}
@@ -245,7 +267,7 @@ export default function ClientDetailPage() {
                     { l: "Facturé", v: fcfa(synthese.facture), i: Receipt },
                     { l: "Encaissé", v: fcfa(synthese.encaisse), i: CheckCircle2 },
                     { l: "En retard", v: fcfa(synthese.enRetard), i: AlertTriangle, alert: synthese.enRetard > 0 },
-                    { l: "Heures saisies", v: `${synthese.heures.toLocaleString("fr-FR")} h`, i: Clock },
+                    { l: "Mes heures saisies", v: `${synthese.heures.toLocaleString("fr-FR")} h`, i: Clock },
                 ].map((k) => (
                     <div key={k.l} className="apix-card p-4">
                         <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5"><k.i className="w-3.5 h-3.5" />{k.l}</p>
@@ -319,7 +341,7 @@ export default function ClientDetailPage() {
                 {/* Activité */}
                 <div className="apix-card p-0 lg:col-span-2 overflow-hidden">
                     <div className="tabs-scroll flex gap-1 p-2 border-b border-border">
-                        {([["missions", "Missions", missions.length], ["factures", "Factures", invoices.length], ["temps", "Temps", times.length], ["documents", "Documents", docs.length], ["lettres", "Lettres de mission", letters.length]] as const).map(([k, l, n]) => (
+                        {([["missions", "Missions", missions.length], ["factures", "Factures", invoices.length], ["temps", "Temps", times.length], ["documents", "Documents", docs.length], ["lettres", "Lettres de mission", letters.length], ["paie", "Paie", payrollPeriods.length], ["comptabilite", "Comptabilité", balances.length]] as const).map(([k, l, n]) => (
                             <button key={k} onClick={() => setOnglet(k)} className={cn("px-3.5 py-2 rounded-lg text-sm font-bold transition-colors", onglet === k ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted")}>
                                 {l} <span className={cn("ml-1 text-[11px]", onglet === k ? "opacity-80" : "opacity-60")}>{n}</span>
                             </button>
@@ -389,6 +411,22 @@ export default function ClientDetailPage() {
                                 ))}
                             </ul>
                         ))}
+                        {onglet === "paie" && (
+                            <div className="space-y-3">
+                                <div className="flex justify-end"><Link href={`/payroll?clientId=${client.id}`} className="text-xs font-bold text-primary hover:underline">Ouvrir le module Paie →</Link></div>
+                                {payrollPeriods.length === 0 ? <EmptyState size="compact" icon={Receipt} title="Aucune période de paie" description="Les périodes calculées et validées pour ce client apparaîtront ici." action={{ label: "Ouvrir la paie de ce client", href: `/payroll?clientId=${client.id}` }} /> : (
+                                    <ul className="divide-y divide-border">{payrollPeriods.map((p) => <li key={p.id} className="py-3 flex flex-wrap items-center justify-between gap-3"><div><p className="font-bold text-sm">{p.periodName}</p><p className="text-xs text-muted-foreground">{p.bulletins} bulletin(s){p.ruleVersion ? ` · règles ${p.ruleVersion}` : ""}</p></div><div className="text-right"><p className="font-bold text-sm">Net : {fcfa(p.totalNet)}</p><p className="text-xs text-muted-foreground">Brut : {fcfa(p.totalBrut)} · {p.status}</p></div></li>)}</ul>
+                                )}
+                            </div>
+                        )}
+                        {onglet === "comptabilite" && (
+                            <div className="space-y-3">
+                                <div className="flex justify-end"><Link href={`/etats-financiers/import?clientId=${client.id}`} className="text-xs font-bold text-primary hover:underline">Ouvrir les balances →</Link></div>
+                                {balances.length === 0 ? <EmptyState size="compact" icon={FileText} title="Aucune balance importée" description="Les balances importées pour ce dossier apparaîtront ici." action={{ label: "Importer une balance", href: `/etats-financiers/import?clientId=${client.id}` }} /> : (
+                                    <ul className="divide-y divide-border">{balances.map((b) => <li key={b.id} className="py-3 flex flex-wrap items-center justify-between gap-3"><div><p className="font-bold text-sm">Exercice {b.periode}</p><p className="text-xs text-muted-foreground">{b.nbLignes} compte(s) · {dateFr(b.createdAt)}</p></div><div className="text-right"><p className="text-xs">Débit : {fcfa(b.totalDebit)}</p><p className="text-xs">Crédit : {fcfa(b.totalCredit)}</p><p className={cn("text-[11px] font-bold", b.equilibree ? "text-emerald-600" : "text-rose-600")}>{b.equilibree ? "Équilibrée" : "Écart à examiner"}</p></div></li>)}</ul>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

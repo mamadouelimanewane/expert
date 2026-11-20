@@ -1,4 +1,6 @@
 # CABINET-360: Practice Management pour l'Espace OHADA
+> Plan historique : la stack décrite ci-dessous ne reflète pas le dépôt actuel
+> (MongoDB et Next.js 16). Utilisez `ARCHITECTURE.md` pour l'état du code.
 *Document de spécification et plan d'implémentation*
 
 ## 1. Vision du Produit

@@ -118,8 +118,19 @@ model User {
   workspaceActivities  WorkspaceActivity[]  @relation("WorkspaceActivityAuthor")
   forumPosts           ForumPost[]
   forumComments        ForumComment[]
+  auditReviewCommentsAuthored AuditReviewComment[]      @relation("AuditReviewCommentAuthor")
+  auditReviewCommentsAssigned AuditReviewComment[]      @relation("AuditReviewCommentAssignee")
+  auditReviewCommentsResolved AuditReviewComment[]      @relation("AuditReviewCommentResolver")
+  auditReviewCommentEvents    AuditReviewCommentEvent[] @relation("AuditReviewCommentEventAuthor")
+  auditEngagementAssessments  AuditEngagementAssessment[] @relation("AuditEngagementAssessor")
+  auditSectionsReviewed      AuditSection[] @relation("AuditSectionReviewer")
+  yearEndClosesCreated       YearEndClose[] @relation("YearEndCloseCreator")
+  yearEndClosesClosed        YearEndClose[] @relation("YearEndCloseCloser")
+  yearEndCloseItemsAssigned  YearEndCloseItem[] @relation("YearEndCloseItemAssignee")
+  yearEndCloseItemsCompleted YearEndCloseItem[] @relation("YearEndCloseItemCompleter")
 
   @@map("users")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -141,13 +152,14 @@ enum FiscalRegime {
 
 model Client {
   id   String     @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   type ClientType @default(ENTREPRISE)
 
   // Identification
   companyName String?
   firstName   String?
   lastName    String?
-  email       String  @unique
+  email       String
   phone       String
 
   // Identifiants OHADA
@@ -191,6 +203,9 @@ model Client {
 
   // Status
   subjectToTva Boolean @default(false) // Paramétrage flexible de la TVA
+  // Profil d'assujettissement à compléter et réviser par le cabinet ; les
+  // règles nationales versionnées restent à implémenter.
+  taxProfile Json?
   isActive     Boolean @default(true)
 
   // Portail PMI
@@ -234,8 +249,11 @@ model Client {
   fiscalRisks           FiscalRisk[]
   clientRequests        ClientRequest[]
   workPapers            WorkPaper[]
+  yearEndCloses         YearEndClose[]
 
   @@map("clients")
+  @@unique([cabinetId, email])
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -262,6 +280,7 @@ enum MissionType {
 
 model Mission {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title       String
   description String?
   type        MissionType
@@ -295,15 +314,20 @@ model Mission {
   missionOrders       MissionOrder[]
   engagementLetters   EngagementLetter[]
   resourceAllocations ResourceAllocation[]
+  auditReviewComments AuditReviewComment[]
+  engagementAssessment AuditEngagementAssessment?
+  auditSamples        AuditSample[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("missions")
+  @@index([cabinetId])
 }
 
 model Task {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title       String
   description String?
   status      MissionStatus @default(DRAFT)
@@ -321,6 +345,7 @@ model Task {
   updatedAt DateTime @updatedAt
 
   @@map("tasks")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -345,6 +370,7 @@ enum TimeEntryStatus {
 
 model TimeEntry {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
 
   date        DateTime
   duration    Float // En heures (ex: 2.5)
@@ -369,6 +395,7 @@ model TimeEntry {
   updatedAt DateTime @updatedAt
 
   @@map("time_entries")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -388,6 +415,7 @@ enum InvoiceStatus {
 // journal d'écritures pour produire bilan, résultat, TFT et liasse.
 model BalanceImportee {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   periode String // YYYY-MM : mois de clôture de la balance
   fichier String?
 
@@ -409,11 +437,74 @@ model BalanceImportee {
 
   @@unique([clientId, periode])
   @@map("balances_importees")
+  @@index([cabinetId])
+}
+
+model AccountingPeriodLock {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId   String?  @db.ObjectId // Tenant owner
+  clientId    String   @db.ObjectId
+  periode     String   // YYYY-MM
+  lockedAt    DateTime @default(now())
+  lockedById  String   @db.ObjectId
+  reason      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([clientId, periode])
+  @@index([cabinetId])
+  @@map("accounting_period_locks")
+}
+
+model YearEndClose {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId    String?  @db.ObjectId
+  clientId     String   @db.ObjectId
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  fiscalYear   Int
+  status       String   @default("OPEN") // OPEN, CLOSED
+  createdById  String   @db.ObjectId
+  createdBy    User     @relation("YearEndCloseCreator", fields: [createdById], references: [id])
+  closedById   String?  @db.ObjectId
+  closedBy     User?    @relation("YearEndCloseCloser", fields: [closedById], references: [id])
+  closedAt     DateTime?
+  reopenReason String?
+  items        YearEndCloseItem[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([clientId, fiscalYear])
+  @@index([cabinetId, status, fiscalYear])
+  @@map("year_end_closes")
+}
+
+model YearEndCloseItem {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId     String?  @db.ObjectId
+  closeId       String   @db.ObjectId
+  close         YearEndClose @relation(fields: [closeId], references: [id], onDelete: Cascade)
+  key           String
+  title         String
+  status        String   @default("PENDING") // PENDING, DONE
+  evidence      String?
+  notes         String?
+  assignedToId  String?  @db.ObjectId
+  assignedTo    User?    @relation("YearEndCloseItemAssignee", fields: [assignedToId], references: [id])
+  completedById String?  @db.ObjectId
+  completedBy   User?    @relation("YearEndCloseItemCompleter", fields: [completedById], references: [id])
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([closeId, key])
+  @@index([cabinetId, closeId, status])
+  @@map("year_end_close_items")
 }
 
 model Invoice {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
-  invoiceNumber String @unique
+  cabinetId String? @db.ObjectId // Tenant owner
+  invoiceNumber String
 
   issueDate DateTime  @default(now())
   dueDate   DateTime
@@ -444,6 +535,8 @@ model Invoice {
   updatedAt DateTime @updatedAt
 
   @@map("invoices")
+  @@unique([cabinetId, invoiceNumber])
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -469,6 +562,7 @@ enum DocumentStatus {
 
 model Document {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   fileName     String
   originalName String
   fileSize     Int
@@ -499,6 +593,7 @@ model Document {
   updatedAt DateTime @updatedAt
 
   @@map("documents")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -523,6 +618,7 @@ enum DeclarationStatus {
 
 model TaxDeclaration {
   id     String            @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   type   DeclarationType
   status DeclarationStatus @default(DRAFT)
 
@@ -532,6 +628,14 @@ model TaxDeclaration {
 
   amount    Float?
   reference String? // Numéro de quittance
+  // Suivi opérationnel du dépôt et du règlement. Ces champs enregistrent les
+  // preuves récupérées sur le portail officiel ; ils ne réalisent pas le dépôt.
+  obligationCode   String?
+  calculationNotes String?
+  filingReceipt    String?
+  paymentReference String?
+  paidAt           DateTime?
+  ruleVersion      String?
 
   // Relations
   clientId String @db.ObjectId
@@ -541,6 +645,7 @@ model TaxDeclaration {
   updatedAt DateTime @updatedAt
 
   @@map("tax_declarations")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -560,6 +665,7 @@ enum MeetingStatus {
 
 model Meeting {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title       String
   description String?
 
@@ -585,6 +691,7 @@ model Meeting {
   updatedAt DateTime @updatedAt
 
   @@map("meetings")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -600,6 +707,7 @@ enum NotificationType {
 
 model Notification {
   id      String           @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   type    NotificationType @default(INFO)
   title   String
   message String
@@ -613,6 +721,7 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@map("notifications")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -621,6 +730,7 @@ model Notification {
 
 model AuditLog {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   action   String // CREATE, UPDATE, DELETE, LOGIN, etc.
   entity   String // Client, Mission, Invoice, etc.
   entityId String?
@@ -638,6 +748,7 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@map("audit_logs")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -646,6 +757,7 @@ model AuditLog {
 
 model Communication {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   type     String // email, whatsapp, portal, teams
   sender   String
   avatar   String? // Initials
@@ -658,10 +770,12 @@ model Communication {
   tags     String[]
 
   @@map("communications")
+  @@index([cabinetId])
 }
 
 model NewsBrief {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title     String
   type      String // FISCAL, LEGAL, URGENT
   content   String
@@ -672,6 +786,7 @@ model NewsBrief {
   isRead    Boolean  @default(false)
 
   @@map("news_briefs")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -680,6 +795,7 @@ model NewsBrief {
 
 model FinancialData {
   id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   year   Int // Ex: 2023, 2024
   period String? // Ex: "ANNUAL", "H1", "Q1"
 
@@ -703,6 +819,7 @@ model FinancialData {
   updatedAt DateTime @updatedAt
 
   @@map("financial_data")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -711,8 +828,9 @@ model FinancialData {
 
 model MobileMoneyTransaction {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   operator    String // Wave, Orange Money, MTN MoMo
-  reference   String  @unique
+  reference   String
   senderName  String?
   senderPhone String
   amount      Float
@@ -730,10 +848,13 @@ model MobileMoneyTransaction {
   updatedAt DateTime @updatedAt
 
   @@map("mobile_money_transactions")
+  @@unique([cabinetId, operator, reference])
+  @@index([cabinetId])
 }
 
 model CreditScore {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   score      Int // 0 - 1000
   factors    Json // Details of the score components
   isEligible Boolean @default(false)
@@ -745,6 +866,7 @@ model CreditScore {
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@map("credit_scores")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -753,6 +875,7 @@ model CreditScore {
 
 model InformelBusiness {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   businessName String
   activityType String
   phone        String
@@ -770,6 +893,7 @@ model InformelBusiness {
   updatedAt DateTime @updatedAt
 
   @@map("informel_businesses")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -778,6 +902,7 @@ model InformelBusiness {
 
 model TpeJournal {
   id           String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   periode      String // Ex: "JUIN-2026"
   businessName String // Nom du commerçant/TPE
 
@@ -790,7 +915,8 @@ model TpeJournal {
   // Nouveaux champs BPO (Informel)
   source          String  @default("WHATSAPP") // WHATSAPP, MOBILE_MONEY
   rawContent      String? // Le texte brut ou la transcription vocale
-  confidenceScore Float   @default(0) // Score de confiance de l'IA (0 - 1)
+  confidenceScore Float   @default(0) // Indice de la règle d'imputation (0 - 1), jamais une preuve
+  imputationNote  String? // Règle appliquée ou motif de mise en attente
 
   // OHADA accounting (generated by engine)
   debitCompte    String
@@ -802,6 +928,13 @@ model TpeJournal {
   // Status
   exportedAt DateTime? // Date de validation
   status     String    @default("PENDING") // PENDING, APPROVED, REJECTED, EXPORTED
+  approvedAt DateTime?
+  approvedById String? @db.ObjectId
+  rejectedAt DateTime?
+  rejectedById String? @db.ObjectId
+  rejectionReason String?
+  reversedFromId String? @db.ObjectId
+  reversalReason String?
 
   // Relations
   clientId String @db.ObjectId
@@ -810,6 +943,8 @@ model TpeJournal {
   createdAt DateTime @default(now())
 
   @@map("tpe_journals")
+  @@index([cabinetId])
+  @@index([cabinetId, reversedFromId])
 }
 
 // ------------------------------------------
@@ -819,6 +954,7 @@ model TpeJournal {
 // --- 1. BANQUE & LETTRAGE IA ---
 model BankTransaction {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   date        DateTime
   description String
   amount      Float
@@ -835,11 +971,13 @@ model BankTransaction {
   updatedAt DateTime @updatedAt
 
   @@map("bank_transactions")
+  @@index([cabinetId])
 }
 
 // --- 2. MACHINE LEARNING & AUTO-APPRENTISSAGE ---
 model AccountingRuleMapping {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   keyword      String // Ex: "sonatel", "shell"
   debitCompte  String
   creditCompte String
@@ -848,11 +986,13 @@ model AccountingRuleMapping {
   createdAt    DateTime @default(now())
 
   @@map("accounting_rule_mappings")
+  @@index([cabinetId])
 }
 
 // --- 3. MODULE PAIE & SOCIAL (PHASE 3) ---
 model Employee {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   firstName  String
   lastName   String
   phone      String?
@@ -890,12 +1030,16 @@ model Employee {
   updatedAt DateTime @updatedAt
 
   @@map("employees")
+  @@index([cabinetId])
 }
 
 model PayrollPeriod {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   periodName String // Ex: "Juin 2026"
   status     String @default("DRAFT") // DRAFT, VALIDATED, PAID
+  ruleVersion String? // Version figée du référentiel légal utilisé pour les bulletins
+  ruleInfo    Json?   // Sources, dates d'effet et avertissements au moment de la validation
 
   // Paiement constaté (saisie manuelle : aucun virement n'est émis par l'application)
   paidAt      DateTime?
@@ -912,10 +1056,12 @@ model PayrollPeriod {
   updatedAt DateTime @updatedAt
 
   @@map("payroll_periods")
+  @@index([cabinetId])
 }
 
 model Payslip {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
 
   // Variables de paie (dictée IA ou saisie manuelle)
   absencesDays  Int   @default(0)
@@ -954,6 +1100,7 @@ model Payslip {
   updatedAt DateTime @updatedAt
 
   @@map("payslips")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -975,6 +1122,7 @@ enum DepreciationMethod {
 
 model FixedAsset {
   id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   code          String
   label         String
   category      String
@@ -1003,6 +1151,7 @@ model FixedAsset {
   updatedAt DateTime @updatedAt
 
   @@map("fixed_assets")
+  @@index([cabinetId])
 }
 
 // Centre de requetes client (justificatifs, signatures, informations
@@ -1010,6 +1159,7 @@ model FixedAsset {
 // leur traitement.
 model ClientRequest {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   clientId String @db.ObjectId
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
@@ -1022,6 +1172,7 @@ model ClientRequest {
   updatedAt DateTime @updatedAt
 
   @@map("client_requests")
+  @@index([cabinetId])
 }
 
 // Cahier de travail generique (seuil de signification, matrice des risques,
@@ -1031,6 +1182,7 @@ model ClientRequest {
 // alors que la structure exacte de chaque cahier est encore amenee a evoluer.
 model WorkPaper {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   clientId String @db.ObjectId
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
@@ -1042,6 +1194,7 @@ model WorkPaper {
 
   @@unique([clientId, type])
   @@map("work_papers")
+  @@index([cabinetId])
 }
 
 // ── Comptabilite analytique de gestion ──────────────────────────────────────
@@ -1060,6 +1213,7 @@ enum CostCategory {
  */
 model Product {
   id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   reference    String
   name         String
   family       String?
@@ -1080,6 +1234,7 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@map("products")
+  @@index([cabinetId])
 }
 
 /**
@@ -1087,6 +1242,7 @@ model Product {
  */
 model CostComponent {
   id       String       @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   category CostCategory
   label    String
   /**
@@ -1101,6 +1257,7 @@ model CostComponent {
   updatedAt DateTime @updatedAt
 
   @@map("cost_components")
+  @@index([cabinetId])
 }
 
 /**
@@ -1108,6 +1265,7 @@ model CostComponent {
  */
 model ProductionVolume {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   /**
    * Periode au format AAAA-MM.
    */
@@ -1121,6 +1279,7 @@ model ProductionVolume {
   updatedAt DateTime @updatedAt
 
   @@map("production_volumes")
+  @@index([cabinetId])
 }
 
 enum AuditConclusion {
@@ -1131,11 +1290,17 @@ enum AuditConclusion {
 
 model AuditSection {
   id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   name       String
   order      Int              @default(0)
   progress   Int              @default(0)
   conclusion AuditConclusion?
   note       String?
+  reviewStatus String @default("PENDING") // PENDING, REVIEWED
+  reviewNote String?
+  reviewedById String? @db.ObjectId
+  reviewedBy User? @relation("AuditSectionReviewer", fields: [reviewedById], references: [id])
+  reviewedAt DateTime?
 
   missionId String  @db.ObjectId
   mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
@@ -1146,6 +1311,7 @@ model AuditSection {
   updatedAt DateTime @updatedAt
 
   @@map("audit_sections")
+  @@index([cabinetId])
 }
 
 enum AuditItemStatus {
@@ -1156,6 +1322,7 @@ enum AuditItemStatus {
 
 model AuditChecklistItem {
   id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   description String
   assertion   String?
   status      AuditItemStatus @default(A_FAIRE)
@@ -1169,6 +1336,94 @@ model AuditChecklistItem {
   updatedAt DateTime @updatedAt
 
   @@map("audit_checklist_items")
+  @@index([cabinetId])
+}
+
+model AuditReviewComment {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId      String?  @db.ObjectId // Tenant owner
+  missionId      String   @db.ObjectId
+  mission        Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  referenceType  String   // DOCUMENT, WORK_PAPER, TPE_JOURNAL
+  referenceId    String   @db.ObjectId
+  referenceVersion String // updatedAt capturé lors de l'ouverture du point
+  title          String
+  initialComment String
+  status         String   @default("OPEN") // OPEN, RESOLVED
+  assignedToId   String?  @db.ObjectId
+  assignedTo     User?    @relation("AuditReviewCommentAssignee", fields: [assignedToId], references: [id])
+  createdById    String   @db.ObjectId
+  createdBy      User     @relation("AuditReviewCommentAuthor", fields: [createdById], references: [id])
+  resolvedById   String?  @db.ObjectId
+  resolvedBy     User?    @relation("AuditReviewCommentResolver", fields: [resolvedById], references: [id])
+  resolvedAt     DateTime?
+  events         AuditReviewCommentEvent[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([cabinetId, missionId, status])
+  @@index([cabinetId, referenceType, referenceId])
+  @@map("audit_review_comments")
+}
+
+model AuditReviewCommentEvent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String?  @db.ObjectId // Tenant owner
+  commentId String   @db.ObjectId
+  comment   AuditReviewComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+  user      User     @relation("AuditReviewCommentEventAuthor", fields: [userId], references: [id])
+  eventType String   // COMMENT, ASSIGN, RESOLVE, REOPEN
+  content   String?
+  oldValue  Json?
+  newValue  Json?
+  createdAt DateTime @default(now())
+
+  @@index([cabinetId, commentId, createdAt])
+  @@map("audit_review_comment_events")
+}
+
+model AuditEngagementAssessment {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId             String?  @db.ObjectId
+  missionId             String   @unique @db.ObjectId
+  mission               Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  acceptanceStatus      String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  acceptanceRationale   String?
+  independenceStatus    String   @default("PENDING") // PENDING, CLEAR, CONFLICT
+  independenceRationale String?
+  assessedById          String?  @db.ObjectId
+  assessedBy            User?    @relation("AuditEngagementAssessor", fields: [assessedById], references: [id])
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([cabinetId, acceptanceStatus, independenceStatus])
+  @@map("audit_engagement_assessments")
+}
+
+model AuditSample {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId             String?  @db.ObjectId
+  missionId             String   @db.ObjectId
+  mission               Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  procedureReference    String
+  populationDescription String
+  populationSize        Int
+  method                String // RANDOM, SYSTEMATIC, TARGETED
+  sampleSize            Int
+  selectedItems         Json
+  exceptionsCount       Int      @default(0)
+  exceptionDetails      String?
+  conclusion            String   @default("PENDING") // NO_EXCEPTION, EXCEPTION, INCONCLUSIVE, PENDING
+  status                String   @default("DRAFT") // DRAFT, REVIEWED
+  createdById           String   @db.ObjectId
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  reviewedById          String?  @db.ObjectId
+  reviewedAt            DateTime?
+
+  @@index([cabinetId, missionId, status])
+  @@map("audit_samples")
 }
 
 // ============================================
@@ -1186,6 +1441,7 @@ enum ProspectStage {
 
 model Prospect {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   entreprise    String
   contact       String?
   email         String?
@@ -1204,6 +1460,7 @@ model Prospect {
   updatedAt DateTime @updatedAt
 
   @@map("prospects")
+  @@index([cabinetId])
 }
 
 enum ProposalType {
@@ -1222,6 +1479,7 @@ enum ProposalStatus {
 
 model Proposal {
   id     String         @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title  String
   type   ProposalType   @default(ACCOUNTING)
   amount Float          @default(0)
@@ -1238,6 +1496,7 @@ model Proposal {
   updatedAt DateTime @updatedAt
 
   @@map("proposals")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1246,6 +1505,7 @@ model Proposal {
 
 model LegalClause {
   id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId       String?   @db.ObjectId
   title           String
   category        String
   subcategory     String?
@@ -1261,6 +1521,7 @@ model LegalClause {
   updatedAt DateTime @updatedAt
 
   @@map("legal_clauses")
+  @@index([cabinetId])
 }
 
 enum CitationType {
@@ -1299,6 +1560,7 @@ model LegalCitation {
 
 model ConsolidationGroup {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   name String
 
   entities     ConsolidationEntity[]
@@ -1308,10 +1570,12 @@ model ConsolidationGroup {
   updatedAt DateTime @updatedAt
 
   @@map("consolidation_groups")
+  @@index([cabinetId])
 }
 
 model ConsolidationEntity {
   id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   name    String
   rccm    String?
   country String?
@@ -1330,6 +1594,7 @@ model ConsolidationEntity {
   updatedAt DateTime @updatedAt
 
   @@map("consolidation_entities")
+  @@index([cabinetId])
 }
 
 // Ligne de balance comptable importee (CSV) pour une entite du perimetre de
@@ -1337,6 +1602,7 @@ model ConsolidationEntity {
 // l'entite (pas de fusion ligne a ligne : la balance importee fait foi).
 model ConsolidationBalanceLine {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   compte  String
   libelle String
   debit   Float  @default(0)
@@ -1348,10 +1614,12 @@ model ConsolidationBalanceLine {
   createdAt DateTime @default(now())
 
   @@map("consolidation_balance_lines")
+  @@index([cabinetId])
 }
 
 model ConsolidationElimination {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   type          String
   debitAccount  String
   creditAccount String
@@ -1369,6 +1637,7 @@ model ConsolidationElimination {
   createdAt DateTime @default(now())
 
   @@map("consolidation_eliminations")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1450,6 +1719,7 @@ enum EnrollmentStatus {
 
 model TrainingEnrollment {
   id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   progress       Int              @default(0)
   status         EnrollmentStatus @default(NOT_STARTED)
   completedHours Float            @default(0)
@@ -1465,10 +1735,12 @@ model TrainingEnrollment {
 
   @@unique([userId, courseId])
   @@map("training_enrollments")
+  @@index([cabinetId])
 }
 
 model Certificate {
   id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   issueDate        DateTime  @default(now())
   expiryDate       DateTime?
   cpfHours         Int       @default(0)
@@ -1486,6 +1758,7 @@ model Certificate {
   createdAt DateTime @default(now())
 
   @@map("certificates")
+  @@index([cabinetId])
 }
 
 model Quiz {
@@ -1521,6 +1794,7 @@ model QuizQuestion {
 
 model QuizAttempt {
   id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   score   Int
   passed  Boolean
   answers Json?
@@ -1534,6 +1808,7 @@ model QuizAttempt {
   completedAt DateTime @default(now())
 
   @@map("quiz_attempts")
+  @@index([cabinetId])
 }
 
 model Masterclass {
@@ -1571,6 +1846,7 @@ enum ExpenseStatus {
 
 model Expense {
   id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   label       String
   category    ExpenseCategory @default(AUTRE)
   amount      Float
@@ -1592,6 +1868,7 @@ model Expense {
   updatedAt DateTime @updatedAt
 
   @@map("expenses")
+  @@index([cabinetId])
 }
 
 enum MissionOrderStatus {
@@ -1602,7 +1879,8 @@ enum MissionOrderStatus {
 
 model MissionOrder {
   id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  reference     String             @unique
+  cabinetId String? @db.ObjectId // Tenant owner
+  reference     String
   purpose       String
   destination   String?
   startDate     DateTime
@@ -1620,6 +1898,8 @@ model MissionOrder {
   updatedAt DateTime @updatedAt
 
   @@map("mission_orders")
+  @@unique([cabinetId, reference])
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1642,6 +1922,7 @@ enum JudicialCaseCategory {
 
 model JudicialCase {
   id              String                @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   caseNumber      String
   court           String
   judge           String?
@@ -1664,6 +1945,7 @@ model JudicialCase {
   updatedAt DateTime @updatedAt
 
   @@map("judicial_cases")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1679,7 +1961,8 @@ enum EngagementLetterStatus {
 
 model EngagementLetter {
   id            String                 @id @default(auto()) @map("_id") @db.ObjectId
-  reference     String                 @unique
+  cabinetId String? @db.ObjectId // Tenant owner
+  reference     String
   scope         String
   fees          Float?
   status        EngagementLetterStatus @default(BROUILLON)
@@ -1702,6 +1985,8 @@ model EngagementLetter {
   updatedAt DateTime @updatedAt
 
   @@map("engagement_letters")
+  @@unique([cabinetId, reference])
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1718,6 +2003,7 @@ enum PersonalAssetType {
 
 model PersonalAsset {
   id              String            @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   label           String
   type            PersonalAssetType @default(AUTRE)
   estimatedValue  Float
@@ -1731,6 +2017,7 @@ model PersonalAsset {
   updatedAt DateTime @updatedAt
 
   @@map("personal_assets")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1746,6 +2033,7 @@ enum CorrespondenceType {
 
 model WritingTemplate {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title    String
   category String
   content  String
@@ -1754,10 +2042,12 @@ model WritingTemplate {
   updatedAt DateTime @updatedAt
 
   @@map("writing_templates")
+  @@index([cabinetId])
 }
 
 model Correspondence {
   id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   subject       String
   type          CorrespondenceType @default(AUTRE)
   content       String
@@ -1772,6 +2062,7 @@ model Correspondence {
   createdAt DateTime @default(now())
 
   @@map("correspondences")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1786,6 +2077,7 @@ enum ProcedureStatus {
 
 model Procedure {
   id       String          @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title    String
   category String
   content  String
@@ -1799,6 +2091,7 @@ model Procedure {
   updatedAt DateTime @updatedAt
 
   @@map("procedures")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1807,6 +2100,7 @@ model Procedure {
 
 model ResourceAllocation {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   weekStart     DateTime
   dayOfWeek     Int // 0-6
   durationHours Float
@@ -1825,6 +2119,7 @@ model ResourceAllocation {
   updatedAt DateTime @updatedAt
 
   @@map("resource_allocations")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1838,6 +2133,7 @@ enum ApiKeyStatus {
 
 model ApiKey {
   id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   label      String
   keyPrefix  String
   hashedKey  String       @unique
@@ -1854,10 +2150,12 @@ model ApiKey {
   revokedAt DateTime?
 
   @@map("api_keys")
+  @@index([cabinetId])
 }
 
 model Webhook {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   url      String
   event    String
   isActive Boolean @default(true)
@@ -1869,10 +2167,12 @@ model Webhook {
   createdAt DateTime @default(now())
 
   @@map("webhooks")
+  @@index([cabinetId])
 }
 
 model ApiRequestLog {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   endpoint   String
   method     String
   statusCode Int
@@ -1883,6 +2183,7 @@ model ApiRequestLog {
   createdAt DateTime @default(now())
 
   @@map("api_request_logs")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1903,6 +2204,7 @@ enum WorkspaceStatus {
 
 model Workspace {
   id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   name        String
   type        WorkspaceType   @default(AUTRE)
   status      WorkspaceStatus @default(ACTIF)
@@ -1921,10 +2223,12 @@ model Workspace {
   updatedAt DateTime @updatedAt
 
   @@map("workspaces")
+  @@index([cabinetId])
 }
 
 model WorkspaceMember {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
 
   workspaceId String    @db.ObjectId
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -1936,10 +2240,12 @@ model WorkspaceMember {
   joinedAt DateTime @default(now())
 
   @@map("workspace_members")
+  @@index([cabinetId])
 }
 
 model WorkspaceActivity {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
 
   workspaceId String    @db.ObjectId
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -1951,6 +2257,7 @@ model WorkspaceActivity {
   createdAt DateTime @default(now())
 
   @@map("workspace_activities")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -1973,6 +2280,7 @@ enum FraudAlertStatus {
 
 model FraudAlert {
   id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title         String
   description   String
   severity      FraudAlertSeverity @default(MOYENNE)
@@ -1990,6 +2298,7 @@ model FraudAlert {
   updatedAt DateTime @updatedAt
 
   @@map("fraud_alerts")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -2010,6 +2319,7 @@ enum FiscalRiskStatus {
 
 model FiscalRisk {
   id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title           String
   description     String
   level           FiscalRiskLevel  @default(MOYEN)
@@ -2023,6 +2333,7 @@ model FiscalRisk {
   updatedAt DateTime @updatedAt
 
   @@map("fiscal_risks")
+  @@index([cabinetId])
 }
 
 // ============================================
@@ -2031,6 +2342,7 @@ model FiscalRisk {
 
 model ForumPost {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   title   String
   content String
   topic   String
@@ -2046,10 +2358,12 @@ model ForumPost {
   updatedAt DateTime @updatedAt
 
   @@map("forum_posts")
+  @@index([cabinetId])
 }
 
 model ForumComment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId String? @db.ObjectId // Tenant owner
   content String
 
   postId String    @db.ObjectId
@@ -2061,4 +2375,5 @@ model ForumComment {
   createdAt DateTime @default(now())
 
   @@map("forum_comments")
+  @@index([cabinetId])
 }

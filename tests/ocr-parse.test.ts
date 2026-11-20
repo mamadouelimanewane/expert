@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OCREngine } from "@/lib/ocr-engine";
+import { buildInvoiceFieldEvidence, OCREngine } from "@/lib/ocr-engine";
 import { normaliserPeriode } from "@/lib/validation";
 
 describe("OCREngine.parseInvoiceData — numéro, date, fournisseur", () => {
@@ -26,6 +26,19 @@ describe("OCREngine.parseInvoiceData — numéro, date, fournisseur", () => {
     it("préfère une mention explicite « Émetteur : »", () => {
         const d = OCREngine.parseInvoiceData("PROFORMA 12\nÉmetteur : Teranga Tech Solutions\nTotal HT 10000");
         expect(d.supplier).toBe("Teranga Tech Solutions");
+    });
+});
+
+describe("preuves textuelles des champs OCR", () => {
+    it("relie les valeurs extraites à leur ligne source et conserve la validation humaine", () => {
+        const text = "FACTURE N° F-2048\nDate : 08/11/2026\nFournisseur : Senelec SA\nTotal TTC : 125 000 FCFA";
+        const invoice = OCREngine.parseInvoiceData(text);
+        const evidence = buildInvoiceFieldEvidence(text, invoice, 87);
+        expect(evidence.invoiceNumber.sourceText).toContain("F-2048");
+        expect(evidence.date.sourceText).toContain("08/11/2026");
+        expect(evidence.totalTTC.sourceText).toContain("125 000");
+        expect(evidence.supplier.needsReview).toBe(true);
+        expect(evidence.tva.sourceText).toBeNull();
     });
 });
 

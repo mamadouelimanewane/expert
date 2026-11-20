@@ -1,0 +1,19 @@
+name: Dependency review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  review:
+    name: Dépendances vulnérables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Examiner les dépendances ajoutées ou mises à jour
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high

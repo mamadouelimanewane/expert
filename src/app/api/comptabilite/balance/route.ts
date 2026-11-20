@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
-import { analyserMontant, normaliserPeriode } from "@/lib/validation";
-import type { CompteBalance } from "@/lib/ohada/types";
+import { normaliserPeriode } from "@/lib/validation";
+import { analyserLignesBalance } from "@/lib/ohada/balance-import-validation";
+import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
 
 /**
  * Balance générale importée pour un dossier et une période de clôture.
@@ -16,48 +17,7 @@ import type { CompteBalance } from "@/lib/ohada/types";
  * illisible plutôt que de l'ignorer en silence.
  */
 
-const MAX_LIGNES = 5000;
 const TOLERANCE = 1; // FCFA — arrondis de saisie
-
-type LigneBrute = { numero?: unknown; intitule?: unknown; debit?: unknown; credit?: unknown };
-
-function analyserLignes(brutes: unknown): { ok: true; lignes: CompteBalance[]; rejets: string[] } | { ok: false; raison: string; rejets?: string[] } {
-    if (!Array.isArray(brutes) || brutes.length === 0) return { ok: false, raison: "Aucune ligne de balance reçue." };
-    if (brutes.length > MAX_LIGNES) return { ok: false, raison: `${MAX_LIGNES} lignes au maximum par balance.` };
-    const parCompte = new Map<string, CompteBalance>();
-    const rejets: string[] = [];
-    brutes.forEach((b: LigneBrute, i) => {
-        const n = i + 1;
-        const numero = String(b.numero ?? "").replace(/\s+/g, "").trim();
-        if (!/^\d{1,13}$/.test(numero)) {
-            rejets.push(`Ligne ${n} : numéro de compte illisible « ${String(b.numero ?? "")} ».`);
-            return;
-        }
-        const debit = analyserMontant(b.debit ?? 0, { min: 0 });
-        const credit = analyserMontant(b.credit ?? 0, { min: 0 });
-        if (!debit.ok) {
-            rejets.push(`Ligne ${n} (${numero}) : débit — ${debit.raison}`);
-            return;
-        }
-        if (!credit.ok) {
-            rejets.push(`Ligne ${n} (${numero}) : crédit — ${credit.raison}`);
-            return;
-        }
-        if (debit.valeur === 0 && credit.valeur === 0) return; // compte soldé : sans effet
-        const intitule = String(b.intitule ?? "").trim().slice(0, 200) || numero;
-        // Un même compte réparti sur plusieurs lignes (sous-totaux, auxiliaires) est cumulé.
-        const existant = parCompte.get(numero);
-        if (existant) {
-            existant.debit += debit.valeur;
-            existant.credit += credit.valeur;
-        } else {
-            parCompte.set(numero, { numero, intitule, debit: debit.valeur, credit: credit.valeur });
-        }
-    });
-    if (rejets.length > 0) return { ok: false, raison: "Certaines lignes n'ont pas pu être lues : la balance n'a pas été enregistrée.", rejets: rejets.slice(0, 30) };
-    if (parCompte.size === 0) return { ok: false, raison: "Toutes les lignes sont à zéro." };
-    return { ok: true, lignes: [...parCompte.values()].sort((a, b) => a.numero.localeCompare(b.numero)), rejets };
-}
 
 export async function GET(request: Request) {
     const { denied } = await requireStaff();
@@ -102,8 +62,10 @@ export async function POST(request: Request) {
         if (!periode) return NextResponse.json({ error: "Période de clôture illisible (AAAA-MM attendu, ex. 2025-12)." }, { status: 400 });
         const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true, companyName: true } });
         if (!client) return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
+        const periodeEtat = await ensureAccountingPeriodOpen(clientId, periode);
+        if (!periodeEtat.open) return NextResponse.json({ error: "Période comptable verrouillée : import de balance refusé." }, { status: 409 });
 
-        const analyse = analyserLignes(body.lignes);
+        const analyse = analyserLignesBalance(body.lignes);
         if (!analyse.ok) return NextResponse.json({ error: analyse.raison, rejets: analyse.rejets ?? [] }, { status: 400 });
 
         const totalDebit = analyse.lignes.reduce((s, l) => s + l.debit, 0);
@@ -136,7 +98,10 @@ export async function POST(request: Request) {
         return NextResponse.json({
             balance,
             ecart: Math.round((totalDebit - totalCredit) * 100) / 100,
-            avertissements: equilibree ? [] : [`La balance n'est pas équilibrée : écart de ${Math.round(totalDebit - totalCredit).toLocaleString("fr-FR")} FCFA entre débit et crédit.`],
+            avertissements: [
+                ...analyse.avertissements,
+                ...(equilibree ? [] : [`La balance n'est pas équilibrée : écart de ${Math.round(totalDebit - totalCredit).toLocaleString("fr-FR")} FCFA entre débit et crédit.`]),
+            ],
         }, { status: 201 });
     } catch (error) {
         console.error("Erreur POST comptabilite/balance:", error);
@@ -152,6 +117,8 @@ export async function DELETE(request: Request) {
         const clientId = searchParams.get("clientId") ?? "";
         const periode = normaliserPeriode(searchParams.get("periode"));
         if (clientId.length !== 24 || !periode) return NextResponse.json({ error: "clientId et periode requis." }, { status: 400 });
+        const periodeEtat = await ensureAccountingPeriodOpen(clientId, periode);
+        if (!periodeEtat.open) return NextResponse.json({ error: "Période comptable verrouillée : suppression de balance refusée." }, { status: 409 });
         const result = await prisma.balanceImportee.deleteMany({ where: { clientId, periode } });
         if (result.count === 0) return NextResponse.json({ error: "Aucune balance pour cette période." }, { status: 404 });
         await AuditService.log({ action: "DELETE", entity: "BALANCE", entityId: clientId, details: `Balance ${periode} supprimée` });

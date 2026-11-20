@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma, { prismaSystem } from "@/lib/prisma";
 
 import { requireStaff } from "@/lib/api-auth";
 // Base de référence de démarrage (textes/jurisprudence OHADA réels, contenu de référence
@@ -65,7 +65,7 @@ export async function GET() {
     const referencesConnues = new Set(citations.map(c => c.reference));
     const manquantes = SEED_CITATIONS.filter(c => !referencesConnues.has(c.reference));
     if (manquantes.length > 0) {
-      await prisma.legalCitation.createMany({ data: manquantes });
+      await prismaSystem.legalCitation.createMany({ data: manquantes });
       citations = await prisma.legalCitation.findMany({ orderBy: { reference: "asc" } });
     }
 

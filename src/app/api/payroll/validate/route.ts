@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireWriteAccess } from "@/lib/api-auth";
-import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES } from "@/lib/payroll/engines";
+import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES, obtenirReglesPaie } from "@/lib/payroll/engines";
 import { AuditService } from "@/lib/audit";
 
 /**
@@ -90,8 +90,9 @@ export async function POST(req: Request) {
             return { emp, absencesDays, overtimeHours, bonuses, r };
         });
 
+        const reglesPaie = obtenirReglesPaie(client.country);
         const period = await prisma.payrollPeriod.create({
-            data: { periodName, status: "VALIDATED", clientId },
+            data: { periodName, status: "VALIDATED", clientId, ruleVersion: reglesPaie?.version ?? null, ruleInfo: reglesPaie ?? undefined },
         });
 
         const payslips = await Promise.all(
@@ -128,7 +129,7 @@ export async function POST(req: Request) {
             details: `Paie validée : ${periodName} (${payslips.length} bulletins)`,
         });
 
-        return NextResponse.json({ success: true, period, payslips, paymentDisbursed: false });
+        return NextResponse.json({ success: true, period, payslips, paymentDisbursed: false, reglesPaie });
     } catch (error) {
         console.error("[Payroll Validate] Error:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

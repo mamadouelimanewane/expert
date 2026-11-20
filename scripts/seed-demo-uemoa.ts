@@ -2,8 +2,9 @@
 import { PrismaClient } from '@prisma/client';
 import { ClientType, MissionStatus, InvoiceStatus, FiscalRegime, MissionType, DeclarationType, DeclarationStatus } from '../src/types/prisma';
 import bcrypt from 'bcryptjs';
+import { installerPorteeSeed, type PrismaSeedScopeClient } from './tenant-seed-scope';
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 // Données de référence UEMOA
 const INDUSTRIES = ['BTP & Construction', 'Négoce International', 'Services Numériques', 'Agro-Industrie', 'Transport & Logistique', 'Commerce Général', 'Santé & Pharma'];
@@ -36,6 +37,7 @@ const COMPANIES = [
 ];
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     console.log('🚀 Démarrage de l\'injection des données DEMO UEMOA...');
 
     // 1. Création des Collaborateurs
@@ -71,10 +73,9 @@ async function main() {
         const rccm = `${location.country}-${location.city.substring(0, 3).toUpperCase()}-202${Math.floor(Math.random() * 5)}-B-${Math.floor(Math.random() * 10000)}`;
         const email = `contact@${company.name.toLowerCase().replace(/[^a-z]/g, '')}.com`;
 
-        const client = await prisma.client.upsert({
-            where: { email: email },
-            update: {},
-            create: {
+        const clientExistant = await prisma.client.findFirst({ where: { email } });
+        const client = clientExistant ?? await prisma.client.create({
+            data: {
                 type: company.type as ClientType,
                 companyName: company.type === 'ENTREPRISE' ? company.name : undefined,
                 firstName: company.type === 'ENTREPRISE' ? 'M. Directeur' : company.name.split(' ')[1],
@@ -89,7 +90,7 @@ async function main() {
                 ninea: `${Math.floor(Math.random() * 10000000)}0`,
                 fiscalRegime: Math.random() > 0.5 ? FiscalRegime.REEL_NORMAL : FiscalRegime.REEL_SIMPLIFIE,
                 isActive: true
-            }
+            },
         });
         clients.push(client);
     }

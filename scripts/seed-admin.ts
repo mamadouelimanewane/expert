@@ -29,15 +29,24 @@ function resolvePassword(): { value: string; generated: boolean } {
 }
 
 async function main() {
+    if (process.env.NODE_ENV === 'production') throw new Error('Utilisez seed-admin-production.ts pour créer un administrateur en production.');
     console.log('🌱 Création du compte administrateur…');
+
+    const cabinetId = process.env.CABINET_ID?.trim();
+    if (!cabinetId) throw new Error('CABINET_ID est requis pour rattacher l’administrateur à un cabinet.');
+    const cabinet = await prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { id: true } });
+    if (!cabinet) throw new Error('CABINET_ID ne correspond à aucun cabinet.');
+    const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL }, select: { cabinetId: true } });
+    if (existing?.cabinetId && existing.cabinetId !== cabinetId) throw new Error('Cet administrateur appartient déjà à un autre cabinet.');
 
     const { value: password, generated } = resolvePassword();
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const admin = await prisma.user.upsert({
         where: { email: ADMIN_EMAIL },
-        update: { password: hashedPassword, isActive: true },
+        update: { cabinetId, password: hashedPassword, isActive: true },
         create: {
+            cabinetId,
             email: ADMIN_EMAIL,
             password: hashedPassword,
             firstName: 'Admin',

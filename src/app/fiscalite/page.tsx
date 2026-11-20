@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { simulateCorporateTax, type PaysFiscal } from "@/lib/tax-simulator";
 
 const STATUT_STYLE: Record<string, string> = {
   VALIDE: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
@@ -36,6 +37,7 @@ type ObligationVue = {
   montantEstime: number;
   nbDossiers: number;
   nbRestants: number;
+  echeancesParDate: { date: string; dossiers: number }[];
 };
 
 type Synthese = {
@@ -46,6 +48,7 @@ type Synthese = {
   obligationsDepassees: number;
   dossiersRestants: number;
 };
+type EcheanceAnnuelleVue = { id: string; clientId: string; client: string; titre: string; categorie: string; period: string; echeance: string; reference: string; source: string; statut: string; montant: number | null; nbRestants: number; urgence: string };
 const TYPE_COLOR: Record<string, string> = {
   TVA: "text-violet-400", IS: "text-primary", SOCIAL: "text-emerald-400",
   BIC: "text-blue-400", RAS: "text-amber-400",
@@ -60,6 +63,7 @@ export default function FiscaliteOhada() {
   // Le calendrier reglementaire est une donnee de reference (src/lib/ohada) ;
   // les volumes et les montants viennent des declarations reellement saisies.
   const [obligations, setObligations] = useState<ObligationVue[]>([]);
+  const [echeancesAnnuelles, setEcheancesAnnuelles] = useState<EcheanceAnnuelleVue[]>([]);
   const [synthese, setSynthese] = useState<Synthese | null>(null);
   const [periode, setPeriode] = useState<string>("");
   const [aucuneDonnee, setAucuneDonnee] = useState(false);
@@ -95,9 +99,11 @@ export default function FiscaliteOhada() {
         montantEstime: Number(o.montantADeclarer ?? 0),
         nbDossiers: Number(o.nbDossiers ?? 0),
         nbRestants: Number(o.nbRestants ?? 0),
+        echeancesParDate: Array.isArray(o.echeancesParDate) ? (o.echeancesParDate as { echeance: string; dossiers: number }[]).map((e) => ({ date: e.echeance, dossiers: e.dossiers })) : [],
       }));
 
       setObligations(vues);
+      setEcheancesAnnuelles(Array.isArray(data.echeancesAnnuelles) ? data.echeancesAnnuelles : []);
       setSynthese(data.synthese ?? null);
       setPeriode(String(data.periode ?? ""));
       setAucuneDonnee(Boolean(data.aucuneDonnee));
@@ -106,6 +112,7 @@ export default function FiscaliteOhada() {
       console.error("Chargement des obligations fiscales:", e);
       setErreur("Impossible de charger les obligations fiscales.");
       setObligations([]);
+      setEcheancesAnnuelles([]);
       setSynthese(null);
     } finally {
       setChargement(false);
@@ -127,13 +134,14 @@ export default function FiscaliteOhada() {
   // n'existe dans l'application (voir /declarations/e-depot, qui le signale
   // honnêtement). Le bouton ne doit donc rien affirmer de tel.
 
-  // === Simulation IS / BIC Sénégal ===
+  // Le moteur commun n'accepte que les pays dont les paramètres sont définis.
+  // Les autres choix restent disponibles pour le calendrier, mais sans chiffre
+  // fiscal présenté comme fiable.
   const beneficeNet = simulCA - simulCharges;
-  const baseIS = Math.max(0, beneficeNet);
-  const isAmount = beneficeNet > 0 ? baseIS * 0.30 : 0; // IS 30% SN
-  const cmbAmount = Math.max(500000, simulCA * 0.005); // CMB : min 500k ou 0.5% du CA
-  const impotDu = Math.max(isAmount, cmbAmount);
-  const tva = simulCA * 0.18;
+  const paysMoteur = paysCible.toLowerCase() as PaysFiscal;
+  const resultatSimulation = (["sn", "ci", "cm", "bj"] as string[]).includes(paysMoteur)
+    ? simulateCorporateTax({ baseImposable: beneficeNet, chiffreAffaires: simulCA, pays: paysMoteur, regime: "reel", secteur: "services" })
+    : null;
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-700">
@@ -146,8 +154,8 @@ export default function FiscaliteOhada() {
             <Flag className="w-8 h-8 text-rose-400" />
           </div>
           <div>
-            <h2 className="page-title">Fiscalité OHADA — Sénégal 🇸🇳</h2>
-            <p className="page-subtitle">Gestion intelligente des obligations fiscales et sociales. Déclarations générées et télétransmises automatiquement.</p>
+            <h2 className="page-title">Fiscalité — {paysCible}</h2>
+            <p className="page-subtitle">Suivi des obligations indicatives et des déclarations saisies par le cabinet. Le dépôt s’effectue sur le portail fiscal officiel.</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -170,20 +178,24 @@ export default function FiscaliteOhada() {
         </div>
       )}
 
+      <div role="note" className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+        Calendrier indicatif : l’assujettissement, le régime, les échéances et les taux ne sont pas encore vérifiés par pays et par exercice. Confirmez les règles dans les textes officiels avant tout dépôt.
+      </div>
+
       {/* Une base sans declaration donne des compteurs a zero : il faut
           distinguer « cabinet a jour » de « rien n'a encore ete saisi ». */}
       {!chargement && !erreur && aucuneDonnee && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
-          <span className="font-bold">Aucune déclaration saisie pour la période {periode}.</span>{" "}
-          Les compteurs ci-dessous sont donc à zéro : cela ne signifie pas que les obligations
-          sont remplies. Le calendrier réglementaire reste affiché à titre d&apos;échéancier.
+          <span className="font-bold">Aucune déclaration enregistrée pour la période {periode}.</span>{" "}
+          Les obligations applicables restent à traiter ou à vérifier pour chaque client ; l’absence
+          de déclaration enregistrée ne vaut pas conformité.
         </div>
       )}
 
       {/* KPIs */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: AlertTriangle, label: "Obligations imminentes", val: nbImminentes, sub: "Avant le 15 Juin", color: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
+          { icon: AlertTriangle, label: "Échéances proches", val: nbImminentes, sub: "Selon dates indicatives", color: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
           { icon: Clock, label: "Montant total à déclarer", val: (totalADeclarer / 1_000_000).toFixed(1) + " M FCFA", sub: "Sur le mois", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
           { icon: FileText, label: "Dossiers impactés", val: dossiersCibles, sub: "à traiter", color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
           { icon: CheckCircle2, label: "Déclarations validées", val: obligations.filter(o => o.statut === "VALIDE").length, sub: "Ce mois", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
@@ -216,6 +228,7 @@ export default function FiscaliteOhada() {
 
       {/* ===== OBLIGATIONS DU MOIS ===== */}
       {activeTab === "obligations" && (
+        <>
         <div className="grid lg:grid-cols-12 gap-8">
           {/* Liste */}
           <div className="lg:col-span-5 space-y-3">
@@ -266,6 +279,7 @@ export default function FiscaliteOhada() {
                   <p className={cn("text-xs font-black uppercase tracking-widest mb-1", TYPE_COLOR[selected.type])}>{selected.type} — {selected.pays.join(", ")}</p>
                   <h3 className="text-xl font-black text-white">{selected.titre}</h3>
                   <p className="text-slate-400 text-sm mt-2">{selected.description}</p>
+                  {selected.echeancesParDate.length > 1 && <div className="mt-3 space-y-1 rounded-xl border border-white/5 bg-black/10 p-3 text-xs text-slate-400">Échéances différentes selon le profil fiscal :{selected.echeancesParDate.map((e) => <p key={e.date}>{new Date(e.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })} · {e.dossiers} dossier(s)</p>)}</div>}
                 </div>
               </div>
 
@@ -310,6 +324,11 @@ export default function FiscaliteOhada() {
             </Link>
           </div>
         </div>
+        <section className="rounded-3xl border border-white/10 bg-slate-900/40 p-6">
+          <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="font-black text-white">Échéances annuelles calculées par client</h3><p className="mt-1 text-xs text-slate-400">Les lignes dépendent du pays, du centre fiscal et des paramètres du dossier.</p></div><span className="rounded-lg bg-slate-800 px-3 py-1 text-xs text-slate-300">{new Date().getFullYear()}</span></div>
+          {echeancesAnnuelles.length === 0 ? <p className="text-sm text-slate-500">Aucune échéance annuelle générée pour ce pays et ces profils clients.</p> : <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-[10px] uppercase text-slate-500"><tr><th className="p-3">Client</th><th className="p-3">Obligation</th><th className="p-3">Période</th><th className="p-3">Date limite</th><th className="p-3">Suivi</th></tr></thead><tbody>{echeancesAnnuelles.map(task => <tr key={`${task.clientId}-${task.id}`} className="border-t border-white/5"><td className="p-3 text-white">{task.client}</td><td className="p-3 text-slate-300">{task.titre}<a href={task.source} target="_blank" rel="noreferrer" className="ml-2 text-[10px] text-primary underline">source</a></td><td className="p-3 text-slate-400">{task.period}</td><td className="p-3 text-slate-300">{new Date(task.echeance).toLocaleDateString("fr-FR")}</td><td className={cn("p-3 font-semibold", task.nbRestants ? "text-amber-300" : "text-emerald-300")}>{task.nbRestants ? "À préparer / vérifier" : "Déposé"}</td></tr>)}</tbody></table></div>}
+        </section>
+        </>
       )}
 
       {/* ===== SIMULATEUR IS / TVA ===== */}
@@ -320,7 +339,7 @@ export default function FiscaliteOhada() {
               <Sparkles className="w-5 h-5 text-violet-400" />
               <h3 className="font-black text-white text-lg">Simulateur Fiscal — {paysCible === "SN" ? "Sénégal 🇸🇳" : paysCible}</h3>
             </div>
-            <p className="text-slate-400 text-sm">Estimez instantanément vos impôts (IS, BIC, TVA) selon les barèmes en vigueur.</p>
+            <p className="text-slate-400 text-sm">Estimation indicative fondée sur les paramètres actuellement intégrés pour le pays choisi. À confirmer selon le régime et la loi de finances applicable.</p>
 
             <div className="space-y-5">
               <div>
@@ -339,12 +358,14 @@ export default function FiscaliteOhada() {
           <div className="space-y-4">
             <div className="bg-slate-900/40 border border-white/5 rounded-[28px] p-8 space-y-5">
               <h3 className="font-black text-white text-sm uppercase tracking-widest">Résultat Simulation</h3>
+              {resultatSimulation && <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500"><span>{resultatSimulation.editionReglementaire} · couverture partielle</span><a href={resultatSimulation.sourceReglementaire} target="_blank" rel="noreferrer" className="underline text-primary">Source officielle</a></div>}
 
-              {[
+              {resultatSimulation ? [
                 { label: "Bénéfice Net Avant Impôt", val: beneficeNet, color: beneficeNet >= 0 ? "text-emerald-400" : "text-rose-400" },
-                { label: `IS (30%) ou CMB (min 500 000 F)`, val: impotDu, color: "text-orange-400", sub: impotDu === cmbAmount ? "⚠️ CMB applicable" : "Barème IS" },
-                { label: "TVA Collectée (18%)", val: tva, color: "text-violet-400" },
-                { label: "Total charges fiscales du mois", val: impotDu + tva, color: "text-rose-400", bold: true },
+                { label: `IS théorique (${(resultatSimulation.tauxIS * 100).toFixed(2)} %)`, val: resultatSimulation.is, color: "text-orange-400", sub: "Hors retraitements fiscaux" },
+                { label: "Impôt minimum estimé", val: resultatSimulation.impotMinimum, color: "text-amber-400", sub: resultatSimulation.minimumApplique ? "Minimum supérieur à l’IS" : "À vérifier selon le régime" },
+                { label: "IS estimé dû", val: resultatSimulation.isDu, color: "text-orange-400", bold: true },
+                { label: `TVA brute indicative (${(resultatSimulation.tauxTVA * 100).toFixed(2)} %)`, val: resultatSimulation.tvaMoyenne, color: "text-violet-400", sub: "Hors TVA déductible, exonérations et régularisations" },
               ].map((item, i) => (
                 <div key={i} className={cn("flex items-center justify-between p-4 rounded-xl border", item.bold ? "bg-rose-500/5 border-rose-500/20" : "bg-slate-800/30 border-white/5")}>
                   <div>
@@ -353,20 +374,15 @@ export default function FiscaliteOhada() {
                   </div>
                   <p className={cn("font-black text-lg tabular-nums", item.color)}>{item.val.toLocaleString()} F</p>
                 </div>
-              ))}
+              )) : <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">Aucun barème indicatif intégré pour ce pays. La simulation est désactivée pour éviter de présenter un taux d’un autre pays.</div>}
             </div>
 
             <div className="p-5 bg-primary/5 border border-primary/20 rounded-2xl flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="text-primary-foreground/70 font-black text-xs">Recommandation IA</p>
+                <p className="text-primary-foreground/70 font-black text-xs">Limites du calcul</p>
                 <p className="text-slate-400 text-xs mt-1 leading-relaxed">
-                  {beneficeNet > 0 && impotDu === cmbAmount
-                    ? "⚠️ La CMB est supérieure à l'IS théorique. Envisagez d'optimiser vos charges déductibles ou de provisionner davantage avant clôture."
-                    : beneficeNet <= 0
-                    ? "✅ Pas d'IS dû. Seule la CMB (500 000 F min) s'applique. Vérifiez les provisions pour charges futures."
-                    : "✅ Situation fiscale saine. L'IS est calculé sur le bénéfice réel. Pensez à constituer une provision IS de " + (impotDu / 1_000_000).toFixed(1) + " M F."
-                  }
+                  Simulation indicative seulement : elle ne tient pas compte des retraitements fiscaux, crédits d’impôt, exonérations, retenues ni de toutes les taxes sectorielles. Faites valider le calcul avant toute déclaration ou provision comptable.
                 </p>
               </div>
             </div>

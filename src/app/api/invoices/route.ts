@@ -12,10 +12,16 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
+    const clientId = searchParams.get("clientId");
     const pagination = parsePagination(searchParams);
+
+    if (clientId && !/^[0-9a-fA-F]{24}$/.test(clientId)) {
+        return NextResponse.json({ error: "clientId invalide" }, { status: 400 });
+    }
 
     try {
         const where: any = {};
+        if (clientId) where.clientId = clientId;
         if (status && status !== "tous") {
             const statusMap: Record<string, string> = {
                 payee: "PAID",
@@ -39,13 +45,13 @@ export async function GET(request: Request) {
             prisma.invoice.count({ where }),
             prisma.invoice.aggregate({
                 _sum: { total: true },
-                where: { status: "PAID" }
+                where: { ...where, status: "PAID" }
             }),
             prisma.invoice.aggregate({
                 _sum: { total: true },
-                where: { status: { in: ["SENT", "OVERDUE"] } }
+                where: { ...where, status: { in: ["SENT", "OVERDUE"] } }
             }),
-            prisma.invoice.count({ where: { status: "OVERDUE" } })
+            prisma.invoice.count({ where: { ...where, status: "OVERDUE" } })
         ]);
 
         return NextResponse.json({

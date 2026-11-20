@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 import { analyserEnum, estIntrouvable, requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { analyserMontantOptionnel, normaliserDateISO } from "@/lib/validation";
+import { canManageReviewResolution } from "@/lib/audit-review-policy";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -59,7 +60,7 @@ export async function PATCH(request: Request, { params }: Params) {
     try {
         const { id } = await params;
         const body = await request.json().catch(() => ({}));
-        const actuelle = await prisma.mission.findUnique({ where: { id }, select: { status: true, title: true } });
+        const actuelle = await prisma.mission.findUnique({ where: { id }, select: { status: true, title: true, type: true } });
         if (!actuelle) {
             return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
         }
@@ -74,6 +75,40 @@ export async function PATCH(request: Request, { params }: Params) {
                     { error: `Passage ${actuelle.status} → ${statut.valeur} non autorisé. Transitions possibles : ${TRANSITIONS[actuelle.status].join(", ")}.` },
                     { status: 409 }
                 );
+            }
+            if (statut.valeur === "COMPLETED" && actuelle.type === "AUDIT") {
+                if (!canManageReviewResolution(session.role)) {
+                    return NextResponse.json({ error: "Seul un expert ou administrateur peut clôturer une mission d’audit." }, { status: 403 });
+                }
+                const pointsOuverts = await prisma.auditReviewComment.count({ where: { missionId: id, status: "OPEN" } });
+                if (pointsOuverts > 0) {
+                    return NextResponse.json({
+                        error: "Clôture impossible : résolvez ou archivez les points de revue encore ouverts.",
+                        pointsDeRevueOuverts: pointsOuverts,
+                    }, { status: 409 });
+                }
+                const [nombreSections, sectionsNonRevues, testsNonRevus] = await Promise.all([
+                    prisma.auditSection.count({ where: { missionId: id } }),
+                    prisma.auditSection.count({ where: { missionId: id, OR: [{ conclusion: null }, { reviewStatus: { not: "REVIEWED" } }] } }),
+                    prisma.auditSample.count({ where: { missionId: id, status: "DRAFT" } }),
+                ]);
+                if (nombreSections === 0 || sectionsNonRevues > 0 || testsNonRevus > 0) {
+                    return NextResponse.json({
+                        error: "Clôture impossible : toutes les sections doivent être conclues et revues, ainsi que les tests d’échantillonnage.",
+                        sectionsNonRevues: nombreSections === 0 ? 1 : sectionsNonRevues,
+                        testsNonRevus,
+                    }, { status: 409 });
+                }
+            }
+            if (statut.valeur === "IN_PROGRESS" && actuelle.type === "AUDIT") {
+                const assessment = await prisma.auditEngagementAssessment.findFirst({ where: { missionId: id }, select: { acceptanceStatus: true, independenceStatus: true } });
+                if (assessment?.acceptanceStatus !== "ACCEPTED" || assessment.independenceStatus !== "CLEAR") {
+                    return NextResponse.json({
+                        error: "Démarrage bloqué : faites valider l’acceptation du client et l’indépendance de l’équipe avant les travaux.",
+                        acceptationValidee: assessment?.acceptanceStatus === "ACCEPTED",
+                        independanceValidee: assessment?.independenceStatus === "CLEAR",
+                    }, { status: 409 });
+                }
             }
             data.status = statut.valeur;
             if (statut.valeur === "COMPLETED") data.endDate = new Date();

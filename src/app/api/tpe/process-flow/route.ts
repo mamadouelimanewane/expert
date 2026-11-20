@@ -1,96 +1,106 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
+import { classifyManualAccountingInput } from "@/lib/accounting-input";
+import { AuditService } from "@/lib/audit";
+import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
 
-import { requireStaff } from "@/lib/api-auth";
-export async function POST(req: Request) {
-    const { denied } = await requireStaff();
-    if (denied) return denied;
+export async function POST(request: Request) {
+  const { denied } = await requireWriteAccess();
+  if (denied) return denied;
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
+  }
+
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
+    return NextResponse.json({ error: "Objet JSON requis." }, { status: 400 });
+  }
+  const input = body as { clientId?: unknown; rawMessage?: unknown; source?: unknown };
+  if (!isObjectId(input.clientId)) {
+    return NextResponse.json({ error: "Sélectionnez un client valide." }, { status: 400 });
+  }
+  if (typeof input.rawMessage !== "string" || input.rawMessage.trim().length < 3 || input.rawMessage.length > 2_000) {
+    return NextResponse.json({ error: "Le libellé doit contenir entre 3 et 2 000 caractères." }, { status: 400 });
+  }
+
+  const classification = classifyManualAccountingInput(input.rawMessage);
+  if (!classification.ok) {
+    return NextResponse.json({ error: classification.reason, entryCreated: false }, { status: 422 });
+  }
 
   try {
-    const { clientId, businessName, rawMessage, source } = await req.json();
+    const client = await prisma.client.findUnique({
+      where: { id: input.clientId },
+      select: { id: true, companyName: true, firstName: true, lastName: true },
+    });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
-    if (!clientId || !rawMessage) {
-      return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const period = date.slice(0, 7);
+    const periodState = await ensureAccountingPeriodOpen(client.id, period);
+    if (!periodState.open) {
+      return NextResponse.json({ error: `La période ${period} est verrouillée. Le brouillon n'a pas été créé.` }, { status: 409 });
     }
+    const source = typeof input.source === "string" && ["MANUAL", "WHATSAPP", "VOICE"].includes(input.source)
+      ? input.source
+      : "MANUAL";
+    const label = client.companyName || [client.firstName, client.lastName].filter(Boolean).join(" ") || "Client";
+    const income = classification.direction === "ENTREE";
 
-    // Parseur par mots-clés (pas un moteur IA/LLM) du message vocal/texte
-    // (ex: "J'ai vendu 50 000 de ciment et j'ai payé 10 000 pour le transport")
-    await new Promise(r => setTimeout(r, 1200));
-
-    const text = rawMessage.toLowerCase();
-    let type = "INCONNU";
-    let montant = 0;
-    let compte = "471000";
-    let intituleCompte = "Compte d'attente";
-    let subCategoryMatched = false;
-
-    if (text.includes("vendu") || text.includes("recette") || text.includes("encaissé")) {
-      type = "ENTREE";
-      compte = "701000";
-      intituleCompte = "Ventes de marchandises";
-      subCategoryMatched = true;
-      // Extraire le premier nombre
-      const match = text.match(/\d+([., ]\d+)?/);
-      if (match) montant = parseInt(match[0].replace(/\D/g, ""));
-    } else if (text.includes("payé") || text.includes("acheté") || text.includes("dépense")) {
-      type = "SORTIE";
-      if (text.includes("transport")) {
-        compte = "613000";
-        intituleCompte = "Frais de transport";
-        subCategoryMatched = true;
-      } else if (text.includes("marchandise") || text.includes("ciment") || text.includes("stock")) {
-        compte = "601000";
-        intituleCompte = "Achats de marchandises";
-        subCategoryMatched = true;
-      } else {
-        compte = "605000";
-        intituleCompte = "Autres achats";
-      }
-      const match = text.match(/\d+([., ]\d+)?/);
-      if (match) montant = parseInt(match[0].replace(/\D/g, ""));
-    }
-
-    // Fallback montant
-    const montantExtrait = montant > 0;
-    if (montant === 0) montant = 10000;
-
-    // Score de fiabilité dérivé du résultat réel du parseur (le champ confidenceScore
-    // était auparavant fixé à 0.92 pour toute entrée, quel que soit le texte reçu) :
-    // type reconnu + sous-catégorie identifiée + montant effectivement extrait du texte.
-    let confidenceScore = 0.2;
-    if (type !== "INCONNU") confidenceScore += 0.35;
-    if (subCategoryMatched) confidenceScore += 0.2;
-    if (montantExtrait) confidenceScore += 0.25;
-
-    // Création de l'entrée dans TpeJournal
-    const journalEntry = await prisma.tpeJournal.create({
+    const entry = await prisma.tpeJournal.create({
       data: {
-        clientId,
-        businessName: businessName || "TPE Inconnue",
-        periode: new Date().toISOString().substring(0, 7), // Ex: "2026-06"
-        date: new Date().toISOString().substring(0, 10),
-        libelle: `Flux depuis ${source}`,
-        entree: type === "ENTREE" ? montant : 0,
-        sortie: type === "SORTIE" ? montant : 0,
-        source: source || "WHATSAPP",
-        rawContent: rawMessage,
-        confidenceScore,
-        debitCompte: type === "ENTREE" ? "521000" : compte,
-        debitIntitule: type === "ENTREE" ? "Banque / Caisse" : intituleCompte,
-        creditCompte: type === "ENTREE" ? compte : "521000",
-        creditIntitule: type === "ENTREE" ? intituleCompte : "Banque / Caisse",
-        montant: montant,
-        status: "PENDING"
-      }
+        clientId: client.id,
+        businessName: label,
+        periode: period,
+        date,
+        libelle: input.rawMessage.trim(),
+        entree: income ? classification.amount : 0,
+        sortie: income ? 0 : classification.amount,
+        source,
+        rawContent: input.rawMessage.trim(),
+        confidenceScore: classification.confidence,
+        imputationNote: classification.reason,
+        debitCompte: income ? "521000" : classification.account,
+        debitIntitule: income ? "Banque / Caisse — à vérifier" : classification.accountLabel,
+        creditCompte: income ? classification.account : "521000",
+        creditIntitule: income ? classification.accountLabel : "Banque / Caisse — à vérifier",
+        montant: classification.amount,
+        status: "PENDING",
+      },
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      entry: journalEntry
+    await AuditService.log({
+      action: "CREATE",
+      entity: "TPE_JOURNAL",
+      entityId: entry.id,
+      details: `Brouillon créé depuis une saisie ${source}; revue humaine requise.`,
+      newValue: {
+        clientId: client.id,
+        status: entry.status,
+        amount: classification.amount,
+        debitCompte: entry.debitCompte,
+        creditCompte: entry.creditCompte,
+        imputationNote: classification.reason,
+      },
     });
 
+    return NextResponse.json({
+      success: true,
+      entry,
+      preImputation: {
+        origin: "keyword_rules",
+        explanation: classification.reason,
+        requiresHumanApproval: true,
+      },
+    }, { status: 201 });
   } catch (error) {
     console.error("[TPE Process Flow Error]", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Impossible de créer le brouillon comptable." }, { status: 500 });
   }
 }

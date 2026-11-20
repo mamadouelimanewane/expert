@@ -19,6 +19,12 @@ const prisma = new PrismaClient();
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@cabinet360.com';
 
 async function main() {
+    const cabinetId = process.env.CABINET_ID?.trim();
+    if (!cabinetId) throw new Error('CABINET_ID est requis en production.');
+    const cabinet = await prisma.cabinet.findUnique({ where: { id: cabinetId }, select: { id: true } });
+    if (!cabinet) throw new Error('CABINET_ID ne correspond à aucun cabinet.');
+    const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL }, select: { cabinetId: true } });
+    if (existing?.cabinetId && existing.cabinetId !== cabinetId) throw new Error('Cet administrateur appartient déjà à un autre cabinet.');
     const password = process.env.ADMIN_PASSWORD?.trim();
 
     if (!password) {
@@ -40,8 +46,9 @@ async function main() {
 
     const admin = await prisma.user.upsert({
         where: { email: ADMIN_EMAIL },
-        update: { password: hashedPassword, isActive: true },
+        update: { cabinetId, password: hashedPassword, isActive: true },
         create: {
+            cabinetId,
             email: ADMIN_EMAIL,
             password: hashedPassword,
             firstName: 'Expert',

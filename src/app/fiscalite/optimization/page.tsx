@@ -62,6 +62,7 @@ export default function NexusTaxIntelligencePage() {
     const [risks, setRisks] = useState<FiscalRisk[]>([]);
     const [declarations, setDeclarations] = useState<Declaration[]>([]);
     const [taxRegimeComparison, setTaxRegimeComparison] = useState<TaxRegimeRow[] | null>(null);
+    const [comparatifIndisponible, setComparatifIndisponible] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [scanMessage, setScanMessage] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export default function NexusTaxIntelligencePage() {
                 setRisks(d.risks || []);
                 setDeclarations(d.declarations || []);
                 setTaxRegimeComparison(d.taxRegimeComparison || null);
+                setComparatifIndisponible(d.taxRegimeComparisonUnavailable || null);
             })
             .finally(() => setLoading(false));
     };
@@ -302,12 +304,12 @@ export default function NexusTaxIntelligencePage() {
                         <div className="apix-card">
                             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Comparatif des Régimes Fiscaux</h3>
                             <p className="text-xs text-slate-500 mb-8">
-                                Estimation appliquant des taux de référence OHADA/UEMOA au CA et résultat net réels du dernier exercice de {client?.name || "ce client"}. Taux indicatifs — à confirmer selon la législation exacte du pays d'immatriculation ({client?.country || "—"}).
+                                Le comparatif ne s’affiche qu’avec des barèmes et critères d’éligibilité vérifiés pour le pays et l’exercice de {client?.name || "ce client"} ({client?.country || "—"}).
                             </p>
                             {!taxRegimeComparison ? (
                                 <div className="p-8 text-center">
                                     <FileSearch className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                                    <p className="text-sm text-slate-500">Aucune donnée financière (FinancialData) enregistrée pour ce client — le comparatif ne peut pas être calculé.</p>
+                                    <p className="text-sm text-slate-500">{comparatifIndisponible || "Aucune donnée ou règle fiscale vérifiée n’est disponible pour ce client."}</p>
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto">
@@ -339,7 +341,7 @@ export default function NexusTaxIntelligencePage() {
 
                         <div className="apix-card">
                             <p className="text-xs text-slate-500 leading-relaxed">
-                                L'identification automatisée de pistes d'optimisation fiscale spécifiques (crédit R&D, régime de faveur fusion-acquisition, amortissements dégressifs...) n'est pas encore implémentée dans ce module. Le comparatif ci-dessus se limite à une estimation de la charge d'impôt selon chaque régime, à partir des données réelles du client.
+                                Toute analyse d’optimisation fiscale doit être étayée par le texte national applicable, les données du client et une revue de l’expert-comptable. Les estimations génériques sont désactivées.
                             </p>
                         </div>
                     </div>

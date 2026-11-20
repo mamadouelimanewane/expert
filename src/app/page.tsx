@@ -47,18 +47,20 @@ import {
   Star
 } from "lucide-react";
 
+const ONBOARDING_PAUSED = true;
+
 export default function SaaSGrandLandingPage() {
   const [billingCycle, setBillingCycle] = useState<"mensuel" | "annuel">("annuel");
   const [activeTab, setActiveTab] = useState<number>(0);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
-  // Modal Essai Gratuit 14 jours
+  // Modal d'information sur les inscriptions et l'accès cabinet
   const [isTrialModalOpen, setIsTrialModalOpen] = useState(false);
   const [trialFormSubmitted, setTrialFormSubmitted] = useState(false);
   const [trialCabinetName, setTrialCabinetName] = useState("");
   const [trialEmail, setTrialEmail] = useState("");
   const [trialPhone, setTrialPhone] = useState("");
-  const [trialCountry, setTrialCountry] = useState("Sénégal");
+  const [trialCountry, setTrialCountry] = useState("SN");
   const [trialDossiers, setTrialDossiers] = useState("20 à 50 dossiers");
   const [isSubmittingTrial, setIsSubmittingTrial] = useState(false);
 
@@ -87,7 +89,7 @@ export default function SaaSGrandLandingPage() {
           phone: trialPhone,
           country: trialCountry,
           dossiersCount: trialDossiers,
-          password: trialPassword || "DemoTrial2026!",
+          password: trialPassword,
         }),
       });
 
@@ -257,7 +259,7 @@ export default function SaaSGrandLandingPage() {
         "Support standard par e-mail sous 24h"
       ],
       popular: false,
-      cta: "Essai Gratuit 14 Jours",
+      cta: "Inscriptions suspendues",
       badge: "Indépendant"
     },
     {
@@ -279,7 +281,7 @@ export default function SaaSGrandLandingPage() {
         "Support prioritaire WhatsApp & Téléphone"
       ],
       popular: true,
-      cta: "Démarrer l'Essai Pro 14 Jours",
+      cta: "Inscriptions suspendues",
       badge: "Recommandé"
     },
     {
@@ -299,23 +301,23 @@ export default function SaaSGrandLandingPage() {
         "Account Manager dédié et SLA garanti 99.9%"
       ],
       popular: false,
-      cta: "Demander une Démo Personnalisée",
+      cta: "Inscriptions suspendues",
       badge: "Sur-mesure"
     }
   ];
 
   const faqs = [
     {
-      q: "Comment fonctionne l'Essai Gratuit de 14 Jours ?",
-      a: "L'essai gratuit vous donne un accès immédiat et illimité à l'ensemble des modules (Comptabilité SYSCOHADA, Paie Sénégal, Usine de Traitement IA TPE, WhatsApp Bot, Nexus IA). Aucune carte bancaire n'est requise. À la fin des 14 jours, vous choisissez d'activer votre forfait ou d'exporter vos données en un clic."
+      q: "Pourquoi les nouvelles inscriptions sont-elles suspendues ?",
+      a: "Les nouvelles inscriptions sont suspendues. Les espaces SaaS associés à un cabinet restent en pause jusqu'à la validation du cloisonnement des données. Les comptes mono-cabinet existants peuvent toujours se connecter."
     },
     {
       q: "Comment l'IA automatise-t-elle la gestion des dossiers TPE/PME du cabinet ?",
       a: "Les dirigeants de TPE ou commerçants envoient leurs reçus, photos de factures et notes vocales sur un numéro WhatsApp relié à votre cabinet. Notre moteur IA extrait les données, analyse le libellé, affecte les comptes du Plan Comptable SYSCOHADA et présente un lot d'écritures pré-rempli. Vos collaborateurs n'ont plus qu'à cliquer sur 'Valider le lot'. Le temps passé est divisé par 10 !"
     },
     {
-      q: "Puis-je tester l'application tout de suite avec des données réelles ?",
-      a: "Oui ! En cliquant sur 'Lancer la Démo Immédiate', vous arrivez directement sur l'environnement de démonstration pré-configuré (SARL Diallo & Fils) comprenant un bilan complet, 124 bulletins de paie, des flux de facturation Wave et des alertes d'audit."
+      q: "Puis-je accéder à la démonstration publique ?",
+      a: "La démonstration publique est momentanément indisponible. Nous ne donnons pas accès à un compte partagé pendant la sécurisation des espaces cabinets."
     },
     {
       q: "L'application respecte-t-elle strictement le référentiel SYSCOHADA révisé ?",
@@ -342,14 +344,11 @@ export default function SaaSGrandLandingPage() {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
         </span>
         <span>
-          🎁 <strong>Offre Spéciale Cabinets :</strong> 14 jours d'essai gratuit sans carte bancaire + Dossier démo « SARL Diallo & Fils » prêt à l'emploi !
+          <strong>Accès aux cabinets pilotes :</strong> les inscriptions et la démonstration publique sont suspendues pendant la sécurisation des espaces.
         </span>
-        <button
-          onClick={() => setIsTrialModalOpen(true)}
-          className="underline font-bold text-amber-200 hover:text-white transition-colors ml-1"
-        >
-          Activer mon essai &rarr;
-        </button>
+        <Link href="/login" className="underline font-bold text-amber-200 hover:text-white transition-colors ml-1">
+          Connexion &rarr;
+        </Link>
       </div>
 
       {/* ============================================================ */}
@@ -412,7 +411,7 @@ export default function SaaSGrandLandingPage() {
               className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-all"
             >
               <Play className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
-              <span>Démo Directe</span>
+              <span>Connexion</span>
             </Link>
 
             <button
@@ -420,7 +419,7 @@ export default function SaaSGrandLandingPage() {
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-600/25 transition-all hover:scale-105 active:scale-95"
             >
               <Zap className="w-4 h-4 text-amber-300" />
-              <span>Essai Gratuit 14J</span>
+              <span>Inscriptions suspendues</span>
             </button>
           </div>
         </div>
@@ -436,9 +435,9 @@ export default function SaaSGrandLandingPage() {
           {/* Badge haut */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 shadow-sm">
             <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Suite SaaS Intelligente • Zone UEMOA & 17 Pays OHADA</span>
+            <span>Gestion de cabinet • Zone OHADA • Paie Sénégal</span>
             <span className="hidden sm:inline text-emerald-400">•</span>
-            <span className="hidden sm:inline font-semibold text-emerald-700 dark:text-emerald-200">Essai Gratuit & Démo Prêts</span>
+            <span className="hidden sm:inline font-semibold text-emerald-700 dark:text-emerald-200">Accès existants uniquement</span>
           </div>
 
           {/* Titre principal */}
@@ -464,7 +463,7 @@ export default function SaaSGrandLandingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-xl shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Zap className="w-5 h-5 text-amber-300" />
-              <span>Démarrer Mon Essai Gratuit 14 Jours</span>
+              <span>Voir l&apos;état des inscriptions</span>
               <ArrowRight className="w-5 h-5" />
             </button>
 
@@ -473,12 +472,12 @@ export default function SaaSGrandLandingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 shadow-md transition-all"
             >
               <Play className="w-5 h-5 text-emerald-600 fill-emerald-600" />
-              <span>Tester la Démo Immédiate</span>
+              <span>Connexion à un espace existant</span>
             </Link>
           </div>
 
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            ✓ Aucun numéro de carte bancaire requis • Activation instantanée • Dossier de démonstration complet inclus
+            Les nouvelles inscriptions et la démonstration publique sont suspendues pendant le renforcement du cloisonnement des données.
           </p>
 
           {/* Éléments de réassurance */}
@@ -517,7 +516,7 @@ export default function SaaSGrandLandingPage() {
                   </div>
                   <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Mode Démo Cabinet Actif (SARL Diallo & Fils)
+                    Aperçu illustratif • Données fictives
                   </div>
                 </div>
 
@@ -673,7 +672,7 @@ export default function SaaSGrandLandingPage() {
               onClick={() => setIsTrialModalOpen(true)}
               className="shrink-0 px-6 py-3.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl font-bold shadow-lg transition-transform hover:scale-105 active:scale-95"
             >
-              Tester l'Usine IA TPE en Démo &rarr;
+              Accès à la démonstration suspendu &rarr;
             </button>
           </div>
         </div>
@@ -746,7 +745,7 @@ export default function SaaSGrandLandingPage() {
                 onClick={() => setIsTrialModalOpen(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-md hover:scale-105"
               >
-                <span>Activer l'automatisation avec 14 jours d'essai gratuit</span>
+                <span>Consulter l&apos;état des inscriptions</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -825,7 +824,7 @@ export default function SaaSGrandLandingPage() {
                       onClick={() => setIsTrialModalOpen(true)}
                       className="text-xs font-semibold text-slate-500 hover:text-emerald-600 transition-colors"
                     >
-                      Essai 14j &rarr;
+                      Inscription suspendue &rarr;
                     </button>
                   </div>
                 </div>
@@ -930,7 +929,7 @@ export default function SaaSGrandLandingPage() {
               Choisissez le Forfait Adapté à la Taille de Votre Cabinet
             </h2>
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300">
-              Des tarifs clairs en Francs CFA (XOF/XAF), sans engagement et incluant <strong>14 jours d'essai gratuit</strong>.
+              Les forfaits présentés sont indicatifs. L&apos;inscription et le paiement en libre-service sont suspendus pendant le renforcement du cloisonnement des données.
             </p>
 
             {/* Toggle Mensuel / Annuel */}
@@ -1087,7 +1086,7 @@ export default function SaaSGrandLandingPage() {
             Prêt à Déployer l'IA & le SYSCOHADA dans Votre Cabinet ?
           </h2>
           <p className="text-base sm:text-lg text-emerald-100 max-w-2xl mx-auto">
-            Rejoignez les experts-comptables novateurs de la zone OHADA. Activez vos 14 jours d'essai gratuit ou explorez le dossier de démonstration en direct.
+            Les cabinets déjà équipés peuvent se connecter. Les nouvelles inscriptions et démonstrations publiques reprendront après validation du cloisonnement des données.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
@@ -1095,7 +1094,7 @@ export default function SaaSGrandLandingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-slate-950 bg-white hover:bg-emerald-50 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95"
             >
               <Zap className="w-5 h-5 text-emerald-700" />
-              <span>Démarrer l'Essai Gratuit 14 Jours</span>
+              <span>Consulter l&apos;état des inscriptions</span>
             </button>
 
             <Link
@@ -1103,7 +1102,7 @@ export default function SaaSGrandLandingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold text-white bg-emerald-950/60 hover:bg-emerald-950/80 rounded-xl border border-emerald-500/40 shadow-xl transition-all"
             >
               <Play className="w-4 h-4 fill-white" />
-              <span>Accéder à la Démo Immédiatement</span>
+              <span>Connexion à un espace existant</span>
             </Link>
           </div>
         </div>
@@ -1155,12 +1154,22 @@ export default function SaaSGrandLandingPage() {
               <X className="w-5 h-5" />
             </button>
 
-            {!trialFormSubmitted ? (
+            {ONBOARDING_PAUSED ? (
+              <div role="status" className="py-6 space-y-4 text-center">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Inscriptions momentanément suspendues</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  Nous terminons la sécurisation de l&apos;isolation des données entre cabinets avant d&apos;ouvrir de nouveaux espaces. Aucun paiement ou renseignement de contact ne sera demandé ici.
+                </p>
+                <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl">
+                  Se connecter à un espace existant
+                </Link>
+              </div>
+            ) : !trialFormSubmitted ? (
               <form onSubmit={handleTrialSubmit} className="space-y-5">
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
                     <Zap className="w-3.5 h-3.5" />
-                    <span>14 Jours Offerts • Sans Engagement</span>
+                    <span>Inscriptions actuellement suspendues</span>
                   </div>
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white">
                     Activez Votre Espace Cabinet SaaS
@@ -1214,6 +1223,24 @@ export default function SaaSGrandLandingPage() {
                     </div>
                   </div>
 
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Mot de passe du compte *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={12}
+                      maxLength={128}
+                      autoComplete="new-password"
+                      placeholder="12 caractères minimum"
+                      value={trialPassword}
+                      onChange={(e) => setTrialPassword(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    />
+                    <p className="mt-1 text-xs text-slate-500">Utilisez un mot de passe unique. Aucun mot de passe par défaut n&apos;est créé.</p>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -1224,13 +1251,13 @@ export default function SaaSGrandLandingPage() {
                         onChange={(e) => setTrialCountry(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                       >
-                        <option value="Sénégal">Sénégal</option>
-                        <option value="Côte d'Ivoire">Côte d'Ivoire</option>
-                        <option value="Cameroun">Cameroun</option>
-                        <option value="Bénin">Bénin</option>
-                        <option value="Togo">Togo</option>
-                        <option value="Mali">Mali</option>
-                        <option value="Autre pays OHADA">Autre pays OHADA</option>
+                        <option value="SN">Sénégal</option>
+                        <option value="CI">Côte d&apos;Ivoire</option>
+                        <option value="CM">Cameroun</option>
+                        <option value="BJ">Bénin</option>
+                        <option value="TG">Togo</option>
+                        <option value="ML">Mali</option>
+                        <option value="OTHER">Autre pays OHADA</option>
                       </select>
                     </div>
                     <div>
@@ -1289,24 +1316,12 @@ export default function SaaSGrandLandingPage() {
                   Compte créé pour <strong>{trialCabinetName || trialEmail}</strong>. Connectez-vous avec votre e-mail et le mot de passe choisi.
                 </p>
 
-                {/* Accès démo 1 clic */}
-                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-800 dark:text-amber-300 text-left space-y-1">
-                  <p className="font-bold">💡 Conseil : Explorez d'abord la démo complète</p>
-                  <p>Le dossier <strong>SARL Diallo & Fils</strong> est déjà chargé avec bilan, 124 bulletins de paie et flux Wave. Cliquez sur « Démo 1 Clic » ci-dessous.</p>
-                </div>
-
                 <div className="pt-2 flex flex-col gap-3">
-                  <Link
-                    href="/login?demo=1"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all"
-                  >
-                    <span>🚀 Démo 1 Clic — Dossier SARL Diallo & Fils</span>
-                  </Link>
                   <Link
                     href="/login"
                     className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all text-xs"
                   >
-                    <span>Se connecter avec mon compte ({trialEmail})</span>
+                    <span>Se connecter à mon espace cabinet ({trialEmail})</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

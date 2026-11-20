@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { clientDuPortail } from "@/lib/portal-auth";
+import { withPortalClient } from "@/lib/portal-auth";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 export async function GET(request: NextRequest) {
@@ -13,8 +13,7 @@ export async function GET(request: NextRequest) {
     const token = searchParams.get("token");
     if (!token) return NextResponse.json({ error: "token requis" }, { status: 400 });
 
-    const client = await clientDuPortail(token);
-    if (!client) return NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
+    const response = await withPortalClient(token, async (client) => {
     if (!client.stripeCustomerId) return NextResponse.json({ status: null });
 
     const stripe = getStripe();
@@ -27,6 +26,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ status: statut });
+    });
+    return response ?? NextResponse.json({ error: "Portail introuvable ou désactivé." }, { status: 404 });
   } catch (error) {
     console.error("Erreur GET onboarding/sepa-status:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

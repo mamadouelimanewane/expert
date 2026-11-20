@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES } from "@/lib/payroll/engines";
+import { calculatePayroll, estPaysSupporte, PAYS_SUPPORTES, obtenirReglesPaie } from "@/lib/payroll/engines";
 import { completer, isLLMConfigured, MESSAGE_LLM_NON_CONFIGURE } from "@/lib/llm";
 
 import { requireStaff } from "@/lib/api-auth";
@@ -115,6 +115,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       country: client.country,
+      reglesPaie: obtenirReglesPaie(client.country),
       variables: finalVariables,
       avertissements: avertissementsGlobaux,
       message: texte

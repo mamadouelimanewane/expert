@@ -1,4 +1,9 @@
 # 🚀 Guide de Déploiement - Cabinet 360
+> **Document historique, non applicable au dépôt actuel.** Ce guide décrit
+> PostgreSQL, alors que `prisma/schema.prisma` utilise MongoDB. Ses commandes
+> et consignes de production ne doivent pas être exécutées. Consultez
+> `ARCHITECTURE.md` et `securisation-multi-cabinet.md`; le déploiement métier
+> reste verrouillé tant que les critères d'isolation n'ont pas été validés.
 
 **Version**: 2.0.0  
 **Date**: 28 Janvier 2026  

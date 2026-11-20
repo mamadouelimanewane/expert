@@ -82,42 +82,6 @@ export const OBLIGATIONS_FISCALES: ObligationFiscale[] = [
         reference: "CGI Sénégal art. 200 et suivants",
     },
     {
-        id: "acompte-is",
-        titre: "Acompte d'impôt sur les sociétés",
-        description:
-            "Versement d'un acompte sur l'impôt sur les sociétés de l'exercice en cours, calculé sur le résultat de l'exercice précédent.",
-        categorie: "IS",
-        pays: ["SN", "CI", "CM", "BJ"],
-        jourEcheance: 30,
-        periodicite: "TRIMESTRIELLE",
-        typesDeclaration: ["IS"],
-        reference: "CGI Sénégal art. 25 ; CGI Côte d'Ivoire art. 40",
-    },
-    {
-        id: "impot-minimum",
-        titre: "Impôt minimum forfaitaire",
-        description:
-            "Impôt minimum assis sur le chiffre d'affaires, dû même en l'absence de bénéfice. Au Sénégal : 0,5 % du CA, plancher 500 000 FCFA, plafond 5 000 000 FCFA.",
-        categorie: "IS",
-        pays: ["SN", "CI", "BJ"],
-        jourEcheance: 30,
-        periodicite: "ANNUELLE",
-        typesDeclaration: ["IS"],
-        reference: "CGI Sénégal art. 30",
-    },
-    {
-        id: "declaration-annuelle-is",
-        titre: "Déclaration annuelle de résultat et liasse fiscale",
-        description:
-            "Dépôt des états financiers SYSCOHADA et de la déclaration de résultat de l'exercice clos.",
-        categorie: "IS",
-        pays: ["SN", "CI", "CM", "BJ", "BF", "ML", "TG"],
-        jourEcheance: 30,
-        periodicite: "ANNUELLE",
-        typesDeclaration: ["IS"],
-        reference: "Acte uniforme AUDCIF art. 23",
-    },
-    {
         id: "irpp-salaires",
         titre: "Impôt sur le revenu retenu sur salaires",
         description:

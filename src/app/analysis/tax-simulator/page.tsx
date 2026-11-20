@@ -7,15 +7,20 @@ import { cn } from "@/lib/utils";
 import { simulateCorporateTax, TaxSimulation } from "@/lib/tax-simulator";
 
 const COUNTRIES = [
-  { id: "sn", name: "Sénégal", flag: "🇸🇳", taxRate: "30%" },
-  { id: "ci", name: "Côte d'Ivoire", flag: "🇨🇮", taxRate: "25%" },
-  { id: "cm", name: "Cameroun", flag: "🇨🇲", taxRate: "33%" },
-  { id: "bj", name: "Bénin", flag: "🇧🇯", taxRate: "30%" }
+  { id: "sn", name: "Sénégal", flag: "🇸🇳" },
+  { id: "ci", name: "Côte d'Ivoire", flag: "🇨🇮" },
+  { id: "cm", name: "Cameroun", flag: "🇨🇲" },
+  { id: "bj", name: "Bénin", flag: "🇧🇯" }
 ];
 
 export default function TaxSimulatorPage() {
   const [params, setParams] = useState<TaxSimulation>({
     baseImposable: 10000000,
+    chiffreAffaires: 50000000,
+    chiffreAffairesTTC: 59000000,
+    chiffreAffairesAnneePrecedente: 50000000,
+    produitsEncaissables: 50000000,
+    masseSalariale: 0,
     pays: 'sn',
     regime: 'reel',
     secteur: 'services'
@@ -35,7 +40,7 @@ export default function TaxSimulatorPage() {
           <h2 className="page-title flex items-center gap-3">
             <Calculator className="w-6 h-6 text-primary" /> Simulateur Fiscal OHADA
           </h2>
-          <p className="page-subtitle">Estimation des charges fiscales par pays (IS, TVA, Taxes Diverses)</p>
+          <p className="page-subtitle">Simulation indicative à partir de paramètres de base intégrés. Elle ne constitue pas une liquidation ni un calcul certifié pour un exercice donné.</p>
         </div>
       </div>
 
@@ -59,7 +64,7 @@ export default function TaxSimulatorPage() {
                       )}
                     >
                       <span className="text-sm font-bold text-white flex items-center gap-2"><span className="text-lg">{c.flag}</span> {c.name}</span>
-                      <span className="text-[10px] font-black text-primary">{c.taxRate}</span>
+                      <span className="text-[9px] font-black text-amber-300">INDICATIF</span>
                     </button>
                   ))}
                 </div>
@@ -74,6 +79,23 @@ export default function TaxSimulatorPage() {
                   className="mt-2 w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-lg font-black text-white focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Chiffre d’affaires HT</label>
+                  <input type="number" min="0" value={params.chiffreAffaires ?? ""} onChange={e => setParams({...params, chiffreAffaires: e.target.value === "" ? undefined : Number(e.target.value)})} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Masse salariale brute annuelle</label>
+                  <input type="number" min="0" value={params.masseSalariale ?? ""} onChange={e => setParams({...params, masseSalariale: e.target.value === "" ? undefined : Number(e.target.value)})} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white" />
+                </div>
+                {params.pays === "ci" && <div><label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Chiffre d’affaires TTC</label><input type="number" min="0" value={params.chiffreAffairesTTC ?? ""} onChange={e => setParams({...params, chiffreAffairesTTC: e.target.value === "" ? undefined : Number(e.target.value)})} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white" /></div>}
+                {params.pays === "bj" && <div><label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Produits encaissables</label><input type="number" min="0" value={params.produitsEncaissables ?? ""} onChange={e => setParams({...params, produitsEncaissables: e.target.value === "" ? undefined : Number(e.target.value)})} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white" /></div>}
+                {params.pays === "cm" && <div><label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Centre fiscal</label><select value={params.centreFiscal ?? ""} onChange={e => setParams({...params, centreFiscal: e.target.value ? e.target.value as TaxSimulation["centreFiscal"] : undefined})} className="mt-2 w-full rounded-xl bg-slate-950/50 px-4 py-3 text-white"><option value="">À confirmer</option><option value="DGE">Grandes entreprises (DGE)</option><option value="CIME">Moyennes entreprises (CIME)</option><option value="CDI">Centre divisionnaire (CDI)</option><option value="CSI">Centre spécialisé (CSI)</option></select></div>}
+                {params.pays === "cm" && <div><label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Base du minimum fiscal</label><select value={params.minimumCamerounais ?? ""} onChange={e => setParams({...params, minimumCamerounais: e.target.value ? e.target.value as TaxSimulation["minimumCamerounais"] : undefined})} className="mt-2 w-full rounded-xl bg-slate-950/50 px-4 py-3 text-white"><option value="">À confirmer avec le dossier</option><option value="STANDARD">Taux standard 2 % (+ CAC)</option><option value="MARGE_ADMINISTREE">Marge administrée 14 % (+ CAC)</option></select></div>}
+              </div>
+
+              {params.pays === "cm" && <label className="block"><span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Chiffre d’affaires HT de l’exercice précédent</span><input type="number" min="0" value={params.chiffreAffairesAnneePrecedente ?? ""} onChange={e => setParams({...params, chiffreAffairesAnneePrecedente: e.target.value === "" ? undefined : Number(e.target.value)})} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white" /></label>}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -97,6 +119,11 @@ export default function TaxSimulatorPage() {
                     <option value="services">Prestation de Services</option>
                     <option value="commerce">Commerce Général</option>
                     <option value="industrie">Industrie</option>
+                    <option value="construction">BTP / construction</option>
+                    <option value="immobilier">Immobilier</option>
+                    <option value="station_service">Station-service</option>
+                    <option value="telecommunications">Télécommunications</option>
+                    <option value="enseignement_prive">Enseignement privé</option>
                   </select>
                 </div>
               </div>
@@ -126,7 +153,8 @@ export default function TaxSimulatorPage() {
                     <h3 className="text-xl font-black text-white flex items-center gap-2">
                       <PieChart className="w-6 h-6 text-emerald-400" /> Synthèse d'Imposition
                     </h3>
-                    <p className="text-sm text-slate-400 mt-1">Estimation basée sur la législation en vigueur</p>
+                    <p className="text-sm text-slate-400 mt-1">Paramètres de simulation non vérifiés pour chaque exercice</p>
+                    <p className="mt-1 text-xs text-slate-500">{result.editionReglementaire} · couverture {result.couvertureReglementaire.toLowerCase()}</p>
                   </div>
                   <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                     {COUNTRIES.find(c => c.id === params.pays)?.flag} {COUNTRIES.find(c => c.id === params.pays)?.name}
@@ -135,20 +163,26 @@ export default function TaxSimulatorPage() {
 
                 <div className="flex-1 space-y-6">
                   <div className="p-6 bg-slate-950/50 rounded-2xl border border-white/5">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Impôt sur les Sociétés (IS) Estimé</p>
-                    <p className="text-3xl sm:text-5xl font-black text-emerald-400 break-words">{Math.round(result.is).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">IS ou minimum fiscal estimé</p>
+                    <p className="text-3xl sm:text-5xl font-black text-emerald-400 break-words">{Math.round(result.isDu).toLocaleString()} <span className="text-lg text-slate-400">FCFA</span></p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-5 bg-slate-800/30 rounded-2xl border border-white/5">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">TVA Collectée (Est.)</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Minimum fiscal estimé</p>
+                      <p className="text-xl font-bold text-white">{Math.round(result.impotMinimum).toLocaleString()} F</p>
+                    </div>
+                    <div className="p-5 bg-slate-800/30 rounded-2xl border border-white/5">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">TVA brute indicative</p>
                       <p className="text-xl font-bold text-white">{Math.round(result.tvaMoyenne).toLocaleString()} F</p>
                     </div>
                     <div className="p-5 bg-slate-800/30 rounded-2xl border border-white/5">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Taxes Diverses (CFCE...)</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">CFCE estimée</p>
                       <p className="text-xl font-bold text-white">{Math.round(result.cfce).toLocaleString()} F</p>
                     </div>
                   </div>
+
+                  {[...result.hypotheses, ...result.avertissements].length > 0 && <ul className="space-y-1 rounded-xl border border-white/5 bg-black/10 p-4 text-xs text-slate-400">{[...result.hypotheses, ...result.avertissements].map((item: string, index: number) => <li key={index}>• {item}</li>)}</ul>}
 
                   <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex gap-3 mt-auto">
                     <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
@@ -156,6 +190,7 @@ export default function TaxSimulatorPage() {
                       Cette simulation est fournie à titre indicatif et ne remplace pas l'avis de votre expert-comptable. Les taux peuvent varier selon les exonérations spécifiques (Code des Investissements).
                     </p>
                   </div>
+                  <a href={result.sourceReglementaire} target="_blank" rel="noreferrer" className="text-xs font-semibold text-primary underline">Consulter la source fiscale officielle de référence</a>
                 </div>
               </motion.div>
             ) : (

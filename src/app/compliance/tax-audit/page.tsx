@@ -221,6 +221,51 @@ Fait le ${date}`;
                 </button>
             </div>
 
+            {/* Barre d'outils fiscaux pour le contrôle */}
+            <div className="p-4 bg-slate-900/40 border border-white/10 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 text-rose-400" />
+                    Outils de Justification & Audit Fiscal :
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                    <a
+                        href="/fiscalite/fec"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-white/5 transition flex items-center gap-1.5"
+                    >
+                        <Download className="w-3.5 h-3.5 text-primary" />
+                        Générer FEC d'audit
+                    </a>
+                    <a
+                        href="/fiscalite/cadrage-tva"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-white/5 transition flex items-center gap-1.5"
+                    >
+                        <Calculator className="w-3.5 h-3.5 text-amber-400" />
+                        Cadrage & Rapprochement TVA
+                    </a>
+                    <a
+                        href="/fiscalite/resultat-fiscal"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-white/5 transition flex items-center gap-1.5"
+                    >
+                        <Gavel className="w-3.5 h-3.5 text-emerald-400" />
+                        Tableau 7 DSF (IS)
+                    </a>
+                    <a
+                        href="/fiscalite/attestation-brs"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-white/5 transition flex items-center gap-1.5"
+                    >
+                        <Mail className="w-3.5 h-3.5 text-blue-400" />
+                        Attestations BRS
+                    </a>
+                    <a
+                        href="/fiscalite/conventions"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-white/5 transition flex items-center gap-1.5"
+                    >
+                        <Building className="w-3.5 h-3.5 text-purple-400" />
+                        Conventions Fiscales
+                    </a>
+                </div>
+            </div>
+
             {formOuvert && (
                 <form
                     onSubmit={creerControle}

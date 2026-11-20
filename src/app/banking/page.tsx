@@ -5,15 +5,12 @@ import { useState, useEffect } from "react";
 import {
     ArrowRightLeft,
     Banknote,
-    Plus,
     Search,
     ShieldCheck,
     RefreshCw,
     Activity,
     CreditCard,
-    Smartphone,
-    CheckCircle2,
-    Zap
+    CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +35,6 @@ interface Invoice {
 }
 
 export default function BankingPage() {
-    const [isSyncing, setIsSyncing] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -82,30 +78,21 @@ export default function BankingPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "reconcile", transactionId: txId, invoiceId: invId })
             });
-            if(res.ok) {
-                await fetchBankingData();
-            }
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Le rapprochement a échoué.");
+            toast.success("Mouvement associé. Vérifiez ensuite le règlement dans la facturation.");
+            setSelectedTx(null);
+            await fetchBankingData();
         } catch (error) {
-            console.error("Reconciliation failed:", error);
+            toast.error(error instanceof Error ? error.message : "Le rapprochement a échoué.");
         }
     };
 
-    // Auto-Match IA Simulator
-    const runAutoMatch = async () => {
-        setIsSyncing(true);
-        let matched = 0;
-        for (const tx of transactions.filter(t => t.status === "PENDING")) {
-            // Find perfect match by amount
-            const match = invoices.find(inv => inv.amount === Math.abs(tx.amount));
-            if (match) {
-                await handleReconcile(tx.id, match.id);
-                matched++;
-            }
-        }
-        setIsSyncing(false);
-        if (matched > 0) toast.success(`${matched} flux lettré${matched > 1 ? "s" : ""} automatiquement.`);
-        else toast.warning("Aucun lettrage automatique possible : aucune correspondance de montant et de date.");
-    };
+    const mouvementSelectionne = transactions.find((t) => t.id === selectedTx);
+    const facturesAuMontantExact = mouvementSelectionne?.type === "CREDIT"
+        ? invoices.filter((inv) => Math.abs(inv.amount - Math.abs(mouvementSelectionne.amount)) <= 0.01)
+        : [];
+    const factureSuggereeId = facturesAuMontantExact.length === 1 ? facturesAuMontantExact[0].id : null;
 
     const pendingTxCount = transactions.filter(t => t.status === "PENDING").length;
 
@@ -121,10 +108,10 @@ export default function BankingPage() {
                         <div className="p-3 bg-cyan-600 rounded-2xl shadow-xl shadow-cyan-600/30">
                             <ArrowRightLeft className="w-8 h-8 text-white" />
                         </div>
-                        Banque & Lettrage IA
+                        Banque & rapprochement
                     </h2>
                     <p className="page-subtitle max-w-2xl">
-                        Synchronisation bancaire et rapprochement intelligent.
+                        Importez vos relevés puis associez manuellement chaque encaissement à une facture ouverte.
                     </p>
                 </div>
                 <div className="flex gap-4 relative z-10">
@@ -132,15 +119,8 @@ export default function BankingPage() {
                         onClick={handleSync}
                         className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] border border-white/5 flex items-center gap-3 transition-all active:scale-95 shadow-xl"
                     >
-                        <RefreshCw className={cn("w-4 h-4 text-cyan-400", isSyncing && "animate-spin")} />
+                        <RefreshCw className={cn("w-4 h-4 text-cyan-400", isLoading && "animate-spin")} />
                         Import Relevé
-                    </button>
-                    <button 
-                        onClick={runAutoMatch}
-                        className="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 transition-all active:scale-95 shadow-xl shadow-cyan-600/30"
-                    >
-                        <Zap className="w-4 h-4" />
-                        Lettrage IA
                     </button>
                 </div>
             </div>
@@ -167,11 +147,12 @@ export default function BankingPage() {
                         ) : transactions.map(tx => (
                             <div 
                                 key={tx.id} 
-                                onClick={() => tx.status === "PENDING" && setSelectedTx(tx.id)}
+                                onClick={() => tx.status === "PENDING" && tx.type === "CREDIT" && setSelectedTx(tx.id)}
                                 className={cn(
-                                    "p-4 rounded-2xl border transition-all cursor-pointer",
+                                    "p-4 rounded-2xl border transition-all",
                                     tx.status === "RECONCILED" ? "bg-emerald-500/5 border-emerald-500/20 opacity-50 cursor-not-allowed" : 
-                                    selectedTx === tx.id ? "bg-primary/20 border-primary/50" : "bg-white/5 border-white/5 hover:bg-white/10"
+                                    selectedTx === tx.id ? "bg-primary/20 border-primary/50" : "bg-white/5 border-white/5",
+                                    tx.status === "PENDING" && tx.type === "CREDIT" ? "cursor-pointer hover:bg-white/10" : "cursor-default"
                                 )}
                             >
                                 <div className="flex justify-between items-start">
@@ -212,8 +193,7 @@ export default function BankingPage() {
                         {isLoading ? (
                             <p className="text-center text-slate-500 mt-10">Chargement...</p>
                         ) : invoices.map(inv => {
-                            // IA Suggestion
-                            const isSuggested = selectedTx && transactions.find(t => t.id === selectedTx)?.amount === inv.amount;
+                            const isSuggested = factureSuggereeId === inv.id;
 
                             return (
                                 <div 
@@ -225,7 +205,7 @@ export default function BankingPage() {
                                 >
                                     {isSuggested && (
                                         <div className="absolute top-0 right-0 bg-cyan-500 text-white text-[8px] font-black uppercase px-2 py-1 rounded-bl-lg">
-                                            Suggestion IA
+                                            Montant identique · vérifier avant association
                                         </div>
                                     )}
                                     <div className="flex justify-between items-center">
@@ -237,10 +217,11 @@ export default function BankingPage() {
                                             <p className="font-black font-mono text-white">
                                                 {inv.amount.toLocaleString()}
                                             </p>
-                                            {selectedTx && (
-                                                <button 
+                                            {selectedTx && mouvementSelectionne?.type === "CREDIT" && (
+                                                <button
+                                                    disabled={Math.abs(mouvementSelectionne.amount - inv.amount) > 0.01}
                                                     onClick={() => handleReconcile(selectedTx, inv.id)}
-                                                    className="mt-2 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase rounded-lg transition-all"
+                                                    className="mt-2 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 text-white text-[10px] font-black uppercase rounded-lg transition-all"
                                                 >
                                                     Associer
                                                 </button>

@@ -17,6 +17,7 @@ interface DocFile {
     client: string;
     category: string;
     confidence: number | null;
+    reviewStatus: string | null;
     status: string;
     fileUrl: string;
 }
@@ -54,6 +55,7 @@ export default function SmartGEDPage() {
                     client: d.client?.companyName || `${d.client?.firstName ?? ""} ${d.client?.lastName ?? ""}`.trim() || "—",
                     category: d.type,
                     confidence: d.ocrData?.confidence ?? null,
+                    reviewStatus: d.ocrData?.manualReview?.status ?? null,
                     status: d.status,
                     fileUrl: d.fileUrl,
                 }));
@@ -239,13 +241,14 @@ export default function SmartGEDPage() {
                                             <td className="px-6 py-4">
                                                 <span className={cn(
                                                     "px-3 py-1 rounded-full text-[10px] font-black uppercase border flex items-center gap-1 w-fit",
+                                                    file.category === "FACTURE" && file.status === "PROCESSED" && file.reviewStatus !== "VALIDATED" ? "bg-amber-500/10 text-amber-300 border-amber-500/20" :
                                                     file.status === "ERROR" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
                                                     file.status === "PROCESSED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                                                     "bg-slate-800 text-slate-400 border-slate-700"
                                                 )}>
                                                     {file.status === "ERROR" && <Lock className="w-3 h-3" />}
-                                                    {file.status === "PROCESSED" && <CheckCircle2 className="w-3 h-3" />}
-                                                    {STATUS_LABELS[file.status] || file.status}
+                                                    {file.status === "PROCESSED" && file.reviewStatus === "VALIDATED" && <CheckCircle2 className="w-3 h-3" />}
+                                                    {file.category === "FACTURE" && file.status === "PROCESSED" && file.reviewStatus !== "VALIDATED" ? "À valider" : STATUS_LABELS[file.status] || file.status}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right text-slate-500 text-xs font-medium">{new Date(file.date).toLocaleDateString()}</td>
@@ -278,7 +281,8 @@ export default function SmartGEDPage() {
                                         <div className="text-[9px] font-black uppercase text-slate-600 tracking-widest">{file.client}</div>
                                         <div className="flex items-center gap-2">
                                             <span className="px-2 py-0.5 bg-slate-800 rounded text-[9px] font-black uppercase text-slate-400 border border-slate-700 truncate">{file.category}</span>
-                                            {file.status === "PROCESSED" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                                            {file.status === "PROCESSED" && (file.category !== "FACTURE" || file.reviewStatus === "VALIDATED") && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                                            {file.category === "FACTURE" && file.status === "PROCESSED" && file.reviewStatus !== "VALIDATED" && <span className="text-[9px] font-bold text-amber-300">OCR à valider</span>}
                                             {file.status === "ERROR" && <Lock className="w-4 h-4 text-rose-400" />}
                                         </div>
                                     </div>

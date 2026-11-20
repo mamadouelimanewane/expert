@@ -18,6 +18,7 @@ export default function AuditDossierPage() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showFinalReport, setShowFinalReport] = useState(false);
   const [noteInput, setNoteInput] = useState("");
+  const [reviewNoteInput, setReviewNoteInput] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const loadData = () => {
@@ -108,7 +109,7 @@ export default function AuditDossierPage() {
             onClick={() => setShowFinalReport(true)}
             className="px-6 py-3 bg-primary hover:brightness-110 text-white rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
           >
-            <FileText className="w-4 h-4" /> Rapport Final
+            <FileText className="w-4 h-4" /> Aperçu du dossier
           </button>
         </div>
       </div>
@@ -121,7 +122,7 @@ export default function AuditDossierPage() {
             {data.sections.map((sec: any) => (
               <button
                 key={sec.id}
-                onClick={() => { setActiveSection(sec.id); setNoteInput(""); }}
+                onClick={() => { setActiveSection(sec.id); setNoteInput(""); setReviewNoteInput(""); }}
                 className={cn(
                   "w-full flex items-center justify-between p-3 rounded-xl transition-all text-sm",
                   activeSection === sec.id
@@ -197,7 +198,7 @@ export default function AuditDossierPage() {
           {/* Conclusion Panel */}
           <div className="p-6 bg-slate-800/50 border-t border-white/5 shrink-0">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Conclusion de la section</h4>
-            <div className="flex gap-6">
+            <div className="flex flex-wrap gap-3">
               <div className="flex gap-2">
                 {CONCLUSIONS.map(c => (
                   <button key={c.value} onClick={() => setConclusion(c.value)} className={cn(
@@ -220,11 +221,24 @@ export default function AuditDossierPage() {
                 value={noteInput}
                 onChange={e => setNoteInput(e.target.value)}
                 placeholder="Note de synthèse globale..."
-                className="flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors"
+                className="min-w-48 flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-primary transition-colors"
               />
               <button onClick={() => setConclusion(sectionInfo?.conclusion || "SATISFAISANT")} className="px-6 py-2 bg-primary hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
                 Enregistrer
               </button>
+              {sectionInfo?.reviewStatus === "REVIEWED" ? (
+                <span className="self-center text-xs text-emerald-300">Revue validée par {sectionInfo.reviewedBy?.firstName} {sectionInfo.reviewedBy?.lastName}</span>
+              ) : (data.currentRole === "EXPERT" || data.currentRole === "ADMIN") && (
+                <>
+                  <input type="text" value={reviewNoteInput} onChange={(e) => setReviewNoteInput(e.target.value)} placeholder="Note de revue hiérarchique (10 caractères min.)" className="min-w-56 flex-1 bg-slate-900 border border-white/5 rounded-xl px-4 py-2 text-sm text-white" />
+                  <button disabled={!sectionInfo?.conclusion || sectionInfo?.progress !== 100 || reviewNoteInput.trim().length < 10} onClick={async () => {
+                    const response = await fetch("/api/audit/dossier", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sectionId: activeSection, action: "REVIEW", reviewNote: reviewNoteInput }) });
+                    const result = await response.json();
+                    if (!response.ok) { setError(result.error ?? "Revue impossible."); return; }
+                    setReviewNoteInput(""); loadData();
+                  }} className="px-5 py-2 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Valider la revue</button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -237,13 +251,13 @@ export default function AuditDossierPage() {
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-slate-900 border border-white/10 rounded-[32px] p-8 max-w-3xl w-full shadow-2xl max-h-[85vh] flex flex-col">
               <div className="flex justify-between items-center mb-6 shrink-0">
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  <FileText className="w-6 h-6 text-primary" /> Synthèse du Dossier d'Audit
+                  <FileText className="w-6 h-6 text-primary" /> Synthèse des travaux d'audit
                 </h3>
-                <button onClick={() => setShowFinalReport(false)} className="text-slate-400 hover:text-white p-2">✕</button>
+                <div className="flex items-center gap-2"><button onClick={() => window.open(`/audit/rapports/${encodeURIComponent(data.mission.id)}`, "_blank", "noopener,noreferrer")} className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white">Ouvrir la version imprimable</button><button onClick={() => setShowFinalReport(false)} className="text-slate-400 hover:text-white p-2">✕</button></div>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 space-y-4">
-                <p className="text-sm text-slate-300 mb-6">Récapitulatif des conclusions par section pour générer le rapport final (Norme ISA/SYSCOHADA).</p>
+                <p className="text-sm text-slate-300 mb-6">Aperçu de supervision des travaux saisis. Ce récapitulatif n’est pas un rapport d’opinion et ne remplace pas la validation professionnelle.</p>
 
                 {data.sections.map((sec: any) => (
                   <div key={sec.id} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-2xl border border-white/5">
@@ -258,15 +272,16 @@ export default function AuditDossierPage() {
                     ) : (
                       <span className="text-xs text-slate-500 italic">Non conclu ({sec.progress}%)</span>
                     )}
+                    <span className={cn("ml-3 text-[10px] font-bold", sec.reviewStatus === "REVIEWED" ? "text-emerald-300" : "text-amber-300")}>{sec.reviewStatus === "REVIEWED" ? "Revu" : "À revoir"}</span>
                   </div>
                 ))}
 
-                {data.sections.some((s: any) => !s.conclusion) && (
+                {(data.sections.some((s: any) => !s.conclusion || s.reviewStatus !== "REVIEWED") || data.openReviewPoints > 0 || data.unreviewedSamples > 0) && (
                   <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex gap-3">
                     <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-sm font-bold text-amber-400 mb-1">Dossier incomplet</h4>
-                      <p className="text-xs text-amber-400/80">Certaines sections ne sont pas terminées. Vous ne pouvez pas encore figer le rapport d'opinion.</p>
+                      <p className="text-xs text-amber-400/80">Diligences à terminer : {data.sections.filter((s: any) => !s.conclusion || s.reviewStatus !== "REVIEWED").length} section(s) à conclure ou revoir, {data.openReviewPoints ?? 0} point(s) de revue ouvert(s), {data.unreviewedSamples ?? 0} test(s) d’échantillonnage non revu(s). La clôture de la mission reste bloquée tant qu’ils ne sont pas résolus.</p>
                     </div>
                   </div>
                 )}

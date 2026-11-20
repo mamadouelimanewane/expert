@@ -288,7 +288,7 @@ export class FintechService {
             return { traite: false, raison: "evenement_ignore", invoiceId: invoiceId || undefined };
         }
 
-        const facture = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { id: true } });
+        const facture = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { id: true, status: true } });
         if (!facture) {
             // Non rejouable : le fournisseur a encaissé pour une référence qui
             // ne correspond à aucune facture. À traiter manuellement.
@@ -296,13 +296,20 @@ export class FintechService {
             return { traite: false, raison: "facture_introuvable", invoiceId };
         }
 
-        await prisma.invoice.update({
-            where: { id: invoiceId },
-            data: {
-                status: "PAID",
-                paidDate: new Date(),
-            },
+        // Compare-and-set: a provider can deliver the same signed event more
+        // than once (and two deliveries can race). Only the first transition
+        // from an unpaid state records the payment and audit event.
+        const transition = await prisma.invoice.updateMany({
+            where: { id: invoiceId, status: { in: ["SENT", "OVERDUE"] } },
+            data: { status: "PAID", paidDate: new Date() },
         });
+        if (transition.count !== 1) {
+            const current = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { status: true } });
+            if (current?.status === "PAID") {
+                return { traite: false, raison: "paiement_deja_traite", invoiceId };
+            }
+            return { traite: false, raison: "facture_non_payable", invoiceId };
+        }
 
         await prisma.auditLog.create({
             data: {

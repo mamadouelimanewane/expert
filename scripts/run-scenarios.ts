@@ -1,15 +1,17 @@
 import { PrismaClient } from '@prisma/client';
 import { ClientType, MissionStatus, InvoiceStatus, FiscalRegime, MissionType, DeclarationType, DeclarationStatus } from '../src/types/prisma';
+import { installerPorteeSeed, type PrismaSeedScopeClient } from './tenant-seed-scope';
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 async function runScenarios() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     console.log('🏁 --- STARTING FULL END-TO-END SCENARIO TESTING --- 🏁\n');
 
     const testEmail = 'contact@senegaldigital.sn';
 
     // Cleanup existing test client if present
-    const existingClient = await prisma.client.findUnique({
+    const existingClient = await prisma.client.findFirst({
         where: { email: testEmail }
     });
     if (existingClient) {

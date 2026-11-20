@@ -28,12 +28,12 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/dashboard", "PILOTAGE & CABINET"], ["/agenda", "PILOTAGE & CABINET"], ["/time-entry", "PILOTAGE & CABINET"],
     ["/missions", "PILOTAGE & CABINET"], ["/supervision", "PILOTAGE & CABINET"], ["/prospects", "PILOTAGE & CABINET"],
     ["/commercial", "PILOTAGE & CABINET"], ["/collaboration", "PILOTAGE & CABINET"], ["/communications", "PILOTAGE & CABINET"],
-    ["/emails", "PILOTAGE & CABINET"], ["/workflows", "PILOTAGE & CABINET"], ["/procedures", "PILOTAGE & CABINET"],
+    ["/emails", "PILOTAGE & CABINET"], ["/inbox", "PILOTAGE & CABINET"], ["/workflows", "PILOTAGE & CABINET"], ["/procedures", "PILOTAGE & CABINET"],
     ["/management", "PILOTAGE & CABINET"], ["/expenses", "PILOTAGE & CABINET"], ["/expense-notes", "PILOTAGE & CABINET"],
     ["/signature", "PILOTAGE & CABINET"], ["/writing", "PILOTAGE & CABINET"], ["/annuaire", "PILOTAGE & CABINET"],
     ["/presentation", "PILOTAGE & CABINET"], ["/preparation", "PILOTAGE & CABINET"], ["/benchmarking", "PILOTAGE & CABINET"],
     // Expertise & production
-    ["/comptabilite", "EXPERTISE & PRODUCTION"], ["/production", "EXPERTISE & PRODUCTION"], ["/liasse-fiscale", "EXPERTISE & PRODUCTION"],
+    ["/payroll", "EXPERTISE & PRODUCTION"], ["/fiscalite", "EXPERTISE & PRODUCTION"], ["/comptabilite", "EXPERTISE & PRODUCTION"], ["/production", "EXPERTISE & PRODUCTION"], ["/liasse-fiscale", "EXPERTISE & PRODUCTION"],
     ["/fec-export", "EXPERTISE & PRODUCTION"], ["/declarations", "EXPERTISE & PRODUCTION"], ["/scan", "EXPERTISE & PRODUCTION"],
     ["/ingest", "EXPERTISE & PRODUCTION"], ["/bank-reconciliation", "EXPERTISE & PRODUCTION"], ["/reporting", "EXPERTISE & PRODUCTION"],
     ["/simulator", "EXPERTISE & PRODUCTION"], ["/industries", "EXPERTISE & PRODUCTION"], ["/data", "EXPERTISE & PRODUCTION"],
@@ -42,6 +42,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
     ["/kyc", "AUDIT & CONFORMITÉ"], ["/expert-judiciaire", "AUDIT & CONFORMITÉ"], ["/legal", "AUDIT & CONFORMITÉ"],
     ["/corporate/audit-assurance", "AUDIT & CONFORMITÉ"], ["/corporate/legal-archive", "AUDIT & CONFORMITÉ"],
+    ["/audit/circularisation", "AUDIT & CONFORMITÉ"], ["/audit/rapport-cac", "AUDIT & CONFORMITÉ"],
     // Stratégie & conseil
     ["/strategy", "STRATÉGIE & CONSEIL"], ["/analysis", "STRATÉGIE & CONSEIL"], ["/valorisation", "STRATÉGIE & CONSEIL"],
     ["/corporate", "STRATÉGIE & CONSEIL"], ["/advisory", "STRATÉGIE & CONSEIL"], ["/credit-insights", "STRATÉGIE & CONSEIL"],
@@ -54,6 +55,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/nexus-go", "NEXUS INTELLIGENCE"], ["/assistant", "NEXUS INTELLIGENCE"], ["/ohada-library", "NEXUS INTELLIGENCE"],
     ["/library", "NEXUS INTELLIGENCE"], ["/data/nexus-link", "NEXUS INTELLIGENCE"],
     // Plateforme & écosystème
+    ["/admin", "PLATEFORME & ÉCOSYSTÈME"], ["/cabinet-indisponible", "PLATEFORME & ÉCOSYSTÈME"],
     ["/settings", "PLATEFORME & ÉCOSYSTÈME"], ["/documentation", "PLATEFORME & ÉCOSYSTÈME"], ["/training", "PLATEFORME & ÉCOSYSTÈME"],
     ["/academy", "PLATEFORME & ÉCOSYSTÈME"], ["/onboarding", "PLATEFORME & ÉCOSYSTÈME"], ["/plan", "PLATEFORME & ÉCOSYSTÈME"],
 ];
@@ -112,6 +114,12 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/comptabilite": [
         { label: "Production & révision", href: "/comptabilite/production" },
         { label: "Révision", href: "/comptabilite/revision" },
+        { label: "Comptabilité auxiliaire", href: "/comptabilite/auxiliaire" },
+        { label: "Système Minimal (SMT)", href: "/comptabilite/smt" },
+        { label: "Caisse & Billetage", href: "/comptabilite/caisse" },
+        { label: "Rapprochement bancaire", href: "/comptabilite/rapprochement-bancaire" },
+        { label: "Stocks & Inventaire", href: "/comptabilite/stocks" },
+        { label: "Tableau de bord PME", href: "/comptabilite/tableau-bord-pme" },
         { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" }, { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
@@ -137,6 +145,13 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/missions": [
         { label: "Missions", href: "/missions" }, { label: "Nouvelle mission", href: "/missions/new" }, { label: "Planning", href: "/missions/planning" },
         { label: "Budget", href: "/missions/budget" }, { label: "Boni / mali", href: "/missions/boni-mali" }, { label: "Feuilles de temps", href: "/missions/timesheets" },
+        { label: "Sizing & Budget Prédictif", href: "/missions/budget-sentinel" },
+    ],
+    "/payroll": [
+        { label: "Bulletins de paie", href: "/payroll" },
+        { label: "Cadrage Paie vs Comptabilité", href: "/payroll/cadrage" },
+        { label: "Indemnités & Solde de Tout Compte", href: "/payroll/indemnites" },
+        { label: "Déclarations sociales", href: "/declarations" },
     ],
     "/billing": [
         { label: "Factures", href: "/billing" }, { label: "Nouvelle facture", href: "/billing/new" }, { label: "Relances", href: "/billing/relances" },
@@ -150,6 +165,14 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/fiscalite": [
         { label: "Fiscalité", href: "/fiscalite" }, { label: "Obligations", href: "/fiscalite/obligations" },
         { label: "Optimisation", href: "/fiscalite/optimization" }, { label: "Dépôt de pièces", href: "/fiscalite/drop-zone" },
+        { label: "Cadrage TVA", href: "/fiscalite/cadrage-tva" },
+        { label: "Matrice des Risques Fiscaux", href: "/fiscalite/matrice-risques" },
+        { label: "Résultat Fiscal (IS)", href: "/fiscalite/resultat-fiscal" },
+        { label: "Conventions internationales", href: "/fiscalite/conventions" },
+        { label: "Export FEC", href: "/fiscalite/fec" },
+        { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
+        { label: "Quittances OCR", href: "/fiscalite/quittance-ocr" },
+        { label: "Simulateur Loi de Finances", href: "/fiscalite/loi-finances" },
         { label: "Déclarations", href: "/declarations" }, { label: "E-dépôt", href: "/declarations/e-depot" },
     ],
     "/declarations": [
@@ -172,6 +195,8 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Dossier de travail", href: "/audit/dossier-travail" }, { label: "Missions d'audit", href: "/audit/missions" },
         { label: "Immobilisations", href: "/audit/fixed-assets" },
         { label: "Risques IA", href: "/audit/ia-risks" }, { label: "Kit de préparation", href: "/audit/prep-kit" },
+        { label: "Circularisation ISA 505", href: "/audit/circularisation" },
+        { label: "Rapports CAC (ISA 700)", href: "/audit/rapport-cac" },
     ],
     "/compliance": [
         { label: "Hub conformité", href: "/compliance" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
@@ -181,6 +206,11 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/governance": [
         { label: "Gouvernance & AG", href: "/governance" }, { label: "Carte des risques", href: "/compliance/governance/heatmap" },
+    ],
+    "/legal": [
+        { label: "Rédaction d'actes", href: "/legal/drafting" },
+        { label: "Générateur AGOA", href: "/legal/ag-generator" },
+        { label: "Recouvrement AUPSRVE", href: "/legal/recouvrement" },
     ],
     "/strategy": [
         { label: "Business plan", href: "/strategy/business-plan" }, { label: "Radar fiscal", href: "/strategy/radar" }, { label: "Zone franche", href: "/strategy/zone-franche" },

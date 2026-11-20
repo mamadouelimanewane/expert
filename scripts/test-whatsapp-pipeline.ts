@@ -15,8 +15,9 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { processIncomingWhatsAppMessage, chiffresTelephone } from "../src/lib/whatsapp-processor";
+import { installerPorteeSeed, type PrismaSeedScopeClient } from "./tenant-seed-scope";
 
-const prisma = new PrismaClient();
+let prisma: PrismaSeedScopeClient = new PrismaClient() as PrismaSeedScopeClient;
 
 const CAS = [
     {
@@ -42,6 +43,7 @@ const CAS = [
 ];
 
 async function main() {
+    prisma = await installerPorteeSeed(prisma as unknown as PrismaClient);
     // Un numero partage par plusieurs clients est volontairement refuse par le
     // processeur (imputer l'ecriture serait un pari) : le test doit donc porter
     // sur un client dont le numero est unique.

@@ -14,9 +14,14 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
+        const clientId = searchParams.get("clientId");
 
         const where: Record<string, unknown> = {};
         if (status) where.status = status;
+        if (clientId) {
+            if (!/^[0-9a-fA-F]{24}$/.test(clientId)) return NextResponse.json({ error: "clientId invalide" }, { status: 400 });
+            where.clientId = clientId;
+        }
 
         const letters = await prisma.engagementLetter.findMany({
             where,

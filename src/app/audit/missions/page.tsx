@@ -24,6 +24,8 @@ import {
     SearchCode
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import AuditEngagementGate from "./AuditEngagementGate";
+import AuditSamplingPanel from "./AuditSamplingPanel";
 
 type MissionAudit = {
     id: string;
@@ -192,6 +194,8 @@ export default function NexusAuditAssurancePage() {
                 </div>
             </div>
 
+            {missionId && <AuditEngagementGate key={`engagement-${missionId}`} missionId={missionId} />}
+            {missionId && <AuditSamplingPanel key={`sampling-${missionId}`} missionId={missionId} />}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left Panel: Audit KPI & Metadata */}
                 <div className="lg:col-span-4 space-y-6">
