@@ -213,6 +213,10 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/governance": [
         { label: "Gouvernance & AG", href: "/governance" }, { label: "Carte des risques", href: "/compliance/governance/heatmap" },
     ],
+    "/expert-judiciaire": [
+        { label: "Affaires judiciaires", href: "/expert-judiciaire" },
+        { label: "Expertise auprès des Tribunaux", href: "/expert-judiciaire/tribunaux" },
+    ],
     "/legal": [
         { label: "Rédacteur d'actes v2", href: "/legal/actes" },
         { label: "Rédaction d'actes", href: "/legal/drafting" },
