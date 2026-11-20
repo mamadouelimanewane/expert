@@ -224,6 +224,9 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Circularisation ISA 505", href: "/audit/circularisation" },
         { label: "Rapports CAC (ISA 700)", href: "/audit/rapport-cac" },
         { label: "Conventions Réglementées (Art. 438)", href: "/audit/conventions-reglementees" },
+        { label: "Snip-to-Source (PAF)", href: "/audit/snip-to-source" },
+        { label: "Audit Forensique JET ISA 240", href: "/audit/forensique-jet" },
+        { label: "Tie-Out Anti-Altération", href: "/audit/tie-out" },
     ],
     "/compliance": [
         { label: "Hub conformité", href: "/compliance" }, { label: "Tableau de bord OHADA", href: "/conformite/dashboard" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
@@ -260,6 +263,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Simulateur d'impôt", href: "/analysis/tax-simulator" }, { label: "Tiers", href: "/analysis/tiers" },
         { label: "Radar clients", href: "/analysis/clients/radar" }, { label: "Investigation", href: "/analysis/deep" },
         { label: "War room", href: "/analysis/deep/war-room" }, { label: "Credit insights", href: "/analysis/credit-insights" },
+        { label: "Cockpit DuPont & Cash Waterfall", href: "/analysis/dupont-waterfall" },
     ],
     "/advisory": [
         { label: "Due Diligence M&A (QoE)", href: "/advisory/due-diligence" },
@@ -316,6 +320,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/dashboard": [
         { label: "Hub des modules", href: "/bi" }, { label: "Exécutif", href: "/dashboard/executive" }, { label: "Associé", href: "/dashboard/partner" },
         { label: "Brief du matin", href: "/dashboard/morning-brief" }, { label: "Confidentiel", href: "/dashboard/confidentiel" },
+        { label: "Robot Relance WhatsApp", href: "/dashboard/relance-whatsapp" },
     ],
     "/management": [
         { label: "Pilotage cabinet", href: "/management/practice" }, { label: "Contrôle de gestion", href: "/management/controlling" }, { label: "Capacité", href: "/management/capacity-planning" },

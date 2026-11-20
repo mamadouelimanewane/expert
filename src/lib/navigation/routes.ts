@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 273 écrans sans devenir
+// La barre latérale ne peut pas exposer les 278 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -130,6 +130,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Deep › War Room"
             },
             {
+                "href": "/analysis/dupont-waterfall",
+                "label": "Dupont Waterfall"
+            },
+            {
                 "href": "/analysis/financial",
                 "label": "Financial"
             },
@@ -229,6 +233,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Forensic"
             },
             {
+                "href": "/audit/forensique-jet",
+                "label": "Forensique Jet"
+            },
+            {
                 "href": "/audit/fraud-detection",
                 "label": "Fraud Detection"
             },
@@ -251,6 +259,14 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/audit/rapport-cac",
                 "label": "Rapport Cac"
+            },
+            {
+                "href": "/audit/snip-to-source",
+                "label": "Snip to Source"
+            },
+            {
+                "href": "/audit/tie-out",
+                "label": "Tie Out"
             }
         ]
     },
@@ -1513,6 +1529,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/dashboard/partner",
                 "label": "Partner"
+            },
+            {
+                "href": "/dashboard/relance-whatsapp",
+                "label": "Relance Whatsapp"
             },
             {
                 "href": "/dashboard",
