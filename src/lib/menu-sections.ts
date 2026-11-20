@@ -258,6 +258,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/advisory": [
         { label: "Due Diligence M&A (QoE)", href: "/advisory/due-diligence" },
         { label: "Évaluation d'Entreprise", href: "/advisory/evaluation" },
+        { label: "Rapport ESG/RSE IFRS S1/S2", href: "/advisory/esg" },
     ],
     "/valorisation": [
         { label: "Valorisation", href: "/valorisation" },
