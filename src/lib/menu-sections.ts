@@ -25,7 +25,7 @@ export function hrefActif<T extends EntreeMenu>(entrees: T[], pathname: string):
  */
 export const SECTION_PAR_PREFIXE: [string, string][] = [
     // Pilotage & cabinet
-    ["/dashboard", "PILOTAGE & CABINET"], ["/agenda", "PILOTAGE & CABINET"], ["/time-entry", "PILOTAGE & CABINET"],
+    ["/cabinet", "PILOTAGE & CABINET"], ["/dashboard", "PILOTAGE & CABINET"], ["/agenda", "PILOTAGE & CABINET"], ["/time-entry", "PILOTAGE & CABINET"],
     ["/missions", "PILOTAGE & CABINET"], ["/supervision", "PILOTAGE & CABINET"], ["/prospects", "PILOTAGE & CABINET"],
     ["/commercial", "PILOTAGE & CABINET"], ["/collaboration", "PILOTAGE & CABINET"], ["/communications", "PILOTAGE & CABINET"],
     ["/emails", "PILOTAGE & CABINET"], ["/inbox", "PILOTAGE & CABINET"], ["/workflows", "PILOTAGE & CABINET"], ["/procedures", "PILOTAGE & CABINET"],
@@ -147,6 +147,12 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Missions", href: "/missions" }, { label: "Nouvelle mission", href: "/missions/new" }, { label: "Planning", href: "/missions/planning" },
         { label: "Budget", href: "/missions/budget" }, { label: "Boni / mali", href: "/missions/boni-mali" }, { label: "Feuilles de temps", href: "/missions/timesheets" },
         { label: "Sizing & Budget Prédictif", href: "/missions/budget-sentinel" },
+        { label: "Rentabilité des Missions", href: "/cabinet/rentabilite" },
+    ],
+    "/cabinet": [
+        { label: "Rentabilité des Missions", href: "/cabinet/rentabilite" },
+        { label: "Relances & Recouvrement", href: "/cabinet/relances" },
+        { label: "Dashboard Associés", href: "/cabinet/partner" },
     ],
     "/payroll": [
         { label: "Bulletins de paie", href: "/payroll" },
