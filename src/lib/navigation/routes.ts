@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 250 écrans sans devenir
+// La barre latérale ne peut pas exposer les 252 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -173,6 +173,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "ai Assisted"
             },
             {
+                "href": "/audit/ai-reasoning",
+                "label": "ai Reasoning"
+            },
+            {
                 "href": "/audit",
                 "label": "Audit"
             },
@@ -183,6 +187,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/audit/circularisation",
                 "label": "Circularisation"
+            },
+            {
+                "href": "/audit/dossier-complet",
+                "label": "Dossier Complet"
             },
             {
                 "href": "/audit/dossier-travail",

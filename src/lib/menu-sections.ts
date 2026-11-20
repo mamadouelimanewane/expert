@@ -43,6 +43,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/kyc", "AUDIT & CONFORMITÉ"], ["/expert-judiciaire", "AUDIT & CONFORMITÉ"], ["/legal", "AUDIT & CONFORMITÉ"],
     ["/corporate/audit-assurance", "AUDIT & CONFORMITÉ"], ["/corporate/legal-archive", "AUDIT & CONFORMITÉ"],
     ["/audit/circularisation", "AUDIT & CONFORMITÉ"], ["/audit/rapport-cac", "AUDIT & CONFORMITÉ"],
+    ["/audit/dossier-complet", "AUDIT & CONFORMITÉ"], ["/audit/ai-reasoning", "AUDIT & CONFORMITÉ"],
     // Stratégie & conseil
     ["/strategy", "STRATÉGIE & CONSEIL"], ["/analysis", "STRATÉGIE & CONSEIL"], ["/valorisation", "STRATÉGIE & CONSEIL"],
     ["/corporate", "STRATÉGIE & CONSEIL"], ["/advisory", "STRATÉGIE & CONSEIL"], ["/credit-insights", "STRATÉGIE & CONSEIL"],
@@ -196,6 +197,8 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/audit": [
         { label: "Détection de fraude", href: "/audit/fraud-detection" }, { label: "Audit légal IA", href: "/audit-legal" }, { label: "Suite CAC", href: "/audit/cac-suite" },
         { label: "Dossier de travail", href: "/audit/dossier-travail" }, { label: "Missions d'audit", href: "/audit/missions" },
+        { label: "Dossier CAC ISA 230", href: "/audit/dossier-complet" },
+        { label: "Assistant IA Feuilles de Travail", href: "/audit/ai-reasoning" },
         { label: "Immobilisations", href: "/audit/fixed-assets" },
         { label: "Risques IA", href: "/audit/ia-risks" }, { label: "Kit de préparation", href: "/audit/prep-kit" },
         { label: "Circularisation ISA 505", href: "/audit/circularisation" },
