@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 256 écrans sans devenir
+// La barre latérale ne peut pas exposer les 258 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -253,6 +253,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/audit-legal",
                 "label": "Audit légal"
+            }
+        ]
+    },
+    {
+        "nom": "Aupcap",
+        "pages": [
+            {
+                "href": "/aupcap/prevention",
+                "label": "Prevention"
             }
         ]
     },
@@ -992,6 +1001,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/lettres-mission/new",
                 "label": "New"
+            }
+        ]
+    },
+    {
+        "nom": "Liasse",
+        "pages": [
+            {
+                "href": "/liasse/bouclage",
+                "label": "Bouclage"
             }
         ]
     },

@@ -33,13 +33,13 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/signature", "PILOTAGE & CABINET"], ["/writing", "PILOTAGE & CABINET"], ["/annuaire", "PILOTAGE & CABINET"],
     ["/presentation", "PILOTAGE & CABINET"], ["/preparation", "PILOTAGE & CABINET"], ["/benchmarking", "PILOTAGE & CABINET"],
     // Expertise & production
-    ["/payroll", "EXPERTISE & PRODUCTION"], ["/fiscalite", "EXPERTISE & PRODUCTION"], ["/comptabilite", "EXPERTISE & PRODUCTION"], ["/production", "EXPERTISE & PRODUCTION"], ["/liasse-fiscale", "EXPERTISE & PRODUCTION"],
+    ["/liasse", "EXPERTISE & PRODUCTION"], ["/payroll", "EXPERTISE & PRODUCTION"], ["/fiscalite", "EXPERTISE & PRODUCTION"], ["/comptabilite", "EXPERTISE & PRODUCTION"], ["/production", "EXPERTISE & PRODUCTION"], ["/liasse-fiscale", "EXPERTISE & PRODUCTION"],
     ["/fec-export", "EXPERTISE & PRODUCTION"], ["/declarations", "EXPERTISE & PRODUCTION"], ["/scan", "EXPERTISE & PRODUCTION"],
     ["/ingest", "EXPERTISE & PRODUCTION"], ["/bank-reconciliation", "EXPERTISE & PRODUCTION"], ["/reporting", "EXPERTISE & PRODUCTION"],
     ["/simulator", "EXPERTISE & PRODUCTION"], ["/industries", "EXPERTISE & PRODUCTION"], ["/data", "EXPERTISE & PRODUCTION"],
     ["/data-center", "EXPERTISE & PRODUCTION"], ["/diagnostic", "EXPERTISE & PRODUCTION"],
     // Audit & conformité
-    ["/conformite", "AUDIT & CONFORMITÉ"], ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
+    ["/aupcap", "AUDIT & CONFORMITÉ"], ["/conformite", "AUDIT & CONFORMITÉ"], ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
     ["/kyc", "AUDIT & CONFORMITÉ"], ["/expert-judiciaire", "AUDIT & CONFORMITÉ"], ["/legal", "AUDIT & CONFORMITÉ"],
     ["/corporate/audit-assurance", "AUDIT & CONFORMITÉ"], ["/corporate/legal-archive", "AUDIT & CONFORMITÉ"],
     ["/audit/circularisation", "AUDIT & CONFORMITÉ"], ["/audit/rapport-cac", "AUDIT & CONFORMITÉ"],
@@ -121,7 +121,9 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Rapprochement bancaire", href: "/comptabilite/rapprochement-bancaire" },
         { label: "Stocks & Inventaire", href: "/comptabilite/stocks" },
         { label: "Tableau de bord PME", href: "/comptabilite/tableau-bord-pme" },
-        { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" }, { label: "Reporting", href: "/comptabilite/reporting" },
+        { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" },
+        { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
+        { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
     "/comptabilite/tpe-dashboard": [
@@ -153,6 +155,9 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Rentabilité des Missions", href: "/cabinet/rentabilite" },
         { label: "Relances & Recouvrement", href: "/cabinet/relances" },
         { label: "Dashboard Associés", href: "/cabinet/partner" },
+    ],
+    "/liasse": [
+        { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
     ],
     "/payroll": [
         { label: "Bulletins de paie", href: "/payroll" },
@@ -222,6 +227,10 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/expert-judiciaire": [
         { label: "Affaires judiciaires", href: "/expert-judiciaire" },
         { label: "Expertise auprès des Tribunaux", href: "/expert-judiciaire/tribunaux" },
+        { label: "Prévention & Redressement AUPCAP", href: "/aupcap/prevention" },
+    ],
+    "/aupcap": [
+        { label: "Prévention & Redressement AUPCAP", href: "/aupcap/prevention" },
     ],
     "/legal": [
         { label: "Rédacteur d'actes v2", href: "/legal/actes" },
