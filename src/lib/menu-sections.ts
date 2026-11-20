@@ -268,6 +268,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/corporate": [
         { label: "Consolidation", href: "/corporate/consolidation" },
         { label: "Moteur AUDCIF & Goodwill", href: "/corporate/consolidation/audcif" },
+        { label: "Fusions & Restructurations AUSCGIE", href: "/corporate/fusion" },
         { label: "Entity hub", href: "/corporate/entity-hub" },
         { label: "Performance", href: "/corporate/performance" }, { label: "Audit & assurance", href: "/corporate/audit-assurance" }, { label: "Archives juridiques", href: "/corporate/legal-archive" },
     ],
