@@ -123,6 +123,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Tableau de bord PME", href: "/comptabilite/tableau-bord-pme" },
         { label: "Liasse fiscale", href: "/comptabilite/liasse-fiscale" },
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
+        { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
         { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
@@ -158,6 +159,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/liasse": [
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
+        { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
     ],
     "/payroll": [
         { label: "Bulletins de paie", href: "/payroll" },
@@ -184,6 +186,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Déficits reportables IS", href: "/fiscalite/deficits-reportables" },
         { label: "Scénarios Optimisation IS", href: "/fiscalite/optimisation-scenarios" },
         { label: "Conventions internationales", href: "/fiscalite/conventions" },
+        { label: "Prix de Transfert & Management Fees", href: "/fiscalite/prix-transfert" },
         { label: "Export FEC", href: "/fiscalite/fec" },
         { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
         { label: "Quittances OCR", href: "/fiscalite/quittance-ocr" },
@@ -251,11 +254,19 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Radar clients", href: "/analysis/clients/radar" }, { label: "Investigation", href: "/analysis/deep" },
         { label: "War room", href: "/analysis/deep/war-room" }, { label: "Credit insights", href: "/analysis/credit-insights" },
     ],
+    "/advisory": [
+        { label: "Due Diligence M&A (QoE)", href: "/advisory/due-diligence" },
+        { label: "Évaluation d'Entreprise", href: "/advisory/evaluation" },
+    ],
     "/valorisation": [
-        { label: "Valorisation", href: "/valorisation" }, { label: "Transmission", href: "/valorisation/transmission" },
+        { label: "Valorisation", href: "/valorisation" },
+        { label: "Évaluation d'Entreprise", href: "/advisory/evaluation" },
+        { label: "Transmission", href: "/valorisation/transmission" },
     ],
     "/corporate": [
-        { label: "Consolidation", href: "/corporate/consolidation" }, { label: "Entity hub", href: "/corporate/entity-hub" },
+        { label: "Consolidation", href: "/corporate/consolidation" },
+        { label: "Moteur AUDCIF & Goodwill", href: "/corporate/consolidation/audcif" },
+        { label: "Entity hub", href: "/corporate/entity-hub" },
         { label: "Performance", href: "/corporate/performance" }, { label: "Audit & assurance", href: "/corporate/audit-assurance" }, { label: "Archives juridiques", href: "/corporate/legal-archive" },
     ],
     "/fintech": [
