@@ -48,7 +48,8 @@ import {
     FolderPlus,
     FileDigit,
     Bell,
-    ClipboardCheck
+    ClipboardCheck,
+    Bot
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hrefActif, ordonnerMenu, sousMenuPour, entreeSousMenuActive } from "@/lib/menu-sections";
@@ -76,6 +77,7 @@ const menuItems: MenuItem[] = [
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
     { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
+    { icon: Bot, label: "Flotte Agents IA 360", href: "/agents/orchestrateur" },
 
     { header: "EXPERTISE & PRODUCTION" },
     { icon: RefreshCw, label: "Production & Révision", href: "/comptabilite/production" },

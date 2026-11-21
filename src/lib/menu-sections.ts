@@ -32,6 +32,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/management", "PILOTAGE & CABINET"], ["/expenses", "PILOTAGE & CABINET"], ["/expense-notes", "PILOTAGE & CABINET"],
     ["/signature", "PILOTAGE & CABINET"], ["/writing", "PILOTAGE & CABINET"], ["/annuaire", "PILOTAGE & CABINET"],
     ["/presentation", "PILOTAGE & CABINET"], ["/preparation", "PILOTAGE & CABINET"], ["/benchmarking", "PILOTAGE & CABINET"],
+    ["/agents", "PILOTAGE & CABINET"],
     // Expertise & production
     ["/liasse", "EXPERTISE & PRODUCTION"], ["/payroll", "EXPERTISE & PRODUCTION"], ["/fiscalite", "EXPERTISE & PRODUCTION"], ["/comptabilite", "EXPERTISE & PRODUCTION"], ["/production", "EXPERTISE & PRODUCTION"], ["/liasse-fiscale", "EXPERTISE & PRODUCTION"],
     ["/fec-export", "EXPERTISE & PRODUCTION"], ["/declarations", "EXPERTISE & PRODUCTION"], ["/scan", "EXPERTISE & PRODUCTION"],
@@ -345,6 +346,13 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/onboarding": [
         { label: "Onboarding", href: "/onboarding" }, { label: "Onboarding digital", href: "/onboarding/digital" },
+    ],
+    "/agents": [
+        { label: "Tour de Contrôle IA", href: "/agents/orchestrateur" },
+        { label: "Sentinel Clôture", href: "/agents/sentinel-cloture" },
+        { label: "Fiscal Defender", href: "/agents/fiscal-defender" },
+        { label: "WhatsApp Collector", href: "/agents/whatsapp-collector" },
+        { label: "CFO Storytelling", href: "/agents/cfo-storytelling" },
     ],
 };
 
