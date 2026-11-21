@@ -129,6 +129,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Reporting", href: "/comptabilite/reporting" },
         { label: "Rapprochement Bancaire & Mobile IA", href: "/comptabilite/rapprochement-ia" },
         { label: "Migration SYSCOA → SYSCOHADA", href: "/comptabilite/syscoa-migration" },
+        { label: "Copilote Vocal Terroir SMT", href: "/comptabilite/copilote-vocal" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
     "/comptabilite/tpe-dashboard": [
@@ -238,6 +239,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Hub conformité", href: "/compliance" }, { label: "Tableau de bord OHADA", href: "/conformite/dashboard" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
         { label: "Vérification d'identité", href: "/compliance/id-verify" }, { label: "Score UEMOA", href: "/compliance/uemoa-score" },
         { label: "Criminalité financière", href: "/compliance/financial-crime" }, { label: "Contrôle fiscal", href: "/compliance/tax-audit" }, { label: "Douanes", href: "/compliance/customs" },
+        { label: "Registre Bénéficiaires Effectifs (RBE)", href: "/compliance/rbe" },
         { label: "Carte des risques", href: "/compliance/governance/heatmap" },
     ],
     "/governance": [
@@ -260,7 +262,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/strategy": [
         { label: "Business plan", href: "/strategy/business-plan" }, { label: "Radar fiscal", href: "/strategy/radar" }, { label: "Zone franche", href: "/strategy/zone-franche" },
-        { label: "Multi-devises", href: "/strategy/devises" }, { label: "Simulateur Risque de Change FX", href: "/strategy/risque-change" }, { label: "Simulateur", href: "/strategy/simulator" }, { label: "Miroir fiscal", href: "/strategy/fiscal-mirror" },
+        { label: "Multi-devises", href: "/strategy/devises" }, { label: "Simulateur Risque de Change FX", href: "/strategy/risque-change" }, { label: "Modélisation Fonds d'Impact", href: "/strategy/fonds-impact" }, { label: "Simulateur", href: "/strategy/simulator" }, { label: "Miroir fiscal", href: "/strategy/fiscal-mirror" },
         { label: "Levée de fonds", href: "/strategy/fundraising" }, { label: "Patrimoine", href: "/strategy/wealth" },
     ],
     "/analysis": [
@@ -296,13 +298,16 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Paiements", href: "/fintech/payments" }, { label: "Mobile Money", href: "/fintech/mobile-money" },
         { label: "Notation BCEAO & Dossier Crédit", href: "/fintech/credit-bceao" },
         { label: "Scoring PME Banque BCEAO", href: "/fintech/scoring-pme" },
+        { label: "Gages & Warrants Agricoles", href: "/fintech/warrants" },
         { label: "Dossier crédit", href: "/fintech/credit" }, { label: "Scoring", href: "/fintech/scoring" }, { label: "Marketplace", href: "/fintech/marketplace" },
     ],
     "/mobile-money": [
         { label: "Mobile Money", href: "/mobile-money" }, { label: "Paiements", href: "/fintech/payments" },
     ],
     "/douanes": [
-        { label: "Simulateur douanier", href: "/douanes/simulateur" }, { label: "Douanes & conformité", href: "/compliance/customs" },
+        { label: "Simulateur douanier", href: "/douanes/simulateur" },
+        { label: "Moteur ZLECAf & RDO", href: "/douanes/zlecaf" },
+        { label: "Douanes & conformité", href: "/compliance/customs" },
     ],
     "/nexus": [
         { label: "Assistant", href: "/assistant" }, { label: "Chat", href: "/nexus/chat" },

@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 293 écrans sans devenir
+// La barre latérale ne peut pas exposer les 298 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -506,6 +506,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Comptabilité"
             },
             {
+                "href": "/comptabilite/copilote-vocal",
+                "label": "Copilote Vocal"
+            },
+            {
                 "href": "/comptabilite/health-report",
                 "label": "Health Report"
             },
@@ -614,6 +618,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/compliance/kyc-screening",
                 "label": "Kyc Screening"
+            },
+            {
+                "href": "/compliance/rbe",
+                "label": "Rbe"
             },
             {
                 "href": "/compliance/tax-audit",
@@ -799,6 +807,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/douanes/simulateur/print",
                 "label": "Simulateur › Print"
+            },
+            {
+                "href": "/douanes/zlecaf",
+                "label": "Zlecaf"
             }
         ]
     },
@@ -930,6 +942,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/fintech/scoring-pme",
                 "label": "Scoring Pme"
+            },
+            {
+                "href": "/fintech/warrants",
+                "label": "Warrants"
             }
         ]
     },
@@ -1536,6 +1552,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/strategy/fiscal-mirror",
                 "label": "Fiscal Mirror"
+            },
+            {
+                "href": "/strategy/fonds-impact",
+                "label": "Fonds Impact"
             },
             {
                 "href": "/strategy/fundraising",
