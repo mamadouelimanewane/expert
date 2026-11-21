@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 283 écrans sans devenir
+// La barre latérale ne peut pas exposer les 288 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -81,6 +81,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/advisory/evaluation",
                 "label": "Evaluation"
+            },
+            {
+                "href": "/advisory/scoring-esg-brvm",
+                "label": "Scoring Esg Brvm"
             }
         ]
     },
@@ -499,6 +503,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/comptabilite/rapprochement-bancaire",
                 "label": "Rapprochement Bancaire"
+            },
+            {
+                "href": "/comptabilite/rapprochement-ia",
+                "label": "Rapprochement ia"
             },
             {
                 "href": "/comptabilite/reporting",
@@ -1061,6 +1069,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "ag Generator"
             },
             {
+                "href": "/legal/controleur-legalite",
+                "label": "Controleur Legalite"
+            },
+            {
                 "href": "/legal/drafting",
                 "label": "Drafting"
             },
@@ -1106,6 +1118,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/liasse/rapport-gestion",
                 "label": "Rapport Gestion"
+            },
+            {
+                "href": "/liasse/validateur-coherence",
+                "label": "Validateur Coherence"
             }
         ]
     },
@@ -1503,6 +1519,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/strategy/radar",
                 "label": "Radar"
+            },
+            {
+                "href": "/strategy/risque-change",
+                "label": "Risque Change"
             },
             {
                 "href": "/strategy/simulator",

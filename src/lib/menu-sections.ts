@@ -126,6 +126,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
         { label: "Rapport de Gestion & AGOA", href: "/liasse/rapport-gestion" },
         { label: "Reporting", href: "/comptabilite/reporting" },
+        { label: "Rapprochement Bancaire & Mobile IA", href: "/comptabilite/rapprochement-ia" },
         { label: "Migration SYSCOA → SYSCOHADA", href: "/comptabilite/syscoa-migration" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
@@ -162,6 +163,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/liasse": [
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
+        { label: "Validateur de Cohérence Liasse", href: "/liasse/validateur-coherence" },
         { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
         { label: "Rapport de Gestion & AGOA", href: "/liasse/rapport-gestion" },
     ],
@@ -250,13 +252,14 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/legal": [
         { label: "Rédacteur d'actes v2", href: "/legal/actes" },
+        { label: "Contrôleur de Légalité OHADA", href: "/legal/controleur-legalite" },
         { label: "Rédaction d'actes", href: "/legal/drafting" },
         { label: "Générateur AGOA", href: "/legal/ag-generator" },
         { label: "Recouvrement AUPSRVE", href: "/legal/recouvrement" },
     ],
     "/strategy": [
         { label: "Business plan", href: "/strategy/business-plan" }, { label: "Radar fiscal", href: "/strategy/radar" }, { label: "Zone franche", href: "/strategy/zone-franche" },
-        { label: "Multi-devises", href: "/strategy/devises" }, { label: "Simulateur", href: "/strategy/simulator" }, { label: "Miroir fiscal", href: "/strategy/fiscal-mirror" },
+        { label: "Multi-devises", href: "/strategy/devises" }, { label: "Simulateur Risque de Change FX", href: "/strategy/risque-change" }, { label: "Simulateur", href: "/strategy/simulator" }, { label: "Miroir fiscal", href: "/strategy/fiscal-mirror" },
         { label: "Levée de fonds", href: "/strategy/fundraising" }, { label: "Patrimoine", href: "/strategy/wealth" },
     ],
     "/analysis": [
@@ -273,6 +276,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Due Diligence M&A (QoE)", href: "/advisory/due-diligence" },
         { label: "Évaluation d'Entreprise", href: "/advisory/evaluation" },
         { label: "Rapport ESG/RSE IFRS S1/S2", href: "/advisory/esg" },
+        { label: "Scoring ESG BRVM & Green Bonds", href: "/advisory/scoring-esg-brvm" },
     ],
     "/valorisation": [
         { label: "Valorisation", href: "/valorisation" },
