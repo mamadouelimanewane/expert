@@ -309,6 +309,11 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Moteur ZLECAf & RDO", href: "/douanes/zlecaf" },
         { label: "Douanes & conformité", href: "/compliance/customs" },
     ],
+    "/accompagnement": [
+        { label: "Hub Accompagnement", href: "/accompagnement" },
+        { label: "Dossier Financement Bancaire", href: "/accompagnement/financement-bancaire" },
+        { label: "Statut Entreprenant", href: "/accompagnement/entreprenant" },
+    ],
     "/nexus": [
         { label: "Assistant", href: "/assistant" }, { label: "Chat", href: "/nexus/chat" },
         { label: "WhatsApp", href: "/nexus/whatsapp" }, { label: "Nexus fiscal", href: "/nexus-fiscal" }, { label: "Rédaction juridique", href: "/legal/drafting" },
