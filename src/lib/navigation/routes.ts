@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 278 écrans sans devenir
+// La barre latérale ne peut pas exposer les 283 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -112,6 +112,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/analysis/cash-forecast",
                 "label": "Cash Forecast"
+            },
+            {
+                "href": "/analysis/cash-forecast-13s",
+                "label": "Cash Forecast 13s"
             },
             {
                 "href": "/analysis/clients/radar",
@@ -362,6 +366,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         "nom": "Cabinet",
         "pages": [
             {
+                "href": "/cabinet/kpi-direction",
+                "label": "Kpi Direction"
+            },
+            {
                 "href": "/cabinet/partner",
                 "label": "Partner"
             },
@@ -515,6 +523,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/comptabilite/stocks",
                 "label": "Stocks"
+            },
+            {
+                "href": "/comptabilite/syscoa-migration",
+                "label": "Syscoa Migration"
             },
             {
                 "href": "/comptabilite/tableau-bord-pme",
@@ -881,6 +893,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/fintech/scoring",
                 "label": "Scoring"
+            },
+            {
+                "href": "/fintech/scoring-pme",
+                "label": "Scoring Pme"
             }
         ]
     },
@@ -962,6 +978,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
             {
                 "href": "/fiscalite/scanner-predictif",
                 "label": "Scanner Predictif"
+            },
+            {
+                "href": "/fiscalite/tva-uemoa",
+                "label": "Tva Uemoa"
             }
         ]
     },

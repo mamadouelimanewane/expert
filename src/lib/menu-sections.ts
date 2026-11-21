@@ -126,6 +126,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Mapping Balance ➔ Liasse", href: "/liasse/mapping" },
         { label: "Rapport de Gestion & AGOA", href: "/liasse/rapport-gestion" },
         { label: "Reporting", href: "/comptabilite/reporting" },
+        { label: "Migration SYSCOA → SYSCOHADA", href: "/comptabilite/syscoa-migration" },
         { label: "Rapport santé", href: "/comptabilite/health-report" }, { label: "Scores santé", href: "/comptabilite/health-scores" },
     ],
     "/comptabilite/tpe-dashboard": [
@@ -157,6 +158,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Rentabilité des Missions", href: "/cabinet/rentabilite" },
         { label: "Relances & Recouvrement", href: "/cabinet/relances" },
         { label: "Dashboard Associés", href: "/cabinet/partner" },
+        { label: "KPIs Direction Cabinet", href: "/cabinet/kpi-direction" },
     ],
     "/liasse": [
         { label: "Bouclage Liasse SYSCOHADA", href: "/liasse/bouclage" },
@@ -193,6 +195,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Prix de Transfert & Management Fees", href: "/fiscalite/prix-transfert" },
         { label: "Local File Prix de Transfert", href: "/fiscalite/local-file-pt" },
         { label: "Comparateur Fiscal UEMOA", href: "/fiscalite/comparateur-regional" },
+        { label: "Cadrage TVA UEMOA Multi-Pays", href: "/fiscalite/tva-uemoa" },
         { label: "Export FEC", href: "/fiscalite/fec" },
         { label: "Attestations BRS", href: "/fiscalite/attestation-brs" },
         { label: "Quittances OCR", href: "/fiscalite/quittance-ocr" },
@@ -264,6 +267,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Radar clients", href: "/analysis/clients/radar" }, { label: "Investigation", href: "/analysis/deep" },
         { label: "War room", href: "/analysis/deep/war-room" }, { label: "Credit insights", href: "/analysis/credit-insights" },
         { label: "Cockpit DuPont & Cash Waterfall", href: "/analysis/dupont-waterfall" },
+        { label: "Prévision Cash 13 Semaines", href: "/analysis/cash-forecast-13s" },
     ],
     "/advisory": [
         { label: "Due Diligence M&A (QoE)", href: "/advisory/due-diligence" },
@@ -286,6 +290,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     "/fintech": [
         { label: "Paiements", href: "/fintech/payments" }, { label: "Mobile Money", href: "/fintech/mobile-money" },
         { label: "Notation BCEAO & Dossier Crédit", href: "/fintech/credit-bceao" },
+        { label: "Scoring PME Banque BCEAO", href: "/fintech/scoring-pme" },
         { label: "Dossier crédit", href: "/fintech/credit" }, { label: "Scoring", href: "/fintech/scoring" }, { label: "Marketplace", href: "/fintech/marketplace" },
     ],
     "/mobile-money": [
