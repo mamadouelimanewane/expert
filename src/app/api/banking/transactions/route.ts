@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
 
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/api-auth";
+import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { suggestInvoiceMatches } from "@/lib/bank-reconciliation-suggestions";
 export async function GET() {
     const { denied } = await requireStaff();
     if (denied) return denied;
 
     try {
         const transactions = await prisma.bankTransaction.findMany({
-            include: {
-                invoice: {
-                    // Objet Client brut = `portalToken` expose (cf. /api/clients/[id]).
-                    include: { client: { omit: { portalToken: true } } }
-                }
+            select: {
+                id: true, date: true, description: true, amount: true,
+                type: true, status: true, invoiceId: true,
             },
             orderBy: {
                 date: 'desc'
@@ -24,23 +23,50 @@ export async function GET() {
             where: {
                 status: { in: ["SENT", "OVERDUE"] },
             },
-            include: { client: true },
+            include: {
+                client: { select: { companyName: true, firstName: true, lastName: true } },
+                transactions: { where: { status: "RECONCILED" }, select: { amount: true, type: true } },
+            },
             orderBy: {
                 issueDate: 'desc'
             }
         });
 
-        // Transformer les factures au format attendu par le front
-        const formattedInvoices = pendingInvoices.map((inv: any) => ({
+        const formattedInvoices = pendingInvoices.map((inv) => ({
             id: inv.id,
             number: inv.invoiceNumber,
-            clientName: inv.client?.companyName || "Client Inconnu",
+            clientName: inv.client?.companyName || [inv.client?.firstName, inv.client?.lastName].filter(Boolean).join(" ") || "Client",
             date: inv.issueDate,
             amount: inv.total,
-            status: inv.status
+            // Une facture déjà rapprochée reste hors suggestion tant que son
+            // paiement n'a pas été confirmé dans la facturation. Le modèle
+            // actuel ne gère pas encore de ventilation partielle atomique.
+            outstandingAmount: inv.transactions.length ? 0 : inv.total,
+            status: inv.status,
         }));
 
-        return NextResponse.json({ transactions, pendingInvoices: formattedInvoices });
+        const candidates = formattedInvoices
+            .filter((invoice) => invoice.outstandingAmount > 0.01)
+            .map((invoice) => ({
+                invoiceId: invoice.id,
+                invoiceNumber: invoice.number,
+                clientName: invoice.clientName === "Client" ? "" : invoice.clientName,
+                invoiceDate: invoice.date,
+                outstandingAmount: invoice.outstandingAmount,
+            }));
+        const transactionsWithSuggestions = transactions.map((transaction) => ({
+            ...transaction,
+            suggestions: transaction.status === "PENDING" && transaction.type === "CREDIT"
+                ? suggestInvoiceMatches({
+                    description: transaction.description,
+                    amount: transaction.amount,
+                    transactionDate: transaction.date,
+                    candidates,
+                })
+                : [],
+        }));
+
+        return NextResponse.json({ transactions: transactionsWithSuggestions, pendingInvoices: formattedInvoices });
     } catch (error) {
         console.error("Erreur API BankTransactions GET:", error);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
@@ -48,7 +74,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const { denied } = await requireStaff();
+    const { denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -75,7 +101,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "Seul un encaissement peut être rapproché d'une facture ouverte." }, { status: 422 });
             }
             if (Math.abs(transaction.amount - invoice.total) > 0.01) {
-                return NextResponse.json({ error: "Le montant du relevé ne correspond pas au total de la facture." }, { status: 422 });
+                return NextResponse.json({ error: "Le lettrage automatique est limité aux montants exacts. Les paiements partiels doivent être ventilés et validés séparément." }, { status: 422 });
             }
             const priorMatch = await prisma.bankTransaction.findFirst({
                 where: { invoiceId, status: "RECONCILED" },

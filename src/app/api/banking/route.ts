@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { AuthService } from '@/lib/auth';
+import { requireStaff } from '@/lib/api-auth';
 
 export async function GET(_request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
+        const { denied } = await requireStaff();
+        if (denied) return denied;
 
         // Agrégation des factures pour les KPIs bancaires
         const [paidInvoices, pendingInvoices, overdueInvoices] = await Promise.all([
@@ -16,26 +14,24 @@ export async function GET(_request: NextRequest) {
             prisma.invoice.aggregate({ _sum: { total: true }, where: { status: 'OVERDUE' } }),
         ]);
 
-        const recentInvoices = await prisma.invoice.findMany({
-            take: 10,
-            orderBy: { updatedAt: 'desc' },
-            where: { status: { in: ['PAID', 'SENT', 'OVERDUE'] } },
-            include: {
-                client: { select: { companyName: true, firstName: true, lastName: true, type: true } }
-            },
-        });
+        const [recentTransactions, totalTransactions] = await Promise.all([
+            prisma.bankTransaction.findMany({
+                take: 10,
+                orderBy: { date: 'desc' },
+                select: { id: true, date: true, description: true, amount: true, type: true, status: true, invoiceId: true },
+            }),
+            prisma.bankTransaction.count(),
+        ]);
 
-        // Transactions simulées enrichies avec données réelles
-        const transactions = recentInvoices.map((inv, i) => ({
-            id: `TR-${String(i + 1).padStart(3, '0')}`,
-            date: new Date(inv.updatedAt).toLocaleDateString('fr-FR'),
-            description: `${inv.status === 'PAID' ? 'Encaissement' : 'Facture'} — ${inv.client?.companyName || 'Client'}`,
-            invoiceNumber: inv.invoiceNumber,
-            amount: inv.total.toLocaleString('fr-FR'),
-            amountRaw: inv.total,
-            type: inv.status === 'PAID' ? 'Crédit' : 'Débit',
-            matchStatus: inv.status === 'PAID' ? 'Matching IA 98%' : inv.status === 'OVERDUE' ? 'Non réconcilié' : 'Partiel',
-            category: 'Honoraires',
+        const transactions = recentTransactions.map((tx) => ({
+            id: tx.id,
+            date: tx.date.toISOString(),
+            description: tx.description,
+            amount: tx.amount,
+            amountRaw: tx.amount,
+            type: tx.type === 'CREDIT' ? 'Crédit' : 'Débit',
+            matchStatus: tx.status === 'RECONCILED' ? 'Lettré' : tx.status === 'IGNORED' ? 'Ignoré' : 'À traiter',
+            invoiceId: tx.invoiceId,
         }));
 
         return NextResponse.json({
@@ -43,7 +39,7 @@ export async function GET(_request: NextRequest) {
                 encaisse: paidInvoices._sum.total || 0,
                 enAttente: pendingInvoices._sum.total || 0,
                 enRetard: overdueInvoices._sum.total || 0,
-                totalTransactions: recentInvoices.length,
+                totalTransactions,
             },
             transactions,
         });

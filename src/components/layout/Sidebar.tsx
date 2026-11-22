@@ -69,6 +69,7 @@ type SearchResult = { id: string; type: "CLIENT" | "MISSION" | "FACTURE" | "DOCU
 const menuItems: MenuItem[] = [
     { header: "PILOTAGE & CABINET" },
     { icon: Bell, label: "Boîte de réception", href: "/inbox" },
+    { icon: Globe, label: "Cockpit EMOA", href: "/regionalisation" },
     { icon: LayoutGrid, label: "Hub des modules", href: "/bi" },
     { icon: Users, label: "Clients (CRM 360°)", href: "/clients" },
     { icon: Briefcase, label: "Missions & Tâches", href: "/missions" },

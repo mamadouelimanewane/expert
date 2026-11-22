@@ -22,6 +22,12 @@ interface Transaction {
     type: "CREDIT" | "DEBIT";
     status: "PENDING" | "RECONCILED" | "IGNORED";
     invoiceId?: string;
+    suggestions?: Array<{
+        invoiceId: string;
+        score: number;
+        reasons: string[];
+        exactAmount: boolean;
+    }>;
 }
 
 interface Invoice {
@@ -30,6 +36,7 @@ interface Invoice {
     clientName: string;
     date: string;
     amount: number;
+    outstandingAmount?: number;
     type: "SALE" | "PURCHASE";
     status: string;
 }
@@ -89,10 +96,7 @@ export default function BankingPage() {
     };
 
     const mouvementSelectionne = transactions.find((t) => t.id === selectedTx);
-    const facturesAuMontantExact = mouvementSelectionne?.type === "CREDIT"
-        ? invoices.filter((inv) => Math.abs(inv.amount - Math.abs(mouvementSelectionne.amount)) <= 0.01)
-        : [];
-    const factureSuggereeId = facturesAuMontantExact.length === 1 ? facturesAuMontantExact[0].id : null;
+    const factureSuggereeId = mouvementSelectionne?.suggestions?.[0]?.invoiceId ?? null;
 
     const pendingTxCount = transactions.filter(t => t.status === "PENDING").length;
 
@@ -193,6 +197,7 @@ export default function BankingPage() {
                         {isLoading ? (
                             <p className="text-center text-slate-500 mt-10">Chargement...</p>
                         ) : invoices.map(inv => {
+                            const suggestion = mouvementSelectionne?.suggestions?.find((candidate) => candidate.invoiceId === inv.id);
                             const isSuggested = factureSuggereeId === inv.id;
 
                             return (
@@ -203,23 +208,34 @@ export default function BankingPage() {
                                         isSuggested ? "bg-cyan-500/10 border-cyan-500/50" : "bg-white/5 border-white/5"
                                     )}
                                 >
-                                    {isSuggested && (
+                                    {suggestion && (
                                         <div className="absolute top-0 right-0 bg-cyan-500 text-white text-[8px] font-black uppercase px-2 py-1 rounded-bl-lg">
-                                            Montant identique · vérifier avant association
+                                            Indice {suggestion.score}/100 · heuristique
                                         </div>
                                     )}
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p className="font-bold text-white text-sm">{inv.clientName}</p>
                                             <p className="text-[10px] text-slate-500 mt-1 font-mono">Facture {inv.number}</p>
+                                            {suggestion && (
+                                                <p className="text-[10px] text-cyan-200/80 mt-2 max-w-sm">
+                                                    {suggestion.reasons.join(" · ")}
+                                                </p>
+                                            )}
+                                            {suggestion && !suggestion.exactAmount && selectedTx && (
+                                                <p className="mt-1 text-[10px] text-amber-200/80">Piste seulement : le lettrage partiel n’est pas encore activé.</p>
+                                            )}
                                         </div>
                                         <div className="text-right">
                                             <p className="font-black font-mono text-white">
                                                 {inv.amount.toLocaleString()}
                                             </p>
+                                            {inv.outstandingAmount === 0 && (
+                                                <p className="mt-1 max-w-40 text-[9px] text-amber-200/80">Mouvement déjà associé · confirmez le règlement dans la facturation</p>
+                                            )}
                                             {selectedTx && mouvementSelectionne?.type === "CREDIT" && (
                                                 <button
-                                                    disabled={Math.abs(mouvementSelectionne.amount - inv.amount) > 0.01}
+                                                    disabled={inv.outstandingAmount === 0 || Math.abs(mouvementSelectionne.amount - inv.amount) > 0.01}
                                                     onClick={() => handleReconcile(selectedTx, inv.id)}
                                                     className="mt-2 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 text-white text-[10px] font-black uppercase rounded-lg transition-all"
                                                 >

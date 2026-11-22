@@ -26,7 +26,7 @@ export function hrefActif<T extends EntreeMenu>(entrees: T[], pathname: string):
 export const SECTION_PAR_PREFIXE: [string, string][] = [
     // Pilotage & cabinet
     ["/cabinet", "PILOTAGE & CABINET"], ["/dashboard", "PILOTAGE & CABINET"], ["/agenda", "PILOTAGE & CABINET"], ["/time-entry", "PILOTAGE & CABINET"],
-    ["/missions", "PILOTAGE & CABINET"], ["/supervision", "PILOTAGE & CABINET"], ["/prospects", "PILOTAGE & CABINET"],
+    ["/missions", "PILOTAGE & CABINET"], ["/supervision", "PILOTAGE & CABINET"], ["/prospects", "PILOTAGE & CABINET"], ["/regionalisation", "PILOTAGE & CABINET"],
     ["/commercial", "PILOTAGE & CABINET"], ["/collaboration", "PILOTAGE & CABINET"], ["/communications", "PILOTAGE & CABINET"],
     ["/emails", "PILOTAGE & CABINET"], ["/inbox", "PILOTAGE & CABINET"], ["/workflows", "PILOTAGE & CABINET"], ["/procedures", "PILOTAGE & CABINET"],
     ["/management", "PILOTAGE & CABINET"], ["/expenses", "PILOTAGE & CABINET"], ["/expense-notes", "PILOTAGE & CABINET"],
@@ -217,6 +217,14 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/banking": [
         { label: "Banque & lettrage", href: "/banking" }, { label: "Import de flux", href: "/ingest/connectors" },
+    ],
+    "/regionalisation": [
+        { label: "Cockpit de synchronisation", href: "/regionalisation" },
+        { label: "Clôture guidée", href: "/comptabilite/cloture-annuelle" },
+        { label: "Rapprochement bancaire", href: "/banking" },
+        { label: "Prévision de trésorerie", href: "/analysis/cash-forecast" },
+        { label: "Conformité", href: "/compliance" },
+        { label: "Paiements PI-SPI", href: "/fintech/payments" },
     ],
     "/ingest": [
         { label: "Ingestion", href: "/ingest" }, { label: "Connecteurs", href: "/ingest/connectors" }, { label: "Banque & lettrage", href: "/banking" },
