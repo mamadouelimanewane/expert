@@ -313,7 +313,7 @@ export default function SaaSGrandLandingPage() {
     },
     {
       q: "Comment l'IA automatise-t-elle la gestion des dossiers TPE/PME du cabinet ?",
-      a: "Les dirigeants de TPE ou commerçants envoient leurs reçus, photos de factures et notes vocales sur un numéro WhatsApp relié à votre cabinet. Notre moteur IA extrait les données, analyse le libellé, affecte les comptes du Plan Comptable SYSCOHADA et présente un lot d'écritures pré-rempli. Vos collaborateurs n'ont plus qu'à cliquer sur 'Valider le lot'. Le temps passé est divisé par 10 !"
+      a: "Les dirigeants de TPE ou commerçants envoient leurs reçus, photos de factures et notes vocales sur un numéro WhatsApp relié à votre cabinet. Les fonctions de collecte et de pré-imputation sont une assistance à la saisie. Leur disponibilité dépend de la configuration; chaque proposition doit être vérifiée sur la pièce et approuvée par un collaborateur. Aucun gain de productivité n’est garanti sans mesure sur vos dossiers."
     },
     {
       q: "Puis-je accéder à la démonstration publique ?",
@@ -321,15 +321,15 @@ export default function SaaSGrandLandingPage() {
     },
     {
       q: "L'application respecte-t-elle strictement le référentiel SYSCOHADA révisé ?",
-      a: "Absolument. Le moteur comptable applique rigoureusement le système normal de l'AUDCIF : affectation unique de chaque compte par préfixe le plus long, reclassement automatique des tiers selon le sens réel du solde, déduction des amortissements et dépréciations, et cascade complète des soldes intermédiaires de gestion (SIG). Le système ne triche jamais et ne force jamais artificiellement l'équilibre du bilan."
+      a: "Le dépôt contient un moteur de calcul SYSCOHADA et des contrôles associés. Cela ne certifie pas chaque dossier ou état. Les résultats, comptes non reconnus et écarts doivent être rapprochés des pièces, puis revus par un professionnel."
     },
     {
       q: "Comment fonctionne le calcul de la paie sénégalaise ?",
-      a: "Le moteur intègre fidèlement le Code Général des Impôts sénégalais (art. 174) : barème annuel d'impôt sur le revenu avec parts et réductions pour charge de famille, cotisations IPRES (régime général et cadres), CSS, CFCE, TRIMF, et calcul des heures supplémentaires par paliers légaux."
+      a: "Le moteur vise la paie sénégalaise. Vérifiez taux, plafonds, textes et dates d’effet pour la période calculée; faites contrôler bulletins et déclarations par un professionnel local. Les règles sénégalaises ne s’appliquent pas aux autres pays."
     },
     {
       q: "Quels sont les modes de règlement acceptés ?",
-      a: "Nous acceptons les règlements par Wave Mobile Money (Sénégal), Orange Money, carte bancaire (Visa, Mastercard) et virement bancaire pour les forfaits annuels."
+      a: "Les paiements SaaS et la souscription en libre-service sont actuellement suspendus. Aucun paiement ne sera initié depuis cette page."
     }
   ];
 
@@ -453,7 +453,7 @@ export default function SaaSGrandLandingPage() {
           <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
             Ne perdez plus des heures à saisir manuellement les tickets et factures de vos clients. 
             Avec la <strong>collecte WhatsApp passive</strong>, l'<strong>imputation IA Nexus</strong>, le moteur de <strong>paie sénégalaise CGI</strong> et le <strong>bilan SYSCOHADA AUDCIF</strong> : 
-            multipliez par 4 la rentabilité de votre portefeuille cabinet.
+            Les calculs et propositions automatisées nécessitent une revue professionnelle. Les inscriptions publiques restent suspendues pendant la validation du cloisonnement des données.
           </p>
 
           {/* Actions CTA Triples */}
@@ -484,7 +484,7 @@ export default function SaaSGrandLandingPage() {
           <div className="pt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <span>100% Conforme SYSCOHADA Normal & SMT</span>
+              <span>Outils SYSCOHADA : résultats à valider</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -527,7 +527,7 @@ export default function SaaSGrandLandingPage() {
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Portefeuille TPE & PME</div>
                       <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">48 Dossiers</div>
-                      <div className="text-xs text-emerald-600 font-semibold mt-1">82% automatisés par IA</div>
+                      <div className="text-xs text-emerald-600 font-semibold mt-1">Exemple illustratif</div>
                     </div>
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Bilan & États AUDCIF</div>
@@ -537,12 +537,12 @@ export default function SaaSGrandLandingPage() {
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Paie Sénégal (Août/Sept)</div>
                       <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">124 Bulletins</div>
-                      <div className="text-xs text-emerald-600 font-semibold mt-1">IPRES & CSS télé-déclarés</div>
+                      <div className="text-xs text-emerald-600 font-semibold mt-1">Paie Sénégal : revue requise</div>
                     </div>
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                       <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Flux Wave Encaissés</div>
                       <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">18,450,000 F</div>
-                      <div className="text-xs text-slate-500 mt-1">Lettrage automatique 98%</div>
+                      <div className="text-xs text-slate-500 mt-1">Rapprochement à contrôler</div>
                     </div>
                   </div>
 
@@ -645,7 +645,7 @@ export default function SaaSGrandLandingPage() {
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Validation en Lot (1-Click)</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Le collaborateur du cabinet consulte le tableau récapitulatif dans l'Usine IA et valide 50 écritures d'un seul coup après contrôle rapide.
+                Toute proposition automatisée doit être vérifiée sur sa pièce source et approuvée avant comptabilisation. La validation en lot reste soumise aux contrôles disponibles dans l’espace.
               </p>
             </div>
 
@@ -655,7 +655,7 @@ export default function SaaSGrandLandingPage() {
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Bilan SMT & TVA Prêts</h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Livre de recettes-dépenses, déclaration de TVA et Bilan SMT sont immédiatement prêts pour transmission à la DGID ou à la banque.
+                Les états et déclarations nécessitent des contrôles, rapprochements et validations professionnels avant tout dépôt ou transmission.
               </p>
             </div>
           </div>
@@ -665,7 +665,7 @@ export default function SaaSGrandLandingPage() {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold">Un collaborateur peut désormais gérer jusqu'à 80 dossiers TPE/PME</h3>
               <p className="text-emerald-100 text-sm max-w-2xl">
-                Le temps moyen passé par dossier TPE passe de 4 heures par mois à moins de 25 minutes. Libérez du temps pour les missions de conseil à forte valeur ajoutée.
+                Les gains de temps dépendent des dossiers, de la qualité des pièces et des contrôles requis. Aucun niveau de productivité n’est garanti sans mesure sur votre portefeuille.
               </p>
             </div>
             <button

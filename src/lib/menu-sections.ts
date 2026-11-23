@@ -153,6 +153,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/missions": [
         { label: "Missions", href: "/missions" }, { label: "Nouvelle mission", href: "/missions/new" }, { label: "Planning", href: "/missions/planning" },
+        { label: "Avenants & changements", href: "/missions/changements" },
         { label: "Budget", href: "/missions/budget" }, { label: "Boni / mali", href: "/missions/boni-mali" }, { label: "Feuilles de temps", href: "/missions/timesheets" },
         { label: "Sizing & Budget Prédictif", href: "/missions/budget-sentinel" },
         { label: "Rentabilité des Missions", href: "/cabinet/rentabilite" },
@@ -178,6 +179,9 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
     ],
     "/billing": [
         { label: "Factures", href: "/billing" }, { label: "Nouvelle facture", href: "/billing/new" }, { label: "Relances", href: "/billing/relances" },
+    ],
+    "/reporting": [
+        { label: "Rapport mensuel de pilotage", href: "/reporting/mensuel" },
     ],
     "/lettres-mission": [
         { label: "Lettres de mission", href: "/lettres-mission" }, { label: "Nouvelle lettre", href: "/lettres-mission/new" }, { label: "Signature", href: "/signature/lettres-mission" },

@@ -4,7 +4,7 @@
 // FICHIER GÉNÉRÉ — ne pas modifier à la main.
 // Régénérer avec : npm run routes:generate
 //
-// La barre latérale ne peut pas exposer les 301 écrans sans devenir
+// La barre latérale ne peut pas exposer les 304 écrans sans devenir
 // illisible : elle en présente une sélection. Cet inventaire alimente la page
 // « Plan de l'application » (/plan), qui rend chacun d'eux atteignable.
 //
@@ -1208,6 +1208,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
                 "label": "Budget Sentinel"
             },
             {
+                "href": "/missions/changements",
+                "label": "Changements"
+            },
+            {
                 "href": "/missions/creation",
                 "label": "Creation"
             },
@@ -1468,6 +1472,15 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
         ]
     },
     {
+        "nom": "Qualite Cabinet",
+        "pages": [
+            {
+                "href": "/qualite-cabinet",
+                "label": "Qualite Cabinet"
+            }
+        ]
+    },
+    {
         "nom": "Rapprochement bancaire",
         "pages": [
             {
@@ -1497,6 +1510,10 @@ export const SECTIONS_NAVIGATION: SectionNavigation[] = [
     {
         "nom": "Reporting",
         "pages": [
+            {
+                "href": "/reporting/mensuel",
+                "label": "Mensuel"
+            },
             {
                 "href": "/reporting/pdf-generator",
                 "label": "Pdf Generator"

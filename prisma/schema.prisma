@@ -128,6 +128,8 @@ model User {
   yearEndClosesClosed        YearEndClose[] @relation("YearEndCloseCloser")
   yearEndCloseItemsAssigned  YearEndCloseItem[] @relation("YearEndCloseItemAssignee")
   yearEndCloseItemsCompleted YearEndCloseItem[] @relation("YearEndCloseItemCompleter")
+  esgAssessmentsCreated EsgAssessment[] @relation("EsgAssessmentCreator")
+  esgAssessmentsReviewed EsgAssessment[] @relation("EsgAssessmentReviewer")
 
   @@map("users")
   @@index([cabinetId])
@@ -250,6 +252,7 @@ model Client {
   clientRequests        ClientRequest[]
   workPapers            WorkPaper[]
   yearEndCloses         YearEndClose[]
+  esgAssessments        EsgAssessment[]
 
   @@map("clients")
   @@unique([cabinetId, email])
@@ -820,6 +823,38 @@ model FinancialData {
 
   @@map("financial_data")
   @@index([cabinetId])
+}
+
+/// Données ESG d'un client, avec provenance, niveau d'estimation et revue.
+/// Chaque sauvegarde est une version immuable de l'exercice : une correction
+/// crée une nouvelle version au lieu d'écraser la piste d'audit précédente.
+model EsgAssessment {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId             String?  @db.ObjectId // injecté et filtré par la couche tenant Prisma
+  clientId              String   @db.ObjectId
+  client                Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  periodYear            Int
+  country               String
+  version               Int      @default(1)
+  dataQuality           String   // MEASURED, ESTIMATED, MIXED
+  evidenceNotes         String
+  methodologyVersion   String   @default("ESG-ESTIMATE-1")
+  emissionFactorVersion String  @default("GENERIC-2.68-0.45-v1")
+  input                 Json
+  report                Json
+  status                String   @default("DRAFT") // DRAFT, REVIEWED
+  reviewComment         String?
+  createdById           String   @db.ObjectId
+  createdBy             User     @relation("EsgAssessmentCreator", fields: [createdById], references: [id])
+  reviewedById          String?  @db.ObjectId
+  reviewedBy            User?    @relation("EsgAssessmentReviewer", fields: [reviewedById], references: [id])
+  reviewedAt            DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("esg_assessments")
+  @@unique([cabinetId, clientId, periodYear, version])
+  @@index([cabinetId, status, periodYear])
 }
 
 // ============================================
@@ -1987,6 +2022,60 @@ model EngagementLetter {
   @@map("engagement_letters")
   @@unique([cabinetId, reference])
   @@index([cabinetId])
+}
+
+// Gestion de la qualité du cabinet : risques qualité et constats de revue,
+// reliés aux missions quand le sujet porte sur un dossier particulier.
+model QualityControl {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId       String?  @db.ObjectId // injecté et filtré par la couche tenant Prisma
+  kind            String   // RISK, FINDING, REVIEW
+  title           String
+  description     String?
+  severity        String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status          String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, ACCEPTED
+  missionId       String?  @db.ObjectId
+  ownerId         String?  @db.ObjectId
+  reviewFrequencyDays Int?
+  lastReviewedAt  DateTime?
+  effectivenessResult String? // EFFECTIVE, INEFFECTIVE
+  effectivenessEvidence String?
+  rootCause       String?
+  correctiveAction String?
+  dueDate         DateTime?
+  resolvedAt      DateTime?
+  createdById     String   @db.ObjectId
+  reviewedById    String?  @db.ObjectId
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("quality_controls")
+  @@index([cabinetId, status, dueDate])
+  @@index([cabinetId, missionId])
+}
+
+// Avenants et demandes de changement : l'historique approuvé est conservé.
+model MissionChangeRequest {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId        String?  @db.ObjectId // injecté et filtré par la couche tenant Prisma
+  missionId        String   @db.ObjectId
+  title            String
+  reason           String
+  requestedScope   String
+  feeDelta         Float    @default(0)
+  hoursDelta       Float    @default(0)
+  status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  requestedById    String   @db.ObjectId
+  reviewedById     String?  @db.ObjectId
+  reviewedAt       DateTime?
+  reviewComment    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("mission_change_requests")
+  @@index([cabinetId, missionId, status])
+  @@index([cabinetId, createdAt])
 }
 
 // ============================================

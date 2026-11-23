@@ -78,6 +78,8 @@ const menuItems: MenuItem[] = [
     { icon: Receipt, label: "Facturation & Honoraires", href: "/billing" },
     { icon: FileText, label: "Lettres de Mission", href: "/lettres-mission" },
     { icon: Activity, label: "Supervision Live", href: "/supervision/timeline" },
+    { icon: ClipboardCheck, label: "Qualité du cabinet", href: "/qualite-cabinet" },
+    { icon: FilePieChart, label: "Rapport mensuel", href: "/reporting/mensuel" },
     { icon: Bot, label: "Flotte Agents IA 360", href: "/agents/orchestrateur" },
 
     { header: "EXPERTISE & PRODUCTION" },

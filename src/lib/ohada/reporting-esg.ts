@@ -1,14 +1,14 @@
 /**
  * Module RSE / ESG & Reporting Extra-Financier
- * Conforme aux normes IFRS S1 (exigences générales) et IFRS S2 (climat)
- * Intégrant les spécificités OHADA / UEMOA (GIABA/GAFI LCB-FT, IPRES/CNPS, mix énergétique UEMOA)
+ * Outil exploratoire d'indicateurs ESG. Les résultats ne constituent pas
+ * une attestation IFRS S1/S2 ni une mesure d'émissions vérifiée.
  */
 
 export type PilierESG = "ENVIRONNEMENTAL" | "SOCIAL" | "GOUVERNANCE";
 
 export interface BilanCarbone {
   scope1Carburant_tCO2: number;
-  scope1Electricite_tCO2: number;
+  scope2Electricite_tCO2: number;
   scope2Achats_tCO2: number;
   totalEmissions_tCO2: number;
   intensiteCarbone_tCO2parM_XOF: number; // tCO2 / million XOF de CA
@@ -72,23 +72,22 @@ export interface RapportESG {
 }
 
 /**
- * Facteurs d'émission :
- * - Carburant (Gasoil/Essence moyen): 2.68 kg CO2 / Litre = 0.00268 tCO2 / L
- * - Électricité Réseau UEMOA: 0.45 kg CO2 / kWh = 0.00045 tCO2 / kWh
- * - Énergie achetée (MWh): 0.45 tCO2 / MWh
+ * Coefficients génériques provisoires, à remplacer par un facteur documenté
+ * et daté correspondant au pays, à l'énergie et à l'exercice déclarés.
  */
 export function calculerBilanCarbone(input: InputESG): BilanCarbone {
   const scope1Carburant = Number(((input.consommationCarburantLitres * 2.68) / 1000).toFixed(2));
-  const scope1Electricite = Number(((input.consommationElectriciteKWh * 0.45) / 1000).toFixed(2));
+  // Purchased grid electricity is Scope 2 (location-based estimate), not Scope 1.
+  const scope2Electricite = Number(((input.consommationElectriciteKWh * 0.45) / 1000).toFixed(2));
   const scope2Achats = Number(((input.achatEnergieMWh || 0) * 0.45).toFixed(2));
-  const totalEmissions = Number((scope1Carburant + scope1Electricite + scope2Achats).toFixed(2));
+  const totalEmissions = Number((scope1Carburant + scope2Electricite + scope2Achats).toFixed(2));
 
   const caMillions = input.ca_XOF > 0 ? input.ca_XOF / 1_000_000 : 1;
   const intensiteCarbone = Number((totalEmissions / caMillions).toFixed(4));
 
   return {
     scope1Carburant_tCO2: scope1Carburant,
-    scope1Electricite_tCO2: scope1Electricite,
+    scope2Electricite_tCO2: scope2Electricite,
     scope2Achats_tCO2: scope2Achats,
     totalEmissions_tCO2: totalEmissions,
     intensiteCarbone_tCO2parM_XOF: intensiteCarbone,
@@ -169,28 +168,28 @@ export function genererRapportESG(input: InputESG): RapportESG {
   const recommandations: string[] = [];
 
   if (tauxContratsFormels < 80) {
-    recommandations.push("Formaliser 100% des contrats de travail (Art. 14 Code Travail OHADA) pour résorber l'informel.");
+    recommandations.push("Vérifier le niveau de formalisation des contrats et les exigences du droit du travail du pays avec un conseil local.");
   }
   if (tauxCouvertureSante < 90) {
-    recommandations.push("Régulariser les affiliations aux caisses de prévoyance obligatoire (IPRES / CSS / CNPS).");
+    recommandations.push("Comparer les affiliations sociales déclarées aux obligations applicables dans le pays et documenter les écarts.");
   }
   if (input.accidentsWork > 0) {
-    recommandations.push("Instaurer un Comité Hygiène, Sécurité et Conditions de Travail (CHSCT) et un registre des risques.");
+    recommandations.push("Analyser les accidents recensés, leurs causes et les mesures de prévention ; vérifier les exigences locales de santé et sécurité.");
   }
   if (!input.lcbftConforme) {
-    recommandations.push("Mettre en place d'urgence le dispositif LCB-FT et cartographie des risques (Directive GIABA / GAFI 2023).");
+    recommandations.push("Faire évaluer le dispositif LCB-FT au regard des obligations applicables à l'entité et documenter les contrôles réalisés.");
   }
   if (!input.registreBeneficiairesEffectifs) {
-    recommandations.push("Déclarer et tenir à jour le registre des Bénéficiaires Effectifs (AUSCGIE révisé & Loi LCB-FT).");
+    recommandations.push("Vérifier les obligations locales de déclaration des bénéficiaires effectifs et conserver la preuve des démarches.");
   }
   if (!input.comiteAudit) {
-    recommandations.push("Créer un comité d'audit ou désigner un administrateur référent pour le contrôle interne.");
+    recommandations.push("Évaluer les besoins de gouvernance et de contrôle interne en fonction de la taille, du secteur et du cadre juridique de l'entité.");
   }
   if (!input.codeEthiqueAdopte) {
-    recommandations.push("Adopter une charte éthique et anti-corruption (Loi anti-corruption UEMOA).");
+    recommandations.push("Examiner l'adoption d'un dispositif éthique adapté aux risques et obligations applicables à l'entité.");
   }
   if (bilanCarbone.intensiteCarbone_tCO2parM_XOF > 0.1) {
-    recommandations.push("Planifier un audit d'efficacité énergétique et étudier le solaire photovoltaïque en toiture (IFRS S2 Climat).");
+    recommandations.push("Vérifier le facteur d'émission utilisé pour le pays et l'exercice, puis analyser les leviers de réduction énergétique pertinents.");
   }
 
   return {
@@ -203,6 +202,6 @@ export function genererRapportESG(input: InputESG): RapportESG {
     scoreESG,
     niveauMaturite,
     recommandations,
-    referentielIFRS: "IFRS S1 / IFRS S2 - Normes Internationales de Durabilité (ISSB 2024)",
+    referentielIFRS: "Référence indicative IFRS S1/S2 — périmètre et applicabilité à confirmer selon la juridiction",
   };
 }

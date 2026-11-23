@@ -1,61 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import {
-  type InputESG,
-  type RapportESG,
-  genererRapportESG,
-} from "@/lib/ohada/reporting-esg";
+import { type InputESG, type RapportESG } from "@/lib/ohada/reporting-esg";
 
-const DEFAULT_INPUT: InputESG = {
-  raisonSociale: "SOCIÉTÉ AGRO-INDUSTRIELLE DU SAHEL SA",
-  exercice: 2024,
-  pays: "SN",
-  ca_XOF: 2_500_000_000,
-  effectifTotal: 150,
-  consommationCarburantLitres: 45_000,
-  consommationElectriciteKWh: 180_000,
-  achatEnergieMWh: 20,
-  nbContratsFormels: 135,
-  nbFemmes: 55,
-  nbAffiliesSante: 140,
-  accidentsWork: 1,
-  masseSalariale_XOF: 450_000_000,
-  lcbftConforme: true,
-  registreBeneficiairesEffectifs: true,
-  administrateursIndependants_pct: 25,
-  comiteAudit: true,
-  codeEthiqueAdopte: true,
+const EMPTY_INPUT: InputESG = {
+  raisonSociale: "", exercice: new Date().getFullYear(), pays: "",
+  ca_XOF: 0, effectifTotal: 0, consommationCarburantLitres: 0,
+  consommationElectriciteKWh: 0, achatEnergieMWh: 0, nbContratsFormels: 0,
+  nbFemmes: 0, nbAffiliesSante: 0, accidentsWork: 0, masseSalariale_XOF: 0,
+  lcbftConforme: false, registreBeneficiairesEffectifs: false,
+  administrateursIndependants_pct: 0, comiteAudit: false, codeEthiqueAdopte: false,
 };
 
+type ClientOption = { id: string; companyName: string | null; firstName: string | null; lastName: string | null; country: string };
+type Assessment = { id: string; clientId: string; createdById: string; periodYear: number; version: number; country: string; dataQuality: string; evidenceNotes: string; methodologyVersion: string; emissionFactorVersion: string; status: string; reviewComment: string | null; createdAt: string; input: InputESG; report: RapportESG; client: ClientOption };
+const nomClient = (client: ClientOption) => client.companyName || `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim() || "Client";
+
+const deviseClient = (country: string) => ["CM", "GA", "CG", "TD", "CF", "GQ"].includes(country.toUpperCase()) ? "XAF" : "XOF";
+
 export default function ESGReportingPage() {
-  const [form, setForm] = useState<InputESG>(DEFAULT_INPUT);
-  const [rapport, setRapport] = useState<RapportESG | null>(() => genererRapportESG(DEFAULT_INPUT));
+  const [form, setForm] = useState<InputESG>(EMPTY_INPUT);
+  const [rapport, setRapport] = useState<RapportESG | null>(null);
+  const [clients, setClients] = useState<ClientOption[]>([]);
+  const [clientId, setClientId] = useState("");
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [evidenceNotes, setEvidenceNotes] = useState("");
+  const [dataQuality, setDataQuality] = useState("MIXED");
+  const [savedAssessment, setSavedAssessment] = useState<Assessment | null>(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+
+  async function loadAssessments() {
+    const response = await fetch("/api/advisory/esg");
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Impossible de charger les évaluations ESG.");
+    setAssessments(data.assessments || []);
+  }
+
+  useEffect(() => {
+    Promise.all([fetch("/api/clients?limit=200&isActive=true"), fetch("/api/advisory/esg")])
+      .then(async ([clientsResponse, assessmentResponse]) => {
+        const [clientsData, assessmentData] = await Promise.all([clientsResponse.json(), assessmentResponse.json()]);
+        if (!clientsResponse.ok) throw new Error(clientsData.error || "Portefeuille clients indisponible.");
+        if (!assessmentResponse.ok) throw new Error(assessmentData.error || "Registre ESG indisponible.");
+        setClients((clientsData.clients || []) as ClientOption[]);
+        setAssessments((assessmentData.assessments || []) as Assessment[]);
+      })
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Chargement ESG impossible."));
+  }, []);
 
   const handleCalculer = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); setError(""); setSavedAssessment(null);
     try {
       const res = await fetch("/api/advisory/esg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ clientId, input: form, evidenceNotes, dataQuality }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setRapport(data);
-      } else {
-        // Fallback local
-        setRapport(genererRapportESG(form));
-      }
-    } catch {
-      setRapport(genererRapportESG(form));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Enregistrement ESG impossible.");
+      setRapport(data.report);
+      setSavedAssessment(data.assessment);
+      await loadAssessments();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Enregistrement ESG impossible.");
     } finally {
       setLoading(false);
     }
   };
+
+  const choisirClient = (id: string) => {
+    setClientId(id);
+    const client = clients.find((item) => item.id === id);
+    if (client) setForm((current) => ({ ...current, raisonSociale: nomClient(client), pays: client.country }));
+    setRapport(null); setSavedAssessment(null);
+  };
+
+  const chargerVersion = (assessment: Assessment) => {
+    setClientId(assessment.clientId); setForm(assessment.input); setEvidenceNotes(assessment.evidenceNotes);
+    setDataQuality(assessment.dataQuality); setRapport(assessment.report); setSavedAssessment(assessment);
+  };
+
+  async function revoir(assessment: Assessment) {
+    const reviewComment = window.prompt("Notez les contrôles effectués, les limites et les points restant à confirmer :") || "";
+    if (!reviewComment.trim()) return;
+    const response = await fetch("/api/advisory/esg", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: assessment.id, reviewComment }) });
+    const data = await response.json();
+    if (!response.ok) { setError(data.error || "Revue ESG impossible."); return; }
+    await loadAssessments();
+    if (savedAssessment?.id === assessment.id) setSavedAssessment(data.assessment);
+  }
 
   const getMaturiteBadge = (maturite: string) => {
     switch (maturite) {
@@ -76,15 +114,15 @@ export default function ESGReportingPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-400 font-semibold mb-1">
-            <span>IFRS S1 / IFRS S2</span>
+            <span>Analyse interne indicative</span>
             <span>•</span>
-            <span>Directive GIABA / OHADA</span>
+            <span>Référentiel à confirmer selon le pays</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             Rapport ESG & Durabilité Extra-Financière
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Bilan Carbone Scopes 1 & 2, Normes Sociales UEMOA, Gouvernance LCB-FT & Transparence
+            Données liées au client, sources documentées, versions conservées et revue par un expert.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -103,9 +141,25 @@ export default function ESGReportingPage() {
         </div>
       </div>
 
+      {error && <div role="alert" className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300">{error}</div>}
+
+      <section className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-4">
+        <div><h2 className="font-semibold text-slate-100">Registre des évaluations</h2><p className="text-xs text-slate-400 mt-1">Chaque correction crée une nouvelle version ; les versions revues restent figées.</p></div>
+        {assessments.length === 0 ? <p className="text-sm text-slate-500">Aucune évaluation enregistrée.</p> : <div className="space-y-2">{assessments.slice(0, 12).map((assessment) => <div key={assessment.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950/50 p-3"><div><p className="text-sm font-semibold">{nomClient(assessment.client)} · {assessment.periodYear} · v{assessment.version}</p><p className="text-xs text-slate-400">{assessment.dataQuality} · {assessment.status === "REVIEWED" ? "Revu" : "Brouillon à revoir"} · {new Date(assessment.createdAt).toLocaleDateString("fr-FR")}</p><p className="text-[10px] text-slate-500">Méthode {assessment.methodologyVersion} · Facteurs {assessment.emissionFactorVersion}</p>{assessment.reviewComment && <p className="mt-1 text-xs text-slate-400">Revue : {assessment.reviewComment}</p>}</div><div className="flex gap-2"><button type="button" onClick={() => chargerVersion(assessment)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Ouvrir</button>{assessment.status === "DRAFT" && assessment.createdById !== String((session?.user as { id?: string } | undefined)?.id) && ["ADMIN", "EXPERT"].includes(String((session?.user as { role?: string } | undefined)?.role)) && <button type="button" onClick={() => revoir(assessment)} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs">Revue indépendante</button>}</div></div>)}</div>}
+      </section>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Formulaire de saisie */}
         <form onSubmit={handleCalculer} className="lg:col-span-5 space-y-6">
+          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-4">
+            <label className="block text-xs text-slate-400">Client du portefeuille *</label>
+            <select required value={clientId} onChange={(e) => choisirClient(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm">
+              <option value="">Sélectionner un client</option>{clients.map((client) => <option key={client.id} value={client.id}>{nomClient(client)}</option>)}
+            </select>
+            <div className="grid grid-cols-2 gap-3"><label className="text-xs text-slate-400">Qualité des données<select value={dataQuality} onChange={(e) => setDataQuality(e.target.value)} className="mt-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200"><option value="MEASURED">Mesurées</option><option value="ESTIMATED">Estimées</option><option value="MIXED">Mixtes</option></select></label><p className="self-end text-xs text-slate-500">À préciser avec les preuves ci-dessous.</p></div>
+            <label className="block text-xs text-slate-400">Sources, pièces consultées, méthode et limites *<textarea required minLength={20} maxLength={5000} value={evidenceNotes} onChange={(e) => setEvidenceNotes(e.target.value)} placeholder="Ex. factures d'énergie 01–12/2025, registre RH arrêté au 31/12, indicateurs auto-déclarés par le client ; facteur d'émission à confirmer…" className="mt-1 min-h-24 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200" /></label>
+            {savedAssessment && <p className="text-xs text-emerald-400">Version v{savedAssessment.version} enregistrée · {savedAssessment.status === "REVIEWED" ? "revue" : "à revoir"}</p>}
+          </div>
           {/* Identité */}
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-4">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2">
@@ -118,6 +172,7 @@ export default function ESGReportingPage() {
                   type="text"
                   value={form.raisonSociale}
                   onChange={(e) => setForm({ ...form, raisonSociale: e.target.value })}
+                  readOnly
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
                   required
                 />
@@ -133,24 +188,19 @@ export default function ESGReportingPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 block mb-1">Pays UEMOA / CEMAC</label>
-                  <select
+                  <label className="text-xs text-slate-400 block mb-1">Pays enregistré sur le dossier client</label>
+                  <input
+                    type="text"
                     value={form.pays}
-                    onChange={(e) => setForm({ ...form, pays: e.target.value })}
+                    readOnly
+                    aria-label="Pays du client"
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm"
-                  >
-                    <option value="SN">Sénégal (SN)</option>
-                    <option value="CI">Côte d'Ivoire (CI)</option>
-                    <option value="CM">Cameroun (CM)</option>
-                    <option value="BJ">Bénin (BJ)</option>
-                    <option value="TG">Togo (TG)</option>
-                    <option value="BF">Burkina Faso (BF)</option>
-                  </select>
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-400 block mb-1">Chiffre d'Affaires (XOF)</label>
+                  <label className="text-xs text-slate-400 block mb-1">Chiffre d&apos;affaires ({deviseClient(form.pays)})</label>
                   <input
                     type="number"
                     value={form.ca_XOF}
@@ -175,12 +225,12 @@ export default function ESGReportingPage() {
           <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-4">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-emerald-400 border-b border-slate-800 pb-2 flex items-center justify-between">
               <span>2. Pilier E — Climat & Carbone</span>
-              <span className="text-xs text-slate-500 font-normal">IFRS S2</span>
+              <span className="text-xs text-slate-500 font-normal">Estimation indicative</span>
             </h2>
             <div className="space-y-3">
               <div>
                 <label className="text-xs text-slate-400 block mb-1">
-                  Carburant (Litres gasoil/essence - Scope 1)
+                  Carburant déclaré (litres, Scope 1 estimé)
                 </label>
                 <input
                   type="number"
@@ -200,7 +250,7 @@ export default function ESGReportingPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-400 block mb-1">Énergie achetée (MWh - Scope 2)</label>
+                  <label className="text-xs text-slate-400 block mb-1">Électricité achetée en MWh (hors compteur kWh)</label>
                   <input
                     type="number"
                     value={form.achatEnergieMWh || 0}
@@ -237,7 +287,7 @@ export default function ESGReportingPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Affiliés IPRES/CNPS/CSS</label>
+                <label className="text-xs text-slate-400 block mb-1">Affiliés aux organismes sociaux (selon le pays)</label>
                 <input
                   type="number"
                   value={form.nbAffiliesSante}
@@ -253,6 +303,10 @@ export default function ESGReportingPage() {
                   onChange={(e) => setForm({ ...form, accidentsWork: Number(e.target.value) })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm"
                 />
+              </div>
+              <div className="col-span-2">
+                <label className="text-xs text-slate-400 block mb-1">Masse salariale annuelle ({deviseClient(form.pays)})</label>
+                <input type="number" min="0" value={form.masseSalariale_XOF} onChange={(e) => setForm({ ...form, masseSalariale_XOF: Number(e.target.value) })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm" />
               </div>
             </div>
           </div>
@@ -270,7 +324,7 @@ export default function ESGReportingPage() {
                   onChange={(e) => setForm({ ...form, lcbftConforme: e.target.checked })}
                   className="rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0"
                 />
-                <span>Dispositif LCB-FT conforme (Directive GIABA 2023)</span>
+                <span>Dispositif LCB-FT déclaré en place (à vérifier selon les obligations locales)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
                 <input
@@ -288,7 +342,7 @@ export default function ESGReportingPage() {
                   onChange={(e) => setForm({ ...form, comiteAudit: e.target.checked })}
                   className="rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0"
                 />
-                <span>Comité d'audit / Administrateur référent actif</span>
+                <span>Comité d&apos;audit / Administrateur référent actif</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
                 <input
@@ -297,7 +351,7 @@ export default function ESGReportingPage() {
                   onChange={(e) => setForm({ ...form, codeEthiqueAdopte: e.target.checked })}
                   className="rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0"
                 />
-                <span>Code d'éthique & politique anti-corruption validée</span>
+                <span>Code d&apos;éthique &amp; politique anti-corruption validée</span>
               </label>
               <div>
                 <div className="flex justify-between text-xs text-slate-400 mb-1">
@@ -318,25 +372,26 @@ export default function ESGReportingPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !clientId}
             className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold rounded-xl text-sm transition shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
           >
-            {loading ? "Génération..." : "Calculer & Évaluer le Score ESG"}
+            {loading ? "Enregistrement..." : "Calculer et enregistrer une version ESG"}
           </button>
         </form>
 
         {/* Dashboard de Restitution */}
         <div className="lg:col-span-7 space-y-6">
+          {!rapport && <div className="flex min-h-72 items-center justify-center rounded-2xl border border-dashed border-slate-700 p-8 text-center text-sm text-slate-400">Sélectionnez un client, documentez les sources, puis enregistrez une version pour afficher son estimation.</div>}
           {rapport && (
             <>
               {/* Score Global Card */}
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="text-center md:text-left space-y-1">
-                    <span className="text-xs uppercase font-medium text-slate-400">Score Global ESG</span>
+                    <span className="text-xs uppercase font-medium text-slate-400">Score interne indicatif</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-5xl font-black text-white">{rapport.scoreESG.global}</span>
-                      <span className="text-lg text-slate-500 font-semibold">/ 100</span>
+                    <span className="text-lg text-slate-500 font-semibold">/ 100 · {savedAssessment?.dataQuality || dataQuality}</span>
                     </div>
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getMaturiteBadge(rapport.niveauMaturite)}`}>
                       Maturité : {rapport.niveauMaturite}
@@ -376,14 +431,14 @@ export default function ESGReportingPage() {
                 </div>
               </div>
 
-              {/* Bilan Carbone Scopes 1 & 2 */}
+              {/* Estimation interne des émissions Scopes 1 & 2 */}
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <h3 className="font-semibold text-slate-200 text-sm">
-                    Bilan Émissions Carbone (GHG Protocol & IFRS S2)
+                    Estimation des émissions de gaz à effet de serre
                   </h3>
                   <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
-                    Mix énergétique UEMOA
+                    Facteur indicatif à confirmer
                   </span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -393,12 +448,12 @@ export default function ESGReportingPage() {
                     <span className="text-[10px] text-slate-500 block">tCO2e</span>
                   </div>
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
-                    <span className="text-xs text-slate-400 block mb-1">Scope 1 (Électricité)</span>
-                    <span className="text-lg font-bold text-white">{rapport.bilanCarbone.scope1Electricite_tCO2}</span>
+                    <span className="text-xs text-slate-400 block mb-1">Scope 2 (Réseau électrique)</span>
+                    <span className="text-lg font-bold text-white">{rapport.bilanCarbone.scope2Electricite_tCO2}</span>
                     <span className="text-[10px] text-slate-500 block">tCO2e</span>
                   </div>
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80">
-                    <span className="text-xs text-slate-400 block mb-1">Scope 2 (Achats)</span>
+                    <span className="text-xs text-slate-400 block mb-1">Autres achats Scope 2</span>
                     <span className="text-lg font-bold text-white">{rapport.bilanCarbone.scope2Achats_tCO2}</span>
                     <span className="text-[10px] text-slate-500 block">tCO2e</span>
                   </div>
@@ -407,7 +462,7 @@ export default function ESGReportingPage() {
                     <span className="text-lg font-bold text-emerald-400">
                       {rapport.bilanCarbone.intensiteCarbone_tCO2parM_XOF}
                     </span>
-                    <span className="text-[10px] text-slate-500 block">tCO2 / M XOF CA</span>
+                    <span className="text-[10px] text-slate-500 block">tCO2 / M {deviseClient(rapport.pays)} CA</span>
                   </div>
                 </div>
               </div>
@@ -416,7 +471,7 @@ export default function ESGReportingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-2">
                   <h4 className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">
-                    KPIs Sociaux UEMOA
+                    Indicateurs sociaux déclarés
                   </h4>
                   <div className="flex justify-between text-xs py-1 border-b border-slate-800/60">
                     <span className="text-slate-400">Contrats formels</span>
@@ -427,7 +482,7 @@ export default function ESGReportingPage() {
                     <span className="font-semibold text-white">{rapport.indicateursSociaux.tauxPariteHF_pct}%</span>
                   </div>
                   <div className="flex justify-between text-xs py-1 border-b border-slate-800/60">
-                    <span className="text-slate-400">Couverture IPRES/CNPS</span>
+                    <span className="text-slate-400">Affiliation sociale déclarée</span>
                     <span className="font-semibold text-white">{rapport.indicateursSociaux.tauxCouvertureSante_pct}%</span>
                   </div>
                   <div className="flex justify-between text-xs py-1">
@@ -443,21 +498,21 @@ export default function ESGReportingPage() {
                     Gouvernance & Conformité
                   </h4>
                   <div className="flex justify-between text-xs py-1 border-b border-slate-800/60">
-                    <span className="text-slate-400">Conformité GIABA LCB-FT</span>
+                    <span className="text-slate-400">LCB-FT déclaré en place</span>
                     <span className={rapport.indicateursGouvernance.lcbftConforme ? "text-emerald-400 font-semibold" : "text-rose-400 font-semibold"}>
-                      {rapport.indicateursGouvernance.lcbftConforme ? "Conforme" : "Non-conforme"}
+                      {rapport.indicateursGouvernance.lcbftConforme ? "Déclaré en place" : "Non déclaré"}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs py-1 border-b border-slate-800/60">
                     <span className="text-slate-400">Bénéficiaires Effectifs</span>
                     <span className={rapport.indicateursGouvernance.registreBeneficiairesEffectifs ? "text-emerald-400 font-semibold" : "text-rose-400 font-semibold"}>
-                      {rapport.indicateursGouvernance.registreBeneficiairesEffectifs ? "Déclarés" : "Manquant"}
+                      {rapport.indicateursGouvernance.registreBeneficiairesEffectifs ? "Déclaré tenu" : "Non déclaré"}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs py-1 border-b border-slate-800/60">
-                    <span className="text-slate-400">Comité d'Audit</span>
+                    <span className="text-slate-400">Comité d&apos;audit</span>
                     <span className={rapport.indicateursGouvernance.comiteAudit ? "text-emerald-400 font-semibold" : "text-amber-400 font-semibold"}>
-                      {rapport.indicateursGouvernance.comiteAudit ? "Opérationnel" : "Non constitué"}
+                      {rapport.indicateursGouvernance.comiteAudit ? "Déclaré actif" : "Non déclaré actif"}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs py-1">
@@ -467,10 +522,14 @@ export default function ESGReportingPage() {
                 </div>
               </div>
 
+              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300">
+                Masse salariale annuelle déclarée : <strong>{new Intl.NumberFormat("fr-FR").format(rapport.indicateursSociaux.masseSalariale_XOF)} {deviseClient(rapport.pays)}</strong>
+              </div>
+
               {/* Recommandations Stratégiques */}
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-3">
                 <h3 className="font-semibold text-slate-200 text-sm flex items-center gap-2">
-                  <span>Recommandations d'Amélioration & Feuille de Route</span>
+                  <span>Recommandations d&apos;amélioration &amp; feuille de route</span>
                   <span className="text-xs text-slate-500 font-normal">({rapport.referentielIFRS})</span>
                 </h3>
                 {rapport.recommandations.length === 0 ? (
@@ -488,6 +547,7 @@ export default function ESGReportingPage() {
                   </ul>
                 )}
               </div>
+              <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200">Cette estimation utilise des coefficients génériques et des informations saisies par le cabinet. Elle n’est ni une mesure vérifiée, ni une attestation de conformité IFRS S1/S2. Les facteurs d’émission, périmètres et exigences doivent être vérifiés pour le pays, le secteur et l’exercice concernés.</p>
             </>
           )}
         </div>
