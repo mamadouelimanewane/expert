@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { verifierReglePourDeclaration } from "@/lib/regulatory-rule-policy";
+import { regleActiveDansLeMois, regleEnVigueurDansLeMois, verifierReglePourDeclaration } from "@/lib/regulatory-rule-policy";
 
 const rule = {
   country: "SN", declarationType: "TVA", periodicity: "MENSUELLE", dueDay: 15,
@@ -30,5 +30,26 @@ describe("liaison des règles validées aux déclarations", () => {
     const retired = { ...rule, status: "RETIRED", retiredAt: new Date("2026-03-01T00:00:00.000Z") };
     expect(verifierReglePourDeclaration(retired, { country: "SN", type: "TVA", period: "2026-02", dueDate: new Date("2026-02-15T00:00:00.000Z") })).toBeNull();
     expect(verifierReglePourDeclaration(retired, { country: "SN", type: "TVA", period: "2026-03", dueDate: new Date("2026-03-15T00:00:00.000Z") })).toMatch(/retirée/);
+  });
+});
+
+describe("période d'application des règles du calendrier", () => {
+  it("garde une règle trimestrielle prioritaire dans son mois sans échéance et libère le catalogue après expiration", () => {
+    const quarterly = { ...rule, periodicity: "TRIMESTRIELLE", dueMonth: 2 };
+    expect(regleEnVigueurDansLeMois(quarterly, 2026, 4)).toBe(true);
+    expect(regleActiveDansLeMois(quarterly, 2026, 4)).toBe(false);
+    expect(regleEnVigueurDansLeMois({ ...quarterly, effectiveUntil: new Date("2026-03-31T23:59:59.999Z") }, 2026, 4)).toBe(false);
+  });
+
+  it("ne laisse pas une règle retirée masquer le catalogue à partir du mois suivant son retrait", () => {
+    const retired = { ...rule, status: "RETIRED", effectiveUntil: new Date("2026-04-14T23:59:59.999Z"), retiredAt: new Date("2026-04-15T00:00:00.000Z") };
+    expect(regleEnVigueurDansLeMois(retired, 2026, 4)).toBe(true);
+    expect(regleEnVigueurDansLeMois(retired, 2026, 5)).toBe(false);
+  });
+
+  it("ne produit pas d'échéance avant la date de début d'effet, même si le texte entre en vigueur dans le mois", () => {
+    const lateEffective = { ...rule, effectiveFrom: new Date("2026-02-16T00:00:00.000Z") };
+    expect(regleEnVigueurDansLeMois(lateEffective, 2026, 2)).toBe(true);
+    expect(regleActiveDansLeMois(lateEffective, 2026, 2)).toBe(false);
   });
 });

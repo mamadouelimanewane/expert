@@ -10,6 +10,7 @@ import {
 import { echeanceTVA } from "@/lib/ohada/tax-deadlines";
 import { echeancesFiscalesAnnuelles } from "@/lib/ohada/annual-tax-calendar";
 import { clientConcerneObligation } from "@/lib/obligation-eligibility";
+import { regleActiveDansLeMois, regleEnVigueurDansLeMois } from "@/lib/regulatory-rule-policy";
 
 // Calendrier des obligations fiscales du cabinet.
 //
@@ -21,15 +22,6 @@ const STATUTS_RESTANTS = ["DRAFT", "PENDING", "REJECTED"] as const;
 
 function periodeDe(annee: number, mois: number): string {
     return `${annee}-${String(mois + 1).padStart(2, "0")}`;
-}
-
-function regleActiveDansLeMois(rule: { status: string; periodicity: string; dueMonth: number | null; dueDay: number; effectiveFrom: Date; effectiveUntil: Date | null; retiredAt: Date | null }, annee: number, moisUnBase: number) {
-    const dateEcheance = new Date(Date.UTC(annee, moisUnBase - 1, Math.min(rule.dueDay, new Date(Date.UTC(annee, moisUnBase, 0)).getUTCDate())));
-    const periodicityMatches = rule.periodicity === "MENSUELLE"
-        || (rule.periodicity === "TRIMESTRIELLE" && rule.dueMonth === ((moisUnBase - 1) % 3) + 1)
-        || (rule.periodicity === "ANNUELLE" && rule.dueMonth === moisUnBase);
-    const notRetiredOnDate = rule.status !== "RETIRED" || !rule.retiredAt || dateEcheance < rule.retiredAt;
-    return periodicityMatches && rule.effectiveFrom <= dateEcheance && (!rule.effectiveUntil || rule.effectiveUntil >= dateEcheance) && notRetiredOnDate;
 }
 
 export async function GET(request: Request) {
@@ -96,7 +88,9 @@ export async function GET(request: Request) {
         ]);
 
         const reglesActives = reglesReglementaires.filter((rule) => rule.status === "VERIFIED" || rule.status === "RETIRED");
-        const codesPersonnalises = new Set(reglesActives.map((rule) => `${rule.country}:${rule.obligationCode}`));
+        const codesAvecRegleEnVigueur = new Set(reglesActives
+            .filter((rule) => regleEnVigueurDansLeMois(rule, annee, mois + 1))
+            .map((rule) => `${rule.country}:${rule.obligationCode}`));
         const reglesApplicables = reglesActives.filter((rule) => regleActiveDansLeMois(rule, annee, mois + 1));
         const cataloguePersonnalise: ObligationFiscale[] = reglesApplicables.map((rule) => ({
             id: rule.obligationCode, titre: rule.title, description: rule.description,
@@ -107,7 +101,7 @@ export async function GET(request: Request) {
         const catalogue = [
             ...OBLIGATIONS_FISCALES.map((rule) => ({
                 ...rule,
-                pays: rule.pays.filter((country) => (!paysFiltre || country === paysFiltre) && !codesPersonnalises.has(`${country}:${rule.id}`)),
+                pays: rule.pays.filter((country) => (!paysFiltre || country === paysFiltre) && !codesAvecRegleEnVigueur.has(`${country}:${rule.id}`)),
             })).filter((rule) => rule.pays.length > 0),
             ...cataloguePersonnalise,
         ];

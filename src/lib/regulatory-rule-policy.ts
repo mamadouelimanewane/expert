@@ -10,6 +10,35 @@ export type RegleReglementaireApplicable = {
   retiredAt?: Date | null;
 };
 
+export type RegleCalendrier = Pick<RegleReglementaireApplicable,
+  "status" | "periodicity" | "dueMonth" | "dueDay" | "effectiveFrom" | "effectiveUntil" | "retiredAt"
+>;
+
+/** Vrai si le texte reste en vigueur pendant le mois demandé, même si son échéance n'est pas mensuelle. */
+export function regleEnVigueurDansLeMois(rule: RegleCalendrier, annee: number, mois: number): boolean {
+  if (!Number.isInteger(annee) || !Number.isInteger(mois) || mois < 1 || mois > 12) return false;
+  const debutMois = new Date(Date.UTC(annee, mois - 1, 1));
+  const finMois = new Date(Date.UTC(annee, mois, 1));
+  if (rule.effectiveFrom >= finMois || (rule.effectiveUntil && rule.effectiveUntil < debutMois)) return false;
+  if (rule.status === "RETIRED" && rule.retiredAt && rule.retiredAt <= debutMois) return false;
+  return rule.status === "VERIFIED" || rule.status === "RETIRED";
+}
+
+/** Vrai si la règle en vigueur produit effectivement une échéance dans le mois. */
+export function regleActiveDansLeMois(rule: RegleCalendrier, annee: number, mois: number): boolean {
+  if (!regleEnVigueurDansLeMois(rule, annee, mois)) return false;
+  const periodicityMatches = rule.periodicity === "MENSUELLE"
+    || (rule.periodicity === "TRIMESTRIELLE" && rule.dueMonth === ((mois - 1) % 3) + 1)
+    || (rule.periodicity === "ANNUELLE" && rule.dueMonth === mois);
+  if (!periodicityMatches) return false;
+
+  const dernierJour = new Date(Date.UTC(annee, mois, 0)).getUTCDate();
+  const dateEcheance = new Date(Date.UTC(annee, mois - 1, Math.min(rule.dueDay, dernierJour)));
+  return rule.effectiveFrom <= dateEcheance
+    && (!rule.effectiveUntil || rule.effectiveUntil >= dateEcheance)
+    && (rule.status !== "RETIRED" || !rule.retiredAt || dateEcheance < rule.retiredAt);
+}
+
 /** Vérifie la période, la date prévue et le type avant de figer une règle sur une déclaration. */
 export function verifierReglePourDeclaration(
   rule: RegleReglementaireApplicable,

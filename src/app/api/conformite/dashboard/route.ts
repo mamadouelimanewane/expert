@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/api-auth";
 import { echeancePour, OBLIGATIONS_FISCALES, type ObligationFiscale } from "@/lib/ohada/obligations-fiscales";
 import { calculerStatutSuiviObligation } from "@/lib/compliance-obligation-tracker";
 import { clientConcerneObligation } from "@/lib/obligation-eligibility";
+import { regleActiveDansLeMois, regleEnVigueurDansLeMois } from "@/lib/regulatory-rule-policy";
 
 type ProfilClient = {
   id: string;
@@ -39,15 +40,6 @@ function declarationCorrespond(obligation: ObligationFiscale, declaration: Decla
   // type ne peut correspondre qu'à une seule obligation du catalogue pays.
   const correspondances = catalogue.filter((item) => item.typesDeclaration.includes(declaration.type as never));
   return correspondances.length === 1 && correspondances[0].id === obligation.id && obligation.typesDeclaration.includes(declaration.type as never);
-}
-
-function regleActiveDansLeMois(rule: { status: string; periodicity: string; dueMonth: number | null; dueDay: number; effectiveFrom: Date; effectiveUntil: Date | null; retiredAt: Date | null }, annee: number, mois: number) {
-  const dateEcheance = new Date(Date.UTC(annee, mois - 1, Math.min(rule.dueDay, new Date(Date.UTC(annee, mois, 0)).getUTCDate())));
-  const periodicityMatches = rule.periodicity === "MENSUELLE"
-    || (rule.periodicity === "TRIMESTRIELLE" && rule.dueMonth === ((mois - 1) % 3) + 1)
-    || (rule.periodicity === "ANNUELLE" && rule.dueMonth === mois);
-  const notRetiredOnDate = rule.status !== "RETIRED" || !rule.retiredAt || dateEcheance < rule.retiredAt;
-  return periodicityMatches && rule.effectiveFrom <= dateEcheance && (!rule.effectiveUntil || rule.effectiveUntil >= dateEcheance) && notRetiredOnDate;
 }
 
 export async function GET(req: NextRequest) {
@@ -94,7 +86,9 @@ export async function GET(req: NextRequest) {
     const clients = clientsBruts as ProfilClient[];
     const declarations = declarationsBrutes as DeclarationSuivie[];
     const rulesReglees = reglesBrutes.filter((rule) => rule.status === "VERIFIED" || rule.status === "RETIRED");
-    const codesPersonnalises = new Set(reglesBrutes.map((rule) => rule.obligationCode));
+    const codesReglesEnVigueur = new Set(reglesReglees
+      .filter((rule) => regleEnVigueurDansLeMois(rule, annee, mois))
+      .map((rule) => rule.obligationCode));
     const reglesApplicables = rulesReglees.filter((rule) => regleActiveDansLeMois(rule, annee, mois));
     const cataloguePersonnalise: ObligationFiscale[] = reglesApplicables.map((rule) => ({
       id: rule.obligationCode,
@@ -108,7 +102,7 @@ export async function GET(req: NextRequest) {
       reference: `${rule.sourceTitle}${rule.sourceArticle ? ` · ${rule.sourceArticle}` : ""}`,
     }));
     const catalogue: ObligationFiscale[] = [
-      ...OBLIGATIONS_FISCALES.filter((item) => item.pays.includes(pays) && !codesPersonnalises.has(item.id)),
+      ...OBLIGATIONS_FISCALES.filter((item) => item.pays.includes(pays) && !codesReglesEnVigueur.has(item.id)),
       ...cataloguePersonnalise,
     ];
     const regleParCode = new Map(reglesApplicables.map((rule) => [rule.obligationCode, rule]));
