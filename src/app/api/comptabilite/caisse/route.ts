@@ -5,7 +5,6 @@ import { isObjectId } from "@/lib/tenant-security";
 import {
     analyserBrouillardCaisse,
     etablirProcesVerbalCaisse,
-    calculerTotalBilletage,
     type LigneCaisse,
     type BilletageCaisse,
 } from "@/lib/ohada/caisse-rapprochement";
@@ -22,53 +21,47 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
-    const soldeInitial = Number(searchParams.get("soldeInitial")) || 500_000;
+    const soldeInitial = Number(searchParams.get("soldeInitial") || 0);
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    if (!Number.isFinite(soldeInitial) || soldeInitial < 0) {
+        return NextResponse.json({ error: "soldeInitial doit être un nombre positif ou nul." }, { status: 400 });
+    }
 
-    // Récupérer les flux de caisse (tpeJournal avec compte de trésorerie 571 ou informel)
+    // Récupérer les seules écritures dont un compte de trésorerie SYSCOHADA
+    // (classe 57) est réellement renseigné.
     const dbJournals = await prisma.tpeJournal.findMany({
         where: {
             clientId,
-            compteTresorerie: { startsWith: "57" },
+            OR: [{ debitCompte: { startsWith: "57" } }, { creditCompte: { startsWith: "57" } }],
         },
         orderBy: { date: "asc" },
         take: 100,
     });
 
-    let lignes: LigneCaisse[] = [];
-
-    if (dbJournals.length > 0) {
-        lignes = dbJournals.map((j) => ({
+    const lignes: LigneCaisse[] = dbJournals.flatMap((j) => {
+        const date = new Date(j.date);
+        if (Number.isNaN(date.getTime())) return [];
+        return [{
             id: j.id,
-            date: j.date.toISOString().slice(0, 10),
-            pieceJustificative: j.pieceRef || "PC",
+            date: date.toISOString().slice(0, 10),
+            pieceJustificative: `TPE-${j.id.slice(-6)}`,
             libelle: j.libelle,
-            entree: j.sens === "RECETTE" ? j.montant : 0,
-            sortie: j.sens === "DEPENSE" ? j.montant : 0,
-            valide: true,
-        }));
-    } else {
-        // Jeu de démonstration
-        const auj = new Date();
-        const d = (jours: number) =>
-            new Date(auj.getTime() - jours * 86400000).toISOString().slice(0, 10);
-
-        lignes = [
-            { id: "c1", date: d(10), pieceJustificative: "PC-01", libelle: "Alimentation caisse par retrait banque", entree: 1_000_000, sortie: 0, valide: true },
-            { id: "c2", date: d(8), pieceJustificative: "PC-02", libelle: "Achat fournitures de bureau et ramettes", entree: 0, sortie: 85_000, valide: true },
-            { id: "c3", date: d(6), pieceJustificative: "PC-03", libelle: "Paiement coursier & transports urbains", entree: 0, sortie: 25_000, valide: true },
-            { id: "c4", date: d(4), pieceJustificative: "PC-04", libelle: "Encaissement vente comptoir magasin", entree: 450_000, sortie: 0, valide: true },
-            { id: "c5", date: d(2), pieceJustificative: "PC-05", libelle: "Acompte sur salaire employé", entree: 0, sortie: 150_000, valide: true },
-            { id: "c6", date: d(1), pieceJustificative: "PC-06", libelle: "Frais carburant véhicule livraison", entree: 0, sortie: 40_000, valide: true },
-        ];
-    }
+            entree: j.entree,
+            sortie: j.sortie,
+            valide: j.status === "APPROVED" || j.status === "EXPORTED",
+        }];
+    });
 
     const synthese = analyserBrouillardCaisse(soldeInitial, lignes);
 
-    return NextResponse.json(synthese);
+    return NextResponse.json({
+        ...synthese,
+        sourceDonnees: "JOURNAL_TPE",
+        avertissement: lignes.length === 0 ? "Aucune écriture de trésorerie réelle n’est disponible pour ce client." : null,
+    });
 }
 
 export async function POST(request: NextRequest) {
@@ -90,12 +83,24 @@ export async function POST(request: NextRequest) {
     } catch {
         return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
     }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
+    }
 
     const { clientId, dateArrete, caissierNom, controleurNom, soldeTheoriqueComptable, billetage } = body;
+    const parsedDateArrete = typeof dateArrete === "string" ? new Date(`${dateArrete}T00:00:00.000Z`) : null;
+    const dateArreteValide = Boolean(parsedDateArrete && !Number.isNaN(parsedDateArrete.getTime()) && parsedDateArrete.toISOString().slice(0, 10) === dateArrete);
+    const clesBilletage: (keyof BilletageCaisse)[] = ["billets10000", "billets5000", "billets2000", "billets1000", "billets500", "pieces500", "pieces250", "pieces200", "pieces100", "pieces50", "pieces25", "pieces10", "pieces5"];
 
-    if (!clientId || !dateArrete || !caissierNom || !controleurNom || !billetage) {
+    if (!isObjectId(clientId) || !dateArreteValide
+        || typeof caissierNom !== "string" || !caissierNom.trim() || typeof controleurNom !== "string" || !controleurNom.trim()
+        || !Number.isFinite(soldeTheoriqueComptable) || soldeTheoriqueComptable < 0
+        || !billetage || typeof billetage !== "object" || Array.isArray(billetage)
+        || clesBilletage.some((key) => !Number.isInteger(billetage[key]) || billetage[key] < 0)) {
         return NextResponse.json({ error: "Champs requis manquants pour le PV de caisse." }, { status: 400 });
     }
+    const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const pv = etablirProcesVerbalCaisse({
         dateArrete,
@@ -108,15 +113,15 @@ export async function POST(request: NextRequest) {
 
     await AuditService.log({
         action: "PROCES_VERBAL_CAISSE",
-        entityType: "Client",
+        entity: "CLIENT",
         entityId: clientId,
-        details: {
+        details: JSON.stringify({
             dateArrete,
             soldeTheorique: soldeTheoriqueComptable,
             soldePhysique: pv.soldePhysiqueConstate,
             ecartCaisse: pv.ecartCaisse,
             estConforme: pv.estConforme,
-        },
+        }),
     });
 
     return NextResponse.json({ succes: true, pv });

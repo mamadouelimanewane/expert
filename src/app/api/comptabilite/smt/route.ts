@@ -19,72 +19,72 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
     const exercice = parseInt(searchParams.get("exercice") || String(new Date().getFullYear()), 10);
-    const categorie = (searchParams.get("categorie") || "COMMERCE_NEGOCE") as CategorieActiviteSMT;
+    const categorieBrute = searchParams.get("categorie") || "COMMERCE_NEGOCE";
+    const categoriesValides: CategorieActiviteSMT[] = ["COMMERCE_NEGOCE", "ARTISANAT", "SERVICES"];
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    if (!Number.isInteger(exercice) || exercice < 2000 || exercice > 2100) {
+        return NextResponse.json({ error: "exercice invalide." }, { status: 400 });
+    }
+    if (!categoriesValides.includes(categorieBrute as CategorieActiviteSMT)) {
+        return NextResponse.json({ error: "categorie SMT invalide." }, { status: 400 });
+    }
+    const categorie = categorieBrute as CategorieActiviteSMT;
 
     // Récupérer les journaux TPE réels du client si existants
     const tpeJournals = await prisma.tpeJournal.findMany({
-        where: { clientId },
+        where: { clientId, status: { in: ["APPROVED", "EXPORTED"] } },
         orderBy: { date: "asc" },
         take: 500,
     });
 
-    let flux: FluxTresorerieSMT[] = [];
-
-    if (tpeJournals.length > 0) {
-        flux = tpeJournals.map((j) => {
-            const montant = j.montant;
-            const sens = j.sens;
-            let cat: FluxTresorerieSMT["categorie"] = "AUTRES_DEPENSES";
-
-            if (sens === "RECETTE") {
-                cat = "RECETTE_VENTES";
-            } else {
-                const libLower = (j.libelle || "").toLowerCase();
-                if (libLower.includes("achat") || libLower.includes("marchandise")) cat = "ACHAT_MARCHANDISES";
-                else if (libLower.includes("loyer")) cat = "CHARGES_LOYER";
-                else if (libLower.includes("salaire") || libLower.includes("paie")) cat = "CHARGES_SALAIRES";
-                else if (libLower.includes("impot") || libLower.includes("taxe")) cat = "CHARGES_IMPOTS_TAXES";
-            }
-
-            return {
-                id: j.id,
-                date: j.date.toISOString().slice(0, 10),
-                libelle: j.libelle,
-                categorie: cat,
-                montant,
-                modeReglement: (j.compteTresorerie?.includes("571") ? "ESPECES" : "BANQUE") as any,
-            };
-        });
-    } else {
-        // Flux types d'une TPE ou PME de négoce sous le régime SMT
-        flux = [
-            { id: "s1", date: `${exercice}-01-15`, libelle: "Recettes magasin janvier", categorie: "RECETTE_VENTES", montant: 3_800_000, modeReglement: "ESPECES" },
-            { id: "s2", date: `${exercice}-01-20`, libelle: "Achats grossiste", categorie: "ACHAT_MARCHANDISES", montant: 2_400_000, modeReglement: "BANQUE" },
-            { id: "s3", date: `${exercice}-02-15`, libelle: "Recettes magasin février", categorie: "RECETTE_VENTES", montant: 4_200_000, modeReglement: "ESPECES" },
-            { id: "s4", date: `${exercice}-02-28`, libelle: "Loyer commercial 2 mois", categorie: "CHARGES_LOYER", montant: 600_000, modeReglement: "MOBILE_MONEY" },
-            { id: "s5", date: `${exercice}-03-10`, libelle: "Salaires aides-vendeurs", categorie: "CHARGES_SALAIRES", montant: 950_000, modeReglement: "ESPECES" },
-            { id: "s6", date: `${exercice}-03-30`, libelle: "Acompte impôt synthétique", categorie: "CHARGES_IMPOTS_TAXES", montant: 250_000, modeReglement: "BANQUE" },
-            { id: "s7", date: `${exercice}-04-05`, libelle: "Achat présentoir et balance", categorie: "INVESTISSEMENT", montant: 850_000, modeReglement: "ESPECES" },
-            { id: "s8", date: `${exercice}-04-15`, libelle: "Recettes magasin mars/avril", categorie: "RECETTE_VENTES", montant: 5_100_000, modeReglement: "MOBILE_MONEY" },
-        ];
-    }
+    const flux: FluxTresorerieSMT[] = tpeJournals.flatMap((j) => {
+        const date = new Date(j.date);
+        if (Number.isNaN(date.getTime()) || date.getUTCFullYear() !== exercice) return [];
+        const estRecette = j.entree > 0;
+        const libelle = j.libelle.toLowerCase();
+        let categorie: FluxTresorerieSMT["categorie"] = estRecette ? "RECETTE_VENTES" : "AUTRES_DEPENSES";
+        if (!estRecette) {
+            if (j.debitCompte.startsWith("60") || libelle.includes("achat") || libelle.includes("marchandise")) categorie = "ACHAT_MARCHANDISES";
+            else if (libelle.includes("loyer")) categorie = "CHARGES_LOYER";
+            else if (j.debitCompte.startsWith("64") || libelle.includes("salaire") || libelle.includes("paie")) categorie = "CHARGES_SALAIRES";
+            else if (j.debitCompte.startsWith("63") || libelle.includes("impot") || libelle.includes("taxe")) categorie = "CHARGES_IMPOTS_TAXES";
+            else if (j.debitCompte.startsWith("2")) categorie = "INVESTISSEMENT";
+        }
+        const modeReglement: FluxTresorerieSMT["modeReglement"] = j.source === "MOBILE_MONEY"
+            ? "MOBILE_MONEY"
+            : j.debitCompte.startsWith("57") || j.creditCompte.startsWith("57") ? "ESPECES" : "BANQUE";
+        return [{
+            id: j.id,
+            date: date.toISOString().slice(0, 10),
+            libelle: j.libelle,
+            categorie,
+            montant: estRecette ? j.entree : j.sortie,
+            modeReglement,
+        }];
+    });
 
     const etatsSMT = genererEtatsSMT({
         exercice,
         categorie,
         flux,
         inventaire: {
-            stocksFinaux: 1_800_000,
-            creancesClientsFin: 450_000,
-            dettesFournisseursFin: 720_000,
-            dettesFiscalesSocialesFin: 150_000,
-            tresorerieInitiale: 1_200_000,
+            stocksFinaux: 0,
+            creancesClientsFin: 0,
+            dettesFournisseursFin: 0,
+            dettesFiscalesSocialesFin: 0,
+            tresorerieInitiale: 0,
         },
     });
 
-    return NextResponse.json(etatsSMT);
+    return NextResponse.json({
+        ...etatsSMT,
+        sourceDonnees: "JOURNAL_TPE_APPROUVE",
+        avertissements: [
+            ...(flux.length === 0 ? ["Aucune écriture TPE approuvée ou exportée n’est disponible pour cet exercice."] : []),
+            "Le stock final, les créances, les dettes et la trésorerie initiale ne sont pas encore alimentés par un inventaire réel ; ils sont calculés à zéro.",
+        ],
+    });
 }

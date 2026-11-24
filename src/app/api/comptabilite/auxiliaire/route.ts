@@ -21,94 +21,47 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
-    const typeTiers = (searchParams.get("typeTiers") || "CLIENT") as "CLIENT" | "FOURNISSEUR";
+    const typeTiersBrut = searchParams.get("typeTiers") || "CLIENT";
+    if (typeTiersBrut !== "CLIENT" && typeTiersBrut !== "FOURNISSEUR") {
+        return NextResponse.json({ error: "typeTiers doit valoir CLIENT ou FOURNISSEUR." }, { status: 400 });
+    }
+    const typeTiers = typeTiersBrut;
     const dateArrete = searchParams.get("dateArrete") || new Date().toISOString().slice(0, 10);
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
 
-    // Récupérer les factures réelles du client
-    const invoices = await prisma.invoice.findMany({
-        where: {
-            clientId,
-            type: typeTiers === "CLIENT" ? "SALE" : "PURCHASE",
-        },
-        orderBy: { date: "desc" },
-        take: 100,
-    });
+    // Le modèle Invoice stocke des factures de vente ; il ne porte pas de type
+    // achat/vente ni de factures fournisseurs. Ne jamais mélanger les deux
+    // cycles ou afficher un jeu de démonstration comme s'il était réel.
+    const invoices = typeTiers === "CLIENT"
+        ? await prisma.invoice.findMany({
+            where: { clientId },
+            orderBy: { issueDate: "desc" },
+            take: 100,
+            include: { client: { select: { companyName: true, firstName: true, lastName: true } } },
+        })
+        : [];
 
-    let ecritures: EcritureTiers[] = [];
-
-    if (invoices.length > 0) {
-        ecritures = invoices.map((inv) => ({
+    const nomTiers = (client: { companyName: string | null; firstName: string | null; lastName: string | null }) =>
+        client.companyName || [client.firstName, client.lastName].filter(Boolean).join(" ") || "Client";
+    const ecritures: EcritureTiers[] = invoices.map((inv) => {
+        const tiers = nomTiers(inv.client);
+        return {
             id: inv.id,
-            date: inv.date.toISOString().slice(0, 10),
-            echeance: inv.dueDate ? inv.dueDate.toISOString().slice(0, 10) : undefined,
-            numeroPiece: inv.number,
-            libelle: `Facture ${inv.number}`,
-            compteGeneral: typeTiers === "CLIENT" ? "4111" : "4011",
-            compteAuxiliaire: inv.clientName ? inv.clientName.slice(0, 8).toUpperCase() : "TIERS-01",
-            nomTiers: inv.clientName || "Tiers Partenaire",
-            sens: typeTiers === "CLIENT" ? "DEBIT" : "CREDIT",
-            montant: inv.amount,
-            montantLettre: inv.status === "PAID" ? inv.amount : 0,
-        }));
-    } else {
-        // Jeu de démonstration représentatif pour PME
-        const aujourdhui = new Date();
-        const d1 = new Date(aujourdhui.getTime() - 10 * 86400000).toISOString().slice(0, 10);
-        const d2 = new Date(aujourdhui.getTime() - 45 * 86400000).toISOString().slice(0, 10);
-        const d3 = new Date(aujourdhui.getTime() - 80 * 86400000).toISOString().slice(0, 10);
-        const d4 = new Date(aujourdhui.getTime() - 120 * 86400000).toISOString().slice(0, 10);
-
-        ecritures = [
-            {
-                id: "demo-1",
-                date: d1,
-                numeroPiece: "FAC-2026-081",
-                libelle: "Vente quincaillerie & outillage",
-                compteGeneral: "4111",
-                compteAuxiliaire: "CLI-TOTAL",
-                nomTiers: "TotalEnergies Station",
-                sens: "DEBIT",
-                montant: 3_250_000,
-            },
-            {
-                id: "demo-2",
-                date: d2,
-                numeroPiece: "FAC-2026-054",
-                libelle: "Fournitures de bureau et consommables",
-                compteGeneral: "4111",
-                compteAuxiliaire: "CLI-BTP",
-                nomTiers: "Consortium BTP Sahel",
-                sens: "DEBIT",
-                montant: 1_850_000,
-            },
-            {
-                id: "demo-3",
-                date: d3,
-                numeroPiece: "FAC-2026-032",
-                libelle: "Prestation de maintenance climatisation",
-                compteGeneral: "4111",
-                compteAuxiliaire: "CLI-HOTEL",
-                nomTiers: "Hôtel Résidence Almadies",
-                sens: "DEBIT",
-                montant: 2_400_000,
-            },
-            {
-                id: "demo-4",
-                date: d4,
-                numeroPiece: "FAC-2025-119",
-                libelle: "Livraison matériaux gros œuvre",
-                compteGeneral: "4111",
-                compteAuxiliaire: "CLI-IMMO",
-                nomTiers: "Dakar Promoteurs Immobiliers",
-                sens: "DEBIT",
-                montant: 4_720_000,
-            },
-        ];
-    }
+            date: inv.issueDate.toISOString().slice(0, 10),
+            echeance: inv.dueDate.toISOString().slice(0, 10),
+            numeroPiece: inv.invoiceNumber,
+            libelle: `Facture ${inv.invoiceNumber}`,
+            compteGeneral: "4111",
+            compteAuxiliaire: tiers.slice(0, 8).toUpperCase(),
+            nomTiers: tiers,
+            sens: "DEBIT",
+            montant: inv.total,
+            montantLettre: inv.status === "PAID" ? inv.total : 0,
+        };
+    });
 
     const balanceAgee = calculerBalanceAgee(ecritures, dateArrete, typeTiers);
     const reclassements416 = detecterReclassements416(balanceAgee);
@@ -136,25 +89,40 @@ export async function POST(request: NextRequest) {
     } catch {
         return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
     }
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
+    }
 
     const { factures, reglements, codeLettrage, clientId } = body;
 
-    if (!factures || !reglements || !codeLettrage || !clientId) {
+    if (!Array.isArray(factures) || !Array.isArray(reglements) || typeof codeLettrage !== "string" || !codeLettrage.trim() || !isObjectId(clientId)) {
         return NextResponse.json({ error: "Paramètres de lettrage manquants." }, { status: 400 });
+    }
+    const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+
+    const lignesValides = (rows: EcritureTiers[]) => rows.every((row) =>
+        row && typeof row.id === "string" && typeof row.date === "string" && typeof row.numeroPiece === "string"
+        && typeof row.compteAuxiliaire === "string" && (row.sens === "DEBIT" || row.sens === "CREDIT")
+        && Number.isFinite(row.montant) && row.montant >= 0
+        && (row.montantLettre === undefined || (Number.isFinite(row.montantLettre) && row.montantLettre >= 0 && row.montantLettre <= row.montant))
+    );
+    if (!lignesValides(factures) || !lignesValides(reglements)) {
+        return NextResponse.json({ error: "Une écriture comporte des données ou montants invalides." }, { status: 400 });
     }
 
     const resultatLettrage = lettrerEcritures(factures, reglements, codeLettrage);
 
     await AuditService.log({
         action: "LETTRAGE_AUXILIAIRE",
-        entityType: "Client",
+        entity: "CLIENT",
         entityId: clientId,
-        details: {
+        details: JSON.stringify({
             codeLettrage,
             facturesComptees: factures.length,
             reglementsComptees: reglements.length,
             soldeNonLettre: resultatLettrage.soldeNonLettre,
-        },
+        }),
     });
 
     return NextResponse.json({
