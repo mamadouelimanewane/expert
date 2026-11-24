@@ -3,61 +3,82 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  validerCoherenceLiasseSYSCOHADA,
+  type BilanChiffres,
+  type CompteResultatChiffres,
   type InputValidationLiasse,
   type RapportValidationLiasse,
 } from "@/lib/ohada/validateur-coherence-liasse";
 
-const LIASSE_DEFAUT: InputValidationLiasse = {
-  societeRaisonSociale: "SOCIÉTÉ COMMERCIALE D'IMPORTATION SA",
-  exercice: 2024,
+type ChampsNumeriquesVides<T> = { [K in keyof T]: T[K] extends number ? number | "" : T[K] };
+type BrouillonLiasse = Omit<InputValidationLiasse, "exercice" | "bilan" | "compteResultat"> & {
+  exercice: number | "";
+  bilan: ChampsNumeriquesVides<BilanChiffres>;
+  compteResultat: ChampsNumeriquesVides<CompteResultatChiffres>;
+};
+
+const LIASSE_VIERGE: BrouillonLiasse = {
+  societeRaisonSociale: "",
+  exercice: new Date().getFullYear() - 1,
   bilan: {
-    totalActifBrut_XOF: 500_000_000,
-    totalAmortissementsProvisions_XOF: 100_000_000,
-    totalActifNet_XOF: 400_000_000,
-    totalPassif_XOF: 400_000_000,
-    capitalSocial_XOF: 100_000_000,
-    capitauxPropres_XOF: 160_000_000,
-    resultatNetBilan_XOF: 45_000_000,
-    tresorerieActif_XOF: 35_000_000,
-    tresoreriePassif_XOF: 5_000_000,
-    fournisseursDebiteursNonReclasses_XOF: 0,
-    clientsCrediteursNonReclasses_XOF: 0,
+    totalActifBrut_XOF: "",
+    totalAmortissementsProvisions_XOF: "",
+    totalActifNet_XOF: "",
+    totalPassif_XOF: "",
+    capitalSocial_XOF: "",
+    capitauxPropres_XOF: "",
+    resultatNetBilan_XOF: "",
+    tresorerieActif_XOF: "",
+    tresoreriePassif_XOF: "",
+    fournisseursDebiteursNonReclasses_XOF: "",
+    clientsCrediteursNonReclasses_XOF: "",
   },
   compteResultat: {
-    chiffreAffaires_XOF: 850_000_000,
-    totalProduits_XOF: 870_000_000,
-    totalCharges_XOF: 825_000_000,
-    dotationsAmortissementsExercice_XOF: 25_000_000,
-    resultatNetCompteResultat_XOF: 45_000_000,
-    impotSurResultat_XOF: 15_000_000,
+    chiffreAffaires_XOF: "",
+    totalProduits_XOF: "",
+    totalCharges_XOF: "",
+    dotationsAmortissementsExercice_XOF: "",
+    resultatNetCompteResultat_XOF: "",
+    impotSurResultat_XOF: "",
   },
 };
 
+function convertirMontants<T extends object>(valeurs: T): { [K in keyof T]: number } {
+  return Object.fromEntries(Object.entries(valeurs).map(([cle, valeur]) => [cle, Number(valeur)])) as { [K in keyof T]: number };
+}
+
 export default function ValidateurCoherenceLiassePage() {
-  const [liasse, setLiasse] = useState<InputValidationLiasse>(LIASSE_DEFAUT);
-  const [rapport, setRapport] = useState<RapportValidationLiasse | null>(() => {
-    return validerCoherenceLiasseSYSCOHADA(LIASSE_DEFAUT);
-  });
+  const [liasse, setLiasse] = useState<BrouillonLiasse>(LIASSE_VIERGE);
+  const [rapport, setRapport] = useState<RapportValidationLiasse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleValider = async (e: React.FormEvent) => {
     e.preventDefault();
+    const valeurs = [liasse.exercice, ...Object.values(liasse.bilan), ...Object.values(liasse.compteResultat)];
+    if (!liasse.societeRaisonSociale.trim() || valeurs.some((value) => typeof value !== "number" || !Number.isFinite(value))
+      || typeof liasse.exercice !== "number" || !Number.isInteger(liasse.exercice) || liasse.exercice < 1900) {
+      setError("Renseignez la raison sociale, un exercice valide et tous les postes de la liasse à partir des états approuvés.");
+      return;
+    }
+    const liasseComplete: InputValidationLiasse = {
+      societeRaisonSociale: liasse.societeRaisonSociale.trim(),
+      exercice: liasse.exercice,
+      bilan: convertirMontants(liasse.bilan),
+      compteResultat: convertirMontants(liasse.compteResultat),
+    };
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/liasse/validateur-coherence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ liasse }),
+        body: JSON.stringify({ liasse: liasseComplete }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setRapport(data);
-      } else {
-        setRapport(validerCoherenceLiasseSYSCOHADA(liasse));
-      }
-    } catch {
-      setRapport(validerCoherenceLiasseSYSCOHADA(liasse));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "La validation de la liasse a échoué.");
+      setRapport(data);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "La validation de la liasse a échoué.");
     } finally {
       setLoading(false);
     }
@@ -74,7 +95,7 @@ export default function ValidateurCoherenceLiassePage() {
             <span>CaseWare Working Papers Standard</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Validateur de Cohérence & Détecteur d'Incohérences
+            Validateur de Cohérence & Détecteur d&apos;Incohérences
           </h1>
           <p className="text-sm text-slate-400 mt-1">
             Contrôles croisés arithmétiques et fiscaux automatisés avant télétransmission DGID et certification CAC
@@ -120,7 +141,7 @@ export default function ValidateurCoherenceLiassePage() {
                 <input
                   type="number"
                   value={liasse.exercice}
-                  onChange={(e) => setLiasse({ ...liasse, exercice: Number(e.target.value) })}
+                  onChange={(e) => setLiasse({ ...liasse, exercice: e.target.value === "" ? "" : Number(e.target.value) })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono"
                 />
               </div>
@@ -137,10 +158,14 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.totalActifNet_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, totalActifNet_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, totalActifNet_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Actif Brut</label>
+                <input type="number" required value={liasse.bilan.totalActifBrut_XOF} onChange={(e) => setLiasse({ ...liasse, bilan: { ...liasse.bilan, totalActifBrut_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
               </div>
               <div>
                 <label className="text-slate-400 block mb-1">Total Passif</label>
@@ -149,7 +174,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.totalPassif_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, totalPassif_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, totalPassif_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -161,7 +186,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.capitalSocial_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, capitalSocial_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, capitalSocial_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -173,7 +198,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.capitauxPropres_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, capitauxPropres_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, capitauxPropres_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -185,7 +210,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.resultatNetBilan_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, resultatNetBilan_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, resultatNetBilan_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -197,10 +222,26 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.bilan.totalAmortissementsProvisions_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    bilan: { ...liasse.bilan, totalAmortissementsProvisions_XOF: Number(e.target.value) }
+                    bilan: { ...liasse.bilan, totalAmortissementsProvisions_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Trésorerie actif</label>
+                <input type="number" required value={liasse.bilan.tresorerieActif_XOF} onChange={(e) => setLiasse({ ...liasse, bilan: { ...liasse.bilan, tresorerieActif_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Trésorerie passif</label>
+                <input type="number" required value={liasse.bilan.tresoreriePassif_XOF} onChange={(e) => setLiasse({ ...liasse, bilan: { ...liasse.bilan, tresoreriePassif_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Fournisseurs débiteurs non reclassés</label>
+                <input type="number" required value={liasse.bilan.fournisseursDebiteursNonReclasses_XOF} onChange={(e) => setLiasse({ ...liasse, bilan: { ...liasse.bilan, fournisseursDebiteursNonReclasses_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Clients créditeurs non reclassés</label>
+                <input type="number" required value={liasse.bilan.clientsCrediteursNonReclasses_XOF} onChange={(e) => setLiasse({ ...liasse, bilan: { ...liasse.bilan, clientsCrediteursNonReclasses_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
               </div>
             </div>
 
@@ -209,16 +250,24 @@ export default function ValidateurCoherenceLiassePage() {
             </h3>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <label className="text-slate-400 block mb-1">Chiffre d'Affaires</label>
+                <label className="text-slate-400 block mb-1">Chiffre d&apos;Affaires</label>
                 <input
                   type="number"
                   value={liasse.compteResultat.chiffreAffaires_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    compteResultat: { ...liasse.compteResultat, chiffreAffaires_XOF: Number(e.target.value) }
+                    compteResultat: { ...liasse.compteResultat, chiffreAffaires_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Total Produits</label>
+                <input type="number" required value={liasse.compteResultat.totalProduits_XOF} onChange={(e) => setLiasse({ ...liasse, compteResultat: { ...liasse.compteResultat, totalProduits_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Total Charges</label>
+                <input type="number" required value={liasse.compteResultat.totalCharges_XOF} onChange={(e) => setLiasse({ ...liasse, compteResultat: { ...liasse.compteResultat, totalCharges_XOF: e.target.value === "" ? "" : Number(e.target.value) } })} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono" />
               </div>
               <div>
                 <label className="text-slate-400 block mb-1">Résultat Net CR</label>
@@ -227,7 +276,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.compteResultat.resultatNetCompteResultat_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    compteResultat: { ...liasse.compteResultat, resultatNetCompteResultat_XOF: Number(e.target.value) }
+                    compteResultat: { ...liasse.compteResultat, resultatNetCompteResultat_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -239,7 +288,7 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.compteResultat.dotationsAmortissementsExercice_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    compteResultat: { ...liasse.compteResultat, dotationsAmortissementsExercice_XOF: Number(e.target.value) }
+                    compteResultat: { ...liasse.compteResultat, dotationsAmortissementsExercice_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
@@ -251,13 +300,14 @@ export default function ValidateurCoherenceLiassePage() {
                   value={liasse.compteResultat.impotSurResultat_XOF}
                   onChange={(e) => setLiasse({
                     ...liasse,
-                    compteResultat: { ...liasse.compteResultat, impotSurResultat_XOF: Number(e.target.value) }
+                    compteResultat: { ...liasse.compteResultat, impotSurResultat_XOF: e.target.value === "" ? "" : Number(e.target.value) }
                   })}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 font-mono"
                 />
               </div>
             </div>
 
+            {error && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">{error}</p>}
             <button
               type="submit"
               disabled={loading}
@@ -365,6 +415,7 @@ export default function ValidateurCoherenceLiassePage() {
               </div>
             </>
           )}
+          {!rapport && <div className="rounded-xl border border-dashed border-slate-700 p-8 text-center text-sm text-slate-400">Renseignez les états financiers approuvés pour lancer les contrôles de cohérence.</div>}
         </div>
       </div>
     </div>

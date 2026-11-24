@@ -10,14 +10,31 @@ export async function POST(req: Request) {
   if (denied) return denied;
 
   try {
-    const body = (await req.json()) as { liasse?: InputValidationLiasse };
-    if (!body || !body.liasse) {
+    const body: unknown = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
       return NextResponse.json(
         { error: "Données de la liasse requises" },
         { status: 400 }
       );
     }
-    const rapport = validerCoherenceLiasseSYSCOHADA(body.liasse);
+    const liasse = (body as Record<string, unknown>).liasse;
+    if (!liasse || typeof liasse !== "object" || Array.isArray(liasse)) {
+      return NextResponse.json({ error: "Données de la liasse requises." }, { status: 400 });
+    }
+    const input = liasse as Partial<InputValidationLiasse>;
+    const bilan = input.bilan;
+    const compteResultat = input.compteResultat;
+    const valeurs = [
+      ...(bilan ? Object.values(bilan) : []),
+      ...(compteResultat ? Object.values(compteResultat) : []),
+    ];
+    if (typeof input.societeRaisonSociale !== "string" || !input.societeRaisonSociale.trim()
+      || typeof input.exercice !== "number" || !Number.isInteger(input.exercice) || input.exercice < 1900
+      || !bilan || !compteResultat || valeurs.length !== 17
+      || valeurs.some((value) => typeof value !== "number" || !Number.isFinite(value))) {
+      return NextResponse.json({ error: "La raison sociale, l’exercice et les 17 montants numériques de la liasse sont obligatoires." }, { status: 400 });
+    }
+    const rapport = validerCoherenceLiasseSYSCOHADA(input as InputValidationLiasse);
     return NextResponse.json(rapport);
   } catch (error) {
     return NextResponse.json(
