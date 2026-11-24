@@ -8,7 +8,7 @@ import {
 import { AuditService } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
-  const { session, denied } = await requireStaff();
+  const { denied } = await requireStaff();
   if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
@@ -23,54 +23,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Exemple démo
-  const demoParams: RequeteIPParams = {
-    juridiction: "Tribunal de Commerce Hors Classe de Dakar",
-    ville: "Dakar",
-    creancier: {
-      denominationOuNom: "Cabinet 360 Conseils SARL",
-      formeJuridique: "SARL",
-      rccmOuNinea: "SN-DKR-2022-B-1234",
-      adresse: "Almadies Zone 4",
-      ville: "Dakar",
-      pays: "Sénégal",
-      representantLegal: "Monsieur le Gérant",
-    },
-    debiteur: {
-      denominationOuNom: "Société Commerciale Ouest-Africaine SA",
-      formeJuridique: "SA",
-      rccmOuNinea: "SN-DKR-2020-B-5678",
-      adresse: "Boulevard de la République",
-      ville: "Dakar",
-      pays: "Sénégal",
-    },
-    creancePrincipale: 12_500_000,
-    tauxInteretLegalAnnuel: 5.5,
-    dateExigibilite: "2026-01-15",
-    dateRequete: new Date().toISOString().split("T")[0],
-    fraisPoursuiteEstimes: 200_000,
-    natureCreance: "Factures de révision comptable et d'audit contractuel impayées",
-    miseEnDemeureDate: "2026-03-01",
-    miseEnDemeureHuissier: "Maître Babacar Diop, Huissier de Justice",
-    piecesJustificatives: [
-      {
-        numero: 1,
-        description: "Contrat de mission signé",
-        referencePiece: "CM-2025-04",
-        datePiece: "2025-01-10",
-      },
-      {
-        numero: 2,
-        description: "Facture impayée N° 2025-F-102",
-        referencePiece: "FAC-102",
-        datePiece: "2025-12-15",
-        montantPiece: 12_500_000,
-      },
-    ],
-  };
-
-  const resultat = genererRequeteInjonctionPayer(demoParams);
-  return NextResponse.json({ ok: true, params: demoParams, resultat });
+  return NextResponse.json({ ok: false, error: "Aucune requête ne peut être générée sans les données et pièces justificatives du dossier réel." }, { status: 409 });
 }
 
 export async function POST(req: NextRequest) {
@@ -79,6 +32,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const params = (await req.json()) as RequeteIPParams;
+    const textes = [params.juridiction, params.ville, params.creancier?.denominationOuNom, params.creancier?.formeJuridique, params.creancier?.rccmOuNinea, params.creancier?.adresse, params.creancier?.ville, params.creancier?.pays, params.creancier?.representantLegal, params.debiteur?.denominationOuNom, params.debiteur?.formeJuridique, params.debiteur?.rccmOuNinea, params.debiteur?.adresse, params.debiteur?.ville, params.debiteur?.pays, params.dateExigibilite, params.dateRequete, params.natureCreance];
+    if (textes.some((value) => typeof value !== "string" || !value.trim())
+      || !Number.isFinite(params.creancePrincipale) || params.creancePrincipale <= 0
+      || !Number.isFinite(params.tauxInteretLegalAnnuel) || params.tauxInteretLegalAnnuel < 0 || params.tauxInteretLegalAnnuel > 100
+      || !Number.isFinite(params.fraisPoursuiteEstimes) || params.fraisPoursuiteEstimes < 0
+      || !Array.isArray(params.piecesJustificatives) || params.piecesJustificatives.length === 0
+      || params.piecesJustificatives.some((piece) => !piece.description.trim() || !piece.referencePiece.trim() || !piece.datePiece)) {
+      return NextResponse.json({ ok: false, error: "Renseignez des informations complètes et des pièces justificatives réelles." }, { status: 400 });
+    }
     const resultat = genererRequeteInjonctionPayer(params);
 
     await AuditService.log(session.id, "GENERER_REQUETE_INJONCTION_PAYER", "recouvrement", {

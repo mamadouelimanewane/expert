@@ -4,72 +4,53 @@ import { useState, useCallback } from "react";
 import {
     Scale,
     FileText,
-    Calculator,
-    Calendar,
     Clock,
     PlusCircle,
     Trash2,
     Copy,
-    CheckCircle2,
     Loader2,
-    ShieldCheck,
-    AlertCircle
+    ShieldCheck
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { RequeteIPParams, RequeteIPResult, PieceJustificativeIP, DelaisProcedurauxIP } from "@/lib/ohada/recouvrement-aupsrve";
 
 const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function RecouvrementAUPSRVEPage() {
-    const [juridiction, setJuridiction] = useState("Tribunal de Commerce Hors Classe de Dakar");
-    const [ville, setVille] = useState("Dakar");
+    const [juridiction, setJuridiction] = useState("");
+    const [ville, setVille] = useState("");
 
     // Créancier
-    const [creancierNom, setCreancierNom] = useState("Cabinet 360 Conseils SARL");
-    const [creancierForme, setCreancierForme] = useState("SARL");
-    const [creancierRccm, setCreancierRccm] = useState("SN-DKR-2022-B-1234");
-    const [creancierAdresse, setCreancierAdresse] = useState("Almadies Zone 4");
-    const [creancierVille, setCreancierVille] = useState("Dakar");
-    const [creancierPays, setCreancierPays] = useState("Sénégal");
-    const [creancierRep, setCreancierRep] = useState("Monsieur le Gérant");
+    const [creancierNom, setCreancierNom] = useState("");
+    const [creancierForme, setCreancierForme] = useState("");
+    const [creancierRccm, setCreancierRccm] = useState("");
+    const [creancierAdresse, setCreancierAdresse] = useState("");
+    const [creancierVille, setCreancierVille] = useState("");
+    const [creancierPays, setCreancierPays] = useState("");
+    const [creancierRep, setCreancierRep] = useState("");
 
     // Débiteur
-    const [debiteurNom, setDebiteurNom] = useState("Société Commerciale Ouest-Africaine SA");
-    const [debiteurForme, setDebiteurForme] = useState("SA");
-    const [debiteurRccm, setDebiteurRccm] = useState("SN-DKR-2020-B-5678");
-    const [debiteurAdresse, setDebiteurAdresse] = useState("Boulevard de la République");
-    const [debiteurVille, setDebiteurVille] = useState("Dakar");
-    const [debiteurPays, setDebiteurPays] = useState("Sénégal");
+    const [debiteurNom, setDebiteurNom] = useState("");
+    const [debiteurForme, setDebiteurForme] = useState("");
+    const [debiteurRccm, setDebiteurRccm] = useState("");
+    const [debiteurAdresse, setDebiteurAdresse] = useState("");
+    const [debiteurVille, setDebiteurVille] = useState("");
+    const [debiteurPays, setDebiteurPays] = useState("");
 
     // Créance
-    const [creancePrincipale, setCreancePrincipale] = useState(12_500_000);
-    const [tauxInteretLegal, setTauxInteretLegal] = useState(5.5);
-    const [dateExigibilite, setDateExigibilite] = useState("2026-01-15");
-    const [dateRequete, setDateRequete] = useState(new Date().toISOString().split("T")[0]);
-    const [fraisPoursuite, setFraisPoursuite] = useState(200_000);
-    const [natureCreance, setNatureCreance] = useState("Factures de révision comptable et assistance fiscale impayées");
-    const [miseEnDemeureDate, setMiseEnDemeureDate] = useState("2026-03-01");
-    const [miseEnDemeureHuissier, setMiseEnDemeureHuissier] = useState("Maître Babacar Diop, Huissier de Justice");
+    const [creancePrincipale, setCreancePrincipale] = useState("");
+    const [tauxInteretLegal, setTauxInteretLegal] = useState("");
+    const [dateExigibilite, setDateExigibilite] = useState("");
+    const [dateRequete, setDateRequete] = useState("");
+    const [fraisPoursuite, setFraisPoursuite] = useState("");
+    const [natureCreance, setNatureCreance] = useState("");
+    const [miseEnDemeureDate, setMiseEnDemeureDate] = useState("");
+    const [miseEnDemeureHuissier, setMiseEnDemeureHuissier] = useState("");
 
     // Pièces justificatives
-    const [pieces, setPieces] = useState<PieceJustificativeIP[]>([
-        {
-            numero: 1,
-            description: "Contrat de mission signé",
-            referencePiece: "CM-2025-04",
-            datePiece: "2025-01-10",
-        },
-        {
-            numero: 2,
-            description: "Facture impayée N° 2025-F-102",
-            referencePiece: "FAC-102",
-            datePiece: "2025-12-15",
-            montantPiece: 12_500_000,
-        },
-    ]);
+    const [pieces, setPieces] = useState<PieceJustificativeIP[]>([]);
 
     // Délais significations calculés
-    const [dateSignifTest, setDateSignifTest] = useState(new Date().toISOString().split("T")[0]);
+    const [dateSignifTest, setDateSignifTest] = useState("");
     const [delaisCalcul, setDelaisCalcul] = useState<DelaisProcedurauxIP | null>(null);
 
     const [loading, setLoading] = useState(false);
@@ -84,7 +65,7 @@ export default function RecouvrementAUPSRVEPage() {
                 numero: prev.length + 1,
                 description: "",
                 referencePiece: "",
-                datePiece: new Date().toISOString().split("T")[0],
+                datePiece: "",
             }
         ]);
     };
@@ -98,6 +79,13 @@ export default function RecouvrementAUPSRVEPage() {
     };
 
     const genererRequete = useCallback(async () => {
+        const textes = [juridiction, ville, creancierNom, creancierForme, creancierRccm, creancierAdresse, creancierVille, creancierPays, creancierRep, debiteurNom, debiteurForme, debiteurRccm, debiteurAdresse, debiteurVille, debiteurPays, dateExigibilite, dateRequete, natureCreance];
+        if (textes.some((value) => !value.trim()) || pieces.length === 0
+            || [creancePrincipale, tauxInteretLegal, fraisPoursuite].some((value) => value.trim() === "" || !Number.isFinite(Number(value)))
+            || pieces.some((piece) => !piece.description.trim() || !piece.referencePiece.trim() || !piece.datePiece)) {
+            setError("Renseignez les parties, la créance, les dates et au moins une pièce justificative réelle avant la génération.");
+            return;
+        }
         setLoading(true);
         setError("");
         setResultat(null);
@@ -122,11 +110,11 @@ export default function RecouvrementAUPSRVEPage() {
                 ville: debiteurVille,
                 pays: debiteurPays,
             },
-            creancePrincipale,
-            tauxInteretLegalAnnuel: tauxInteretLegal,
+            creancePrincipale: Number(creancePrincipale),
+            tauxInteretLegalAnnuel: Number(tauxInteretLegal),
             dateExigibilite,
             dateRequete,
-            fraisPoursuiteEstimes: fraisPoursuite,
+            fraisPoursuiteEstimes: Number(fraisPoursuite),
             natureCreance,
             miseEnDemeureDate: miseEnDemeureDate || undefined,
             miseEnDemeureHuissier: miseEnDemeureHuissier || undefined,
@@ -150,6 +138,10 @@ export default function RecouvrementAUPSRVEPage() {
     }, [juridiction, ville, creancierNom, creancierForme, creancierRccm, creancierAdresse, creancierVille, creancierPays, creancierRep, debiteurNom, debiteurForme, debiteurRccm, debiteurAdresse, debiteurVille, debiteurPays, creancePrincipale, tauxInteretLegal, dateExigibilite, dateRequete, fraisPoursuite, natureCreance, miseEnDemeureDate, miseEnDemeureHuissier, pieces]);
 
     const calculerDelais = async () => {
+        if (!dateSignifTest) {
+            setError("Renseignez la date réelle de signification.");
+            return;
+        }
         try {
             const res = await fetch(`/api/legal/recouvrement?dateSignification=${dateSignifTest}`);
             const data = await res.json();
@@ -172,7 +164,7 @@ export default function RecouvrementAUPSRVEPage() {
                     Recouvrement & Injonction de Payer (AUPSRVE)
                 </h1>
                 <p className="page-subtitle text-xs text-muted-foreground mt-1">
-                    Procédure simplifiée de recouvrement de créances certaines, liquides et exigibles conformément à l&apos;Acte Uniforme OHADA révisé.
+                    Assistant de préparation fondé sur les données et justificatifs que vous fournissez. La compétence juridictionnelle, les conditions légales et les délais doivent être vérifiés pour le dossier et le pays concernés.
                 </p>
             </div>
 
@@ -294,6 +286,9 @@ export default function RecouvrementAUPSRVEPage() {
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
+                            <div><label className="block text-muted-foreground mb-1 font-medium">Ville</label><input value={creancierVille} onChange={(e) => setCreancierVille(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" /></div>
+                            <div><label className="block text-muted-foreground mb-1 font-medium">Pays</label><input value={creancierPays} onChange={(e) => setCreancierPays(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" /></div>
+                            <div className="col-span-2"><label className="block text-muted-foreground mb-1 font-medium">Représentant légal</label><input value={creancierRep} onChange={(e) => setCreancierRep(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" /></div>
                         </div>
                     </div>
                 </div>
@@ -342,6 +337,8 @@ export default function RecouvrementAUPSRVEPage() {
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
+                            <div><label className="block text-muted-foreground mb-1 font-medium">Ville</label><input value={debiteurVille} onChange={(e) => setDebiteurVille(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" /></div>
+                            <div><label className="block text-muted-foreground mb-1 font-medium">Pays</label><input value={debiteurPays} onChange={(e) => setDebiteurPays(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" /></div>
                         </div>
                     </div>
 
@@ -356,7 +353,7 @@ export default function RecouvrementAUPSRVEPage() {
                                 <input
                                     type="number"
                                     value={creancePrincipale}
-                                    onChange={(e) => setCreancePrincipale(Number(e.target.value))}
+                                    onChange={(e) => setCreancePrincipale(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -366,7 +363,7 @@ export default function RecouvrementAUPSRVEPage() {
                                     type="number"
                                     step="0.1"
                                     value={tauxInteretLegal}
-                                    onChange={(e) => setTauxInteretLegal(Number(e.target.value))}
+                                    onChange={(e) => setTauxInteretLegal(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -384,10 +381,15 @@ export default function RecouvrementAUPSRVEPage() {
                                 <input
                                     type="number"
                                     value={fraisPoursuite}
-                                    onChange={(e) => setFraisPoursuite(Number(e.target.value))}
+                                    onChange={(e) => setFraisPoursuite(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <label className="text-muted-foreground">Nature de la créance<input value={natureCreance} onChange={(e) => setNatureCreance(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5" /></label>
+                            <label className="text-muted-foreground">Date de mise en demeure (si applicable)<input type="date" value={miseEnDemeureDate} onChange={(e) => setMiseEnDemeureDate(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5" /></label>
+                            <label className="text-muted-foreground">Commissaire de justice (si applicable)<input value={miseEnDemeureHuissier} onChange={(e) => setMiseEnDemeureHuissier(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5" /></label>
                         </div>
                     </div>
                 </div>
