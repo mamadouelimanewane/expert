@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { AuditService } from "@/lib/audit";
 import { requireWriteAccess } from "@/lib/api-auth";
 import { getMissionTaskTemplate } from "@/lib/mission-task-templates";
+import { isObjectId } from "@/lib/tenant-security";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,11 +13,12 @@ export async function POST(request: Request, { params }: Params) {
 
   try {
     const { id: missionId } = await params;
+    if (!isObjectId(missionId)) return NextResponse.json({ error: "Identifiant de mission invalide." }, { status: 400 });
     const body = await request.json().catch(() => ({}));
     if (body.action !== "APPLY_TEMPLATE") {
       return NextResponse.json({ error: "Action non reconnue." }, { status: 400 });
     }
-    const mission = await prisma.mission.findUnique({ where: { id: missionId }, select: { id: true, type: true, status: true } });
+    const mission = await prisma.mission.findFirst({ where: { id: missionId, cabinetId: session.cabinetId }, select: { id: true, type: true, status: true } });
     if (!mission) return NextResponse.json({ error: "Mission introuvable." }, { status: 404 });
     if (mission.status === "COMPLETED" || mission.status === "CANCELLED") {
       return NextResponse.json({ error: "Rouvrez la mission avant de modifier sa liste de tâches." }, { status: 409 });
@@ -29,7 +31,7 @@ export async function POST(request: Request, { params }: Params) {
 
     const template = getMissionTaskTemplate(mission.type);
     const created = await prisma.task.createMany({
-      data: template.map((task) => ({ ...task, missionId, status: "DRAFT" })),
+      data: template.map((task) => ({ ...task, missionId, cabinetId: session.cabinetId, status: "DRAFT" })),
     });
     await AuditService.log({
       action: "CREATE",

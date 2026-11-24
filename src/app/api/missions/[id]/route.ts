@@ -5,6 +5,7 @@ import { AuditService } from "@/lib/audit";
 import { analyserEnum, estIntrouvable, requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { analyserMontantOptionnel, normaliserDateISO } from "@/lib/validation";
 import { canManageReviewResolution } from "@/lib/audit-review-policy";
+import { isObjectId } from "@/lib/tenant-security";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -19,12 +20,13 @@ const TRANSITIONS: Record<MissionStatus, MissionStatus[]> = {
 };
 
 export async function GET(request: Request, { params }: Params) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
     try {
         const { id } = await params;
-        const mission = await prisma.mission.findUnique({
-            where: { id },
+        if (!isObjectId(id)) return NextResponse.json({ error: "Identifiant de mission invalide." }, { status: 400 });
+        const mission = await prisma.mission.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             include: {
                 client: { select: { id: true, companyName: true, firstName: true, lastName: true, country: true, email: true, phone: true } },
                 assignedTo: { select: { id: true, firstName: true, lastName: true } },
@@ -59,8 +61,9 @@ export async function PATCH(request: Request, { params }: Params) {
     if (denied) return denied;
     try {
         const { id } = await params;
+        if (!isObjectId(id)) return NextResponse.json({ error: "Identifiant de mission invalide." }, { status: 400 });
         const body = await request.json().catch(() => ({}));
-        const actuelle = await prisma.mission.findUnique({ where: { id }, select: { status: true, title: true, type: true } });
+        const actuelle = await prisma.mission.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { status: true, title: true, type: true } });
         if (!actuelle) {
             return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
         }
@@ -143,7 +146,7 @@ export async function PATCH(request: Request, { params }: Params) {
         if (body.assignedToId !== undefined) {
             if (body.assignedToId === null) data.assignedToId = null;
             else {
-                const user = await prisma.user.findUnique({ where: { id: String(body.assignedToId) }, select: { id: true } });
+                const user = await prisma.user.findFirst({ where: { id: String(body.assignedToId), cabinetId: session.cabinetId }, select: { id: true } });
                 if (!user) return NextResponse.json({ error: "Collaborateur introuvable." }, { status: 404 });
                 data.assignedToId = user.id;
             }
@@ -152,11 +155,16 @@ export async function PATCH(request: Request, { params }: Params) {
             return NextResponse.json({ error: "Aucun champ à modifier." }, { status: 400 });
         }
 
-        const mission = await prisma.mission.update({
-            where: { id },
+        const result = await prisma.mission.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data,
+        });
+        if (!result.count) return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
+        const mission = await prisma.mission.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             include: { client: { select: { id: true, companyName: true } }, assignedTo: { select: { id: true, firstName: true, lastName: true } } },
         });
+        if (!mission) return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
         await AuditService.log({
             action: "UPDATE",
             entity: "MISSION",
@@ -177,15 +185,21 @@ export async function PATCH(request: Request, { params }: Params) {
 
 /** Annulation (pas de suppression : les temps saisis et factures restent rattachés). */
 export async function DELETE(request: Request, { params }: Params) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
     try {
         const { id } = await params;
-        const mission = await prisma.mission.update({
-            where: { id },
+        if (!isObjectId(id)) return NextResponse.json({ error: "Identifiant de mission invalide." }, { status: 400 });
+        const result = await prisma.mission.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { status: "CANCELLED" },
+        });
+        if (!result.count) return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
+        const mission = await prisma.mission.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             select: { id: true, title: true, status: true },
         });
+        if (!mission) return NextResponse.json({ error: "Mission introuvable" }, { status: 404 });
         await AuditService.log({ action: "DELETE", entity: "MISSION", entityId: id, details: `Mission annulée : ${mission.title}` });
         return NextResponse.json({ mission });
     } catch (error) {
