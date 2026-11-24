@@ -80,12 +80,12 @@ export const texteOptionnel = (max = 500) =>
 
 /** Montant monétaire en FCFA : positif, fini. */
 export const montant = z
-    .number({ invalid_type_error: "Montant numérique attendu" })
+    .number({ error: "Montant numérique attendu" })
     .finite("Montant invalide")
     .nonnegative("Le montant ne peut pas être négatif");
 
 /** Date acceptée en chaîne ISO ou en objet Date. */
-export const dateISO = z.coerce.date({ invalid_type_error: "Date invalide" });
+export const dateISO = z.coerce.date({ error: "Date invalide" });
 
 /** Code pays OHADA sur deux lettres (CI, SN, CM…). */
 export const codePays = z

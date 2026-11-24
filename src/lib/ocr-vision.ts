@@ -18,8 +18,8 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-// Le helper zodOutputFormat du SDK attend l'API Zod v4 ; zod 3.25 l'expose sous « zod/v4 ».
-import { z } from "zod/v4";
+// Le helper zodOutputFormat du SDK Anthropic attend l'API Zod v4.
+import { z } from "zod";
 import sharp from "sharp";
 
 export const MODELE_VISION = "claude-opus-5";
