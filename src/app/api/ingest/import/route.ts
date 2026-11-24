@@ -4,6 +4,7 @@ import { requireWriteAccess } from "@/lib/api-auth";
 import { AccountingEngine } from "@/lib/accounting-engine";
 import { analyserMontant, normaliserDateISO, normaliserPeriode } from "@/lib/validation";
 import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
+import { isObjectId } from "@/lib/tenant-security";
 
 // Import d'écritures depuis un export externe (Wave, CSV générique...).
 //
@@ -36,7 +37,7 @@ const SENS_DEPENSE = new Set([
 ]);
 
 export async function POST(request: Request) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
             transactions?: TransactionImport[];
         };
 
-        if (!clientId) {
+        if (!isObjectId(clientId)) {
             return NextResponse.json({ error: "clientId requis" }, { status: 400 });
         }
         if (!Array.isArray(transactions) || transactions.length === 0) {
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "500 transactions au maximum par import" }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({ where: { id: clientId } });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId } });
         if (!client) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
         let aQualifier = 0;
         const lignesJournal: {
             periode: string;
+            cabinetId: string | null;
             businessName: string;
             date: string;
             libelle: string;
@@ -157,6 +159,7 @@ export async function POST(request: Request) {
             couples.forEach((couple, index) => {
                 lignesJournal.push({
                     periode: periodeRetenue,
+                    cabinetId: session.cabinetId,
                     businessName,
                     date: dateISO,
                     libelle: couples.length > 1 ? `${libelle} (${index + 1}/${couples.length})` : libelle,

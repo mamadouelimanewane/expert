@@ -5,24 +5,29 @@ import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { AuditService } from "@/lib/audit";
 import { isTpeJournalTransitionAllowed } from "@/lib/accounting-journal";
 import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
+import { isObjectId } from "@/lib/tenant-security";
 export async function GET(req: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
   try {
     const { searchParams } = new URL(req.url);
     const clientId = searchParams.get("clientId");
+    if (clientId && !isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+    if (clientId && !await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } })) {
+      return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+    }
 
     const where = clientId
-      ? { clientId, source: { not: "WHATSAPP_TEST" } }
-      : { source: { not: "WHATSAPP_TEST" } };
+      ? { clientId, cabinetId: session.cabinetId, source: { not: "WHATSAPP_TEST" } }
+      : { cabinetId: session.cabinetId, source: { not: "WHATSAPP_TEST" } };
     const journals = await prisma.tpeJournal.findMany({
       where,
       orderBy: { createdAt: "desc" },
       take: 100,
     });
     return NextResponse.json({ journals });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -53,7 +58,7 @@ export async function PATCH(req: Request) {
     }
     const rejectionReason = typeof reason === "string" ? reason.trim() : undefined;
 
-    const current = await prisma.tpeJournal.findUnique({ where: { id } });
+    const current = await prisma.tpeJournal.findFirst({ where: { id, cabinetId: session.cabinetId } });
     if (!current) return NextResponse.json({ error: "Écriture introuvable." }, { status: 404 });
     if (current.status !== "PENDING") {
       return NextResponse.json({ error: "Cette écriture a déjà été examinée; son statut ne peut pas être remplacé." }, { status: 409 });
@@ -62,7 +67,7 @@ export async function PATCH(req: Request) {
     if (!periodState.open) return NextResponse.json({ error: "Cette période est verrouillée : la revue du brouillon est interdite." }, { status: 409 });
 
     const updatedCount = await prisma.tpeJournal.updateMany({
-      where: { id, status: "PENDING" },
+      where: { id, cabinetId: session.cabinetId, status: "PENDING" },
       data: status === "APPROVED"
         ? { status, approvedAt: new Date(), approvedById: session.id, exportedAt: null }
         : { status, rejectedAt: new Date(), rejectedById: session.id, rejectionReason: rejectionReason!, exportedAt: null },
@@ -70,7 +75,7 @@ export async function PATCH(req: Request) {
     if (updatedCount.count !== 1) {
       return NextResponse.json({ error: "L'écriture a été modifiée par un autre utilisateur; rechargez la revue." }, { status: 409 });
     }
-    const updated = await prisma.tpeJournal.findUnique({ where: { id } });
+    const updated = await prisma.tpeJournal.findFirst({ where: { id, cabinetId: session.cabinetId } });
     await AuditService.log({
       action: status === "APPROVED" ? "APPROVE" : "REJECT",
       entity: "TPE_JOURNAL",
@@ -80,7 +85,7 @@ export async function PATCH(req: Request) {
       newValue: { status, reviewerId: session.id },
     });
     return NextResponse.json({ success: true, entry: updated });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
