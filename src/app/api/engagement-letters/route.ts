@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
+import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
 import { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
         const clientId = searchParams.get("clientId");
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = { cabinetId: session.cabinetId };
         if (status) where.status = status;
         if (clientId) {
             if (!/^[0-9a-fA-F]{24}$/.test(clientId)) return NextResponse.json({ error: "clientId invalide" }, { status: 400 });
+            if (!await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } })) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
             where.clientId = clientId;
         }
 
@@ -55,12 +55,13 @@ export async function GET(request: NextRequest) {
  * que par une erreur 500 renvoyée à l'utilisateur.
  */
 async function creerLettreAvecReference(
-    data: Omit<Prisma.EngagementLetterUncheckedCreateInput, "reference">
+    data: Omit<Prisma.EngagementLetterUncheckedCreateInput, "reference">,
+    cabinetId: string
 ) {
     const year = new Date().getFullYear();
 
     const derniere = await prisma.engagementLetter.findFirst({
-        where: { reference: { startsWith: `LM-${year}-` } },
+        where: { cabinetId, reference: { startsWith: `LM-${year}-` } },
         orderBy: { reference: "desc" },
         select: { reference: true },
     });
@@ -89,10 +90,8 @@ async function creerLettreAvecReference(
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { scope, fees, clientId, missionId, signatoryName } = body;
@@ -105,8 +104,13 @@ export async function POST(request: NextRequest) {
         if (!honoraires.ok) {
             return NextResponse.json({ error: honoraires.raison }, { status: 400 });
         }
+        if (typeof clientId !== "string" || !isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+        if (missionId && !await prisma.mission.findFirst({ where: { id: missionId, cabinetId: session.cabinetId, clientId }, select: { id: true } })) return NextResponse.json({ error: "Mission introuvable dans ce dossier." }, { status: 404 });
 
         const letter = await creerLettreAvecReference({
+            cabinetId: session.cabinetId,
             scope,
             fees: honoraires.valeur,
             clientId,
@@ -114,7 +118,7 @@ export async function POST(request: NextRequest) {
             signatoryName: signatoryName || null,
             status: "BROUILLON",
             createdById: session.id,
-        });
+        }, session.cabinetId!);
 
         await AuditService.log({
             action: "CREATE",
@@ -132,10 +136,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { id, status, signedAt, signatoryName, signatureHash } = body;
@@ -143,21 +145,25 @@ export async function PATCH(request: NextRequest) {
         if (!id) {
             return NextResponse.json({ error: "id requis" }, { status: 400 });
         }
+        if (typeof id !== "string" || !isObjectId(id)) return NextResponse.json({ error: "id invalide." }, { status: 400 });
 
-        const letter = await prisma.engagementLetter.update({
-            where: { id },
+        const avant = await prisma.engagementLetter.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!avant) return NextResponse.json({ error: "Lettre de mission introuvable." }, { status: 404 });
+        await prisma.engagementLetter.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: {
                 ...(status && { status }),
                 ...(status === "SIGNEE" ? { signedAt: signedAt ? new Date(signedAt) : new Date() } : {}),
                 ...(typeof signatureHash === "string" && /^[a-f0-9]{64}$/i.test(signatureHash) ? { signatureHash } : {}),
                 ...(signatoryName !== undefined && { signatoryName }),
             },
-            include: {
-                client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
-                mission: { select: { id: true, title: true } },
-                createdBy: { select: { id: true, firstName: true, lastName: true } },
-            },
         });
+        const letter = await prisma.engagementLetter.findFirst({ where: { id, cabinetId: session.cabinetId }, include: {
+            client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
+            mission: { select: { id: true, title: true } },
+            createdBy: { select: { id: true, firstName: true, lastName: true } },
+        } });
+        if (!letter) return NextResponse.json({ error: "Lettre de mission introuvable." }, { status: 404 });
 
         await AuditService.log({
             action: "UPDATE",

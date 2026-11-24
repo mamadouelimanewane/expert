@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { AuthService } from '@/lib/auth';
+import { requireStaff, requireWriteAccess } from '@/lib/api-auth';
+import { isObjectId } from '@/lib/tenant-security';
 import { AuditService } from '@/lib/audit';
 import { analyserMontantOptionnel } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
@@ -18,9 +17,12 @@ export async function GET(request: NextRequest) {
         // necessaire pour n'ouvrir que les dossiers d'audit legal.
         const type = searchParams.get('type');
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = { cabinetId: session.cabinetId };
         if (status) where.status = status;
-        if (clientId) where.clientId = clientId;
+        if (clientId) {
+            if (!isObjectId(clientId)) return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
+            where.clientId = clientId;
+        }
         if (type) where.type = type;
 
         const missions = await prisma.mission.findMany({
@@ -53,10 +55,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { title, clientId, type, deadline, budget, description } = body;
@@ -64,6 +64,9 @@ export async function POST(request: NextRequest) {
         if (!title || !clientId) {
             return NextResponse.json({ error: 'Titre et client requis' }, { status: 400 });
         }
+        if (typeof clientId !== 'string' || !isObjectId(clientId)) return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: 'Client introuvable dans ce cabinet.' }, { status: 404 });
 
         // Un budget saisi 1 500 000 etait enregistre a 1 FCFA, puis propage
         // dans /missions/budget, /management/controlling et /missions/boni-mali ;
@@ -75,6 +78,7 @@ export async function POST(request: NextRequest) {
 
         const mission = await prisma.mission.create({
             data: {
+                cabinetId: session.cabinetId,
                 title,
                 clientId,
                 type: type || 'TENUE_COMPTABLE',

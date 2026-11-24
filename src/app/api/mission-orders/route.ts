@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
+import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
 import { estIntrouvable } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = { cabinetId: session.cabinetId };
         if (status) where.status = status;
 
         const missionOrders = await prisma.missionOrder.findMany({
@@ -36,10 +35,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { purpose, destination, startDate, endDate, estimatedCost, missionId } = body;
@@ -47,6 +44,7 @@ export async function POST(request: NextRequest) {
         if (!purpose || !startDate || !endDate) {
             return NextResponse.json({ error: "Champs requis manquants (objet, dates)" }, { status: 400 });
         }
+        if (missionId && (!isObjectId(missionId) || !await prisma.mission.findFirst({ where: { id: missionId, cabinetId: session.cabinetId }, select: { id: true } }))) return NextResponse.json({ error: "Mission introuvable dans ce cabinet." }, { status: 404 });
 
         const coutEstime = analyserMontantOptionnel(estimatedCost, { min: 0 });
         if (!coutEstime.ok) {
@@ -63,7 +61,7 @@ export async function POST(request: NextRequest) {
         // possibles — a verrouiller par un index unique lors d'une prochaine
         // migration.
         const derniere = await prisma.missionOrder.findFirst({
-            where: { reference: { startsWith: `OM-${year}-` } },
+            where: { cabinetId: session.cabinetId, reference: { startsWith: `OM-${year}-` } },
             orderBy: { reference: "desc" },
             select: { reference: true },
         });
@@ -72,6 +70,7 @@ export async function POST(request: NextRequest) {
 
         const missionOrder = await prisma.missionOrder.create({
             data: {
+                cabinetId: session.cabinetId,
                 reference,
                 purpose,
                 destination: destination || null,
@@ -104,10 +103,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { id, status } = body;
@@ -115,10 +112,16 @@ export async function PATCH(request: NextRequest) {
         if (!id || !status) {
             return NextResponse.json({ error: "id et status requis" }, { status: 400 });
         }
+        if (typeof id !== "string" || !isObjectId(id)) return NextResponse.json({ error: "id invalide." }, { status: 400 });
 
-        const missionOrder = await prisma.missionOrder.update({
-            where: { id },
+        const existing = await prisma.missionOrder.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!existing) return NextResponse.json({ error: "Ordre de mission introuvable." }, { status: 404 });
+        await prisma.missionOrder.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { status },
+        });
+        const missionOrder = await prisma.missionOrder.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             include: {
                 mission: { select: { id: true, title: true } },
                 user: { select: { id: true, firstName: true, lastName: true } },
