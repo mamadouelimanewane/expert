@@ -130,6 +130,8 @@ model User {
   yearEndCloseItemsCompleted YearEndCloseItem[] @relation("YearEndCloseItemCompleter")
   esgAssessmentsCreated EsgAssessment[] @relation("EsgAssessmentCreator")
   esgAssessmentsReviewed EsgAssessment[] @relation("EsgAssessmentReviewer")
+  regulatoryRulesCreated RegulatoryObligationRule[] @relation("RegulatoryRuleCreator")
+  regulatoryRulesReviewed RegulatoryObligationRule[] @relation("RegulatoryRuleReviewer")
 
   @@map("users")
   @@index([cabinetId])
@@ -639,6 +641,8 @@ model TaxDeclaration {
   paymentReference String?
   paidAt           DateTime?
   ruleVersion      String?
+  regulatoryRuleId String? @db.ObjectId
+  regulatoryRule   RegulatoryObligationRule? @relation(fields: [regulatoryRuleId], references: [id], onDelete: SetNull)
 
   // Relations
   clientId String @db.ObjectId
@@ -649,6 +653,68 @@ model TaxDeclaration {
 
   @@map("tax_declarations")
   @@index([cabinetId])
+}
+
+/// Référentiel réglementaire maintenu par le cabinet. Les règles ne sont
+/// utilisables dans les calendriers qu'après revue indépendante et pendant
+/// leur période d'effet ; une nouvelle version est créée au lieu d'écraser
+/// une règle déjà validée.
+model RegulatoryObligationRule {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId           String?  @db.ObjectId
+  country             String
+  obligationCode      String
+  version             Int      @default(1)
+  title               String
+  description         String
+  category            String
+  declarationType     DeclarationType
+  periodicity         String
+  dueDay              Int
+  dueMonth            Int?
+  clientTypes         ClientType[] @default([])
+  fiscalRegimes       FiscalRegime[] @default([])
+  sectors             String[] @default([])
+  requiredTaxProfileFlags String[] @default([])
+  applicabilityNotes  String
+  sourceTitle         String
+  sourceUrl           String
+  sourceArticle       String?
+  sourcePublishedAt   DateTime?
+  effectiveFrom       DateTime
+  effectiveUntil      DateTime?
+  status              String   @default("DRAFT") // DRAFT, VERIFIED, RETIRED
+  reviewComment       String?
+  createdById         String   @db.ObjectId
+  createdBy           User     @relation("RegulatoryRuleCreator", fields: [createdById], references: [id])
+  reviewedById        String?  @db.ObjectId
+  reviewedBy          User?    @relation("RegulatoryRuleReviewer", fields: [reviewedById], references: [id])
+  reviewedAt          DateTime?
+  retiredAt           DateTime?
+  activation          RegulatoryObligationActivation?
+  declarations        TaxDeclaration[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("regulatory_obligation_rules")
+  @@unique([cabinetId, country, obligationCode, version])
+  @@index([cabinetId, country, status, effectiveFrom])
+}
+
+/// Verrou à unicité garantie en base : une seule version validée par pays et
+/// code d'obligation peut être active, même si deux réviseurs valident en même
+/// temps. Il est supprimé lors du retrait explicite de la règle.
+model RegulatoryObligationActivation {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  cabinetId      String? @db.ObjectId
+  country        String
+  obligationCode String
+  ruleId         String @unique @db.ObjectId
+  rule           RegulatoryObligationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@map("regulatory_obligation_activations")
+  @@unique([cabinetId, country, obligationCode])
 }
 
 // ============================================

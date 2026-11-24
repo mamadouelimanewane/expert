@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { AuthService } from '@/lib/auth';
-import { DeclarationStatus, DeclarationType } from '@prisma/client';
+import { DeclarationStatus, DeclarationType, Prisma } from '@prisma/client';
 import { isObjectId } from '@/lib/tenant-security';
 import { AuditService } from '@/lib/audit';
+import { verifierReglePourDeclaration } from '@/lib/regulatory-rule-policy';
 
 export async function GET(request: NextRequest) {
     try {
@@ -15,9 +16,9 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
 
-        const where: any = {};
+        const where: Prisma.TaxDeclarationWhereInput = {};
         if (status && status !== 'tous') {
-            const statusMap: Record<string, string> = {
+            const statusMap: Record<string, DeclarationStatus> = {
                 'a_preparer': 'DRAFT',
                 'validation': 'PENDING',
                 'teletransmise': 'SUBMITTED',
@@ -38,7 +39,8 @@ export async function GET(request: NextRequest) {
                         lastName: true,
                         country: true
                     }
-                }
+                },
+                regulatoryRule: { select: { version: true, title: true, sourceTitle: true, sourceUrl: true, sourceArticle: true, effectiveFrom: true, effectiveUntil: true } },
             }
         });
 
@@ -67,6 +69,16 @@ export async function GET(request: NextRequest) {
                 status: d.status === "VALIDATED" ? "payee" : (d.status === "SUBMITTED" ? "teletransmise" : (d.status === "PENDING" ? "validation" : "a_preparer")),
                 rawStatus: d.status,
                 obligationCode: d.obligationCode,
+                ruleVersion: d.ruleVersion,
+                regulatoryRule: d.regulatoryRule ? {
+                    version: d.regulatoryRule.version,
+                    title: d.regulatoryRule.title,
+                    sourceTitle: d.regulatoryRule.sourceTitle,
+                    sourceUrl: d.regulatoryRule.sourceUrl,
+                    sourceArticle: d.regulatoryRule.sourceArticle,
+                    effectiveFrom: d.regulatoryRule.effectiveFrom,
+                    effectiveUntil: d.regulatoryRule.effectiveUntil,
+                } : null,
                 reference: d.reference,
                 filingReceipt: d.filingReceipt,
                 paymentReference: d.paymentReference,
@@ -137,8 +149,28 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Montant invalide' }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true, country: true } });
         if (!client) return NextResponse.json({ error: 'Client introuvable dans ce cabinet' }, { status: 404 });
+
+        let regulatoryRuleId: string | null = null;
+        let ruleVersion: string | null = null;
+        const codeObligation = typeof obligationCode === 'string' ? obligationCode.trim() : '';
+        if (codeObligation) {
+            const versions = await prisma.regulatoryObligationRule.findMany({
+                where: { country: client.country, obligationCode: codeObligation, status: { in: ['VERIFIED', 'RETIRED'] } },
+                orderBy: { version: 'desc' },
+            });
+            if (versions.length > 0) {
+                const applicable = versions.find((rule) => verifierReglePourDeclaration(rule, {
+                    country: client.country, type, period, dueDate: due,
+                }) === null);
+                if (!applicable) {
+                    return NextResponse.json({ error: 'Aucune version validée de cette règle ne couvre le pays, le type, la période et la date de cette déclaration.' }, { status: 409 });
+                }
+                regulatoryRuleId = applicable.id;
+                ruleVersion = String(applicable.version);
+            }
+        }
 
         const existing = await prisma.taxDeclaration.findFirst({
             where: {
@@ -157,9 +189,10 @@ export async function POST(request: NextRequest) {
                 period,
                 dueDate: due,
                 amount: amount ?? null,
-                obligationCode: typeof obligationCode === 'string' ? obligationCode : null,
+                obligationCode: codeObligation || null,
                 calculationNotes: typeof calculationNotes === 'string' ? calculationNotes.slice(0, 4000) : null,
                 status: DeclarationStatus.DRAFT,
+                ...(regulatoryRuleId ? { regulatoryRuleId, ruleVersion } : {}),
             },
         });
         await AuditService.log({ action: 'CREATE', entity: 'TAX_DECLARATION', entityId: declaration.id, details: `Brouillon ${declaration.type} créé pour ${declaration.period}.` });

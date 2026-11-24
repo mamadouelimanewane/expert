@@ -1,16 +1,14 @@
 import type { DeclarationType } from "@prisma/client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Calendrier des obligations fiscales et sociales — zone OHADA / UEMOA.
+// Catalogue générique indicatif des obligations fiscales et sociales — zone OHADA / UEMOA.
 //
-// Ce catalogue est une donnée de RÉFÉRENCE RÉGLEMENTAIRE, au même titre que le
-// plan de comptes SYSCOHADA : les échéances et les taux viennent des codes
-// généraux des impôts nationaux, pas du portefeuille du cabinet. Il est donc
-// légitimement figé dans le code — et doit être revu à chaque loi de finances.
+// Les règles versionnées validées par le cabinet le remplacent pour les codes
+// concernés. Aucune échéance ne doit être présentée comme officielle ou
+// adaptée à un dossier sans contrôle du texte, du pays et de l'assujettissement.
 //
-// Ce qui ne doit PAS être figé, et ne l'est plus : le nombre de dossiers
-// concernés et les montants à déclarer. Ils sont calculés à partir des
-// déclarations réellement saisies (voir /api/fiscalite/obligations).
+// Les volumes et montants proviennent des déclarations réellement saisies
+// (voir /api/fiscalite/obligations), jamais de données de démonstration.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type CategorieObligation = "TVA" | "IS" | "SOCIAL" | "BIC" | "RAS";

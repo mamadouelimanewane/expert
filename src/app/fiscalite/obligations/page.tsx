@@ -17,11 +17,9 @@ import { cn } from "@/lib/utils";
 // Cette page générait localement dix obligations à dates, "clientCount" et
 // montants entièrement fixes (ex : "5 clients concernés", "15 000 000 FCFA
 // estimé"), sans jamais interroger le portefeuille réel. L'API réelle
-// existe déjà (/api/fiscalite/obligations) : elle combine le catalogue
-// réglementaire (src/lib/ohada/obligations-fiscales.ts, légitimement figé
-// — ce sont des textes de loi) avec les déclarations réellement saisies pour
-// calculer les volumes et montants par obligation. La page ne l'appelait
-// simplement pas ; elle est maintenant branchée dessus.
+// existe déjà (/api/fiscalite/obligations) : elle combine les règles
+// versionnées validées par le cabinet, le catalogue générique indicatif et
+// les déclarations réellement saisies pour calculer les volumes et montants.
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Obligation {
@@ -32,6 +30,10 @@ interface Obligation {
     pays: string[];
     reference: string;
     periodicite: string;
+    sourceUrl?: string | null;
+    ruleVersion?: number | null;
+    statutReglementaire?: string;
+    applicabilityNotes?: string | null;
     echeance: string;
     urgence: "DEPASSEE" | "IMMINENTE" | "PROCHE" | "NORMALE";
     nbDossiers: number;
@@ -59,6 +61,7 @@ export default function FiscalObligationsPage() {
     const [chargement, setChargement] = useState(true);
     const [erreur, setErreur] = useState<string | null>(null);
     const [aucuneDonnee, setAucuneDonnee] = useState(false);
+    const [avertissement, setAvertissement] = useState("");
     const [filterCountry, setFilterCountry] = useState("ALL");
     const [filterType, setFilterType] = useState("ALL");
 
@@ -71,6 +74,7 @@ export default function FiscalObligationsPage() {
                 const data = await res.json();
                 setObligations(data.obligations ?? []);
                 setAucuneDonnee(Boolean(data.aucuneDonnee));
+                setAvertissement(data.avertissement || "");
             } catch (e) {
                 console.error("Chargement des obligations fiscales :", e);
                 setErreur("Impossible de charger l'échéancier fiscal.");
@@ -119,6 +123,7 @@ export default function FiscalObligationsPage() {
                     est vide, pas parce que le cabinet est à jour.
                 </div>
             )}
+            {avertissement && <div role="note" className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-200">{avertissement}</div>}
             {erreur && <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-4 text-sm text-rose-300">{erreur}</div>}
 
             {chargement ? (
@@ -193,8 +198,9 @@ export default function FiscalObligationsPage() {
                             <p className="text-center text-sm text-slate-500 py-10">Aucune obligation pour ce filtre.</p>
                         ) : (
                             filtered.map((ob) => {
-                                const isOverdue = ob.urgence === "DEPASSEE";
-                                const isUrgent = ob.urgence === "IMMINENTE";
+                                const isRuleValidated = ob.statutReglementaire === "VALIDEE_PAR_LE_CABINET";
+                                const isOverdue = isRuleValidated && ob.urgence === "DEPASSEE";
+                                const isUrgent = isRuleValidated && ob.urgence === "IMMINENTE";
                                 const echeanceDate = new Date(ob.echeance);
                                 const daysLeft = Math.ceil((echeanceDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
@@ -213,12 +219,12 @@ export default function FiscalObligationsPage() {
                                             )}>
                                                 {isOverdue ? (
                                                     <AlertTriangle className="w-6 h-6 text-rose-400 mb-1" />
+                                                ) : isRuleValidated ? (
+                                                    <p className={cn("text-2xl font-black", isUrgent ? "text-amber-400" : "text-white")}>{Math.abs(daysLeft)}</p>
                                                 ) : (
-                                                    <>
-                                                        <p className={cn("text-2xl font-black", isUrgent ? "text-amber-400" : "text-white")}>{Math.abs(daysLeft)}</p>
-                                                        <p className="text-[8px] font-black uppercase text-slate-500">JOURS</p>
-                                                    </>
+                                                    <p className="text-[10px] font-black uppercase text-slate-400">INDIC.</p>
                                                 )}
+                                                {isRuleValidated && <p className="text-[8px] font-black uppercase text-slate-500">JOURS</p>}
                                             </div>
 
                                             <div className="flex-1 min-w-0">
@@ -238,7 +244,7 @@ export default function FiscalObligationsPage() {
                                                     </p>
                                                     <p className="text-xs text-slate-600">
                                                         {ob.nbDossiers} dossier{ob.nbDossiers > 1 ? "s" : ""} concerné{ob.nbDossiers > 1 ? "s" : ""}
-                                                        {ob.nbRestants > 0 && ` · ${ob.nbRestants} restant${ob.nbRestants > 1 ? "s" : ""}`}
+                                                        {ob.nbRestants > 0 && ` · ${ob.nbRestants} à suivre dans l'application`}
                                                     </p>
                                                     {ob.montantADeclarer > 0 && (
                                                         <p className="text-xs font-mono text-emerald-400">{ob.montantADeclarer.toLocaleString()} FCFA restant à déclarer</p>
@@ -246,6 +252,8 @@ export default function FiscalObligationsPage() {
                                                     <p className="text-[10px] text-slate-600 flex items-center gap-1">
                                                         <FileText className="w-3 h-3" /> {ob.reference}
                                                     </p>
+                                                    {isRuleValidated && <span className="text-[10px] text-emerald-400">Règle v{ob.ruleVersion} validée</span>}
+                                                    {ob.sourceUrl && <a href={ob.sourceUrl} target="_blank" rel="noreferrer" className="text-[10px] text-primary hover:underline">Source du cabinet</a>}
                                                 </div>
                                             </div>
                                         </div>

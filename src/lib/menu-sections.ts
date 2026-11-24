@@ -248,7 +248,7 @@ export const SOUS_MENUS: Record<string, EntreeSousMenu[]> = {
         { label: "Tie-Out Anti-Altération", href: "/audit/tie-out" },
     ],
     "/compliance": [
-        { label: "Hub conformité", href: "/compliance" }, { label: "Tableau de bord OHADA", href: "/conformite/dashboard" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
+        { label: "Hub conformité", href: "/compliance" }, { label: "Tableau de bord OHADA", href: "/conformite/dashboard" }, { label: "Règles réglementaires", href: "/conformite/regles" }, { label: "KYC / LCB-FT", href: "/compliance/kyc-screening" }, { label: "Dossiers KYC", href: "/compliance/kyc" },
         { label: "Vérification d'identité", href: "/compliance/id-verify" }, { label: "Score UEMOA", href: "/compliance/uemoa-score" },
         { label: "Criminalité financière", href: "/compliance/financial-crime" }, { label: "Contrôle fiscal", href: "/compliance/tax-audit" }, { label: "Douanes", href: "/compliance/customs" },
         { label: "Registre Bénéficiaires Effectifs (RBE)", href: "/compliance/rbe" },

@@ -9,18 +9,27 @@ import {
 } from "@/lib/ohada/obligations-fiscales";
 import { echeanceTVA } from "@/lib/ohada/tax-deadlines";
 import { echeancesFiscalesAnnuelles } from "@/lib/ohada/annual-tax-calendar";
+import { clientConcerneObligation } from "@/lib/obligation-eligibility";
 
 // Calendrier des obligations fiscales du cabinet.
 //
-// Le catalogue des obligations est une donnée réglementaire de référence ; les
-// volumes et les montants, eux, sont calculés à partir des déclarations
-// réellement saisies. La page affichait auparavant des compteurs figés
-// (« 12 dossiers », « 4 800 000 F ») sans rapport avec le portefeuille.
+// Les règles versionnées validées par le cabinet remplacent le catalogue
+// générique pour leurs codes, pays et périodes. Les autres échéances sont
+// indicatives ; volumes et montants proviennent des déclarations saisies.
 
 const STATUTS_RESTANTS = ["DRAFT", "PENDING", "REJECTED"] as const;
 
 function periodeDe(annee: number, mois: number): string {
     return `${annee}-${String(mois + 1).padStart(2, "0")}`;
+}
+
+function regleActiveDansLeMois(rule: { status: string; periodicity: string; dueMonth: number | null; dueDay: number; effectiveFrom: Date; effectiveUntil: Date | null; retiredAt: Date | null }, annee: number, moisUnBase: number) {
+    const dateEcheance = new Date(Date.UTC(annee, moisUnBase - 1, Math.min(rule.dueDay, new Date(Date.UTC(annee, moisUnBase, 0)).getUTCDate())));
+    const periodicityMatches = rule.periodicity === "MENSUELLE"
+        || (rule.periodicity === "TRIMESTRIELLE" && rule.dueMonth === ((moisUnBase - 1) % 3) + 1)
+        || (rule.periodicity === "ANNUELLE" && rule.dueMonth === moisUnBase);
+    const notRetiredOnDate = rule.status !== "RETIRED" || !rule.retiredAt || dateEcheance < rule.retiredAt;
+    return periodicityMatches && rule.effectiveFrom <= dateEcheance && (!rule.effectiveUntil || rule.effectiveUntil >= dateEcheance) && notRetiredOnDate;
 }
 
 export async function GET(request: Request) {
@@ -64,31 +73,45 @@ export async function GET(request: Request) {
             ...[1, 2, 3, 4].map((q) => `${annee}-T${q}`),
             ...[annee - 2, annee - 1, annee].map((y) => `${y}-A`),
         ];
-        const declarations = await prisma.taxDeclaration.findMany({
-            where: {
-                period: { in: periodesRecherche },
-                ...(paysFiltre ? { client: { country: paysFiltre } } : {}),
-            },
-            select: {
-                type: true,
-                status: true,
-                amount: true,
-                clientId: true,
-                obligationCode: true,
-                period: true,
-                dueDate: true,
-                client: { select: { country: true } },
-            },
-        });
+        const [declarations, clients, reglesReglementaires] = await Promise.all([
+            prisma.taxDeclaration.findMany({
+                where: { period: { in: periodesRecherche }, ...(paysFiltre ? { client: { country: paysFiltre } } : {}) },
+                select: { type: true, status: true, amount: true, clientId: true, obligationCode: true, period: true, dueDate: true, client: { select: { country: true } } },
+            }),
+            prisma.client.findMany({
+                where: { isActive: true, ...(paysFiltre ? { country: paysFiltre } : {}) },
+                select: { id: true, type: true, country: true, companyName: true, firstName: true, lastName: true, sector: true, fiscalRegime: true, subjectToTva: true, taxProfile: true },
+            }),
+            prisma.regulatoryObligationRule.findMany({
+                where: { status: { in: ["VERIFIED", "RETIRED"] }, ...(paysFiltre ? { country: paysFiltre } : {}) },
+                orderBy: [{ country: "asc" }, { obligationCode: "asc" }, { version: "desc" }],
+                select: {
+                    id: true, country: true, obligationCode: true, version: true, title: true, description: true,
+                    category: true, declarationType: true, periodicity: true, dueDay: true, dueMonth: true,
+                    sourceTitle: true, sourceUrl: true, sourceArticle: true, applicabilityNotes: true,
+                    clientTypes: true, fiscalRegimes: true, sectors: true, requiredTaxProfileFlags: true,
+                    status: true, effectiveFrom: true, effectiveUntil: true, retiredAt: true,
+                },
+            }),
+        ]);
 
-        const clients = await prisma.client.findMany({
-            where: { isActive: true, ...(paysFiltre ? { country: paysFiltre } : {}) },
-            select: { id: true, type: true, country: true, companyName: true, firstName: true, lastName: true, sector: true, fiscalRegime: true, subjectToTva: true, taxProfile: true },
-        });
-
-        const catalogue: ObligationFiscale[] = paysFiltre
-            ? OBLIGATIONS_FISCALES.filter((o) => o.pays.includes(paysFiltre))
-            : OBLIGATIONS_FISCALES;
+        const reglesActives = reglesReglementaires.filter((rule) => rule.status === "VERIFIED" || rule.status === "RETIRED");
+        const codesPersonnalises = new Set(reglesActives.map((rule) => `${rule.country}:${rule.obligationCode}`));
+        const reglesApplicables = reglesActives.filter((rule) => regleActiveDansLeMois(rule, annee, mois + 1));
+        const cataloguePersonnalise: ObligationFiscale[] = reglesApplicables.map((rule) => ({
+            id: rule.obligationCode, titre: rule.title, description: rule.description,
+            categorie: rule.category as ObligationFiscale["categorie"], pays: [rule.country], jourEcheance: rule.dueDay,
+            periodicite: rule.periodicity as ObligationFiscale["periodicite"], typesDeclaration: [rule.declarationType],
+            reference: `${rule.sourceTitle}${rule.sourceArticle ? ` · ${rule.sourceArticle}` : ""}`,
+        }));
+        const catalogue = [
+            ...OBLIGATIONS_FISCALES.map((rule) => ({
+                ...rule,
+                pays: rule.pays.filter((country) => (!paysFiltre || country === paysFiltre) && !codesPersonnalises.has(`${country}:${rule.id}`)),
+            })).filter((rule) => rule.pays.length > 0),
+            ...cataloguePersonnalise,
+        ];
+        const regleParCode = new Map(reglesApplicables.map((rule) => [`${rule.country}:${rule.obligationCode}`, rule]));
 
         const obligations = catalogue.map((obligation) => {
             const periodeObligation = obligation.periodicite === "ANNUELLE"
@@ -96,17 +119,8 @@ export async function GET(request: Request) {
                 : obligation.periodicite === "TRIMESTRIELLE"
                   ? `${annee}-T${trimestre}`
                   : periodeMensuelleDue;
-            const eligible = clients.filter((client) => {
-                if (!obligation.pays.includes(client.country)) return false;
-                const profil = client.taxProfile && typeof client.taxProfile === "object" && !Array.isArray(client.taxProfile)
-                    ? client.taxProfile as Record<string, unknown>
-                    : {};
-                if (obligation.categorie === "TVA") return client.subjectToTva || profil.vatRegistered === true;
-                if (obligation.categorie === "SOCIAL") return profil.employer === true;
-                if (obligation.id === "irpp-salaires") return profil.employer === true;
-                if (obligation.id === "ras-bnc") return profil.withholdingAgent === true;
-                return client.type === "ENTREPRISE" || client.type === "ASSOCIATION";
-            });
+            const customRule = obligation.pays.map((country) => regleParCode.get(`${country}:${obligation.id}`)).find(Boolean);
+            const eligible = clients.filter((client) => clientConcerneObligation(obligation, client, customRule));
             const concernees = declarations.filter(
                 (d) =>
                     obligation.typesDeclaration.includes(d.type) &&
@@ -132,7 +146,9 @@ export async function GET(request: Request) {
                 const profil = client.taxProfile && typeof client.taxProfile === "object" && !Array.isArray(client.taxProfile)
                     ? client.taxProfile as Record<string, unknown>
                     : {};
-                const echeance = declaration?.dueDate ?? (obligation.id === "tva-mensuelle"
+                const echeance = declaration?.dueDate ?? (customRule
+                    ? echeancePour(obligation, annee, mois)
+                    : obligation.id === "tva-mensuelle"
                     ? echeanceTVA({ country: client.country, sector: client.sector, taxCenter: typeof profil.taxCenter === "string" ? profil.taxCenter : null }, annee, mois)
                     : echeancePour(obligation, annee, mois));
                 return { clientId: client.id, date: echeance };
@@ -146,12 +162,17 @@ export async function GET(request: Request) {
             const echeance = datesTriees.length > 0 ? new Date(datesTriees[0][0]) : echeancePour(obligation, annee, mois);
 
             return {
-                id: obligation.id,
+                id: customRule ? `${customRule.country}:${obligation.id}` : obligation.id,
+                obligationCode: obligation.id,
                 titre: obligation.titre,
                 description: obligation.description,
                 categorie: obligation.categorie,
                 pays: obligation.pays,
                 reference: obligation.reference,
+                sourceUrl: customRule?.sourceUrl ?? null,
+                ruleVersion: customRule?.version ?? null,
+                statutReglementaire: customRule ? "VALIDEE_PAR_LE_CABINET" : "INDICATIVE_A_VERIFIER",
+                applicabilityNotes: customRule?.applicabilityNotes ?? null,
                 periodicite: obligation.periodicite,
                 echeance: echeance.toISOString(),
                 echeancesParDate: datesTriees.map(([date, dossiers]) => ({ echeance: date, dossiers })),
@@ -208,8 +229,8 @@ export async function GET(request: Request) {
             annee,
             mois,
             pays: paysFiltre,
-            statutReglementaire: "INDICATIF_A_VERIFIER",
-            avertissement: "Le catalogue n'est pas encore validé par pays, régime et exercice. Confirmez l'assujettissement et les échéances dans les textes officiels avant toute déclaration.",
+            statutReglementaire: reglesApplicables.length ? "REGLES_CABINET_ET_CATALOGUE_INDICATIF" : "INDICATIF_A_VERIFIER",
+            avertissement: "Les règles validées par le cabinet sont versionnées et appliquées selon leur pays, leur périmètre et leur période d’effet. Les autres lignes du catalogue restent indicatives ; confirmez les textes officiels avant toute déclaration.",
             obligations,
             echeancesAnnuelles,
             synthese: {

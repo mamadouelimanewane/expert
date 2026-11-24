@@ -1,24 +1,13 @@
 ﻿"use client";
 
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
 import Link from "next/link";
 import {
-    FileCheck,
-    Clock,
-    AlertCircle,
     CheckCircle2,
-    Filter,
-    Download,
     ExternalLink,
     Calculator,
-    History,
-    Info,
-    Calendar,
     ChevronRight,
-    ArrowRight,
-    Search,
     RefreshCw,
-    Wallet,
     Loader2,
     Globe
 } from "lucide-react";
@@ -37,6 +26,8 @@ interface TaxDeclaration {
     filingReceipt?: string | null;
     paymentReference?: string | null;
     obligationCode?: string | null;
+    ruleVersion?: string | null;
+    regulatoryRule?: { version: number; title: string; sourceTitle: string; sourceUrl: string; sourceArticle: string | null; effectiveFrom: string; effectiveUntil: string | null } | null;
     deadline: string;
     risk: "faible" | "moyen" | "élevé";
 }
@@ -61,7 +52,7 @@ export default function DeclarationsPage() {
     const [formError, setFormError] = useState("");
     const [preuveDepot, setPreuveDepot] = useState("");
     const [preuvePaiement, setPreuvePaiement] = useState("");
-    const [obligationsClient, setObligationsClient] = useState<{ id: string; titre: string; categorie: string; echeance: string; periodeReference: string }[]>([]);
+    const [obligationsClient, setObligationsClient] = useState<{ id: string; obligationCode?: string; titre: string; categorie: string; echeance: string; periodeReference: string }[]>([]);
     const [echeancesAnnuelles, setEcheancesAnnuelles] = useState<AnnualTask[]>([]);
 
     useEffect(() => {
@@ -82,11 +73,11 @@ export default function DeclarationsPage() {
             setEcheancesAnnuelles(annual);
             const clientAnnual = annual.filter((row: AnnualTask) => row.clientId === draft.clientId);
             const chosen = clientAnnual.find((row: AnnualTask) => row.id === draft.obligationCode)
-                ?? rows.find((row: { id: string }) => row.id === draft.obligationCode)
+                ?? rows.find((row: { id: string; obligationCode?: string }) => row.id === draft.obligationCode || row.obligationCode === draft.obligationCode)
                 ?? rows[0];
-            if (chosen) setDraft(current => ({ ...current, obligationCode: chosen.id, period: ("period" in chosen ? chosen.period : chosen.periodeReference) ?? current.period, dueDate: chosen.echeance?.slice(0, 10) ?? current.dueDate }));
+            if (chosen) setDraft(current => ({ ...current, obligationCode: ("obligationCode" in chosen ? chosen.obligationCode : null) || chosen.id, period: ("period" in chosen ? chosen.period : chosen.periodeReference) ?? current.period, dueDate: chosen.echeance?.slice(0, 10) ?? current.dueDate }));
         }).catch(() => { setObligationsClient([]); setEcheancesAnnuelles([]); });
-    }, [clients, draft.clientId, showCreate]);
+    }, [clients, draft.clientId, draft.obligationCode, showCreate]);
 
     const createDeclaration = async (event: FormEvent) => {
         event.preventDefault();
@@ -102,11 +93,7 @@ export default function DeclarationsPage() {
         fetchDeclarations();
     };
 
-    useEffect(() => {
-        fetchDeclarations();
-    }, [activeStatus]);
-
-    const fetchDeclarations = async () => {
+    const fetchDeclarations = useCallback(async () => {
         setLoading(true);
         try {
             const res = await fetch(`/api/declarations?status=${activeStatus}`);
@@ -121,7 +108,9 @@ export default function DeclarationsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeStatus]);
+
+    useEffect(() => { void fetchDeclarations(); }, [fetchDeclarations]);
 
     const transitionDeclaration = async (status: string, evidence: Record<string, string>) => {
         if (!selectedDecl) return;
@@ -199,12 +188,12 @@ export default function DeclarationsPage() {
                         <select required value={draft.clientId} onChange={e => setDraft({ ...draft, clientId: e.target.value })} className="rounded-lg bg-slate-800 p-3 text-sm text-white">
                             {clients.map(client => <option key={client.id} value={client.id}>{client.companyName || `${client.firstName} ${client.lastName}`}</option>)}
                         </select>
-                        <select value={draft.obligationCode} onChange={e => {
+                        <select value={obligationsClient.find(row => row.obligationCode === draft.obligationCode)?.id || draft.obligationCode} onChange={e => {
                             const obligation = obligationsClient.find(row => row.id === e.target.value);
                             const annual = echeancesAnnuelles.find(row => row.id === e.target.value && row.clientId === draft.clientId);
                             const source = annual ?? obligation;
                             const type = source?.categorie === "TVA" ? "TVA" : source?.categorie === "IS" ? "IS" : source?.categorie === "SOCIAL" ? "COTISATION_SOCIALE" : source?.categorie === "RAS" ? "IRPP" : "AUTRE";
-                            setDraft({ ...draft, obligationCode: e.target.value, type, ...(annual ? { period: annual.period, dueDate: annual.echeance.slice(0, 10) } : obligation ? { period: obligation.periodeReference, dueDate: obligation.echeance.slice(0, 10) } : {}) });
+                            setDraft({ ...draft, obligationCode: obligation?.obligationCode || e.target.value, type, ...(annual ? { period: annual.period, dueDate: annual.echeance.slice(0, 10) } : obligation ? { period: obligation.periodeReference, dueDate: obligation.echeance.slice(0, 10) } : {}) });
                         }} className="rounded-lg bg-slate-800 p-3 text-sm text-white">
                             {obligationsClient.map(obligation => <option key={obligation.id} value={obligation.id}>{obligation.titre} · périodique</option>)}
                             {echeancesAnnuelles.filter(task => task.clientId === draft.clientId).map(task => <option key={task.id} value={task.id}>{task.titre} · {new Date(task.echeance).toLocaleDateString("fr-FR")}</option>)}
@@ -338,6 +327,7 @@ export default function DeclarationsPage() {
                                     </div>
                                     {selectedDecl.filingReceipt && <div className="flex justify-between gap-4 text-sm"><span className="text-slate-400">Preuve de dépôt</span><span className="break-all text-right text-slate-300 font-mono">{selectedDecl.filingReceipt}</span></div>}
                                     {selectedDecl.paymentReference && <div className="flex justify-between gap-4 text-sm"><span className="text-slate-400">Référence paiement</span><span className="break-all text-right text-slate-300 font-mono">{selectedDecl.paymentReference}</span></div>}
+                                    {selectedDecl.regulatoryRule && <div className="space-y-1 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs"><p className="font-semibold text-emerald-300">Règle appliquée · v{selectedDecl.regulatoryRule.version} — {selectedDecl.regulatoryRule.title}</p><p className="text-slate-400">Version conservée : {selectedDecl.ruleVersion} · effet du {new Date(selectedDecl.regulatoryRule.effectiveFrom).toLocaleDateString("fr-FR")}{selectedDecl.regulatoryRule.effectiveUntil ? ` au ${new Date(selectedDecl.regulatoryRule.effectiveUntil).toLocaleDateString("fr-FR")}` : ""}</p><a href={selectedDecl.regulatoryRule.sourceUrl} target="_blank" rel="noreferrer" className="text-emerald-300 hover:underline">{selectedDecl.regulatoryRule.sourceTitle}{selectedDecl.regulatoryRule.sourceArticle ? ` · ${selectedDecl.regulatoryRule.sourceArticle}` : ""}</a></div>}
                                     <div className="h-px bg-white/10 my-2" />
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-black text-white uppercase tracking-wider">Net à Payer</span>
