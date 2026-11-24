@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         const codeObligation = typeof obligationCode === 'string' ? obligationCode.trim() : '';
         if (codeObligation) {
             const versions = await prisma.regulatoryObligationRule.findMany({
-                where: { country: client.country, obligationCode: codeObligation, status: { in: ['VERIFIED', 'RETIRED'] } },
+                where: { cabinetId: session.cabinetId, country: client.country, obligationCode: codeObligation, status: { in: ['VERIFIED', 'RETIRED'] } },
                 orderBy: { version: 'desc' },
             });
             if (versions.length > 0) {

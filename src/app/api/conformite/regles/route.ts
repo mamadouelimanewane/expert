@@ -27,7 +27,7 @@ const dateOptionnelle = (value: unknown): Date | null | undefined => {
 };
 
 export async function GET(request: Request) {
-  const { denied } = await requireStaff();
+  const { session, denied } = await requireStaff();
   if (denied) return denied;
   const params = new URL(request.url).searchParams;
   const country = params.get("country")?.trim().toUpperCase();
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
   if (country && !CODE_PAYS.test(country)) return NextResponse.json({ error: "Code pays invalide." }, { status: 400 });
   try {
     const rules = await prisma.regulatoryObligationRule.findMany({
-      where: { ...(country ? { country } : {}), ...(obligationCode ? { obligationCode } : {}) },
+      where: { cabinetId: session.cabinetId, ...(country ? { country } : {}), ...(obligationCode ? { obligationCode } : {}) },
       include: {
         createdBy: { select: { id: true, firstName: true, lastName: true } },
         reviewedBy: { select: { id: true, firstName: true, lastName: true } },
@@ -99,13 +99,13 @@ export async function POST(request: Request) {
     let rule = null;
     for (let attempt = 0; attempt < 5 && !rule; attempt++) {
       const previous = await prisma.regulatoryObligationRule.findFirst({
-        where: { country, obligationCode },
+        where: { cabinetId: session.cabinetId, country, obligationCode },
         orderBy: { version: "desc" }, select: { version: true },
       });
       try {
         rule = await prisma.regulatoryObligationRule.create({
           data: {
-            country, obligationCode, version: (previous?.version ?? 0) + 1,
+            cabinetId: session.cabinetId, country, obligationCode, version: (previous?.version ?? 0) + 1,
             title, description, category, declarationType: declarationType as DeclarationType,
             periodicity, dueDay, dueMonth, applicabilityNotes, sourceTitle, sourceUrl, sourceArticle: sourceArticle || null,
             sourcePublishedAt, effectiveFrom, effectiveUntil,
@@ -138,7 +138,7 @@ export async function PATCH(request: Request) {
   if (reviewComment.length < 20) return NextResponse.json({ error: "La note de revue doit décrire les contrôles effectués (20 caractères minimum)." }, { status: 400 });
 
   try {
-    const previous = await prisma.regulatoryObligationRule.findFirst({ where: { id } });
+    const previous = await prisma.regulatoryObligationRule.findFirst({ where: { id, cabinetId: session.cabinetId } });
     if (!previous) return NextResponse.json({ error: "Version de règle introuvable." }, { status: 404 });
     if (action === "RETIRE") {
       if (previous.status !== "VERIFIED") return NextResponse.json({ error: "Seule une règle validée peut être retirée." }, { status: 409 });
@@ -147,10 +147,10 @@ export async function PATCH(request: Request) {
       if (previous.effectiveFrom > endOfValidity) return NextResponse.json({ error: "Cette version n’est pas encore entrée en vigueur ; créez une nouvelle version avec la bonne période d’effet." }, { status: 409 });
       const effectiveUntil = previous.effectiveUntil && previous.effectiveUntil < endOfValidity ? previous.effectiveUntil : endOfValidity;
       const result = await prisma.regulatoryObligationRule.updateMany({
-        where: { id, status: "VERIFIED" }, data: { status: "RETIRED", reviewComment, retiredAt, effectiveUntil },
+        where: { id, cabinetId: session.cabinetId, status: "VERIFIED" }, data: { status: "RETIRED", reviewComment, retiredAt, effectiveUntil },
       });
       if (result.count !== 1) return NextResponse.json({ error: "Cette règle a changé d’état. Actualisez la liste." }, { status: 409 });
-      await prisma.regulatoryObligationActivation.deleteMany({ where: { ruleId: id } });
+      await prisma.regulatoryObligationActivation.deleteMany({ where: { ruleId: id, cabinetId: session.cabinetId } });
       await AuditService.log({ action: "UPDATE", entity: "REGULATORY_RULE", entityId: id, oldValue: { status: previous.status }, newValue: { status: "RETIRED", reviewComment } });
       return NextResponse.json({ ok: true, status: "RETIRED" });
     }
@@ -159,7 +159,7 @@ export async function PATCH(request: Request) {
     if (previous.createdById === session.id) return NextResponse.json({ error: "La validation doit être réalisée par une autre personne habilitée." }, { status: 403 });
 
     const earlierVersions = await prisma.regulatoryObligationRule.findMany({
-      where: { country: previous.country, obligationCode: previous.obligationCode, status: { in: ["VERIFIED", "RETIRED"] }, id: { not: id } },
+      where: { cabinetId: session.cabinetId, country: previous.country, obligationCode: previous.obligationCode, status: { in: ["VERIFIED", "RETIRED"] }, id: { not: id } },
       select: { id: true, effectiveFrom: true, effectiveUntil: true, retiredAt: true, version: true },
     });
     const nextEnd = previous.effectiveUntil?.getTime() ?? Number.POSITIVE_INFINITY;
@@ -174,7 +174,7 @@ export async function PATCH(request: Request) {
 
     try {
       await prisma.regulatoryObligationActivation.create({
-        data: { country: previous.country, obligationCode: previous.obligationCode, ruleId: previous.id },
+        data: { cabinetId: session.cabinetId, country: previous.country, obligationCode: previous.obligationCode, ruleId: previous.id },
       });
     } catch (error) {
       if ((error as { code?: string })?.code === "P2002") {
@@ -183,11 +183,11 @@ export async function PATCH(request: Request) {
       throw error;
     }
     const result = await prisma.regulatoryObligationRule.updateMany({
-      where: { id, status: "DRAFT", createdById: { not: session.id } },
+      where: { id, cabinetId: session.cabinetId, status: "DRAFT", createdById: { not: session.id } },
       data: { status: "VERIFIED", reviewedById: session.id, reviewedAt: new Date(), reviewComment },
     });
     if (result.count !== 1) {
-      await prisma.regulatoryObligationActivation.deleteMany({ where: { ruleId: id } });
+      await prisma.regulatoryObligationActivation.deleteMany({ where: { ruleId: id, cabinetId: session.cabinetId } });
       return NextResponse.json({ error: "Cette version vient d’être validée ou modifiée. Actualisez la liste." }, { status: 409 });
     }
     await AuditService.log({ action: "REVIEW", entity: "REGULATORY_RULE", entityId: id, oldValue: { status: previous.status }, newValue: { status: "VERIFIED", version: previous.version, reviewComment } });
