@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { DocumentType } from '@prisma/client';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import prisma from '@/lib/prisma';
@@ -12,6 +13,7 @@ import { unlink } from 'fs/promises';
 export const maxDuration = 60;
 import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
+import { requireStaff } from '@/lib/api-auth';
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
@@ -259,15 +261,20 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
     try {
         const { searchParams } = new URL(request.url);
         const clientId = searchParams.get('clientId');
         const type = searchParams.get('type');
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const where: any = {};
-        if (clientId) where.clientId = clientId;
-        if (type) where.type = type;
+        if (clientId && !isValidObjectId(clientId)) {
+            return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
+        }
+        if (type && !TYPES_DOCUMENT.includes(type)) {
+            return NextResponse.json({ error: 'Type de document invalide.' }, { status: 400 });
+        }
+        const where = { cabinetId: session.cabinetId, ...(clientId ? { clientId } : {}), ...(type ? { type: type as DocumentType } : {}) };
 
         const documents = await prisma.document.findMany({
             where,

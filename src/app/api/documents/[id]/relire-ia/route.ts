@@ -27,7 +27,7 @@ export async function GET() {
  * Voie explicite « Lire avec l'IA » : le document est transmis à Anthropic.
  */
 export async function POST(request: Request, { params }: Params) {
-    const { denied, session } = await requireWriteAccess();
+        const { denied, session } = await requireWriteAccess();
     if (denied) return denied;
     if (!visionConfiguree()) {
         return NextResponse.json({ error: "Lecture par IA non configurée sur ce serveur (ANTHROPIC_API_KEY absente).", nonConfigure: true }, { status: 503 });
@@ -35,7 +35,7 @@ export async function POST(request: Request, { params }: Params) {
     try {
         const { id } = await params;
         if (id.length !== 24) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
-        const document = await prisma.document.findUnique({ where: { id }, select: { id: true, fileName: true, originalName: true, mimeType: true, fileUrl: true, storageKey: true, type: true, ocrData: true, clientId: true } });
+        const document = await prisma.document.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true, fileName: true, originalName: true, mimeType: true, fileUrl: true, storageKey: true, type: true, ocrData: true, clientId: true } });
         if (!document) return NextResponse.json({ error: "Pièce introuvable" }, { status: 404 });
 
         let fichier: Buffer | null = null;

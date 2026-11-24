@@ -16,12 +16,12 @@ type Params = { params: Promise<{ id: string }> };
  * le disque pour les pièces antérieures.
  */
 export async function GET(request: Request, { params }: Params) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
     try {
         const { id } = await params;
         if (id.length !== 24) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
-        const doc = await prisma.document.findUnique({ where: { id }, select: { fileName: true, originalName: true, mimeType: true, storageKey: true, ocrData: true } });
+        const doc = await prisma.document.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { fileName: true, originalName: true, mimeType: true, storageKey: true, ocrData: true } });
         if (!doc) return NextResponse.json({ error: "Pièce introuvable" }, { status: 404 });
         const contenuGenere = !doc.storageKey ? lireContenuDocumentGenere(doc.ocrData) : null;
         const piece = doc.storageKey ? await lirePiece(doc.storageKey, "gridfs") : contenuGenere ? null : await lirePiece(doc.fileName, "disque");

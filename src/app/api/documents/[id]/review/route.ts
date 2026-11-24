@@ -28,12 +28,12 @@ export async function PATCH(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Fournisseur, numéro, date et montant TTC valides sont requis pour confirmer l’extraction." }, { status: 400 });
   }
 
-  const document = await prisma.document.findFirst({ where: { id, type: "FACTURE" }, select: { id: true, clientId: true, originalName: true, ocrData: true, status: true } });
+  const document = await prisma.document.findFirst({ where: { id, cabinetId: session.cabinetId, type: "FACTURE" }, select: { id: true, clientId: true, originalName: true, ocrData: true, status: true } });
   if (!document) return NextResponse.json({ error: "Facture introuvable dans ce cabinet." }, { status: 404 });
   if (!document.clientId) return NextResponse.json({ error: "Cette facture n’est pas rattachée à un client." }, { status: 409 });
   const current = document.ocrData && typeof document.ocrData === "object" && !Array.isArray(document.ocrData) ? document.ocrData as Record<string, unknown> : {};
   const previousInvoice = current.invoiceData && typeof current.invoiceData === "object" ? current.invoiceData as Record<string, unknown> : {};
-  const candidates = await prisma.document.findMany({ where: { clientId: document.clientId, type: "FACTURE", id: { not: id } }, take: 200, select: { id: true, originalName: true, ocrData: true, createdAt: true } });
+  const candidates = await prisma.document.findMany({ where: { cabinetId: session.cabinetId, clientId: document.clientId, type: "FACTURE", id: { not: id } }, take: 200, select: { id: true, originalName: true, ocrData: true, createdAt: true } });
   const duplicateCandidates = candidates.filter((candidate) => {
     if (!candidate.ocrData || typeof candidate.ocrData !== "object" || Array.isArray(candidate.ocrData)) return false;
     const candidateInvoice = (candidate.ocrData as Record<string, unknown>).invoiceData;
