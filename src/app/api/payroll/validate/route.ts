@@ -28,7 +28,7 @@ interface VariableMois {
 const nombre = (v: unknown, defaut = 0) => (typeof v === "number" && Number.isFinite(v) ? v : Number(v) || defaut);
 
 export async function POST(req: Request) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -42,8 +42,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Chaque variable de paie doit référencer un employeeId valide." }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({
-            where: { id: clientId },
+        const client = await prisma.client.findFirst({
+            where: { id: clientId, cabinetId: session.cabinetId },
             include: { employees: { where: { id: { in: ids as string[] } } } },
         });
         if (!client) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
         }
 
         // Une même période ne se valide qu'une fois par dossier.
-        const existante = await prisma.payrollPeriod.findFirst({ where: { clientId, periodName } });
+        const existante = await prisma.payrollPeriod.findFirst({ where: { clientId, cabinetId: session.cabinetId, periodName } });
         if (existante) {
             return NextResponse.json(
                 { error: `La période « ${periodName} » est déjà validée pour ce dossier (${existante.id}).`, periodId: existante.id },
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
 
         const reglesPaie = obtenirReglesPaie(client.country);
         const period = await prisma.payrollPeriod.create({
-            data: { periodName, status: "VALIDATED", clientId, ruleVersion: reglesPaie?.version ?? null, ruleInfo: reglesPaie ?? undefined },
+            data: { cabinetId: session.cabinetId, periodName, status: "VALIDATED", clientId, ruleVersion: reglesPaie?.version ?? null, ruleInfo: reglesPaie ?? undefined },
         });
 
         const payslips = await Promise.all(

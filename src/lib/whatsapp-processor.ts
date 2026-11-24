@@ -103,7 +103,7 @@ export async function trouverClientParTelephone(telephone: string) {
 
   const clients = await prisma.client.findMany({
     where: { phone: { not: "" } },
-    select: { id: true, phone: true, companyName: true, firstName: true, lastName: true },
+    select: { id: true, phone: true, companyName: true, firstName: true, lastName: true, cabinetId: true },
   });
 
   const exact = clients.filter((c) => chiffresTelephone(c.phone) === cible);
@@ -131,10 +131,14 @@ export async function processIncomingWhatsAppMessage(params: {
   messageType: WhatsAppMessageType;
   textBody?: string;
   simulate?: boolean;
+  cabinetId?: string | null;
+  clientId?: string;
 }) {
-  const { senderPhone, messageType, textBody, simulate = false } = params;
+  const { senderPhone, messageType, textBody, simulate = false, cabinetId, clientId } = params;
 
-  const client = await trouverClientParTelephone(senderPhone);
+  const client = clientId
+    ? await prisma.client.findFirst({ where: { id: clientId, ...(cabinetId ? { cabinetId } : {}) }, select: { id: true, phone: true, companyName: true, firstName: true, lastName: true, cabinetId: true } })
+    : await trouverClientParTelephone(senderPhone);
   if (!client) {
     return { status: "unknown_client" as const };
   }
@@ -193,6 +197,7 @@ export async function processIncomingWhatsAppMessage(params: {
 
   await prisma.tpeJournal.createMany({
     data: couples.map((couple, index) => ({
+      cabinetId: client.cabinetId,
       periode,
       businessName: client.companyName || `${client.firstName} ${client.lastName}`,
       date: dateJour,

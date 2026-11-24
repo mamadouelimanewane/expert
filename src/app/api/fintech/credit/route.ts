@@ -5,11 +5,12 @@ import { requireStaff } from "@/lib/api-auth";
 // Renvoie un client réel avec ses dernières données financières et son dernier score
 // de crédit (calculés par /api/fintech/scoring), pour alimenter le dossier crédit.
 export async function GET() {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
   try {
     const client = await prisma.client.findFirst({
+      where: { cabinetId: session.cabinetId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -18,8 +19,8 @@ export async function GET() {
     }
 
     const [financialData, creditScore] = await Promise.all([
-      prisma.financialData.findFirst({ where: { clientId: client.id }, orderBy: { year: "desc" } }),
-      prisma.creditScore.findFirst({ where: { clientId: client.id }, orderBy: { evaluatedAt: "desc" } }),
+      prisma.financialData.findFirst({ where: { clientId: client.id, cabinetId: session.cabinetId }, orderBy: { year: "desc" } }),
+      prisma.creditScore.findFirst({ where: { clientId: client.id, cabinetId: session.cabinetId }, orderBy: { evaluatedAt: "desc" } }),
     ]);
 
     return NextResponse.json({
