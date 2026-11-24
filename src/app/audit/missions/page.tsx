@@ -49,6 +49,7 @@ type RisqueCategorie = {
     score: number;
     label: string;
     observations: string;
+    disponible: boolean;
 };
 
 const nomClient = (m: MissionAudit | null) =>
@@ -404,10 +405,10 @@ export default function NexusAuditAssurancePage() {
                                         </p>
                                         <p className="text-3xl sm:text-4xl font-black text-white tabular-nums">
                                             {risque.globalScore}
-                                            <span className="text-sm text-slate-500 font-bold"> / 10</span>
+                                            {risque.globalScore !== "ND" && <span className="text-sm text-slate-500 font-bold"> / 10</span>}
                                         </p>
                                         <p className="mt-3 text-xs text-slate-500 leading-relaxed max-w-xl">
-                                            Moyenne des quatre axes ci-dessous. Il s&apos;agit d&apos;un indicateur
+                                            Moyenne des axes disposant de données ci-dessous. Il s&apos;agit d&apos;un indicateur
                                             d&apos;orientation des diligences, en aucun cas d&apos;une conclusion
                                             d&apos;audit : chaque point releve doit etre verifie avant d&apos;etre
                                             porte au dossier.
@@ -422,7 +423,7 @@ export default function NexusAuditAssurancePage() {
                                             <ScanResultItem
                                                 key={axe.category}
                                                 title={`${axe.category} \u2014 ${axe.label}`}
-                                                desc={`${axe.observations} Score : ${Math.round(axe.score) / 10}/10.`}
+                                                desc={`${axe.observations} Score : ${axe.disponible ? `${Math.round(axe.score) / 10}/10` : "ND"}.`}
                                                 urgent={axe.score >= 70}
                                             />
                                         ))}

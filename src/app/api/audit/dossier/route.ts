@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
     const mission = missionId
       ? await prisma.mission.findUnique({
           where: { id: missionId },
-          include: { client: { select: { companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
+          include: { client: { select: { id: true, companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
         })
       : await prisma.mission.findFirst({
           where: { type },
-          include: { client: { select: { companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
+          include: { client: { select: { id: true, companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
           orderBy: { createdAt: "desc" },
         });
 
@@ -97,6 +97,7 @@ export async function GET(request: NextRequest) {
       mission: {
         id: mission.id,
         name: mission.title,
+        clientId: mission.client.id,
         client: mission.client.companyName || `${mission.client.firstName ?? ""} ${mission.client.lastName ?? ""}`.trim(),
         auditor: mission.assignedTo ? `${mission.assignedTo.firstName} ${mission.assignedTo.lastName}` : "Non assigné",
         date: mission.deadline ? mission.deadline.toISOString() : null,

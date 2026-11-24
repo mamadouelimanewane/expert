@@ -88,11 +88,13 @@ export class AuditService {
         const lateDeclarations = declarations.filter(d =>
             d.status === 'PENDING' && new Date(d.dueDate) < now
         ).length;
-        const complianceScore = Math.min(10, (lateDeclarations * 3) + 2); // Base 2/10 + 3 par retard
+        const complianceScore = declarations.length > 0 ? Math.min(10, (lateDeclarations / declarations.length) * 10) : null;
 
-        // 2. Risque Opérationnel (Dérives sur les missions)
-        const inProgressMissions = missions.filter(m => m.status === 'IN_PROGRESS').length;
-        const operationalScore = Math.min(10, (inProgressMissions * 2) + 3);
+        // 2. Risque opérationnel : retards d'échéance, pas simple présence d'une mission en cours.
+        const missionsEnRetard = missions.filter(m =>
+            m.deadline && m.deadline < now && m.status !== 'COMPLETED' && m.status !== 'CANCELLED'
+        ).length;
+        const operationalScore = missions.length > 0 ? Math.min(10, (missionsEnRetard / missions.length) * 10) : null;
 
         // 3. Risque Fraude / Audit — écritures passées un dimanche ou montants suspicieusement ronds
         const suspiciousEntries = journals.filter(j => {
@@ -102,20 +104,27 @@ export class AuditService {
             const isRoundAmount = amount > 0 && amount % 100000 === 0;
             return isSunday || isRoundAmount;
         }).length;
-        const fraudScore = Math.min(10, 2 + suspiciousEntries * 1.5);
+        const fraudScore = journals.length > 0 ? Math.min(10, (suspiciousEntries / journals.length) * 10) : null;
 
         // 4. Risque Comptable — proportion d'écritures encore en attente de validation/export
         const pendingJournals = journals.filter(j => j.status === 'PENDING').length;
         const pendingRatio = journals.length > 0 ? pendingJournals / journals.length : 0;
-        const accountingScore = Math.min(10, 2 + pendingRatio * 8);
+        const accountingScore = journals.length > 0 ? Math.min(10, pendingRatio * 10) : null;
+
+        const scoresDisponibles = [complianceScore, operationalScore, fraudScore, accountingScore].filter((score): score is number => score !== null);
+        const scoreGlobal = scoresDisponibles.length > 0
+            ? (scoresDisponibles.reduce((sum, score) => sum + score, 0) / scoresDisponibles.length).toFixed(1)
+            : 'ND';
+        const echelle = (score: number | null) => score === null ? 0 : Math.round(score * 10);
 
         return {
-            globalScore: ((complianceScore + operationalScore + fraudScore + accountingScore) / 4).toFixed(1),
+            globalScore: scoreGlobal,
+            donneesDisponibles: scoresDisponibles.length,
             breakdown: [
-                { category: "Opérationnel", score: operationalScore * 10, label: "Cycle Ventes-Clients", observations: `${inProgressMissions} missions critiques en cours.` },
-                { category: "Conformité", score: complianceScore * 10, label: "TVA & Retenues", observations: `${lateDeclarations} déclarations fiscales en souffrance.` },
-                { category: "Fraude", score: fraudScore * 10, label: "Caisse & Espèces", observations: `${suspiciousEntries} écriture(s) suspecte(s) (dimanche ou montant rond) sur ${journals.length}.` },
-                { category: "Comptable", score: accountingScore * 10, label: "Écritures en Attente", observations: `${pendingJournals} écriture(s) sur ${journals.length} encore en attente de validation.` },
+                { category: "Opérationnel", score: echelle(operationalScore), disponible: operationalScore !== null, label: "Missions hors délai", observations: operationalScore === null ? "Données mission indisponibles." : `${missionsEnRetard} mission(s) échue(s) non clôturée(s) sur ${missions.length}.` },
+                { category: "Conformité", score: echelle(complianceScore), disponible: complianceScore !== null, label: "Déclarations en retard", observations: complianceScore === null ? "Aucune déclaration analysable pour ce dossier." : `${lateDeclarations} déclaration(s) fiscale(s) échue(s) en attente sur ${declarations.length}.` },
+                { category: "Contrôles à examiner", score: echelle(fraudScore), disponible: fraudScore !== null, label: "Signaux de revue", observations: fraudScore === null ? "Aucune écriture à examiner." : `${suspiciousEntries} signal(aux) de date ou de montant sur ${journals.length}; ces signaux ne constituent pas une preuve de fraude.` },
+                { category: "Comptable", score: echelle(accountingScore), disponible: accountingScore !== null, label: "Écritures en attente", observations: accountingScore === null ? "Aucune écriture comptable disponible." : `${pendingJournals} écriture(s) sur ${journals.length} en attente de validation.` },
             ]
         };
     }

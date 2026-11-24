@@ -20,6 +20,7 @@ interface RiskBreakdownItem {
     score: number;
     label: string;
     observations: string;
+    disponible: boolean;
 }
 
 interface RiskData {
@@ -30,6 +31,7 @@ interface RiskData {
 interface Coverage {
     progress: number;
     missionTitle: string;
+    clientId: string;
 }
 
 export default function IARiskAuditPage() {
@@ -42,10 +44,14 @@ export default function IARiskAuditPage() {
     const [coverageError, setCoverageError] = useState<string | null>(null);
 
     const startAnalysis = async () => {
+        if (!coverage?.clientId) {
+            setError("Aucune mission d'audit avec client rattaché n'est disponible.");
+            return;
+        }
         setAnalyzing(true);
         setError(null);
         try {
-            const res = await fetch("/api/audit/risk-score");
+            const res = await fetch(`/api/audit/risk-score?clientId=${encodeURIComponent(coverage.clientId)}`);
             const data = await res.json();
             if (!res.ok || data.error) {
                 setError(data.error || "Erreur lors du calcul du risque.");
@@ -72,7 +78,8 @@ export default function IARiskAuditPage() {
                     setCoverageError(data.error || "Aucun dossier de travail d'audit disponible.");
                     return;
                 }
-                setCoverage({ progress: data.globalProgress, missionTitle: data.mission?.name || "" });
+                if (!data.mission?.clientId) throw new Error("La mission sélectionnée n'est pas rattachée à un client.");
+                setCoverage({ progress: data.globalProgress, missionTitle: data.mission?.name || "", clientId: data.mission.clientId });
             } catch (err) {
                 console.error("Coverage fetch failed:", err);
                 setCoverageError("Erreur lors du chargement de la couverture d'audit.");
@@ -170,11 +177,13 @@ export default function IARiskAuditPage() {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                                         <span className="text-xs font-bold text-slate-400">Risque Moyen Global</span>
-                                        <span className="text-xl font-bold text-amber-500">{riskData.globalScore}/10</span>
+                                        <span className="text-xl font-bold text-amber-500">{riskData.globalScore === "ND" ? "ND — données insuffisantes" : `${riskData.globalScore}/10`}</span>
                                     </div>
                                     <div className="p-3">
                                         <p className="text-xs text-slate-400 leading-relaxed italic">
-                                            {parseFloat(riskData.globalScore) > 7
+                                            {riskData.globalScore === "ND"
+                                                ? "Aucun score fiable : les données disponibles ne couvrent pas encore un axe d'analyse."
+                                                : parseFloat(riskData.globalScore) > 7
                                                 ? "Risque élevé détecté. Une revue approfondie des cycles de vente et de trésorerie est impérative."
                                                 : "Le scoring suggère d'orienter les travaux de terrain en priorité sur les catégories les mieux notées ci-dessous."
                                             }
@@ -204,7 +213,7 @@ export default function IARiskAuditPage() {
                                                 risk.score > 60 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                                                     "bg-rose-500/10 text-rose-400 border-rose-500/20"
                                         )}>
-                                            {Math.round(risk.score)}%
+                                            {risk.disponible ? `${Math.round(risk.score)}%` : "ND"}
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start mb-1">
