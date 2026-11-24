@@ -4,7 +4,7 @@ import { analyserContratOHADA, genererConsultationFiscaleSync } from "@/lib/ohad
 describe("analyserContratOHADA", () => {
   it("détecte une clause léonine dans un contrat de société", () => {
     const texte = "L'associé majoritaire percevra la totalité des profits sans contribution aux pertes.";
-    const resultat = analyserContratOHADA(texte, "SN");
+    const resultat = analyserContratOHADA(texte, "sn");
     expect(resultat.risques.length).toBeGreaterThan(0);
     const leonine = resultat.risques.find((r) => r.domaine === "CLAUSE_LEONINE");
     expect(leonine).toBeDefined();
@@ -15,7 +15,7 @@ describe("analyserContratOHADA", () => {
   it("détecte un risque d'établissement stable pour un contrat avec représentant permanent", () => {
     const texte =
       "La société étrangère désigne un représentant exclusif pour l'ensemble du territoire sénégalais avec pouvoir de conclure des contrats.";
-    const resultat = analyserContratOHADA(texte, "SN");
+    const resultat = analyserContratOHADA(texte, "sn");
     const es = resultat.risques.find((r) => r.domaine === "ETABLISSEMENT_STABLE");
     expect(es).toBeDefined();
     expect(es!.gravite).toBe("ELEVE");
@@ -23,13 +23,13 @@ describe("analyserContratOHADA", () => {
 
   it("retourne un score de conformité de 100 pour un contrat sans risque", () => {
     const texte = "Les parties conviennent d'une prestation de services de conseil en gestion.";
-    const resultat = analyserContratOHADA(texte, "CI");
+    const resultat = analyserContratOHADA(texte, "ci");
     expect(resultat.scoreConformite).toBe(100);
     expect(resultat.risques).toHaveLength(0);
   });
 
   it("génère un disclaimer de non-opposabilité", () => {
-    const resultat = analyserContratOHADA("contrat test", "BJ");
+    const resultat = analyserContratOHADA("contrat test", "bj");
     expect(resultat.disclaimer).toContain("opposable");
   });
 });
@@ -39,7 +39,7 @@ describe("genererConsultationFiscaleSync", () => {
     const consultation = genererConsultationFiscaleSync(
       "Déductibilité des intérêts CCA",
       "Société avec CCA de 50M FCFA à taux 8%",
-      "SN"
+      "sn"
     );
     expect(consultation.reponse).not.toBeNull();
     expect(consultation.referencesDoctrine.length).toBeGreaterThan(0);
@@ -47,8 +47,8 @@ describe("genererConsultationFiscaleSync", () => {
   });
 
   it("adapte le pays dans la consultation", () => {
-    const consultation = genererConsultationFiscaleSync("TVA sur services", "importation de services IT", "CI");
+    const consultation = genererConsultationFiscaleSync("TVA sur services", "importation de services IT", "ci");
     expect(consultation.reponse).toContain("Côte d'Ivoire");
-    expect(consultation.pays).toBe("CI");
+    expect(consultation.pays).toBe("ci");
   });
 });

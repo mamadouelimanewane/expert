@@ -75,7 +75,7 @@ export function calculerAnciennete(dateDebutStr: string, dateFinStr: string) {
 
   let annees = d2.getFullYear() - d1.getFullYear();
   let mois = d2.getMonth() - d1.getMonth();
-  let jours = d2.getDate() - d1.getDate();
+  const jours = d2.getDate() - d1.getDate();
 
   if (jours < 0) {
     mois--;
@@ -101,7 +101,7 @@ export function calculerIndemnitesRupture(donnees: DonneesRuptureContrat): Solde
   // De 6 à 10 ans : 30% ou 35%
   // Au-delà de 10 ans : 40%
   const bareme =
-    donnees.pays === "CI"
+    donnees.pays === "ci"
       ? [
           { nom: "1ère à 5ème année", min: 0, max: 5, taux: 30 },
           { nom: "6ème à 10ème année", min: 5, max: 10, taux: 35 },
@@ -211,7 +211,7 @@ Signature du Salarié                                    Pour l'Employeur`;
     retenuesEstimees,
     netAPayerSolde,
     textesLegaux: [
-      `Code du Travail ${donnees.pays === "CI" ? "Ivoirien (art. 16.7 et s.)" : "Sénégalais (art. L.51 et s.)"}`,
+      `Code du Travail ${donnees.pays === "ci" ? "Ivoirien (art. 16.7 et s.)" : "Sénégalais (art. L.51 et s.)"}`,
       "Convention Collective Nationale Interprofessionnelle (CCNI) - Barème d'indemnités de licenciement",
       "Régime fiscal des indemnités de rupture : exonération de l'indemnité légale de licenciement",
     ],

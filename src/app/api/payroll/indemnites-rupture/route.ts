@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   // Exemple de calcul de départ
   const demo: DonneesRuptureContrat = {
-    pays: "SN",
+    pays: "sn",
     nomSalarie: "Amadou Diallo",
     statut: "CADRE_DIRIGEANT",
     dateEmbauche: "2019-01-01",

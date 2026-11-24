@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
-  const pays = (searchParams.get("pays") ?? "SN") as PaysFiscal;
+  const pays = (searchParams.get("pays") ?? "sn").toLowerCase() as PaysFiscal;
   const exercice = parseInt(searchParams.get("exercice") ?? String(new Date().getFullYear()));
   const periode = searchParams.get("periode") ?? "Exercice complet";
 
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     };
 
     const rapport = executerCadragePaieCompta(
-      body.pays ?? "SN",
+      (body.pays ?? "sn").toLowerCase() as PaysFiscal,
       body.exercice ?? new Date().getFullYear(),
       body.periodeOuMois ?? "Période courante",
       body.paie,

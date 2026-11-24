@@ -64,7 +64,7 @@ export default function CoCounselPage() {
 
     // Analyse contrat state
     const [texteContrat, setTexteContrat] = useState("");
-    const [paysContrat, setPaysContrat] = useState<PaysFiscal>("SN");
+    const [paysContrat, setPaysContrat] = useState<PaysFiscal>("sn");
     const [isAnalyzingContract, setIsAnalyzingContract] = useState(false);
     const [contractResult, setContractResult] = useState<ResultatAnalyseContrat | null>(null);
     const [contractError, setContractError] = useState("");
@@ -72,7 +72,7 @@ export default function CoCounselPage() {
     // Consultation state
     const [sujetConsultation, setSujetConsultation] = useState("");
     const [contexteConsultation, setContexteConsultation] = useState("");
-    const [paysConsultation, setPaysConsultation] = useState<PaysFiscal>("SN");
+    const [paysConsultation, setPaysConsultation] = useState<PaysFiscal>("sn");
     const [isGeneratingConsultation, setIsGeneratingConsultation] = useState(false);
     const [consultationResult, setConsultationResult] = useState<string | null>(null);
 
@@ -95,7 +95,7 @@ export default function CoCounselPage() {
             const res = await fetch("/api/nexus/legal", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode: "CONSULTATION", message: question, payload: { pays: "SN" } }),
+                body: JSON.stringify({ mode: "CONSULTATION", message: question, payload: { pays: "sn" } }),
             });
             const data = await res.json();
             const assistantMessage: Message = {
@@ -363,10 +363,10 @@ export default function CoCounselPage() {
                                 onChange={(e) => setPaysContrat(e.target.value as PaysFiscal)}
                                 className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
                             >
-                                <option value="SN">Sénégal (SN)</option>
-                                <option value="CI">Côte d&apos;Ivoire (CI)</option>
-                                <option value="CM">Cameroun (CM)</option>
-                                <option value="BJ">Bénin (BJ)</option>
+                                <option value="sn">Sénégal (SN)</option>
+                                <option value="ci">Côte d&apos;Ivoire (CI)</option>
+                                <option value="cm">Cameroun (CM)</option>
+                                <option value="bj">Bénin (BJ)</option>
                             </select>
                         </div>
                         <p className="text-xs text-muted-foreground">
@@ -465,10 +465,10 @@ export default function CoCounselPage() {
                                 onChange={(e) => setPaysConsultation(e.target.value as PaysFiscal)}
                                 className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
                             >
-                                <option value="SN">Sénégal (SN)</option>
-                                <option value="CI">Côte d&apos;Ivoire (CI)</option>
-                                <option value="CM">Cameroun (CM)</option>
-                                <option value="BJ">Bénin (BJ)</option>
+                                <option value="sn">Sénégal (SN)</option>
+                                <option value="ci">Côte d&apos;Ivoire (CI)</option>
+                                <option value="cm">Cameroun (CM)</option>
+                                <option value="bj">Bénin (BJ)</option>
                             </select>
                         </div>
 

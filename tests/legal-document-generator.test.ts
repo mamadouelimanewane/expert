@@ -22,7 +22,7 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
             dividendesDistribues: 15_000_000,
             nomGerantOuPresident: "Moustapha Ndiaye",
             presentsOuRepresentesPourcentage: 100,
-        }, "SN");
+        }, "sn");
 
         expect(acte.type).toBe("PV_AGOA");
         expect(acte.texteIntegral).toContain("SARL SAHEL SOLUTIONS");
@@ -46,7 +46,7 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
                 { nom: "Jean-Marc Kouassi", parts: 300, apportMontant: 3_000_000 },
                 { nom: "Awa Traoré", parts: 200, apportMontant: 2_000_000 },
             ],
-            pays: "CI",
+            pays: "ci",
         });
 
         expect(acte.type).toBe("STATUTS_SARL");
@@ -68,7 +68,7 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
             depotGarantieMois: 3,
             dureeBailAnnees: 3,
             datePriseEffet: "1er janvier 2025",
-            pays: "BJ",
+            pays: "bj",
         });
 
         expect(acte.type).toBe("BAIL_COMMERCIAL");
@@ -90,7 +90,7 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
             periodeEssaiMois: 3,
             dateEmbauche: "1er février 2025",
             conventionCollective: "Convention Collective Nationale Interprofessionnelle du Sénégal (CCNI)",
-            pays: "SN",
+            pays: "sn",
         });
 
         expect(acte.type).toBe("CONTRAT_TRAVAIL_CDI");

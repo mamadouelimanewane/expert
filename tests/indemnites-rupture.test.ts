@@ -13,7 +13,7 @@ describe("calculerAnciennete", () => {
 describe("calculerIndemnitesRupture", () => {
   it("calcule les indemnités de licenciement avec préavis non effectué pour un cadre au Sénégal", () => {
     const res = calculerIndemnitesRupture({
-      pays: "SN",
+      pays: "sn",
       nomSalarie: "Fatou Sow",
       statut: "CADRE_DIRIGEANT",
       dateEmbauche: "2018-01-01",
@@ -45,7 +45,7 @@ describe("calculerIndemnitesRupture", () => {
 
   it("n'ouvre pas droit à indemnité de licenciement en cas de démission", () => {
     const res = calculerIndemnitesRupture({
-      pays: "CI",
+      pays: "ci",
       nomSalarie: "Koffi Kouamé",
       statut: "OUVRIER_EMPLOYE",
       dateEmbauche: "2020-01-01",

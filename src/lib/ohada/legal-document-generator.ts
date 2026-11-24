@@ -91,14 +91,11 @@ const DISCLAIMER_LEGAL =
     "AVERTISSEMENT : Ce projet d'acte juridique a été rédigé avec l'assistance du moteur Nexus-Legal v2 " +
     "conformément aux Actes Uniformes OHADA applicables. Il doit être relu, validé et revêtu des formalités d'enregistrement " +
     "ou de publicité légale (RCCM, Greffe, Notaire) par un professionnel habilité (Expert-comptable, Avocat ou Notaire).";
-    "AVERTISSEMENT : Ce projet d'acte juridique a été rédigé avec l'assistance du moteur Nexus-Legal v2 " +
-    "conformément aux Actes Uniformes OHADA applicables. Il doit être relu, validé et revêtu des formalités d'enregistrement " +
-    "ou de publicité légale (RCCM, Greffe, Notaire) par un professionnel habilité (Expert-comptable, Avocat ou Notaire).";
 
 /**
  * Générateur de PV d'Assemblée Générale Ordinaire Annuelle (AGOA).
  */
-export function genererPVAGOA(params: ParametresPVAGOA, pays: PaysFiscal = "SN"): ActeGenere {
+export function genererPVAGOA(params: ParametresPVAGOA, pays: PaysFiscal = "sn"): ActeGenere {
     const reportANouveau = Math.max(0, params.resultatNet - params.affectationReserveLegale - params.dividendesDistribues);
     const mentions: string[] = [
         "AUSCGIE art. 347 (Délai de convocation dans les 6 mois de la clôture)",

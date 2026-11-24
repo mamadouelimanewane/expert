@@ -19,7 +19,7 @@ import type { RapportCadragePaieCompta, LigneLivrePaieCumul, SoldesComptablesPai
 const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function CadragePaiePage() {
-    const [pays, setPays] = useState<PaysFiscal>("SN");
+    const [pays, setPays] = useState<PaysFiscal>("sn");
     const [exercice, setExercice] = useState(new Date().getFullYear());
     const [periode, setPeriode] = useState("Décembre " + new Date().getFullYear());
 
@@ -120,10 +120,10 @@ export default function CadragePaiePage() {
                             onChange={(e) => setPays(e.target.value as PaysFiscal)}
                             className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
                         >
-                            <option value="SN">Sénégal (IPRES / CSS / VRS)</option>
-                            <option value="CI">Côte d&apos;Ivoire (CNPS / CMU / ITS)</option>
-                            <option value="CM">Cameroun (CNPS / IRPP)</option>
-                            <option value="BJ">Bénin (CNSS / IPTS)</option>
+                            <option value="sn">Sénégal (IPRES / CSS / VRS)</option>
+                            <option value="ci">Côte d&apos;Ivoire (CNPS / CMU / ITS)</option>
+                            <option value="cm">Cameroun (CNPS / IRPP)</option>
+                            <option value="bj">Bénin (CNSS / IPTS)</option>
                         </select>
                     </div>
 

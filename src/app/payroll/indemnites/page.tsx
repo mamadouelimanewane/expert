@@ -23,7 +23,7 @@ import type {
 const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function IndemnitesRupturePage() {
-    const [pays, setPays] = useState<PaysFiscal>("SN");
+    const [pays, setPays] = useState<PaysFiscal>("sn");
     const [nomSalarie, setNomSalarie] = useState("Mamadou Ndiaye");
     const [matricule, setMatricule] = useState("EMP-042");
     const [statut, setStatut] = useState<StatutSalarie>("CADRE_DIRIGEANT");
@@ -109,10 +109,10 @@ export default function IndemnitesRupturePage() {
                             onChange={(e) => setPays(e.target.value as PaysFiscal)}
                             className="bg-background border border-border rounded-lg px-2 py-1 text-xs"
                         >
-                            <option value="SN">Sénégal (CCNI Sénégal)</option>
-                            <option value="CI">Côte d&apos;Ivoire (CCNI Côte d&apos;Ivoire)</option>
-                            <option value="CM">Cameroun</option>
-                            <option value="BJ">Bénin</option>
+                            <option value="sn">Sénégal (CCNI Sénégal)</option>
+                            <option value="ci">Côte d&apos;Ivoire (CCNI Côte d&apos;Ivoire)</option>
+                            <option value="cm">Cameroun</option>
+                            <option value="bj">Bénin</option>
                         </select>
                     </div>
 

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     };
 
     const mode = body.mode || "CONSULTATION";
-    const pays = body.payload?.pays ?? "SN";
+    const pays = (body.payload?.pays ?? "sn").toLowerCase() as PaysFiscal;
 
     await AuditService.log(session.id, `NEXUS_LEGAL_${mode}`, "nexus-legal", { mode, pays });
 

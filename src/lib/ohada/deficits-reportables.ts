@@ -72,7 +72,7 @@ export function construireBordereauDeficits(
 
     // Durée de report selon législation fiscale locale
     // CGI Sénégal art. 26 / CGI Côte d'Ivoire art. 10 : 3 ans de report ordinaire
-    const dureeOrdinaire = (pays === "SN" || pays === "CI" || pays === "CM" || pays === "BF") ? 3 : 3;
+    const dureeOrdinaire = 3;
 
     for (const h of historique) {
         const typeDeficit: TypeDeficit = h.type || "ORDINAIRE";

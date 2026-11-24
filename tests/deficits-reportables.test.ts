@@ -8,7 +8,7 @@ import {
 
 describe("Suivi pluriannuel des déficits reportables IS", () => {
     it("construit un bordereau avec déficits ordinaires et ARD", () => {
-        const bordereau = construireBordereauDeficits("SN", 2024, [
+        const bordereau = construireBordereauDeficits("sn", 2024, [
             { exercice: 2022, montant: 10_000_000, type: "ORDINAIRE" },
             { exercice: 2023, montant: 15_000_000, type: "ORDINAIRE" },
             { exercice: 2021, montant: 5_000_000, type: "AMORTISSEMENT_DIFFERE" },
@@ -21,7 +21,7 @@ describe("Suivi pluriannuel des déficits reportables IS", () => {
 
     it("détecte correctement l'expiration d'un déficit ordinaire après 3 ans", () => {
         // En 2025, un déficit 2021 ordinaire expire (2021 + 3 = 2024)
-        const bordereau = construireBordereauDeficits("SN", 2025, [
+        const bordereau = construireBordereauDeficits("sn", 2025, [
             { exercice: 2021, montant: 8_000_000, type: "ORDINAIRE" },
             { exercice: 2023, montant: 12_000_000, type: "ORDINAIRE" },
         ]);
@@ -35,7 +35,7 @@ describe("Suivi pluriannuel des déficits reportables IS", () => {
     });
 
     it("impute selon la règle FIFO les déficits les plus anciens en premier", () => {
-        const bordereau = construireBordereauDeficits("CI", 2024, [
+        const bordereau = construireBordereauDeficits("ci", 2024, [
             { exercice: 2022, montant: 5_000_000, type: "ORDINAIRE" },
             { exercice: 2023, montant: 10_000_000, type: "ORDINAIRE" },
         ]);
@@ -54,7 +54,7 @@ describe("Suivi pluriannuel des déficits reportables IS", () => {
     });
 
     it("projette l'absorption sur plusieurs exercices futurs et génère le rapport", () => {
-        const bordereau = construireBordereauDeficits("SN", 2024, [
+        const bordereau = construireBordereauDeficits("sn", 2024, [
             { exercice: 2023, montant: 10_000_000, type: "ORDINAIRE" },
         ]);
 

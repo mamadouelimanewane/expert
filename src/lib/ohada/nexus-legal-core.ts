@@ -90,7 +90,7 @@ export function analyserContratOHADA(texteContrat: string, pays: PaysFiscal): Re
         article: pattern.article,
         risque: pattern.risque,
         clauseIdentifiee: match[0],
-        recommandation: `Réviser la clause pour conformité ${pays === "SN" ? "CGI Sénégal" : pays === "CI" ? "CGI Côte d'Ivoire" : "CGI applicable"}. Consulter votre expert-comptable.`,
+        recommandation: `Réviser la clause pour conformité ${pays === "sn" ? "CGI Sénégal" : pays === "ci" ? "CGI Côte d'Ivoire" : "CGI applicable"}. Consulter votre expert-comptable.`,
         gravite: "MODERE",
       });
     }
@@ -156,18 +156,10 @@ export function analyserContratOHADA(texteContrat: string, pays: PaysFiscal): Re
 
 export function genererConsultationFiscaleSync(sujet: string, contexte: string, pays: PaysFiscal): ConsultationFiscale {
   const paysLabel: Record<PaysFiscal, string> = {
-    SN: "Sénégal",
-    CI: "Côte d'Ivoire",
-    CM: "Cameroun",
-    BJ: "Bénin",
-    TG: "Togo",
-    BF: "Burkina Faso",
-    ML: "Mali",
-    NE: "Niger",
-    GN: "Guinée",
-    GA: "Gabon",
-    CG: "Congo",
-    CD: "RDC",
+    sn: "Sénégal",
+    ci: "Côte d'Ivoire",
+    cm: "Cameroun",
+    bj: "Bénin",
   };
   const label = paysLabel[pays] ?? pays;
 

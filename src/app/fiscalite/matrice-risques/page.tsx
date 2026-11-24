@@ -3,20 +3,14 @@
 import { useState, useCallback } from "react";
 import {
     ShieldAlert,
-    AlertTriangle,
     CheckCircle2,
-    TrendingUp,
     PlusCircle,
     Trash2,
     Loader2,
     Calendar,
-    HelpCircle,
-    Info,
-    FileCheck
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { PaysFiscal } from "@/lib/tax-simulator";
-import type { DonneesAuditFiscal, SyntheseAuditFiscalAvance, GraviteAnomalie } from "@/lib/ohada/audit-fiscal-avance";
+import type { AnomalieFiscaleDetectee, DonneesAuditFiscal, SyntheseAuditFiscalAvance } from "@/lib/ohada/audit-fiscal-avance";
 
 interface VehiculeInput {
     id: string;
@@ -29,7 +23,7 @@ interface VehiculeInput {
 const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function MatriceRisquesFiscauxPage() {
-    const [pays, setPays] = useState<PaysFiscal>("SN");
+    const [pays, setPays] = useState<PaysFiscal>("sn");
     const [exercice, setExercice] = useState(new Date().getFullYear() - 1);
     const [chiffreAffairesHT, setChiffreAffairesHT] = useState(500_000_000);
     const [beneficeAvantFraisSiege, setBeneficeAvantFraisSiege] = useState(45_000_000);
@@ -126,16 +120,14 @@ export default function MatriceRisquesFiscauxPage() {
         }
     }, [pays, exercice, chiffreAffairesHT, beneficeAvantFraisSiege, capitalSocialTotal, capitalSocialLibere, soldeMoyenCCA, tauxInteretCCA, tauxBCEAOMax, fraisDeSiege, vehicules, dons]);
 
-    const badgeGravite = (gravite: GraviteAnomalie) => {
+    const badgeGravite = (gravite: AnomalieFiscaleDetectee["gravite"]) => {
         switch (gravite) {
             case "CRITIQUE":
                 return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-950/80 text-red-300 border border-red-800">CRITIQUE</span>;
-            case "ELEVE":
+            case "MAJEURE":
                 return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-950/80 text-amber-300 border border-amber-800">ÉLEVÉ</span>;
-            case "MODERE":
+            case "MOYENNE":
                 return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-950/80 text-yellow-300 border border-yellow-800">MODÉRÉ</span>;
-            default:
-                return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800">FAIBLE</span>;
         }
     };
 
@@ -179,10 +171,10 @@ export default function MatriceRisquesFiscauxPage() {
                                     onChange={(e) => setPays(e.target.value as PaysFiscal)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-primary"
                                 >
-                                    <option value="SN">Sénégal (SN - IS 30%)</option>
-                                    <option value="CI">Côte d&apos;Ivoire (CI - IS 25%)</option>
-                                    <option value="CM">Cameroun (CM - IS 30%)</option>
-                                    <option value="BJ">Bénin (BJ - IS 25%)</option>
+                                    <option value="sn">Sénégal (SN - IS 30%)</option>
+                                    <option value="ci">Côte d&apos;Ivoire (CI - IS 25%)</option>
+                                    <option value="cm">Cameroun (CM - IS 30%)</option>
+                                    <option value="bj">Bénin (BJ - IS 25%)</option>
                                 </select>
                             </div>
                             <div>
@@ -404,20 +396,20 @@ export default function MatriceRisquesFiscauxPage() {
 
                         <div className="bg-card/60 border border-border p-4 rounded-xl space-y-1">
                             <span className="text-xs text-muted-foreground uppercase font-medium">Réintégrations Fiscales</span>
-                            <p className="text-xl font-bold text-foreground">{f(synthese.totalReintegrationsFiscale)}</p>
+                            <p className="text-xl font-bold text-foreground">{f(synthese.totalReintegrations)}</p>
                             <span className="text-xs text-muted-foreground">Base taxable additionnelle</span>
                         </div>
 
                         <div className="bg-card/60 border border-border p-4 rounded-xl space-y-1">
                             <span className="text-xs text-muted-foreground uppercase font-medium">Rappel d&apos;IS Estimé</span>
-                            <p className="text-xl font-bold text-amber-400">{f(synthese.totalRappelImpotEstime)}</p>
-                            <span className="text-xs text-muted-foreground">Taux IS appliqué : {(synthese.tauxISApplique * 100).toFixed(0)}%</span>
+                            <p className="text-xl font-bold text-amber-400">{f(synthese.totalRappelImpot)}</p>
+                            <span className="text-xs text-muted-foreground">Taux IS appliqué : {(synthese.tauxIS * 100).toFixed(0)}%</span>
                         </div>
 
                         <div className="bg-card/60 border border-border p-4 rounded-xl space-y-1">
                             <span className="text-xs text-muted-foreground uppercase font-medium">Exposition Globale</span>
-                            <p className="text-xl font-bold text-red-400">{f(synthese.expositionGlobale)}</p>
-                            <span className="text-xs text-muted-foreground">Dont pénalités : {f(synthese.totalPenalitesEstimees)}</span>
+                            <p className="text-xl font-bold text-red-400">{f(synthese.expositionFiscaleGlobale)}</p>
+                            <span className="text-xs text-muted-foreground">Dont pénalités : {f(synthese.totalPenalites)}</span>
                         </div>
                     </div>
 
@@ -471,10 +463,10 @@ export default function MatriceRisquesFiscauxPage() {
                             Contrôle & Délais de Prescription Fiscale
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                            {synthese.prescriptionFiscale.description}
+                            {synthese.exercicesPrescription.regle}
                         </p>
                         <div className="flex flex-wrap gap-2 pt-1">
-                            {synthese.prescriptionFiscale.anneesNonPrescrites.map((an) => (
+                            {synthese.exercicesPrescription.anneesControlePossibles.map((an) => (
                                 <span
                                     key={an}
                                     className="px-2.5 py-1 rounded bg-muted text-foreground font-mono text-xs border border-border"

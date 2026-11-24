@@ -4,7 +4,7 @@ import { executerCadragePaieCompta } from "@/lib/payroll/cadrage-paie-compta";
 describe("executerCadragePaieCompta", () => {
   it("valide une concordance parfaite entre paie et comptabilité (100% conforme)", () => {
     const res = executerCadragePaieCompta(
-      "SN",
+      "sn",
       2025,
       "Décembre 2025",
       {
@@ -33,7 +33,7 @@ describe("executerCadragePaieCompta", () => {
 
   it("détecte des anomalies avec risque de redressement social en cas d'écart sur les charges", () => {
     const res = executerCadragePaieCompta(
-      "CI",
+      "ci",
       2025,
       "T4 2025",
       {

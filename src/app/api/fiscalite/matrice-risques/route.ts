@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
-  const pays = (searchParams.get("pays") ?? "SN") as PaysFiscal;
+  const pays = (searchParams.get("pays") ?? "sn").toLowerCase() as PaysFiscal;
   const exercice = parseInt(searchParams.get("exercice") ?? String(new Date().getFullYear() - 1));
 
   // Données de démonstration
