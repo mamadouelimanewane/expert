@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const { denied } = await requireStaff();
   if (denied) return denied;
 
-  let body: { comptes?: CompteSYSCOA[] };
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
@@ -21,33 +21,46 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { comptes } = body;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
+  }
+  const comptes = (body as Record<string, unknown>).comptes;
 
-  if (!Array.isArray(comptes) || comptes.length === 0) {
+  if (!Array.isArray(comptes) || comptes.length === 0 || comptes.length > 5_000) {
     return NextResponse.json(
-      { error: "Le champ 'comptes' doit être un tableau non vide de CompteSYSCOA." },
+      { error: "Le champ 'comptes' doit contenir entre 1 et 5 000 lignes." },
       { status: 400 }
     );
   }
 
-  // Validation légère de chaque ligne
-  for (const c of comptes) {
-    if (!c.numero || typeof c.numero !== "string") {
+  const numeros = new Set<string>();
+  const comptesValides: CompteSYSCOA[] = [];
+  for (const value of comptes as unknown[]) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
       return NextResponse.json(
-        { error: `Compte invalide : champ 'numero' manquant ou incorrect (${JSON.stringify(c)}).` },
+        { error: "Une ligne de balance n’est pas un compte valide." },
         { status: 400 }
       );
     }
-    if (typeof c.solde_XOF !== "number") {
+    const compte = value as Record<string, unknown>;
+    if (typeof compte.numero !== "string" || !/^\d{1,10}$/.test(compte.numero.trim())
+      || typeof compte.libelle !== "string" || !compte.libelle.trim() || compte.libelle.trim().length > 255
+      || typeof compte.solde_XOF !== "number" || !Number.isFinite(compte.solde_XOF)) {
       return NextResponse.json(
-        { error: `Compte ${c.numero} : champ 'solde_XOF' doit être un nombre.` },
+        { error: "Chaque compte doit avoir un numéro, un intitulé et un solde numérique valide." },
         { status: 400 }
       );
     }
+    const numero = compte.numero.trim();
+    if (numeros.has(numero)) {
+      return NextResponse.json({ error: `Le compte ${numero} apparaît plusieurs fois dans la balance.` }, { status: 400 });
+    }
+    numeros.add(numero);
+    comptesValides.push({ numero, libelle: compte.libelle.trim(), solde_XOF: compte.solde_XOF });
   }
 
   try {
-    const rapport = migrerBalanceSYSCOA(comptes);
+    const rapport = migrerBalanceSYSCOA(comptesValides);
     return NextResponse.json(rapport, { status: 200 });
   } catch (err) {
     console.error("[syscoa-migration] Erreur moteur :", err);

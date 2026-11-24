@@ -3,40 +3,29 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  migrerBalanceSYSCOA,
   type CompteSYSCOA,
   type RapportMigration,
 } from "@/lib/ohada/syscoa-migration-engine";
 
-const EXEMPLE_BALANCE_SYSCOA: CompteSYSCOA[] = [
-  { numero: "101", libelle: "Capital social", solde_XOF: 100_000_000 },
-  { numero: "111", libelle: "Prime d'émission", solde_XOF: 15_000_000 },
-  { numero: "162", libelle: "Emprunts auprès des ét. de crédit", solde_XOF: 45_000_000 },
-  { numero: "211", libelle: "Frais préliminaires", solde_XOF: 2_500_000 },
-  { numero: "221", libelle: "Terrains agricoles", solde_XOF: 60_000_000 },
-  { numero: "241", libelle: "Matériel industriel", solde_XOF: 35_000_000 },
-  { numero: "311", libelle: "Marchandises A", solde_XOF: 28_000_000 },
-  { numero: "411", libelle: "Clients ordinaires", solde_XOF: 38_500_000 },
-  { numero: "421", libelle: "Personnel avances", solde_XOF: 4_200_000 },
-  { numero: "521", libelle: "Banque locale", solde_XOF: 19_800_000 },
-  { numero: "601", libelle: "Achats de matières", solde_XOF: 85_000_000 },
-  { numero: "701", libelle: "Ventes de produits finis", solde_XOF: 210_000_000 },
-  { numero: "999", libelle: "Compte non répertorié spécial", solde_XOF: 1_200_000 },
-];
-
 export default function SyscoaMigrationPage() {
-  const [comptes, setComptes] = useState<CompteSYSCOA[]>(EXEMPLE_BALANCE_SYSCOA);
+  const [comptes, setComptes] = useState<CompteSYSCOA[]>([]);
   const [nouveauNumero, setNouveauNumero] = useState("");
   const [nouveauLibelle, setNouveauLibelle] = useState("");
   const [nouveauSolde, setNouveauSolde] = useState<number | "">("");
-  const [rapport, setRapport] = useState<RapportMigration | null>(() => {
-    return migrerBalanceSYSCOA(EXEMPLE_BALANCE_SYSCOA);
-  });
+  const [rapport, setRapport] = useState<RapportMigration | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAjouterCompte = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nouveauNumero || !nouveauLibelle || nouveauSolde === "") return;
+    if (!nouveauNumero.trim() || !/^\d{1,10}$/.test(nouveauNumero.trim()) || !nouveauLibelle.trim() || nouveauSolde === "" || !Number.isFinite(nouveauSolde)) {
+      setError("Saisissez un numéro de compte, un intitulé et un solde valides.");
+      return;
+    }
+    if (comptes.some((compte) => compte.numero === nouveauNumero.trim())) {
+      setError("Ce numéro de compte figure déjà dans la balance.");
+      return;
+    }
     const nouveauCompte: CompteSYSCOA = {
       numero: nouveauNumero.trim(),
       libelle: nouveauLibelle.trim(),
@@ -44,6 +33,8 @@ export default function SyscoaMigrationPage() {
     };
     const miseAJour = [...comptes, nouveauCompte];
     setComptes(miseAJour);
+    setRapport(null);
+    setError("");
     setNouveauNumero("");
     setNouveauLibelle("");
     setNouveauSolde("");
@@ -52,24 +43,27 @@ export default function SyscoaMigrationPage() {
   const handleSupprimerCompte = (index: number) => {
     const miseAJour = comptes.filter((_, i) => i !== index);
     setComptes(miseAJour);
+    setRapport(null);
   };
 
   const handleLancerMigration = async () => {
+    if (comptes.length === 0) {
+      setError("Ajoutez les comptes et soldes de la balance source avant de lancer la migration.");
+      return;
+    }
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/comptabilite/syscoa-migration", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ comptes }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setRapport(data);
-      } else {
-        setRapport(migrerBalanceSYSCOA(comptes));
-      }
-    } catch {
-      setRapport(migrerBalanceSYSCOA(comptes));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "La migration n’a pas pu être calculée.");
+      setRapport(data);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "La migration n’a pas pu être calculée.");
     } finally {
       setLoading(false);
     }
@@ -197,7 +191,9 @@ export default function SyscoaMigrationPage() {
                   </div>
                 </div>
               ))}
+              {comptes.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-5 text-center text-xs text-slate-500">Aucun compte chargé. Saisissez la balance réelle à migrer.</p>}
             </div>
+            {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
           </div>
         </div>
 
@@ -229,7 +225,7 @@ export default function SyscoaMigrationPage() {
               {rapport.alertesMigration.length > 0 && (
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 space-y-2">
                   <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                    ⚠️ Alertes & Points d'Attention
+                    ⚠️ Alertes &amp; Points d&apos;Attention
                   </h4>
                   <ul className="space-y-1 text-xs text-amber-300">
                     {rapport.alertesMigration.map((a, idx) => (
