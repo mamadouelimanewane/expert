@@ -13,7 +13,7 @@ import { AuditService } from "@/lib/audit";
  * POST /api/fiscalite/attestation-brs            → génère une nouvelle attestation
  */
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { denied, session } = await requireStaff();
     if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
@@ -22,10 +22,12 @@ export async function GET(request: NextRequest) {
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     // Lire les attestations stockées en tant que documents liés au client
     const attestations = await prisma.document.findMany({
-        where: { clientId, type: "AUTRE", fileName: { startsWith: "BRS-" } },
+        where: { clientId, cabinetId: session.cabinetId, type: "AUTRE", fileName: { startsWith: "BRS-" } },
         orderBy: { createdAt: "desc" },
         take: 50,
         select: { id: true, fileName: true, createdAt: true, ocrData: true, fileUrl: true },
@@ -82,60 +84,80 @@ export async function POST(request: NextRequest) {
 
     try {
         body = await request.json();
+        if (!body || typeof body !== "object" || Array.isArray(body)) {
+            return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
+        }
     } catch {
         return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
     }
 
-    const { clientId, pays, typeRetenue, beneficiaire, factures, signataireNom } = body;
+    const { clientId, pays, typeRetenue, beneficiaire, factures, signataireNom, signataireQualite } = body;
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId manquant ou invalide." }, { status: 400 });
     }
-    if (!pays || !["sn", "ci", "cm", "bj"].includes(pays.toLowerCase())) {
+    if (typeof pays !== "string" || !["sn", "ci", "cm", "bj"].includes(pays.toLowerCase())) {
         return NextResponse.json({ error: "Pays non pris en charge." }, { status: 400 });
     }
-    if (!typeRetenue || !TAUX_RETENUE_DEFAUT[pays.toLowerCase() as PaysFiscal]?.[typeRetenue as TypeRetenueSource]) {
+    if (typeof typeRetenue !== "string" || !TAUX_RETENUE_DEFAUT[pays.toLowerCase() as PaysFiscal]?.[typeRetenue as TypeRetenueSource]) {
         return NextResponse.json({ error: "Type de retenue invalide ou non pris en charge pour ce pays." }, { status: 400 });
     }
-    if (!beneficiaire?.raisonSociale || !beneficiaire?.identifiantFiscal) {
-        return NextResponse.json({ error: "Informations bénéficiaire incomplètes (raisonSociale, identifiantFiscal requis)." }, { status: 400 });
+    const informationsBeneficiaire = beneficiaire ? [beneficiaire.raisonSociale, beneficiaire.identifiantFiscal, beneficiaire.adresse, beneficiaire.ville, beneficiaire.pays] : [];
+    if (informationsBeneficiaire.length !== 5 || informationsBeneficiaire.some((value) => typeof value !== "string" || !value.trim())) {
+        return NextResponse.json({ error: "Les informations d'identité et d'adresse du bénéficiaire sont obligatoires." }, { status: 400 });
     }
     if (!factures || !Array.isArray(factures) || factures.length === 0) {
         return NextResponse.json({ error: "Au moins une facture est requise." }, { status: 400 });
     }
-    if (!signataireNom) {
-        return NextResponse.json({ error: "Nom du signataire requis." }, { status: 400 });
+    if (typeof signataireNom !== "string" || !signataireNom.trim() || typeof signataireQualite !== "string" || !signataireQualite.trim()) {
+        return NextResponse.json({ error: "Nom et qualité du signataire requis." }, { status: 400 });
+    }
+    if (factures.some((facture) => !facture || typeof facture.numeroFacture !== "string" || !facture.numeroFacture.trim()
+        || typeof facture.description !== "string" || !facture.description.trim()
+        || typeof facture.dateFacture !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(facture.dateFacture) || !Number.isFinite(Date.parse(facture.dateFacture))
+        || !Number.isFinite(facture.montantBrutHT) || facture.montantBrutHT <= 0
+        || (facture.tauxRetenue !== undefined && (!Number.isFinite(facture.tauxRetenue) || facture.tauxRetenue < 0 || facture.tauxRetenue > 100)))) {
+        return NextResponse.json({ error: "Chaque facture doit comporter une date, une référence, une description et un montant valides." }, { status: 400 });
     }
 
     // Charger le cabinet collecteur
-    const client = await prisma.client.findUnique({
-        where: { id: clientId },
-        select: { companyName: true, country: true, ninea: true, ifu: true, nif: true },
+    const client = await prisma.client.findFirst({
+        where: { id: clientId, cabinetId: session.cabinetId },
+        select: { companyName: true, country: true, ninea: true, ifu: true, nif: true, address: true, city: true },
     });
     if (!client) return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
 
+    const identifiantCollecteur = client.ninea || client.ifu || client.nif;
+    if (!client.companyName?.trim() || !identifiantCollecteur?.trim() || !client.address?.trim() || !client.city?.trim() || !client.country?.trim()) {
+        return NextResponse.json({ error: "Complétez la raison sociale, l'identifiant fiscal, l'adresse, la ville et le pays du collecteur dans la fiche client avant d'émettre une attestation." }, { status: 422 });
+    }
+    if (client.country.toLowerCase() !== pays.toLowerCase()) {
+        return NextResponse.json({ error: "Le pays de l'attestation doit correspondre au pays fiscal renseigné dans la fiche client." }, { status: 400 });
+    }
+
     const collecteur: EntitePartieFiscale = {
-        raisonSociale: client.companyName || "Cabinet",
-        identifiantFiscal: client.ninea || client.ifu || client.nif || "N/A",
-        adresse: "",
-        ville: "",
-        pays: client.country || pays.toUpperCase(),
+        raisonSociale: client.companyName,
+        identifiantFiscal: identifiantCollecteur!,
+        adresse: client.address,
+        ville: client.city,
+        pays: client.country,
     };
 
     const cert = creerCertificatRetenueSource({
         pays: pays.toLowerCase() as PaysFiscal,
         typeRetenue: typeRetenue as TypeRetenueSource,
         collecteur,
-        beneficiaire,
+        beneficiaire: beneficiaire!,
         factures,
         signataireNom,
-        signataireQualite: body.signataireQualite,
+        signataireQualite,
         quittanceVersement: body.quittanceVersement,
     });
 
     // Persister comme document lié au client
     const document = await prisma.document.create({
         data: {
+            cabinetId: session.cabinetId,
             clientId,
             fileName: `${cert.numeroCertificat}.json`,
             originalName: `${cert.numeroCertificat}.json`,

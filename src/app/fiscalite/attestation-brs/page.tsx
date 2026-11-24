@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import type { DonneesCertificatBRS } from "@/lib/ohada/attestation-brs";
 import {
     FileCheck2, Plus, Trash2, Printer, CheckCircle2,
-    AlertCircle, Search, ShieldCheck, Hash, Building2, UserCheck, Calendar
+    AlertCircle, ShieldCheck, Hash, Building2, UserCheck, Calendar
 } from "lucide-react";
 
 interface FactureInput {
     numeroFacture: string;
     dateFacture: string;
     description: string;
-    montantBrutHT: number;
+    montantBrutHT: number | "";
     tauxRetenue?: number;
 }
 
@@ -30,34 +31,27 @@ interface AttestationItem {
 
 export default function AttestationBRSPage() {
     const [clientId, setClientId] = useState("");
-    const [pays, setPays] = useState<"sn" | "ci" | "cm" | "bj">("sn");
-    const [typeRetenue, setTypeRetenue] = useState<string>("BRS_PRESTATIONS_SERVICES_LOCALES");
+    const [pays, setPays] = useState<"" | "sn" | "ci" | "cm" | "bj">("");
+    const [typeRetenue, setTypeRetenue] = useState<string>("");
 
     // Bénéficiaire
     const [beneficiaireNom, setBeneficiaireNom] = useState("");
     const [beneficiaireIdentifiant, setBeneficiaireIdentifiant] = useState("");
     const [beneficiaireAdresse, setBeneficiaireAdresse] = useState("");
-    const [beneficiaireVille, setBeneficiaireVille] = useState("Dakar");
-    const [beneficiairePays, setBeneficiairePays] = useState("Sénégal");
+    const [beneficiaireVille, setBeneficiaireVille] = useState("");
+    const [beneficiairePays, setBeneficiairePays] = useState("");
 
     // Signataire
-    const [signataireNom, setSignataireNom] = useState("Mamadou Elimane WANE");
-    const [signataireQualite, setSignataireQualite] = useState("Expert-Comptable Associé");
+    const [signataireNom, setSignataireNom] = useState("");
+    const [signataireQualite, setSignataireQualite] = useState("");
 
     // Factures
-    const [factures, setFactures] = useState<FactureInput[]>([
-        {
-            numeroFacture: "FAC-2026-001",
-            dateFacture: new Date().toISOString().slice(0, 10),
-            description: "Prestations d'audit et conseil",
-            montantBrutHT: 2500000,
-        },
-    ]);
+    const [factures, setFactures] = useState<FactureInput[]>([]);
 
     // État
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [successCertificat, setSuccessCertificat] = useState<any | null>(null);
+    const [successCertificat, setSuccessCertificat] = useState<(DonneesCertificatBRS & { documentUrl?: string }) | null>(null);
     const [historique, setHistorique] = useState<AttestationItem[]>([]);
     const [loadingHisto, setLoadingHisto] = useState(false);
 
@@ -87,10 +81,10 @@ export default function AttestationBRSPage() {
         setFactures([
             ...factures,
             {
-                numeroFacture: `FAC-2026-${String(factures.length + 1).padStart(3, "0")}`,
-                dateFacture: new Date().toISOString().slice(0, 10),
-                description: "Prestation de services",
-                montantBrutHT: 1000000,
+                numeroFacture: "",
+                dateFacture: "",
+                description: "",
+                montantBrutHT: "",
             },
         ]);
     };
@@ -100,9 +94,9 @@ export default function AttestationBRSPage() {
         setFactures(factures.filter((_, i) => i !== index));
     };
 
-    const modifierFacture = (index: number, champ: keyof FactureInput, val: any) => {
+    const modifierFacture = (index: number, champ: keyof FactureInput, val: string | number) => {
         const copy = [...factures];
-        copy[index] = { ...copy[index], [champ]: val };
+        copy[index] = { ...copy[index], [champ]: val } as FactureInput;
         setFactures(copy);
     };
 
@@ -113,12 +107,12 @@ export default function AttestationBRSPage() {
             setError("Veuillez saisir un identifiant client (MongoDB ObjectId).");
             return;
         }
-        if (!beneficiaireNom.trim() || !beneficiaireIdentifiant.trim()) {
-            setError("Raison sociale et Identifiant fiscal (NINEA/IFU) du prestataire sont obligatoires.");
+        if (!pays || !typeRetenue || !beneficiaireNom.trim() || !beneficiaireIdentifiant.trim() || !beneficiaireAdresse.trim() || !beneficiaireVille.trim() || !beneficiairePays.trim() || !signataireNom.trim() || !signataireQualite.trim()) {
+            setError("Choisissez le pays et la retenue, puis renseignez les coordonnées du prestataire et du signataire.");
             return;
         }
-        if (factures.some((f) => !f.numeroFacture || !f.montantBrutHT || f.montantBrutHT <= 0)) {
-            setError("Toutes les factures doivent avoir un numéro et un montant HT supérieur à zéro.");
+        if (factures.length === 0 || factures.some((f) => !f.numeroFacture.trim() || !f.dateFacture || !f.description.trim() || typeof f.montantBrutHT !== "number" || !Number.isFinite(f.montantBrutHT) || f.montantBrutHT <= 0)) {
+            setError("Ajoutez au moins une facture réelle avec numéro, date, description et montant HT supérieur à zéro.");
             return;
         }
 
@@ -158,10 +152,10 @@ export default function AttestationBRSPage() {
                 throw new Error(data.error || "Erreur lors de la génération de l'attestation.");
             }
 
-            setSuccessCertificat(data.certificat);
+            setSuccessCertificat({ ...data.certificat, documentUrl: data.documentUrl });
             chargerHistorique(clientId.trim());
-        } catch (err: any) {
-            setError(err.message || "Une erreur est survenue.");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Une erreur est survenue.");
         } finally {
             setLoading(false);
         }
@@ -195,11 +189,12 @@ export default function AttestationBRSPage() {
                             <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                             <div>
                                 <h3 className="text-lg font-bold text-emerald-200">
-                                    Attestation certifiée avec succès : {successCertificat.numeroCertificat}
+                                    Attestation générée : {successCertificat.numeroCertificat}
                                 </h3>
                                 <p className="text-xs text-emerald-400/80">
-                                    Document scellé et archivé en GED. Clé d'authenticité fiscale : <span className="font-mono font-bold">{successCertificat.cleControle}</span>
+                                    Document enregistré en GED. La clé de contrôle est calculée sur les données saisies : <span className="font-mono font-bold">{successCertificat.cleControle}</span>. Vérifiez les textes officiels avant émission.
                                 </p>
+                                {successCertificat.documentUrl && <a href={successCertificat.documentUrl} target="_blank" rel="noreferrer" className="inline-flex mt-1 text-xs text-emerald-300 hover:underline">Télécharger l’archive JSON</a>}
                             </div>
                         </div>
                         <button
@@ -273,11 +268,12 @@ export default function AttestationBRSPage() {
                                 </label>
                                 <select
                                     value={pays}
-                                    onChange={(e: any) => setPays(e.target.value)}
+                                    onChange={(e) => setPays(e.target.value as typeof pays)}
                                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
+                                    <option value="">Choisir le pays</option>
                                     <option value="sn">Sénégal (CGI art. 200)</option>
-                                    <option value="ci">Côte d'Ivoire (CGI art. 92)</option>
+                                    <option value="ci">Côte d&apos;Ivoire (CGI art. 92)</option>
                                     <option value="cm">Cameroun (CGI art. 90)</option>
                                     <option value="bj">Bénin (CGI art. 192)</option>
                                 </select>
@@ -292,6 +288,7 @@ export default function AttestationBRSPage() {
                                     onChange={(e) => setTypeRetenue(e.target.value)}
                                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                                 >
+                                    <option value="">Choisir le type applicable après vérification</option>
                                     <option value="BRS_PRESTATIONS_SERVICES_LOCALES">BRS Prestations Locales (5 % / 7.5 %)</option>
                                     <option value="RETENUE_BNC_HONORAIRES">Honoraires BNC (10 % à 25 %)</option>
                                     <option value="RETENUE_NON_RESIDENTS_ETRANGERS">Non-Résidents Étrangers (20 %)</option>
@@ -429,7 +426,7 @@ export default function AttestationBRSPage() {
                                         <input
                                             type="number"
                                             value={facture.montantBrutHT}
-                                            onChange={(e) => modifierFacture(index, "montantBrutHT", Number(e.target.value))}
+                                            onChange={(e) => modifierFacture(index, "montantBrutHT", e.target.value === "" ? "" : Number(e.target.value))}
                                             placeholder="Montant HT"
                                             className="w-full px-2.5 py-1.5 text-xs bg-background border border-border rounded font-mono font-medium"
                                         />
@@ -499,7 +496,7 @@ export default function AttestationBRSPage() {
                             ) : (
                                 <>
                                     <ShieldCheck className="w-4 h-4" />
-                                    Générer et Sceller l'Attestation Officielle
+                                    Générer et Sceller l&apos;Attestation Officielle
                                 </>
                             )}
                         </button>
