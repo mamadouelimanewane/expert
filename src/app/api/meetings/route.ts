@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MeetingType } from "@prisma/client";
-import { analyserEnum } from "@/lib/api-auth";
+import { analyserEnum, requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
+import { isObjectId } from "@/lib/tenant-security";
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await AuthService.getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const { session, denied } = await requireStaff();
+    if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
+    if (clientId && !isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+    if (clientId && !await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } })) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const meetings = await prisma.meeting.findMany({
-      where: clientId ? { clientId } : {},
+      where: { cabinetId: session.cabinetId, ...(clientId ? { clientId } : {}) },
       include: {
         client: { select: { companyName: true, firstName: true, lastName: true } },
         organizer: { select: { firstName: true, lastName: true } },
@@ -35,10 +35,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await AuthService.getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const { session, denied } = await requireWriteAccess();
+    if (denied) return denied;
 
     if (!isValidObjectId(session.id)) {
       return NextResponse.json({ error: "Mode démonstration — création désactivée" }, { status: 403 });
@@ -68,7 +66,8 @@ export async function POST(request: NextRequest) {
     // quel. L'enregistrement devenait orphelin — invisible dans toutes les
     // vues filtrees par client, mais compte dans les totaux globaux.
     if (clientId) {
-      const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+      if (!isObjectId(clientId)) return NextResponse.json({ error: "Identifiant client invalide." }, { status: 400 });
+      const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
       if (!client) {
         return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
       }
@@ -76,6 +75,7 @@ export async function POST(request: NextRequest) {
 
     const meeting = await prisma.meeting.create({
       data: {
+        cabinetId: session.cabinetId,
         title,
         description: description || undefined,
         type: typeReunion.valeur,

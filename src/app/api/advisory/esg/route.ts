@@ -12,13 +12,13 @@ const text = (value: unknown, max = 5000) => typeof value === "string" ? value.t
 const record = (value: unknown): value is Record<string, unknown> => Boolean(value && typeof value === "object" && !Array.isArray(value));
 
 export async function GET(request: Request) {
-  const { denied } = await requireWriteAccess();
+  const { session, denied } = await requireWriteAccess();
   if (denied) return denied;
   const clientId = new URL(request.url).searchParams.get("clientId");
   if (clientId && !isObjectId(clientId)) return NextResponse.json({ error: "Identifiant client invalide." }, { status: 400 });
   try {
     const assessments = await prisma.esgAssessment.findMany({
-      where: clientId ? { clientId } : {},
+      where: { cabinetId: session.cabinetId, ...(clientId ? { clientId } : {}) },
       include: {
         client: { select: { id: true, companyName: true, firstName: true, lastName: true, country: true } },
         createdBy: { select: { id: true, firstName: true, lastName: true } },
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   if (!QUALITES.includes(dataQuality as typeof QUALITES[number])) return NextResponse.json({ error: "Précisez si les données sont mesurées, estimées ou mixtes." }, { status: 400 });
   if (evidenceNotes.length < 20) return NextResponse.json({ error: "Décrivez les sources et limites des données (20 caractères minimum)." }, { status: 400 });
   try {
-    const client = await prisma.client.findFirst({ where: { id: clientId, isActive: true }, select: { id: true, companyName: true, firstName: true, lastName: true, country: true } });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId, isActive: true }, select: { id: true, companyName: true, firstName: true, lastName: true, country: true } });
     if (!client) return NextResponse.json({ error: "Client actif introuvable dans ce cabinet." }, { status: 404 });
     const legalName = client.companyName || `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim() || "Client";
     const validated = validerDonneesESG(body.input, legalName, client.country);
@@ -51,10 +51,11 @@ export async function POST(request: Request) {
     const report = genererRapportESG(validated.input);
     let assessment = null;
     for (let attempt = 0; attempt < 5 && !assessment; attempt++) {
-      const previous = await prisma.esgAssessment.findFirst({ where: { clientId, periodYear: validated.input.exercice }, orderBy: { version: "desc" }, select: { version: true } });
+      const previous = await prisma.esgAssessment.findFirst({ where: { clientId, cabinetId: session.cabinetId, periodYear: validated.input.exercice }, orderBy: { version: "desc" }, select: { version: true } });
       try {
         assessment = await prisma.esgAssessment.create({
           data: {
+            cabinetId: session.cabinetId,
             clientId, periodYear: validated.input.exercice, country: client.country,
             version: (previous?.version ?? 0) + 1, dataQuality, evidenceNotes,
             methodologyVersion: "ESG-ESTIMATE-1", emissionFactorVersion: "GENERIC-2.68-0.45-v1",
@@ -85,23 +86,23 @@ export async function PATCH(request: Request) {
   const id = text(body.id, 30), reviewComment = text(body.reviewComment, 2000);
   if (!isObjectId(id)) return NextResponse.json({ error: "Identifiant d’évaluation invalide." }, { status: 400 });
   if (reviewComment.length < 20) return NextResponse.json({ error: "La revue doit comporter un commentaire motivé de 20 caractères minimum." }, { status: 400 });
-  const previous = await prisma.esgAssessment.findFirst({ where: { id } });
+  const previous = await prisma.esgAssessment.findFirst({ where: { id, cabinetId: session.cabinetId } });
   if (!previous) return NextResponse.json({ error: "Évaluation ESG introuvable." }, { status: 404 });
   if (previous.createdById === session.id) return NextResponse.json({ error: "La revue indépendante doit être effectuée par un autre membre habilité." }, { status: 403 });
   if (previous.status !== "DRAFT") return NextResponse.json({ error: "Cette version ESG a déjà été revue. Créez une nouvelle version pour la corriger." }, { status: 409 });
 
   // Compare-and-set: only one concurrent reviewer can change DRAFT to REVIEWED.
   const transition = await prisma.esgAssessment.updateMany({
-    where: { id, status: "DRAFT", createdById: { not: session.id } },
+    where: { id, cabinetId: session.cabinetId, status: "DRAFT", createdById: { not: session.id } },
     data: { status: "REVIEWED", reviewComment, reviewedById: session.id, reviewedAt: new Date() },
   });
   if (transition.count !== 1) {
-    const current = await prisma.esgAssessment.findFirst({ where: { id } });
+    const current = await prisma.esgAssessment.findFirst({ where: { id, cabinetId: session.cabinetId } });
     if (!current) return NextResponse.json({ error: "Évaluation ESG introuvable." }, { status: 404 });
     if (current.createdById === session.id) return NextResponse.json({ error: "La revue indépendante doit être effectuée par un autre membre habilité." }, { status: 403 });
     return NextResponse.json({ error: "Cette version ESG vient d’être revue. Actualisez la liste avant de continuer." }, { status: 409 });
   }
-  const assessment = await prisma.esgAssessment.findFirst({ where: { id } });
+  const assessment = await prisma.esgAssessment.findFirst({ where: { id, cabinetId: session.cabinetId } });
   if (!assessment) return NextResponse.json({ error: "La revue a été enregistrée, mais l’évaluation est introuvable." }, { status: 500 });
   await AuditService.log({ action: "REVIEW", entity: "ESG_ASSESSMENT", entityId: id, oldValue: { status: previous.status }, newValue: { status: assessment.status, reviewComment } });
   return NextResponse.json({ assessment });
