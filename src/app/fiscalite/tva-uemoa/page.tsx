@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  calculerCadrageTVA,
-  comparerTVAUEMOA,
   getPaysList,
   type ResultatCadrageTVA,
   type ResultatComparaisonPays,
@@ -16,28 +14,26 @@ export default function TvaUemoaPage() {
 
   // Inputs Cadrage
   const [pays, setPays] = useState("SN");
-  const [caHT, setCaHT] = useState(250_000_000);
-  const [tvaCollectee, setTvaCollectee] = useState(45_000_000);
-  const [tvaDeductible, setTvaDeductible] = useState(28_000_000);
-  const [resultatCadrage, setResultatCadrage] = useState<ResultatCadrageTVA | null>(() => {
-    try {
-      return calculerCadrageTVA("SN", 250_000_000, 45_000_000, 28_000_000);
-    } catch {
-      return null;
-    }
-  });
+  const [caHT, setCaHT] = useState<number | "">("");
+  const [tvaCollectee, setTvaCollectee] = useState<number | "">("");
+  const [tvaDeductible, setTvaDeductible] = useState<number | "">("");
+  const [resultatCadrage, setResultatCadrage] = useState<ResultatCadrageTVA | null>(null);
 
   // Inputs Comparateur
-  const [caComparaison, setCaComparaison] = useState(500_000_000);
-  const [resultatComparaison, setResultatComparaison] = useState<ResultatComparaisonPays[]>(() => {
-    return comparerTVAUEMOA(500_000_000);
-  });
+  const [caComparaison, setCaComparaison] = useState<number | "">("");
+  const [resultatComparaison, setResultatComparaison] = useState<ResultatComparaisonPays[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleCalculerCadrage = async (e: React.FormEvent) => {
     e.preventDefault();
+    if ([caHT, tvaCollectee, tvaDeductible].some((value) => value === "" || !Number.isFinite(value) || value < 0) || caHT === 0) {
+      setError("Saisissez un chiffre d’affaires positif et des montants de TVA réels, supérieurs ou égaux à zéro.");
+      return;
+    }
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/fiscalite/tva-uemoa", {
         method: "POST",
@@ -45,19 +41,20 @@ export default function TvaUemoaPage() {
         body: JSON.stringify({
           action: "cadrage",
           pays,
-          caHT_XOF: caHT,
-          tvaCollectee_XOF: tvaCollectee,
-          tvaDeductible_XOF: tvaDeductible,
+          caHT_XOF: Number(caHT),
+          tvaCollectee_XOF: Number(tvaCollectee),
+          tvaDeductible_XOF: Number(tvaDeductible),
         }),
       });
       if (res.ok) {
         const data = await res.json();
         setResultatCadrage(data);
       } else {
-        setResultatCadrage(calculerCadrageTVA(pays, caHT, tvaCollectee, tvaDeductible));
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Le cadrage n’a pas pu être calculé.");
       }
-    } catch {
-      setResultatCadrage(calculerCadrageTVA(pays, caHT, tvaCollectee, tvaDeductible));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Le cadrage n’a pas pu être calculé.");
     } finally {
       setLoading(false);
     }
@@ -65,24 +62,30 @@ export default function TvaUemoaPage() {
 
   const handleCalculerComparaison = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (caComparaison === "" || !Number.isFinite(caComparaison) || caComparaison <= 0) {
+      setError("Saisissez un chiffre d’affaires réel supérieur à zéro pour comparer les pays.");
+      return;
+    }
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/fiscalite/tva-uemoa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "comparer",
-          caHT_XOF: caComparaison,
+          caHT_XOF: Number(caComparaison),
         }),
       });
       if (res.ok) {
         const data = await res.json();
         setResultatComparaison(data.comparaison);
       } else {
-        setResultatComparaison(comparerTVAUEMOA(caComparaison));
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "La comparaison n’a pas pu être calculée.");
       }
-    } catch {
-      setResultatComparaison(comparerTVAUEMOA(caComparaison));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "La comparaison n’a pas pu être calculée.");
     } finally {
       setLoading(false);
     }
@@ -102,7 +105,7 @@ export default function TvaUemoaPage() {
             Cadrage TVA UEMOA Multi-Pays & Régimes Spéciaux
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Contrôle de cohérence, détection des risques de redressement et benchmark comparatif des 8 États de l'Union
+            Contrôle de cohérence, détection des risques de redressement et benchmark comparatif des 8 États de l&apos;Union
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -157,7 +160,7 @@ export default function TvaUemoaPage() {
               </h2>
 
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Pays UEMOA d'établissement</label>
+                <label className="text-xs text-slate-400 block mb-1">Pays UEMOA d&apos;établissement</label>
                 <select
                   value={pays}
                   onChange={(e) => setPays(e.target.value)}
@@ -172,11 +175,12 @@ export default function TvaUemoaPage() {
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Chiffre d'Affaires HT (XOF)</label>
+                <label className="text-xs text-slate-400 block mb-1">Chiffre d&apos;Affaires HT (XOF)</label>
                 <input
                   type="number"
                   value={caHT}
-                  onChange={(e) => setCaHT(Number(e.target.value))}
+                  min="0"
+                  onChange={(e) => setCaHT(e.target.value === "" ? "" : Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono"
                   required
                 />
@@ -187,7 +191,8 @@ export default function TvaUemoaPage() {
                 <input
                   type="number"
                   value={tvaCollectee}
-                  onChange={(e) => setTvaCollectee(Number(e.target.value))}
+                  min="0"
+                  onChange={(e) => setTvaCollectee(e.target.value === "" ? "" : Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono"
                   required
                 />
@@ -198,7 +203,8 @@ export default function TvaUemoaPage() {
                 <input
                   type="number"
                   value={tvaDeductible}
-                  onChange={(e) => setTvaDeductible(Number(e.target.value))}
+                  min="0"
+                  onChange={(e) => setTvaDeductible(e.target.value === "" ? "" : Number(e.target.value))}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono"
                   required
                 />
@@ -212,6 +218,8 @@ export default function TvaUemoaPage() {
                 {loading ? "Calcul en cours..." : "Lancer le Cadrage TVA"}
               </button>
             </form>
+
+            {error && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">{error}</p>}
 
             {resultatCadrage && (
               <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-3 text-xs">
@@ -295,16 +303,16 @@ export default function TvaUemoaPage() {
                   </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between py-1 border-b border-slate-800/40">
-                      <span className="text-slate-400">Chiffre d'Affaires HT Déclaré</span>
-                      <span className="font-mono text-slate-200">{caHT.toLocaleString("fr-FR")} XOF</span>
+                      <span className="text-slate-400">Chiffre d&apos;Affaires HT Déclaré</span>
+                      <span className="font-mono text-slate-200">{Number(caHT).toLocaleString("fr-FR")} XOF</span>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-800/40">
                       <span className="text-slate-400">TVA Collectée (Comptes 443 / 444)</span>
-                      <span className="font-mono text-slate-200">{tvaCollectee.toLocaleString("fr-FR")} XOF</span>
+                      <span className="font-mono text-slate-200">{Number(tvaCollectee).toLocaleString("fr-FR")} XOF</span>
                     </div>
                     <div className="flex justify-between py-1 border-b border-slate-800/40">
                       <span className="text-slate-400">TVA Déductible (Comptes 445)</span>
-                      <span className="font-mono text-slate-200">{tvaDeductible.toLocaleString("fr-FR")} XOF</span>
+                      <span className="font-mono text-slate-200">{Number(tvaDeductible).toLocaleString("fr-FR")} XOF</span>
                     </div>
                     <div className="flex justify-between py-1 font-bold text-sm pt-2">
                       <span className="text-white">Solde Net de TVA</span>
@@ -325,11 +333,12 @@ export default function TvaUemoaPage() {
         <div className="space-y-6">
           <form onSubmit={handleCalculerComparaison} className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-wrap gap-4 items-end">
             <div className="flex-1 min-w-64">
-              <label className="text-xs text-slate-400 block mb-1">Chiffre d'Affaires HT de Référence (XOF)</label>
+              <label className="text-xs text-slate-400 block mb-1">Chiffre d&apos;Affaires HT de Référence (XOF)</label>
               <input
                 type="number"
                 value={caComparaison}
-                onChange={(e) => setCaComparaison(Number(e.target.value))}
+                min="0"
+                onChange={(e) => setCaComparaison(e.target.value === "" ? "" : Number(e.target.value))}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm font-mono"
                 required
               />
@@ -343,7 +352,9 @@ export default function TvaUemoaPage() {
             </button>
           </form>
 
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden">
+          {error && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-300">{error}</p>}
+
+          {resultatComparaison.length > 0 && <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
@@ -383,7 +394,7 @@ export default function TvaUemoaPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </div>}
         </div>
       )}
     </div>
