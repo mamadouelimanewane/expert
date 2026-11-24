@@ -19,34 +19,30 @@ interface ConventionInput {
 
 export default function AgGeneratorPage() {
     const [clientId, setClientId] = useState("");
-    const [exercice, setExercice] = useState(new Date().getFullYear());
-    const [dateAssemblee, setDateAssemblee] = useState(`${new Date().getFullYear()}-06-15`);
+    const [exercice, setExercice] = useState("");
+    const [dateAssemblee, setDateAssemblee] = useState("");
 
     // Société
-    const [raisonSociale, setRaisonSociale] = useState("Sénégal Technologies SARL");
-    const [formeJuridique, setFormeJuridique] = useState<"SARL" | "SAS" | "SA">("SARL");
-    const [capitalSocial, setCapitalSocial] = useState(10000000);
-    const [nombreTitres, setNombreTitres] = useState(1000);
-    const [dirigeantNom, setDirigeantNom] = useState("Amadou Moustapha SOW");
-    const [dirigeantQualite, setDirigeantQualite] = useState("Gérant");
+    const [raisonSociale, setRaisonSociale] = useState("");
+    const [formeJuridique, setFormeJuridique] = useState<"" | "SARL" | "SAS" | "SA">("");
+    const [capitalSocial, setCapitalSocial] = useState("");
+    const [nombreTitres, setNombreTitres] = useState("");
+    const [dirigeantNom, setDirigeantNom] = useState("");
+    const [dirigeantQualite, setDirigeantQualite] = useState("");
+    const [rccm, setRccm] = useState("");
+    const [identifiantFiscal, setIdentifiantFiscal] = useState("");
+    const [siegeSocial, setSiegeSocial] = useState("");
+    const [ville, setVille] = useState("");
+    const [pays, setPays] = useState("");
 
     // Données financières
-    const [resultatNet, setResultatNet] = useState(14500000);
-    const [reportANouveau, setReportANouveau] = useState(1200000);
-    const [reserveLegaleExistante, setReserveLegaleExistante] = useState(1200000);
-    const [dividendeParTitre, setDividendeParTitre] = useState(8000);
+    const [resultatNet, setResultatNet] = useState("");
+    const [reportANouveau, setReportANouveau] = useState("");
+    const [reserveLegaleExistante, setReserveLegaleExistante] = useState("");
+    const [dividendeParTitre, setDividendeParTitre] = useState("");
 
     // Conventions
-    const [conventions, setConventions] = useState<ConventionInput[]>([
-        {
-            id: "1",
-            personneConcernee: "Amadou Moustapha SOW",
-            qualite: "Gérant & Associé Majoritaire",
-            natureConvention: "Bail commercial portant sur l'immeuble du siège d'exploitation",
-            montantOuEngagement: 14400000,
-            interetPourSociete: "Sécurisation du site d'exploitation aux prix de marché",
-        },
-    ]);
+    const [conventions, setConventions] = useState<ConventionInput[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -58,11 +54,11 @@ export default function AgGeneratorPage() {
             ...conventions,
             {
                 id: String(Date.now()),
-                personneConcernee: "Associé",
-                qualite: "Associé détenant plus de 10%",
-                natureConvention: "Convention de compte courant d'associé rémunéré",
-                montantOuEngagement: 5000000,
-                interetPourSociete: "Apport de trésorerie pour fonds de roulement",
+                personneConcernee: "",
+                qualite: "",
+                natureConvention: "",
+                montantOuEngagement: 0,
+                interetPourSociete: "",
             },
         ]);
     };
@@ -78,6 +74,11 @@ export default function AgGeneratorPage() {
     const genererAG = async () => {
         if (!clientId.trim() || clientId.trim().length < 12) {
             setError("Veuillez renseigner un identifiant client valide (MongoDB ID).");
+            return;
+        }
+        const requiredText = [raisonSociale, formeJuridique, rccm, identifiantFiscal, siegeSocial, ville, pays, dirigeantNom, dirigeantQualite, exercice, dateAssemblee, capitalSocial, nombreTitres, resultatNet, reportANouveau, reserveLegaleExistante, dividendeParTitre];
+        if (requiredText.some((value) => !value.trim()) || Number(nombreTitres) <= 0 || Number(capitalSocial) < 0) {
+            setError("Renseignez les informations juridiques et les données comptables réelles avant de générer le procès-verbal.");
             return;
         }
 
@@ -97,11 +98,11 @@ export default function AgGeneratorPage() {
                         capitalSocial: Number(capitalSocial),
                         valeurNominaleTitre: Number(capitalSocial) / Number(nombreTitres),
                         nombreTitres: Number(nombreTitres),
-                        rccm: "SN-DKR-2022-B-98412",
-                        identifiantFiscal: "00984512 2V2",
-                        siegeSocial: "Avenue Cheikh Anta Diop",
-                        ville: "Dakar",
-                        pays: "sn",
+                        rccm,
+                        identifiantFiscal,
+                        siegeSocial,
+                        ville,
+                        pays: pays.toLowerCase(),
                         dirigeantNom,
                         dirigeantQualite,
                     },
@@ -140,6 +141,7 @@ export default function AgGeneratorPage() {
                 <p className="page-subtitle">
                     Générateur d'Assemblée Générale Ordinaire Annuelle selon l'AUSCGIE : Réserve Légale 20 %, affectation du résultat, conventions réglementées et formalités de dépôt au greffe RCCM.
                 </p>
+                <p className="mt-2 text-xs text-amber-300">Le document est généré à partir des informations saisies. Vérifiez les pièces sociales, les comptes approuvés, les règles applicables et les délais avant signature ou dépôt.</p>
             </div>
 
             {error && (
@@ -180,9 +182,10 @@ export default function AgGeneratorPage() {
                         <label className="block text-muted-foreground mb-1">Forme Sociale OHADA</label>
                         <select
                             value={formeJuridique}
-                            onChange={(e: any) => setFormeJuridique(e.target.value)}
+                            onChange={(e) => setFormeJuridique(e.target.value as "" | "SARL" | "SAS" | "SA")}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background font-semibold"
                         >
+                            <option value="">Choisir la forme sociale</option>
                             <option value="SARL">SARL (Société à Responsabilité Limitée)</option>
                             <option value="SAS">SAS (Société par Actions Simplifiée)</option>
                             <option value="SA">SA (Société Anonyme avec CA ou Administrateur)</option>
@@ -193,10 +196,18 @@ export default function AgGeneratorPage() {
                         <input
                             type="number"
                             value={capitalSocial}
-                            onChange={(e) => setCapitalSocial(Number(e.target.value))}
+                            onChange={(e) => setCapitalSocial(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background font-mono"
                         />
                     </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs">
+                    <label className="block text-muted-foreground">Numéro RCCM<input value={rccm} onChange={(e) => setRccm(e.target.value)} className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground" /></label>
+                    <label className="block text-muted-foreground">Identifiant fiscal<input value={identifiantFiscal} onChange={(e) => setIdentifiantFiscal(e.target.value)} className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground" /></label>
+                    <label className="block text-muted-foreground">Adresse du siège<input value={siegeSocial} onChange={(e) => setSiegeSocial(e.target.value)} className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground" /></label>
+                    <label className="block text-muted-foreground">Ville<input value={ville} onChange={(e) => setVille(e.target.value)} className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground" /></label>
+                    <label className="block text-muted-foreground">Code pays<input value={pays} onChange={(e) => setPays(e.target.value)} placeholder="sn, ci, cm…" className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground" /></label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
@@ -205,7 +216,7 @@ export default function AgGeneratorPage() {
                         <input
                             type="number"
                             value={nombreTitres}
-                            onChange={(e) => setNombreTitres(Number(e.target.value))}
+                            onChange={(e) => setNombreTitres(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background font-mono"
                         />
                     </div>
@@ -237,13 +248,13 @@ export default function AgGeneratorPage() {
                     2. Données Comptables de l'Exercice & Projet de Distribution
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-xs font-mono">
+                <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4 text-xs font-mono">
                     <div>
                         <label className="block text-muted-foreground mb-1 font-sans">Exercice Clos</label>
                         <input
                             type="number"
                             value={exercice}
-                            onChange={(e) => setExercice(Number(e.target.value))}
+                            onChange={(e) => setExercice(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background"
                         />
                     </div>
@@ -261,16 +272,20 @@ export default function AgGeneratorPage() {
                         <input
                             type="number"
                             value={resultatNet}
-                            onChange={(e) => setResultatNet(Number(e.target.value))}
+                            onChange={(e) => setResultatNet(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background font-bold text-foreground"
                         />
+                    </div>
+                    <div>
+                        <label className="block text-muted-foreground mb-1 font-sans">Report à nouveau</label>
+                        <input type="number" value={reportANouveau} onChange={(e) => setReportANouveau(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background" />
                     </div>
                     <div>
                         <label className="block text-muted-foreground mb-1 font-sans">Réserve Légale Actuelle</label>
                         <input
                             type="number"
                             value={reserveLegaleExistante}
-                            onChange={(e) => setReserveLegaleExistante(Number(e.target.value))}
+                            onChange={(e) => setReserveLegaleExistante(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background"
                         />
                     </div>
@@ -279,7 +294,7 @@ export default function AgGeneratorPage() {
                         <input
                             type="number"
                             value={dividendeParTitre}
-                            onChange={(e) => setDividendeParTitre(Number(e.target.value))}
+                            onChange={(e) => setDividendeParTitre(e.target.value)}
                             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-primary font-bold"
                         />
                     </div>
