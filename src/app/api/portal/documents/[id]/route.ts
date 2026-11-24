@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { withPortalClient } from "@/lib/portal-auth";
 import { lirePiece } from "@/lib/stockage-pieces";
+import { lireContenuDocumentGenere } from "@/lib/generated-document";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -17,16 +18,18 @@ export async function GET(request: Request, { params }: Params) {
     const response = await withPortalClient(token, async () => {
       const document = await prisma.document.findUnique({
         where: { id },
-        select: { fileName: true, originalName: true, mimeType: true, storageKey: true },
+        select: { fileName: true, originalName: true, mimeType: true, storageKey: true, ocrData: true },
       });
       if (!document) return NextResponse.json({ error: "Pièce introuvable" }, { status: 404 });
-      const piece = await lirePiece(document.storageKey ?? document.fileName, document.storageKey ? "gridfs" : "disque");
-      if (!piece) return NextResponse.json({ error: "Le fichier n'est plus disponible." }, { status: 410 });
+      const contenuGenere = !document.storageKey ? lireContenuDocumentGenere(document.ocrData) : null;
+      const piece = document.storageKey ? await lirePiece(document.storageKey, "gridfs") : contenuGenere ? null : await lirePiece(document.fileName, "disque");
+      const bytes = contenuGenere ?? piece?.contenu;
+      if (!bytes) return NextResponse.json({ error: "Le fichier n'est plus disponible." }, { status: 410 });
       const name = encodeURIComponent(document.originalName || document.fileName);
-      return new Response(new Uint8Array(piece.contenu), {
+      return new Response(new Uint8Array(bytes), {
         headers: {
-          "Content-Type": document.mimeType || piece.mimeType,
-          "Content-Length": String(piece.contenu.length),
+          "Content-Type": document.mimeType || piece?.mimeType || "application/octet-stream",
+          "Content-Length": String(bytes.length),
           "Content-Disposition": `inline; filename*=UTF-8''${name}`,
           "Cache-Control": "private, no-store",
           "X-Content-Type-Options": "nosniff",

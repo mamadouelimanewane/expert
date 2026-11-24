@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
 import { lirePiece } from "@/lib/stockage-pieces";
 import { AuditService } from "@/lib/audit";
+import { lireContenuDocumentGenere } from "@/lib/generated-document";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -20,10 +21,12 @@ export async function GET(request: Request, { params }: Params) {
     try {
         const { id } = await params;
         if (id.length !== 24) return NextResponse.json({ error: "Identifiant invalide" }, { status: 400 });
-        const doc = await prisma.document.findUnique({ where: { id }, select: { fileName: true, originalName: true, mimeType: true, storageKey: true } });
+        const doc = await prisma.document.findUnique({ where: { id }, select: { fileName: true, originalName: true, mimeType: true, storageKey: true, ocrData: true } });
         if (!doc) return NextResponse.json({ error: "Pièce introuvable" }, { status: 404 });
-        const piece = await lirePiece(doc.storageKey ?? doc.fileName, doc.storageKey ? "gridfs" : "disque");
-        if (!piece) return NextResponse.json({ error: "Le fichier de cette pièce n'est plus disponible." }, { status: 410 });
+        const contenuGenere = !doc.storageKey ? lireContenuDocumentGenere(doc.ocrData) : null;
+        const piece = doc.storageKey ? await lirePiece(doc.storageKey, "gridfs") : contenuGenere ? null : await lirePiece(doc.fileName, "disque");
+        const bytes = contenuGenere ?? piece?.contenu;
+        if (!bytes) return NextResponse.json({ error: "Le fichier de cette pièce n'est plus disponible." }, { status: 410 });
         const telecharger = new URL(request.url).searchParams.get("download") === "1";
         const nom = encodeURIComponent(doc.originalName || doc.fileName);
         await AuditService.log({
@@ -35,10 +38,10 @@ export async function GET(request: Request, { params }: Params) {
             ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim(),
             userAgent: request.headers.get("user-agent") ?? undefined,
         });
-        return new Response(new Uint8Array(piece.contenu), {
+        return new Response(new Uint8Array(bytes), {
             headers: {
-                "Content-Type": doc.mimeType || piece.mimeType,
-                "Content-Length": String(piece.contenu.length),
+                "Content-Type": doc.mimeType || piece?.mimeType || "application/octet-stream",
+                "Content-Length": String(bytes.length),
                 "Content-Disposition": `${telecharger ? "attachment" : "inline"}; filename*=UTF-8''${nom}`,
                 "Cache-Control": "private, max-age=300",
                 "X-Content-Type-Options": "nosniff",

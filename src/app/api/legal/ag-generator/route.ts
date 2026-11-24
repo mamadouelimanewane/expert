@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     const liasse = genererLiasseAGOA(societe, financier, conventions);
 
     // Archiver le PV dans la GED du dossier client
-    await prisma.document.create({
+    const document = await prisma.document.create({
         data: {
             cabinetId: session.cabinetId,
             clientId,
@@ -121,6 +121,7 @@ export async function POST(request: NextRequest) {
             },
         },
     });
+    await prisma.document.update({ where: { id: document.id }, data: { fileUrl: `/api/documents/${document.id}/fichier` } });
 
     await AuditService.log({
         action: "GENERATION_AGOA_OHADA",

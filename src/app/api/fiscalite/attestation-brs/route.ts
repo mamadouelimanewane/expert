@@ -28,16 +28,29 @@ export async function GET(request: NextRequest) {
         where: { clientId, type: "AUTRE", fileName: { startsWith: "BRS-" } },
         orderBy: { createdAt: "desc" },
         take: 50,
-        select: { id: true, fileName: true, createdAt: true, ocrData: true },
+        select: { id: true, fileName: true, createdAt: true, ocrData: true, fileUrl: true },
     });
 
     return NextResponse.json({
-        attestations: attestations.map((a) => ({
-            id: a.id,
-            numeroCertificat: a.fileName,
-            dateEmission: a.createdAt,
-            certificat: a.ocrData,
-        })),
+        attestations: attestations.map((a) => {
+            const certificat = a.ocrData && typeof a.ocrData === "object" ? a.ocrData as Record<string, unknown> : {};
+            const beneficiaire = certificat.beneficiaire && typeof certificat.beneficiaire === "object"
+                ? (certificat.beneficiaire as Record<string, unknown>).raisonSociale
+                : undefined;
+            return {
+                id: a.id,
+                numeroCertificat: a.fileName.replace(/\.json$/i, ""),
+                dateEmission: a.createdAt,
+                fileUrl: a.fileUrl,
+                metadata: {
+                    typeRetenue: certificat.typeRetenue,
+                    totalRetenu: certificat.totalRetenu,
+                    totalBrutHT: certificat.totalBrutHT,
+                    beneficiaire,
+                    cleControle: certificat.cleControle,
+                },
+            };
+        }),
     });
 }
 
@@ -121,11 +134,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Persister comme document lié au client
-    await prisma.document.create({
+    const document = await prisma.document.create({
         data: {
             clientId,
-            fileName: cert.numeroCertificat,
-            originalName: cert.numeroCertificat,
+            fileName: `${cert.numeroCertificat}.json`,
+            originalName: `${cert.numeroCertificat}.json`,
             fileSize: Buffer.byteLength(JSON.stringify(cert)),
             mimeType: "application/json",
             fileUrl: "",
@@ -135,6 +148,7 @@ export async function POST(request: NextRequest) {
             uploadedById: session.id,
         },
     });
+    await prisma.document.update({ where: { id: document.id }, data: { fileUrl: `/api/documents/${document.id}/fichier` } });
 
     await AuditService.log({
         action: "CREATION_ATTESTATION_BRS",
@@ -143,5 +157,5 @@ export async function POST(request: NextRequest) {
         details: JSON.stringify({ numeroCertificat: cert.numeroCertificat, totalRetenu: cert.totalRetenu }),
     });
 
-    return NextResponse.json({ succes: true, certificat: cert }, { status: 201 });
+    return NextResponse.json({ succes: true, certificat: cert, documentUrl: `/api/documents/${document.id}/fichier` }, { status: 201 });
 }

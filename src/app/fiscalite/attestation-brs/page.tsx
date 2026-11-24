@@ -18,6 +18,7 @@ interface AttestationItem {
     id: string;
     numeroCertificat: string;
     dateEmission: string;
+    fileUrl: string;
     metadata?: {
         typeRetenue?: string;
         totalRetenu?: number;
@@ -553,6 +554,7 @@ export default function AttestationBRSPage() {
                                                 Bénéficiaire : <strong className="text-foreground">{att.metadata.beneficiaire}</strong>
                                             </p>
                                         )}
+                                        {att.fileUrl && <a href={att.fileUrl} target="_blank" rel="noreferrer" className="inline-flex text-primary hover:underline pt-1">Ouvrir l’attestation archivée</a>}
                                         {att.metadata?.totalRetenu !== undefined && (
                                             <div className="flex justify-between items-center pt-1 border-t border-border/40 font-mono">
                                                 <span className="text-muted-foreground">Retenue :</span>
