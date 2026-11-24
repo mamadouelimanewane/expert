@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/api-auth";
+import { requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 
 // Import de balance comptable (CSV) pour une entite du perimetre de
 // consolidation. Un import remplace l'integralite des lignes precedentes de
 // l'entite : la balance importee fait foi, on n'essaie pas de fusionner
 // ligne a ligne avec un import precedent.
 export async function POST(request: NextRequest) {
-  const { denied } = await requireStaff();
+  const { session, denied } = await requireWriteAccess();
   if (denied) return denied;
 
   try {
@@ -17,27 +18,29 @@ export async function POST(request: NextRequest) {
       lines?: { compte: string; libelle: string; debit: number; credit: number }[];
     };
 
-    if (!entityId || !Array.isArray(lines) || lines.length === 0) {
+    if (!isObjectId(entityId) || !Array.isArray(lines) || lines.length === 0) {
       return NextResponse.json({ error: "entityId et lines (non vide) requis" }, { status: 400 });
     }
+    const entity = await prisma.consolidationEntity.findFirst({ where: { id: entityId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!entity) return NextResponse.json({ error: "Entité de consolidation introuvable dans ce cabinet." }, { status: 404 });
 
     const lignesValides = lines
       .map((l) => ({
         compte: String(l.compte ?? "").trim(),
         libelle: String(l.libelle ?? "").trim(),
-        debit: Number(l.debit) || 0,
-        credit: Number(l.credit) || 0,
+        debit: Number(l.debit),
+        credit: Number(l.credit),
       }))
-      .filter((l) => l.compte);
+      .filter((l) => l.compte && Number.isFinite(l.debit) && l.debit >= 0 && Number.isFinite(l.credit) && l.credit >= 0);
 
     if (lignesValides.length === 0) {
       return NextResponse.json({ error: "Aucune ligne valide (compte manquant)" }, { status: 400 });
     }
 
     await prisma.$transaction([
-      prisma.consolidationBalanceLine.deleteMany({ where: { entityId } }),
+      prisma.consolidationBalanceLine.deleteMany({ where: { entityId, cabinetId: session.cabinetId } }),
       prisma.consolidationBalanceLine.createMany({
-        data: lignesValides.map((l) => ({ ...l, entityId })),
+        data: lignesValides.map((l) => ({ ...l, entityId, cabinetId: session.cabinetId })),
       }),
     ]);
 
