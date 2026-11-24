@@ -3,19 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  executerAuditForensiqueISA240,
   type EcritureGrandLivreJET,
   type RapportForensiqueISA240,
   type EcritureScoreeJET,
 } from "@/lib/ohada/audit-forensique-jet";
-
-const ECRITURES_DEMO: EcritureGrandLivreJET[] = [
-  { id: "JNL-001", dateComptable: "2024-03-15", heureSaisie: "09:30", jourSemaine: 5, utilisateur: "amadou.sow", journalCode: "AC", compteDebit: "401100", compteCredit: "521000", libelle: "Fournisseur SODATEL — Facture 2024-089", montant_XOF: 3_500_000, hasPieceJustificative: true },
-  { id: "JNL-002", dateComptable: "2024-12-31", heureSaisie: "23:47", jourSemaine: 2, utilisateur: "admin", journalCode: "OD", compteDebit: "658000", compteCredit: "401900", libelle: "Régularisation fin d'exercice", montant_XOF: 15_000_000, hasPieceJustificative: false },
-  { id: "JNL-003", dateComptable: "2024-07-20", heureSaisie: "14:20", jourSemaine: 6, utilisateur: "fatou.diop", journalCode: "VT", compteDebit: "411000", compteCredit: "701000", libelle: "Vente client CORAF", montant_XOF: 7_990_000, hasPieceJustificative: true },
-  { id: "JNL-004", dateComptable: "2024-05-10", heureSaisie: "11:00", jourSemaine: 5, utilisateur: "amadou.sow", journalCode: "BQ", compteDebit: "521000", compteCredit: "411200", libelle: "Encaissement client SAES", montant_XOF: 1_000_000, hasPieceJustificative: true },
-  { id: "JNL-005", dateComptable: "2024-11-15", heureSaisie: "03:12", jourSemaine: 5, utilisateur: "admin", journalCode: "OD", compteDebit: "641000", compteCredit: "421000", libelle: "Régularisation salaire dirigeant", montant_XOF: 25_000_000, hasPieceJustificative: false },
-];
+import { normaliserEnteteCsv, parseCsv } from "@/lib/csv";
 
 const COULEUR_RISQUE: Record<string, string> = {
   CRITIQUE: "bg-rose-500/20 text-rose-400 border-rose-500/40",
@@ -24,35 +16,129 @@ const COULEUR_RISQUE: Record<string, string> = {
   FAIBLE: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
 };
 
-const BARRE_COULEUR: Record<string, string> = {
-  CRITIQUE: "bg-rose-500",
-  ELEVE: "bg-orange-500",
-  MODERE: "bg-amber-500",
-  FAIBLE: "bg-emerald-500",
-};
-
 export default function AuditForensiqueJETPage() {
-  const [raisonSociale, setRaisonSociale] = useState("SOCIÉTÉ COMMERCIALE SAHEL SA");
-  const [exercice, setExercice] = useState(2024);
-  const [rapport, setRapport] = useState<RapportForensiqueISA240 | null>(() =>
-    executerAuditForensiqueISA240("SOCIÉTÉ COMMERCIALE SAHEL SA", 2024, ECRITURES_DEMO)
-  );
+  const [raisonSociale, setRaisonSociale] = useState("");
+  const [exercice, setExercice] = useState(new Date().getFullYear() - 1);
+  const [ecritures, setEcritures] = useState<EcritureGrandLivreJET[]>([]);
+  const [nomFichier, setNomFichier] = useState("");
+  const [rapport, setRapport] = useState<RapportForensiqueISA240 | null>(null);
   const [ecritureSelectionnee, setEcritureSelectionnee] = useState<EcritureScoreeJET | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const importerGrandLivre = async (file: File) => {
+    setError("");
+    setRapport(null);
+    if (file.size > 20 * 1024 * 1024) {
+      setError("Le fichier dépasse la limite de 20 Mo.");
+      return;
+    }
+    try {
+      const rows = parseCsv(await file.text());
+      if (rows.length < 2 || rows.length > 50_001) throw new Error("Le fichier doit contenir l’en-tête et entre 1 et 50 000 écritures.");
+      const entetes = rows[0].map(normaliserEnteteCsv);
+      const colonnes = {
+        id: ["id", "idecriture", "numeroecriture"],
+        date: ["datecomptable", "date"],
+        heure: ["heuresaisie", "heure"],
+        utilisateur: ["utilisateur", "saisi par", "auteur"],
+        journal: ["journalcode", "journal"],
+        debit: ["comptedebit", "compte debite"],
+        credit: ["comptecredit", "compte credite"],
+        libelle: ["libelle", "description"],
+        montant: ["montantxof", "montant", "montantfcfa"],
+        justificatif: ["haspiecejustificative", "piecejustificative", "justificatifpresent"],
+        valideur: ["valideur", "approuvepar"],
+      } as const;
+      const index = Object.fromEntries(Object.entries(colonnes).map(([cle, alternatives]) => [
+        cle,
+        entetes.findIndex((entete) => alternatives.some((alias) => normaliserEnteteCsv(alias) === entete)),
+      ])) as Record<keyof typeof colonnes, number>;
+      const obligatoires = Object.keys(colonnes).filter((cle) => cle !== "valideur") as Array<keyof typeof colonnes>;
+      const manquantes = obligatoires.filter((cle) => index[cle] < 0);
+      if (manquantes.length) throw new Error(`Colonnes manquantes : ${manquantes.join(", ")}.`);
+
+      const dateIso = (value: string) => {
+        const trimmed = value.trim();
+        const fr = trimmed.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        const iso = fr ? `${fr[3]}-${fr[2]}-${fr[1]}` : trimmed;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+        const date = new Date(`${iso}T00:00:00Z`);
+        return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === iso ? iso : "";
+      };
+      const montantNumber = (value: string) => {
+        const compact = value.replace(/[\s\u00a0]/g, "").trim();
+        const normalized = /^-?\d{1,3}(\.\d{3})+$/.test(compact) ? compact.replace(/\./g, "") : compact.replace(",", ".");
+        return Number(normalized);
+      };
+      const valeurs = rows.slice(1).map((row, position): EcritureGrandLivreJET => {
+        const cell = (key: keyof typeof colonnes) => (row[index[key]] ?? "").trim();
+        const dateComptable = dateIso(cell("date"));
+        const montant_XOF = montantNumber(cell("montant"));
+        const heureSaisie = cell("heure");
+        const piece = normaliserEnteteCsv(cell("justificatif"));
+        if (!dateComptable || new Date(`${dateComptable}T00:00:00Z`).getUTCFullYear() !== exercice
+          || !/^([01]\d|2[0-3]):[0-5]\d$/.test(heureSaisie)
+          || !Number.isFinite(montant_XOF) || montant_XOF <= 0
+          || !cell("utilisateur") || !cell("journal") || !cell("debit") || !cell("credit") || !cell("libelle")
+          || !["oui", "non", "true", "false", "1", "0"].includes(piece)) {
+          throw new Error(`Écriture ${position + 2} : vérifiez la date, l’heure, les comptes, l’utilisateur, le montant et le justificatif.`);
+        }
+        return {
+          id: cell("id") || `LIGNE-${position + 2}`,
+          dateComptable,
+          heureSaisie,
+          jourSemaine: new Date(`${dateComptable}T00:00:00Z`).getUTCDay(),
+          utilisateur: cell("utilisateur"),
+          ...(index.valideur >= 0 && cell("valideur") ? { valideur: cell("valideur") } : {}),
+          journalCode: cell("journal"),
+          compteDebit: cell("debit"),
+          compteCredit: cell("credit"),
+          libelle: cell("libelle"),
+          montant_XOF,
+          hasPieceJustificative: ["oui", "true", "1"].includes(piece),
+        };
+      });
+      if (new Set(valeurs.map((ligne) => ligne.id)).size !== valeurs.length) throw new Error("Les identifiants d’écriture doivent être uniques.");
+      setEcritures(valeurs);
+      setNomFichier(file.name);
+      setEcritureSelectionnee(null);
+    } catch (cause) {
+      setEcritures([]);
+      setNomFichier("");
+      setError(cause instanceof Error ? cause.message : "Le fichier n’a pas pu être lu.");
+    }
+  };
+
+  const telechargerModeleCsv = () => {
+    const entetes = ["id", "dateComptable", "heureSaisie", "utilisateur", "journalCode", "compteDebit", "compteCredit", "libelle", "montant_XOF", "hasPieceJustificative", "valideur"];
+    const url = URL.createObjectURL(new Blob([`\uFEFF${entetes.join(";")}\r\n`], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "modele-grand-livre-audit.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleAnalyser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!raisonSociale.trim() || !Number.isInteger(exercice) || ecritures.length === 0) {
+      setError("Renseignez la raison sociale, l’exercice et importez le grand livre réel au format CSV.");
+      return;
+    }
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/audit/forensique-jet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ societeRaisonSociale: raisonSociale, exercice, ecritures: ECRITURES_DEMO }),
+        body: JSON.stringify({ societeRaisonSociale: raisonSociale.trim(), exercice, ecritures }),
       });
-      if (res.ok) setRapport(await res.json());
-      else setRapport(executerAuditForensiqueISA240(raisonSociale, exercice, ECRITURES_DEMO));
-    } catch {
-      setRapport(executerAuditForensiqueISA240(raisonSociale, exercice, ECRITURES_DEMO));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "L’analyse du grand livre a échoué.");
+      setRapport(data);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "L’analyse du grand livre a échoué.");
     } finally {
       setLoading(false);
     }
@@ -63,11 +149,11 @@ export default function AuditForensiqueJETPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
         <div>
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-orange-400 font-semibold mb-1">
-            <span>ISA 240</span><span>•</span><span>Journal Entry Testing (JET)</span><span>•</span><span>MindBridge Ai Standard</span>
+            <span>ISA 240</span><span>•</span><span>Tests analytiques des écritures (JET)</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Audit Forensique JET ISA 240</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Analyse 100% du grand livre — Loi de Benford, horaires suspects, montants ronds, contournement contrôle interne
+            Tests analytiques sur le grand livre importé : distributions, horaires, montants ronds et contrôles à examiner.
           </p>
         </div>
         <Link href="/audit/dossier-complet" className="text-xs px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
@@ -83,7 +169,12 @@ export default function AuditForensiqueJETPage() {
         </div>
         <div className="w-28">
           <label className="text-xs text-slate-400 block mb-1">Exercice</label>
-          <input type="number" value={exercice} onChange={(e) => setExercice(Number(e.target.value))}
+          <input type="number" min="1900" max={new Date().getFullYear()} value={exercice} onChange={(e) => {
+            setExercice(Number(e.target.value));
+            setEcritures([]);
+            setNomFichier("");
+            setRapport(null);
+          }}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm" />
         </div>
         <button type="submit" disabled={loading}
@@ -91,6 +182,25 @@ export default function AuditForensiqueJETPage() {
           {loading ? "Analyse en cours..." : "Lancer l'audit JET"}
         </button>
       </form>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold text-slate-200">Grand livre source</h2>
+            <p className="mt-1 text-xs text-slate-400">CSV séparé par ; ou , avec dates, heures de saisie, utilisateur, comptes et présence du justificatif.</p>
+          </div>
+          <button type="button" onClick={telechargerModeleCsv} className="rounded-lg border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800">Télécharger les en-têtes CSV</button>
+        </div>
+        <input type="file" accept=".csv,text/csv" aria-label="Importer le grand livre au format CSV" onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void importerGrandLivre(file);
+          e.target.value = "";
+        }} className="block w-full text-xs text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-600 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white" />
+        {nomFichier && <p className="text-xs text-emerald-300">{nomFichier} — {ecritures.length.toLocaleString("fr-FR")} écritures importées.</p>}
+      </div>
+      <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200">Les scores et signaux sont des pistes de revue. Ils ne constituent pas une preuve de fraude et doivent être corroborés par les pièces et le jugement professionnel.</p>
+      {error && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300">{error}</p>}
+      {!rapport && ecritures.length === 0 && <p className="rounded-lg border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">Importez le grand livre réel pour lancer les tests ciblés ISA 240.</p>}
 
       {rapport && (
         <>
