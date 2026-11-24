@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 import { requireStaff } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 // Calcule les ratios financiers RÉELS d'un client à partir de FinancialData.
 // Aucune donnée sectorielle de comparaison (moyennes de marché) n'est disponible :
 // ce endpoint ne renvoie donc jamais de "sectorAvg" — le front doit afficher un état
 // honnête "non configuré" pour cette partie.
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
   try {
@@ -16,9 +17,12 @@ export async function GET(request: NextRequest) {
     if (!clientId) {
       return NextResponse.json({ error: "clientId requis" }, { status: 400 });
     }
+    if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const latest = await prisma.financialData.findFirst({
-      where: { clientId },
+      where: { clientId, cabinetId: session.cabinetId },
       orderBy: [{ year: "desc" }],
     });
 

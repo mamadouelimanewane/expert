@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
+import { requireStaff } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 
 function clientName(client: { companyName: string | null; firstName: string | null; lastName: string | null } | null): string {
   if (!client) return "Client inconnu";
@@ -14,14 +15,15 @@ function round(n: number, decimals = 1): number {
 
 export async function GET(request: NextRequest) {
   try {
-    await AuthService.requireAuth();
+    const { session, denied } = await requireStaff();
+    if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
     let clientId = searchParams.get("clientId");
 
     // Liste des clients disposant de données financières réelles (pour le sélecteur)
     const clientsWithData = await prisma.client.findMany({
-      where: { financialData: { some: {} } },
+      where: { cabinetId: session.cabinetId, financialData: { some: { cabinetId: session.cabinetId } } },
       select: { id: true, companyName: true, firstName: true, lastName: true },
       orderBy: { companyName: "asc" },
     });
@@ -42,14 +44,16 @@ export async function GET(request: NextRequest) {
         narrative: "Aucune donnée financière (modèle FinancialData) n'a encore été saisie pour vos clients. Importez un bilan pour activer l'analyse.",
       });
     }
+    if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
 
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, cabinetId: session.cabinetId },
       select: { id: true, companyName: true, firstName: true, lastName: true },
     });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const rows = await prisma.financialData.findMany({
-      where: { clientId },
+      where: { clientId, cabinetId: session.cabinetId },
       orderBy: { year: "desc" },
     });
 
