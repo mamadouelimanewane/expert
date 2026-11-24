@@ -10,27 +10,35 @@ import { AuditService } from "@/lib/audit";
 
 /**
  * API État de Rapprochement Bancaire Officiel (SYSCOHADA)
- * GET  /api/comptabilite/rapprochement-bancaire?clientId=&soldeCompta=&soldeReleve=&banque=
+ * GET  /api/comptabilite/rapprochement-bancaire?clientId=&soldeCompta=&soldeReleve=&banque=&numeroCompte=
  * POST /api/comptabilite/rapprochement-bancaire (Clôture et scellement du rapprochement)
  */
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { denied, session } = await requireStaff();
     if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
-    const nomBanque = searchParams.get("banque") || "Société Générale de Banques (SGBS)";
-    const soldeCompta = Number(searchParams.get("soldeCompta")) || 4_250_000;
-    const soldeReleve = Number(searchParams.get("soldeReleve")) || 5_150_000;
+    const nomBanque = searchParams.get("banque")?.trim() || "";
+    const numeroCompteBancaire = searchParams.get("numeroCompte")?.trim() || "";
+    const soldeComptaParam = searchParams.get("soldeCompta");
+    const soldeReleveParam = searchParams.get("soldeReleve");
+    const soldeCompta = soldeComptaParam === null ? Number.NaN : Number(soldeComptaParam);
+    const soldeReleve = soldeReleveParam === null ? Number.NaN : Number(soldeReleveParam);
     const dateRapprochement = searchParams.get("date") || new Date().toISOString().slice(0, 10);
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    if (!nomBanque || !numeroCompteBancaire || !Number.isFinite(soldeCompta) || !Number.isFinite(soldeReleve) || !/^\d{4}-\d{2}-\d{2}$/.test(dateRapprochement)) {
+        return NextResponse.json({ error: "La banque, le numéro de compte, les soldes réels et une date valide sont obligatoires." }, { status: 400 });
+    }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     // Récupérer les transactions bancaires en attente de lettrage
     const bankTxs = await prisma.bankTransaction.findMany({
-        where: { status: "PENDING" },
+        where: { status: "PENDING", cabinetId: session.cabinetId, invoice: { clientId } },
         take: 50,
     });
 
@@ -42,58 +50,18 @@ export async function GET(request: NextRequest) {
             date: tx.date.toISOString().slice(0, 10),
             libelle: tx.description,
             montant: Math.abs(tx.amount),
-            sens: tx.amount < 0 ? "CREDIT" : "DEBIT",
+            sens: tx.type === "CREDIT" ? "CREDIT" : "DEBIT",
             origine: "NON_EN_COMPTABILITE",
-            nature: (tx.description.toLowerCase().includes("frais") || tx.description.toLowerCase().includes("agios")
+            nature: tx.description.toLowerCase().includes("frais") || tx.description.toLowerCase().includes("agios")
                 ? "AGIOS_FRAIS"
-                : "VIREMENT_INCONNU") as any,
+                : "VIREMENT_INCONNU",
         }));
-    } else {
-        // Jeu de test équilibré
-        operationsSuspense = [
-            {
-                id: "sus-1",
-                date: `${dateRapprochement}`,
-                libelle: "Frais de tenue de compte & commissions mouvement",
-                montant: 35_000,
-                sens: "CREDIT",
-                origine: "NON_EN_COMPTABILITE",
-                nature: "AGIOS_FRAIS",
-            },
-            {
-                id: "sus-2",
-                date: `${dateRapprochement}`,
-                libelle: "Virement client reçu sans avis de crédit préalable",
-                montant: 650_000,
-                sens: "DEBIT",
-                origine: "NON_EN_COMPTABILITE",
-                nature: "VIREMENT_INCONNU",
-            },
-            {
-                id: "sus-3",
-                date: `${dateRapprochement}`,
-                libelle: "Chèque n° 45892 remis au fournisseur de fournitures",
-                montant: 1_285_000,
-                sens: "CREDIT",
-                origine: "NON_EN_BANQUE",
-                nature: "CHEQUE_CIRCULATION",
-            },
-            {
-                id: "sus-4",
-                date: `${dateRapprochement}`,
-                libelle: "Bordereau de remise de chèques clients n° 088",
-                montant: 1_000_000,
-                sens: "DEBIT",
-                origine: "NON_EN_BANQUE",
-                nature: "REMISE_EN_COURS",
-            },
-        ];
     }
 
     const resultat = calculerRapprochementBancaire({
         dateRapprochement,
         nomBanque,
-        numeroCompteBancaire: "SN012-01001-00000123456-78",
+        numeroCompteBancaire,
         compteTresorerie: "5211",
         soldeComptableAvant: soldeCompta,
         soldeReleveBancaire: soldeReleve,
@@ -104,7 +72,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { denied, session } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: any;
@@ -119,6 +87,12 @@ export async function POST(request: NextRequest) {
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+    if (![soldeComptableRectifie, soldeBancaireRectifie, ecartRapprochement].every((value) => typeof value === "number" && Number.isFinite(value))) {
+        return NextResponse.json({ error: "Les soldes rectifiés et l'écart doivent être numériques." }, { status: 400 });
+    }
+    if (ecartRapprochement !== 0) return NextResponse.json({ error: "Le rapprochement doit être équilibré avant son approbation." }, { status: 409 });
 
     await AuditService.log({
         action: "VALIDATION_RAPPROCHEMENT_BANCAIRE",
@@ -132,5 +106,5 @@ export async function POST(request: NextRequest) {
         }),
     });
 
-    return NextResponse.json({ succes: true, message: "État de rapprochement validé et scellé." });
+    return NextResponse.json({ succes: true, message: "Approbation du rapprochement enregistrée dans la piste d'audit." });
 }

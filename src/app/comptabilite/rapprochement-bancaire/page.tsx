@@ -9,10 +9,11 @@ import { cn } from "@/lib/utils";
 
 export default function RapprochementBancairePage() {
     const [clientId, setClientId] = useState("");
-    const [banque, setBanque] = useState("Société Générale Sénégal (SGBS)");
-    const [soldeCompta, setSoldeCompta] = useState(4250000);
-    const [soldeReleve, setSoldeReleve] = useState(5150000);
-    const [dateRapprochement, setDateRapprochement] = useState(new Date().toISOString().slice(0, 10));
+    const [banque, setBanque] = useState("");
+    const [numeroCompte, setNumeroCompte] = useState("");
+    const [soldeCompta, setSoldeCompta] = useState("");
+    const [soldeReleve, setSoldeReleve] = useState("");
+    const [dateRapprochement, setDateRapprochement] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -24,13 +25,18 @@ export default function RapprochementBancairePage() {
             setError("Veuillez renseigner un identifiant client valide (MongoDB ID).");
             return;
         }
+        if (![banque, numeroCompte, dateRapprochement, soldeCompta, soldeReleve].every((value) => value.trim())
+            || !Number.isFinite(Number(soldeCompta)) || !Number.isFinite(Number(soldeReleve))) {
+            setError("Renseignez la banque, le numéro de compte, les soldes réels du grand livre et du relevé, ainsi que la date de clôture.");
+            return;
+        }
 
         setLoading(true);
         setError("");
         setScelle(false);
         try {
             const res = await fetch(
-                `/api/comptabilite/rapprochement-bancaire?clientId=${encodeURIComponent(clientId.trim())}&banque=${encodeURIComponent(banque)}&soldeCompta=${soldeCompta}&soldeReleve=${soldeReleve}&date=${dateRapprochement}`
+                `/api/comptabilite/rapprochement-bancaire?clientId=${encodeURIComponent(clientId.trim())}&banque=${encodeURIComponent(banque)}&numeroCompte=${encodeURIComponent(numeroCompte)}&soldeCompta=${soldeCompta}&soldeReleve=${soldeReleve}&date=${dateRapprochement}`
             );
             const resData = await res.json();
             if (!res.ok) throw new Error(resData.error || "Erreur de chargement");
@@ -40,7 +46,7 @@ export default function RapprochementBancairePage() {
         } finally {
             setLoading(false);
         }
-    }, [clientId, banque, soldeCompta, soldeReleve, dateRapprochement]);
+    }, [clientId, banque, numeroCompte, soldeCompta, soldeReleve, dateRapprochement]);
 
     const scellerRapprochement = async () => {
         if (!data) return;
@@ -111,6 +117,11 @@ export default function RapprochementBancairePage() {
                         />
                     </div>
 
+                    <div className="w-60">
+                        <label className="block text-xs font-semibold text-foreground mb-1">Numéro de compte bancaire</label>
+                        <input type="text" value={numeroCompte} onChange={(e) => setNumeroCompte(e.target.value)} className="w-full px-3 py-2 text-sm bg-background border border-border rounded-xl font-mono" />
+                    </div>
+
                     <div>
                         <label className="block text-xs font-semibold text-foreground mb-1">
                             Date de Clôture
@@ -130,7 +141,7 @@ export default function RapprochementBancairePage() {
                         <input
                             type="number"
                             value={soldeCompta}
-                            onChange={(e) => setSoldeCompta(Number(e.target.value))}
+                            onChange={(e) => setSoldeCompta(e.target.value)}
                             className="w-36 px-3 py-2 text-sm bg-background border border-border rounded-xl font-mono"
                         />
                     </div>
@@ -142,7 +153,7 @@ export default function RapprochementBancairePage() {
                         <input
                             type="number"
                             value={soldeReleve}
-                            onChange={(e) => setSoldeReleve(Number(e.target.value))}
+                            onChange={(e) => setSoldeReleve(e.target.value)}
                             className="w-36 px-3 py-2 text-sm bg-background border border-border rounded-xl font-mono"
                         />
                     </div>
