@@ -4,11 +4,12 @@ import prisma from "@/lib/prisma";
 import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { suggestInvoiceMatches } from "@/lib/bank-reconciliation-suggestions";
 export async function GET() {
-    const { denied } = await requireStaff();
+    const { denied, session } = await requireStaff();
     if (denied) return denied;
 
     try {
         const transactions = await prisma.bankTransaction.findMany({
+            where: { cabinetId: session.cabinetId },
             select: {
                 id: true, date: true, description: true, amount: true,
                 type: true, status: true, invoiceId: true,
@@ -21,11 +22,13 @@ export async function GET() {
         // On renvoie aussi les factures en attente pour le split screen (qui ne sont pas PAID)
         const pendingInvoices = await prisma.invoice.findMany({
             where: {
+                cabinetId: session.cabinetId,
+                client: { cabinetId: session.cabinetId },
                 status: { in: ["SENT", "OVERDUE"] },
             },
             include: {
                 client: { select: { companyName: true, firstName: true, lastName: true } },
-                transactions: { where: { status: "RECONCILED" }, select: { amount: true, type: true } },
+                transactions: { where: { cabinetId: session.cabinetId, status: "RECONCILED" }, select: { amount: true, type: true } },
             },
             orderBy: {
                 issueDate: 'desc'
@@ -37,6 +40,7 @@ export async function GET() {
             number: inv.invoiceNumber,
             clientName: inv.client?.companyName || [inv.client?.firstName, inv.client?.lastName].filter(Boolean).join(" ") || "Client",
             date: inv.issueDate,
+            dueDate: inv.dueDate,
             amount: inv.total,
             // Une facture déjà rapprochée reste hors suggestion tant que son
             // paiement n'a pas été confirmé dans la facturation. Le modèle
@@ -74,7 +78,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const { denied } = await requireWriteAccess();
+    const { denied, session } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -88,8 +92,8 @@ export async function POST(request: Request) {
             }
 
             const [transaction, invoice] = await Promise.all([
-                prisma.bankTransaction.findUnique({ where: { id: transactionId } }),
-                prisma.invoice.findUnique({ where: { id: invoiceId } }),
+                prisma.bankTransaction.findFirst({ where: { id: transactionId, cabinetId: session.cabinetId } }),
+                prisma.invoice.findFirst({ where: { id: invoiceId, cabinetId: session.cabinetId } }),
             ]);
             if (!transaction || !invoice) {
                 return NextResponse.json({ error: "Transaction ou facture introuvable." }, { status: 404 });
@@ -104,7 +108,7 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: "Le lettrage automatique est limité aux montants exacts. Les paiements partiels doivent être ventilés et validés séparément." }, { status: 422 });
             }
             const priorMatch = await prisma.bankTransaction.findFirst({
-                where: { invoiceId, status: "RECONCILED" },
+                where: { invoiceId, cabinetId: session.cabinetId, status: "RECONCILED" },
                 select: { id: true },
             });
             if (priorMatch) {
@@ -114,13 +118,13 @@ export async function POST(request: Request) {
             // Le rapprochement est une association comptable, pas une preuve suffisante
             // pour solder la facture. Le règlement reste à confirmer dans la facturation.
             const changed = await prisma.bankTransaction.updateMany({
-                where: { id: transactionId, status: "PENDING", invoiceId: null },
+                where: { id: transactionId, cabinetId: session.cabinetId, status: "PENDING", invoiceId: null },
                 data: { status: "RECONCILED", invoiceId },
             });
             if (changed.count !== 1) {
                 return NextResponse.json({ error: "La transaction a été modifiée entre-temps." }, { status: 409 });
             }
-            const updated = await prisma.bankTransaction.findUnique({ where: { id: transactionId } });
+            const updated = await prisma.bankTransaction.findFirst({ where: { id: transactionId, cabinetId: session.cabinetId } });
             return NextResponse.json({ success: true, transaction: updated, invoiceMarkedPaid: false });
         }
         
@@ -145,7 +149,7 @@ export async function POST(request: Request) {
                 rows.push({ date, description, amount, type: amount >= 0 ? "CREDIT" : "DEBIT", status: "PENDING" });
             }
             const created = await prisma.bankTransaction.createMany({
-                data: rows,
+                data: rows.map((row) => ({ ...row, cabinetId: session.cabinetId })),
             });
             return NextResponse.json({ success: true, count: created.count });
         }

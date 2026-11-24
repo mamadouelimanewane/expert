@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   executerRapprochementIA,
@@ -9,90 +9,58 @@ import {
   type RapportRapprochementIA,
 } from "@/lib/ohada/rapprochement-ia-banque-mobile";
 
-const TRANSACTIONS_DEFAUT: TransactionFlux[] = [
-  {
-    id: "TX-01",
-    source: "WAVE",
-    dateTransaction: "2024-11-20",
-    libelleBrut: "Paiement Wave FAC-2024-0891 de SOCIETE COMMERCIALE",
-    montant_XOF: 3_500_000,
-  },
-  {
-    id: "TX-02",
-    source: "ORANGE_MONEY",
-    dateTransaction: "2024-11-20",
-    libelleBrut: "Commission retrait marchand Orange Money",
-    montant_XOF: -35_000,
-  },
-  {
-    id: "TX-03",
-    source: "BANQUE_TRADITIONNELLE",
-    dateTransaction: "2024-11-22",
-    libelleBrut: "Virement émis SODATEL règlement partiel",
-    montant_XOF: -600_000,
-  },
-  {
-    id: "TX-04",
-    source: "FREE_MONEY",
-    dateTransaction: "2024-11-23",
-    libelleBrut: "Dépôt compte espèces sans référence",
-    montant_XOF: 150_000,
-  },
-];
-
-const FACTURES_DEFAUT: FactureOuverte[] = [
-  {
-    idFacture: "FAC-01",
-    numeroFacture: "FAC-2024-0891",
-    compteOHADA: "411",
-    tiersNom: "SOCIETE COMMERCIALE DU SENEGAL",
-    dateEmission: "2024-11-01",
-    dateEcheance: "2024-11-30",
-    montantTTC_XOF: 3_500_000,
-    montantDejaRegle_XOF: 0,
-    soldeRestantDu_XOF: 3_500_000,
-  },
-  {
-    idFacture: "FAC-02",
-    numeroFacture: "FAC-2024-0942",
-    compteOHADA: "401",
-    tiersNom: "FOURNISSEUR SODATEL",
-    dateEmission: "2024-11-05",
-    dateEcheance: "2024-12-05",
-    montantTTC_XOF: 1_250_000,
-    montantDejaRegle_XOF: 0,
-    soldeRestantDu_XOF: 1_250_000,
-  },
-];
-
 export default function RapprochementIaPage() {
-  const [transactions, setTransactions] = useState<TransactionFlux[]>(TRANSACTIONS_DEFAUT);
-  const [factures, setFactures] = useState<FactureOuverte[]>(FACTURES_DEFAUT);
-  const [rapport, setRapport] = useState<RapportRapprochementIA | null>(() => {
-    return executerRapprochementIA(TRANSACTIONS_DEFAUT, FACTURES_DEFAUT);
-  });
+  const [transactions, setTransactions] = useState<TransactionFlux[]>([]);
+  const [factures, setFactures] = useState<FactureOuverte[]>([]);
+  const [rapport, setRapport] = useState<RapportRapprochementIA | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLancer = async () => {
+  const handleLancer = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
-      const res = await fetch("/api/comptabilite/rapprochement-ia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transactions, factures }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setRapport(data);
-      } else {
-        setRapport(executerRapprochementIA(transactions, factures));
-      }
-    } catch {
-      setRapport(executerRapprochementIA(transactions, factures));
+      const res = await fetch("/api/banking/transactions");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Les mouvements bancaires du cabinet n’ont pas pu être chargés.");
+
+      const transactionsReelles: TransactionFlux[] = (data.transactions ?? []).filter((transaction: { status: string }) => transaction.status === "PENDING").map((transaction: {
+        id: string; date: string; description: string; amount: number; type: string; status: string;
+      }) => ({
+        id: transaction.id,
+        source: "BANQUE_TRADITIONNELLE",
+        dateTransaction: new Date(transaction.date).toISOString().slice(0, 10),
+        libelleBrut: transaction.description,
+        montant_XOF: transaction.type === "DEBIT" ? -Math.abs(transaction.amount) : Math.abs(transaction.amount),
+      }));
+      const facturesReelles: FactureOuverte[] = (data.pendingInvoices ?? []).filter((invoice: { outstandingAmount: number }) => invoice.outstandingAmount > 0).map((invoice: {
+        id: string; number: string; clientName: string; date: string; dueDate: string;
+        amount: number; outstandingAmount: number;
+      }) => ({
+        idFacture: invoice.id,
+        numeroFacture: invoice.number,
+        compteOHADA: "411",
+        tiersNom: invoice.clientName,
+        dateEmission: new Date(invoice.date).toISOString().slice(0, 10),
+        dateEcheance: new Date(invoice.dueDate).toISOString().slice(0, 10),
+        montantTTC_XOF: invoice.amount,
+        montantDejaRegle_XOF: Math.max(0, invoice.amount - invoice.outstandingAmount),
+        soldeRestantDu_XOF: invoice.outstandingAmount,
+      }));
+
+      setTransactions(transactionsReelles);
+      setFactures(facturesReelles);
+      setRapport(transactionsReelles.length ? executerRapprochementIA(transactionsReelles, facturesReelles) : null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Le rapprochement n’a pas pu être chargé.");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void handleLancer();
+  }, [handleLancer]);
 
   const getSourceBadge = (src: string) => {
     switch (src) {
@@ -134,7 +102,7 @@ export default function RapprochementIaPage() {
             Hub Intégration Bancaire & Rapprochement IA
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Lettrage multicritère intelligent des flux bancaires (EBICS, MT940) et Mobile Money (Wave, Orange Money, Free) avec les comptes 411/401
+            Suggestions de rapprochement calculées sur les mouvements bancaires et factures réellement ouverts dans le cabinet.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -191,7 +159,7 @@ export default function RapprochementIaPage() {
       {/* Action Bar */}
       <div className="flex justify-between items-center bg-slate-900/40 border border-slate-800 p-4 rounded-xl">
         <div className="text-xs text-slate-400">
-          Source : <strong>4 flux bancaires & mobile money</strong> ingérés ⇄ <strong>2 factures ouvertes</strong>
+          Source : <strong>{transactions.length} mouvement{transactions.length > 1 ? "s" : ""}</strong> du cabinet ⇄ <strong>{factures.length} facture{factures.length > 1 ? "s" : ""} ouverte{factures.length > 1 ? "s" : ""}</strong>
         </div>
         <button
           type="button"
@@ -199,9 +167,12 @@ export default function RapprochementIaPage() {
           disabled={loading}
           className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg text-xs transition shadow-lg shadow-cyan-950/50"
         >
-          {loading ? "Lettrage en cours..." : "Relancer le Rapprochement IA"}
+          {loading ? "Actualisation en cours..." : "Actualiser depuis les données du cabinet"}
         </button>
       </div>
+
+      {error && <p role="alert" className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">{error}</p>}
+      {!loading && !error && !rapport && <div className="rounded-xl border border-dashed border-slate-700 p-8 text-center text-sm text-slate-400">Aucun mouvement bancaire en attente dans ce cabinet. Importez d’abord un relevé depuis le rapprochement bancaire.</div>}
 
       {/* Grille des propositions de lettrage */}
       {rapport && (
