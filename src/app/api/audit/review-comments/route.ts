@@ -4,17 +4,17 @@ import { requireWriteAccess } from "@/lib/api-auth";
 import { isObjectId } from "@/lib/tenant-security";
 import { AUDIT_REVIEW_REFERENCE_TYPES, evidenceVersionMatches, tpeJournalReviewVersion, validReviewCommentText, type AuditReviewReferenceType } from "@/lib/audit-review-policy";
 
-async function verifierPreuve(type: AuditReviewReferenceType, referenceId: string, missionId: string, clientId: string): Promise<{ id: string; version: string } | { id: string; versionAt: Date } | null> {
+async function verifierPreuve(type: AuditReviewReferenceType, referenceId: string, missionId: string, clientId: string, cabinetId: string): Promise<{ id: string; version: string } | { id: string; versionAt: Date } | null> {
   if (type === "DOCUMENT") {
-    const doc = await prisma.document.findFirst({ where: { id: referenceId, missionId }, select: { id: true, updatedAt: true } });
+    const doc = await prisma.document.findFirst({ where: { id: referenceId, missionId, cabinetId }, select: { id: true, updatedAt: true } });
     return doc ? { id: doc.id, versionAt: doc.updatedAt } : null;
   }
   if (type === "WORK_PAPER") {
-    const workPaper = await prisma.workPaper.findFirst({ where: { id: referenceId, clientId }, select: { id: true, updatedAt: true } });
+    const workPaper = await prisma.workPaper.findFirst({ where: { id: referenceId, clientId, cabinetId }, select: { id: true, updatedAt: true } });
     return workPaper ? { id: workPaper.id, versionAt: workPaper.updatedAt } : null;
   }
   const entry = await prisma.tpeJournal.findFirst({
-    where: { id: referenceId, clientId },
+    where: { id: referenceId, clientId, cabinetId },
     select: { id: true, createdAt: true, periode: true, date: true, libelle: true, entree: true, sortie: true, debitCompte: true, debitIntitule: true, creditCompte: true, creditIntitule: true, montant: true, status: true, exportedAt: true },
   });
   return entry ? { id: entry.id, version: tpeJournalReviewVersion(entry) } : null;
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   if (!isObjectId(missionId)) return NextResponse.json({ error: "missionId invalide." }, { status: 400 });
 
   const comments = await prisma.auditReviewComment.findMany({
-    where: { missionId },
+    where: { missionId, cabinetId: session.cabinetId },
     orderBy: { createdAt: "desc" },
     take: 200,
     include: {
@@ -63,9 +63,9 @@ export async function POST(request: Request) {
   }
   if (assignedToId !== null && !isObjectId(assignedToId)) return NextResponse.json({ error: "Collaborateur assigné invalide." }, { status: 400 });
 
-  const mission = await prisma.mission.findUnique({ where: { id: missionId }, select: { id: true, clientId: true } });
+  const mission = await prisma.mission.findFirst({ where: { id: missionId, cabinetId: session.cabinetId }, select: { id: true, clientId: true } });
   if (!mission) return NextResponse.json({ error: "Mission introuvable." }, { status: 404 });
-  const preuve = await verifierPreuve(referenceType as AuditReviewReferenceType, referenceId, mission.id, mission.clientId);
+  const preuve = await verifierPreuve(referenceType as AuditReviewReferenceType, referenceId, mission.id, mission.clientId, session.cabinetId!);
   if (!preuve) return NextResponse.json({ error: "La preuve ne correspond pas à cette mission ou à son dossier client." }, { status: 404 });
   const currentVersion = "version" in preuve ? preuve.version : preuve.versionAt.toISOString();
   const versionMatches = "version" in preuve
@@ -76,12 +76,13 @@ export async function POST(request: Request) {
   }
 
   if (assignedToId) {
-    const assignee = await prisma.user.findUnique({ where: { id: assignedToId }, select: { id: true, role: true, isActive: true } });
+    const assignee = await prisma.user.findFirst({ where: { id: assignedToId, cabinetId: session.cabinetId }, select: { id: true, role: true, isActive: true } });
     if (!assignee || !assignee.isActive || assignee.role === "CLIENT") return NextResponse.json({ error: "Le collaborateur assigné n'est pas actif dans ce cabinet." }, { status: 400 });
   }
 
   const comment = await prisma.auditReviewComment.create({
     data: {
+      cabinetId: session.cabinetId,
       missionId,
       referenceType: referenceType as string,
       referenceId,
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
       initialComment: initialComment.trim(),
       createdById: session.id,
       ...(assignedToId ? { assignedToId } : {}),
-      events: { create: { userId: session.id, eventType: "COMMENT", content: initialComment.trim(), newValue: { referenceType: referenceType as string, referenceId, referenceVersion: currentVersion } } },
+      events: { create: { cabinetId: session.cabinetId, userId: session.id, eventType: "COMMENT", content: initialComment.trim(), newValue: { referenceType: referenceType as string, referenceId, referenceVersion: currentVersion } } },
     },
     include: { createdBy: { select: { id: true, firstName: true, lastName: true } }, assignedTo: { select: { id: true, firstName: true, lastName: true } }, events: true },
   });
