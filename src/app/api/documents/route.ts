@@ -11,9 +11,8 @@ import { unlink } from 'fs/promises';
 // L'OCR d'une facture prend 5 à 30 s : au-delà des 10 s par défaut de Vercel
 // la fonction était coupée avant d'écrire le statut final du document.
 export const maxDuration = 60;
-import { AuthService } from '@/lib/auth';
 import { AuditService } from '@/lib/audit';
-import { requireStaff } from '@/lib/api-auth';
+import { requireStaff, requireWriteAccess } from '@/lib/api-auth';
 
 const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
@@ -29,13 +28,8 @@ export async function POST(request: NextRequest) {
     let documentPartielId: string | null = null;
     let televersementPersiste = false;
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-        }
-        if (!session.cabinetId) {
-            return NextResponse.json({ error: 'Aucun cabinet associé à cette session.' }, { status: 403 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const tailleAnnoncee = Number(request.headers.get('content-length'));
         if (Number.isFinite(tailleAnnoncee) && tailleAnnoncee > TAILLE_MAX_FICHIER + 1024 * 1024) {
@@ -73,6 +67,10 @@ export async function POST(request: NextRequest) {
         }
         if (clientId && !isValidObjectId(clientId)) {
             return NextResponse.json({ error: 'clientId invalide.' }, { status: 400 });
+        }
+        if (clientId) {
+            const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+            if (!client) return NextResponse.json({ error: 'Client introuvable dans ce cabinet.' }, { status: 404 });
         }
         if (documentType === 'FACTURE' && !sens) {
             return NextResponse.json(
@@ -142,6 +140,7 @@ export async function POST(request: NextRequest) {
         // Créer l'entrée dans la base de données
         const document = await prisma.document.create({
             data: {
+                cabinetId: session.cabinetId,
                 fileName,
                 originalName: file.name,
                 fileSize: file.size,
@@ -159,7 +158,7 @@ export async function POST(request: NextRequest) {
 
         // Le fichier est servi par une route authentifiée (Next.js ne sert pas
         // /uploads/ : le lien « Voir » de la GED ouvrait une 404).
-        await prisma.document.update({ where: { id: document.id }, data: { fileUrl: `/api/documents/${document.id}/fichier` } });
+        await prisma.document.updateMany({ where: { id: document.id, cabinetId: session.cabinetId }, data: { fileUrl: `/api/documents/${document.id}/fichier` } });
         document.fileUrl = `/api/documents/${document.id}/fichier`;
 
         // Log action
@@ -189,8 +188,8 @@ export async function POST(request: NextRequest) {
                 }
 
                 // Mettre à jour le document avec les données OCR
-                await prisma.document.update({
-                    where: { id: document.id },
+                await prisma.document.updateMany({
+                    where: { id: document.id, cabinetId: session.cabinetId },
                     data: {
                         status: ocrResult.success ? 'PROCESSED' : 'ERROR',
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -221,8 +220,8 @@ export async function POST(request: NextRequest) {
         } else {
             // Marquer comme traité si pas de OCR nécessaire
             statutFinal = 'PROCESSED';
-            await prisma.document.update({
-                where: { id: document.id },
+            await prisma.document.updateMany({
+                where: { id: document.id, cabinetId: session.cabinetId },
                 data: {
                     status: 'PROCESSED',
                 },
