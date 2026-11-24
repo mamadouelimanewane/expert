@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 import { AuditService } from "@/lib/audit";
 import { normaliserDateISO } from "@/lib/validation";
 import { genererLignesFEC, formaterFichierFEC, nommerFichierFEC } from "@/lib/fec-export";
 
 export async function GET(request: NextRequest) {
-  const { denied } = await requireStaff();
+  const { session, denied } = await requireStaff();
   if (denied) return denied;
 
   try {
@@ -15,11 +16,11 @@ export async function GET(request: NextRequest) {
     const dateDebut = searchParams.get("dateDebut");
     const dateFin = searchParams.get("dateFin");
 
-    if (!clientId || !dateDebut || !dateFin) {
+    if (!isObjectId(clientId) || !dateDebut || !dateFin) {
       return NextResponse.json({ error: "clientId, dateDebut et dateFin requis" }, { status: 400 });
     }
 
-    const client = await prisma.client.findUnique({ where: { id: clientId } });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId } });
     if (!client) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
 
     const borneDebut = normaliserDateISO(dateDebut);
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
     const toutes = await prisma.tpeJournal.findMany({
       where: {
         clientId,
+        cabinetId: session.cabinetId,
         source: { not: "WHATSAPP_TEST" },
       },
       select: {

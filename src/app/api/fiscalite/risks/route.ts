@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
+import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
+import { isObjectId } from "@/lib/tenant-security";
 
 function clientName(c: { companyName: string | null; firstName: string | null; lastName: string | null } | null): string {
     if (!c) return "Client inconnu";
@@ -11,12 +12,14 @@ function clientName(c: { companyName: string | null; firstName: string | null; l
 
 export async function GET(request: NextRequest) {
     try {
-        await AuthService.requireAuth();
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         let clientId = searchParams.get("clientId");
 
         const clients = await prisma.client.findMany({
+            where: { cabinetId: session.cabinetId },
             select: { id: true, companyName: true, firstName: true, lastName: true, country: true, fiscalRegime: true },
             orderBy: { companyName: "asc" },
         });
@@ -36,15 +39,16 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        const client = await prisma.client.findUnique({
-            where: { id: clientId },
+        if (!isObjectId(clientId)) return NextResponse.json({ error: "Identifiant client invalide." }, { status: 400 });
+        const client = await prisma.client.findFirst({
+            where: { id: clientId, cabinetId: session.cabinetId },
             select: { id: true, companyName: true, firstName: true, lastName: true, country: true, fiscalRegime: true },
         });
 
         const [risks, financialDataRows, declarations] = await Promise.all([
-            prisma.fiscalRisk.findMany({ where: { clientId }, orderBy: { createdAt: "desc" } }),
-            prisma.financialData.findMany({ where: { clientId }, orderBy: { year: "desc" }, take: 1 }),
-            prisma.taxDeclaration.findMany({ where: { clientId }, orderBy: { dueDate: "desc" }, take: 15 }),
+            prisma.fiscalRisk.findMany({ where: { clientId, cabinetId: session.cabinetId }, orderBy: { createdAt: "desc" } }),
+            prisma.financialData.findMany({ where: { clientId, cabinetId: session.cabinetId }, orderBy: { year: "desc" }, take: 1 }),
+            prisma.taxDeclaration.findMany({ where: { clientId, cabinetId: session.cabinetId }, orderBy: { dueDate: "desc" }, take: 15 }),
         ]);
 
         const financialData = financialDataRows[0] || null;
@@ -72,13 +76,13 @@ export async function GET(request: NextRequest) {
 // Repérage de travaux à vérifier, sans en déduire automatiquement une infraction :
 // 1. Déclarations en retard (échéance enregistrée et statut non déposé)
 // 2. Variation marquée du CA à analyser par le collaborateur (signal indicatif).
-async function runFiscalScan(clientId: string) {
+async function runFiscalScan(clientId: string, cabinetId: string) {
     const [declarations, financialRows] = await Promise.all([
-        prisma.taxDeclaration.findMany({ where: { clientId } }),
-        prisma.financialData.findMany({ where: { clientId }, orderBy: { year: "desc" }, take: 2 }),
+        prisma.taxDeclaration.findMany({ where: { clientId, cabinetId } }),
+        prisma.financialData.findMany({ where: { clientId, cabinetId }, orderBy: { year: "desc" }, take: 2 }),
     ]);
 
-    const existingRisks = await prisma.fiscalRisk.findMany({ where: { clientId }, select: { title: true } });
+    const existingRisks = await prisma.fiscalRisk.findMany({ where: { clientId, cabinetId }, select: { title: true } });
     const existingTitles = new Set(existingRisks.map((r) => r.title));
 
     let created = 0;
@@ -91,6 +95,7 @@ async function runFiscalScan(clientId: string) {
         if (existingTitles.has(title)) continue;
         await prisma.fiscalRisk.create({
             data: {
+                cabinetId,
                 title,
                 description: `La déclaration ${decl.type} pour la période ${decl.period} avait une échéance au ${new Date(decl.dueDate).toLocaleDateString("fr-FR")} et n'a pas encore été soumise.`,
                 level: "ELEVE",
@@ -114,6 +119,7 @@ async function runFiscalScan(clientId: string) {
             if (!existingTitles.has(title)) {
                 await prisma.fiscalRisk.create({
                     data: {
+                        cabinetId,
                         title,
                         description: `Le chiffre d'affaires a progressé de ${Math.round(growth * 100)}% entre ${previous.year} et ${current.year} (${previous.ca.toLocaleString("fr-FR")} → ${current.ca.toLocaleString("fr-FR")} FCFA). Vérifiez les seuils de régime, la TVA et les obligations applicables au pays et à l'activité. Ce signal ne constate aucune irrégularité.`,
                         level: "FAIBLE",
@@ -132,19 +138,19 @@ async function runFiscalScan(clientId: string) {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
 
         if (body.action === "scan") {
             const { clientId } = body;
-            if (!clientId) {
+            if (!isObjectId(clientId)) {
                 return NextResponse.json({ error: "clientId requis" }, { status: 400 });
             }
-            const result = await runFiscalScan(clientId);
+            const ownedClient = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+            if (!ownedClient) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+            const result = await runFiscalScan(clientId, session.cabinetId!);
             await AuditService.log({
                 action: "PROCESS",
                 entity: "FISCAL_RISK",
@@ -155,7 +161,7 @@ export async function POST(request: NextRequest) {
         }
 
         const { title, description, level, potentialImpact, clientId } = body;
-        if (!title || !description || !clientId) {
+        if (!title || !description || !isObjectId(clientId)) {
             return NextResponse.json({ error: "Champs requis manquants (titre, description, client)" }, { status: 400 });
         }
 
@@ -169,13 +175,14 @@ export async function POST(request: NextRequest) {
         // mais inexistant (client supprime, onglet reste ouvert) etait ecrit tel
         // quel. L'enregistrement devenait orphelin — invisible dans toutes les
         // vues filtrees par client, mais compte dans les totaux globaux.
-        const clientExistant = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+        const clientExistant = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
         if (!clientExistant) {
             return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
         }
 
         const risk = await prisma.fiscalRisk.create({
             data: {
+                cabinetId: session.cabinetId,
                 title,
                 description,
                 level: level || "MOYEN",
@@ -201,10 +208,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { id, status } = body;
@@ -213,10 +218,14 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "id et status requis" }, { status: 400 });
         }
 
-        const risk = await prisma.fiscalRisk.update({
-            where: { id },
+        if (!isObjectId(id) || !["IDENTIFIE", "EN_TRAITEMENT", "RESOLU"].includes(status)) return NextResponse.json({ error: "id ou statut invalide" }, { status: 400 });
+        const result = await prisma.fiscalRisk.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { status },
         });
+        if (!result.count) return NextResponse.json({ error: "Risque introuvable dans ce cabinet." }, { status: 404 });
+        const risk = await prisma.fiscalRisk.findFirst({ where: { id, cabinetId: session.cabinetId } });
+        if (!risk) return NextResponse.json({ error: "Risque introuvable dans ce cabinet." }, { status: 404 });
 
         await AuditService.log({
             action: "UPDATE",
