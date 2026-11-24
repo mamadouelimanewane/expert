@@ -14,7 +14,7 @@ import { AuditService } from "@/lib/audit";
  * exploite pourtant tous.
  */
 export async function GET(req: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     const clientId = new URL(req.url).searchParams.get("clientId");
@@ -22,28 +22,28 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: "clientId requis" }, { status: 400 });
     }
     const [client, employees] = await Promise.all([
-        prisma.client.findUnique({
-            where: { id: clientId },
+        prisma.client.findFirst({
+            where: { id: clientId, cabinetId: session.cabinetId },
             select: { id: true, country: true, paieAccidentRate: true, paieIpmSalarial: true, paieIpmPatronal: true },
         }),
-        prisma.employee.findMany({ where: { clientId }, orderBy: [{ lastName: "asc" }, { firstName: "asc" }] }),
+        prisma.employee.findMany({ where: { clientId, cabinetId: session.cabinetId }, orderBy: [{ lastName: "asc" }, { firstName: "asc" }] }),
     ]);
     if (!client) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
     return NextResponse.json({ client, employees });
 }
 
 export async function POST(req: Request) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     const { data, invalid } = await parseBody(req, employeeSchema);
     if (invalid) return invalid;
 
-    const client = await prisma.client.findUnique({ where: { id: data.clientId }, select: { id: true } });
+    const client = await prisma.client.findFirst({ where: { id: data.clientId, cabinetId: session.cabinetId }, select: { id: true } });
     if (!client) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
 
     const employee = await prisma.employee.create({
-        data: { ...data, email: data.email || null },
+        data: { ...data, cabinetId: session.cabinetId, email: data.email || null },
     });
     await AuditService.log({
         action: "CREATE",

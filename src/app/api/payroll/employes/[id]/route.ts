@@ -7,7 +7,7 @@ import { AuditService } from "@/lib/audit";
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: Request, { params }: Params) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     const { data, invalid } = await parseBody(req, employeeUpdateSchema);
@@ -15,12 +15,15 @@ export async function PATCH(req: Request, { params }: Params) {
 
     try {
         const { id } = await params;
-        const avant = await prisma.employee.findUnique({ where: { id } });
+        const avant = await prisma.employee.findFirst({ where: { id, cabinetId: session.cabinetId } });
         if (!avant) return NextResponse.json({ error: "Salarié introuvable" }, { status: 404 });
-        const employee = await prisma.employee.update({
-            where: { id },
+        const updated = await prisma.employee.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { ...data, ...(data.email !== undefined ? { email: data.email || null } : {}) },
         });
+        if (!updated.count) return NextResponse.json({ error: "Salarié introuvable" }, { status: 404 });
+        const employee = await prisma.employee.findFirst({ where: { id, cabinetId: session.cabinetId } });
+        if (!employee) return NextResponse.json({ error: "Salarié introuvable" }, { status: 404 });
         const champs = Object.keys(data) as (keyof typeof data)[];
         await AuditService.log({
             action: "UPDATE",
@@ -39,20 +42,24 @@ export async function PATCH(req: Request, { params }: Params) {
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
     try {
         const { id } = await params;
+        const existing = await prisma.employee.findFirst({ where: { id, cabinetId: session.cabinetId } });
+        if (!existing) return NextResponse.json({ error: "Salarié introuvable" }, { status: 404 });
         // Un salarié ayant déjà des bulletins validés ne se supprime pas :
         // les bulletins doivent rester rattachés à une personne.
-        const bulletins = await prisma.payslip.count({ where: { employeeId: id } });
+        const bulletins = await prisma.payslip.count({ where: { employeeId: id, cabinetId: session.cabinetId } });
         if (bulletins > 0) {
             return NextResponse.json(
                 { error: `Ce salarié a ${bulletins} bulletin(s) de paie : suppression refusée.` },
                 { status: 409 }
             );
         }
-        const employee = await prisma.employee.delete({ where: { id } });
+        const result = await prisma.employee.deleteMany({ where: { id, cabinetId: session.cabinetId } });
+        if (!result.count) return NextResponse.json({ error: "Salarié introuvable" }, { status: 404 });
+        const employee = existing;
         await AuditService.log({
             action: "DELETE",
             entity: "EMPLOYEE",

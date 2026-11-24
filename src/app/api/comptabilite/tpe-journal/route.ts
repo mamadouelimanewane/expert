@@ -8,12 +8,12 @@ import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
 
 // GET: Récupérer tous les journaux TPE sauvegardés
 export async function GET() {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     try {
         const journals = await prisma.tpeJournal.findMany({
-            where: { source: { not: 'WHATSAPP_TEST' } },
+            where: { cabinetId: session.cabinetId, source: { not: 'WHATSAPP_TEST' } },
             orderBy: { createdAt: 'desc' },
             take: 100
         });
@@ -26,7 +26,7 @@ export async function GET() {
 
 // POST: Sauvegarder un batch d'écritures générées par le moteur OHADA
 export async function POST(request: Request) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "clientId requis" }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({ where: { id: clientId } });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId } });
         if (!client) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         // signalement, ou produisait une colonne EcritureDate vide dans le
         // fichier remis a l'administration. Les dates sont donc normalisees ici,
         // et une date illisible fait rejeter le lot entier.
-        const datesNormalisees = journal.map((line: any) => normaliserDateISO(line?.date));
+        const datesNormalisees = journal.map((line: Record<string, unknown>) => normaliserDateISO(line.date));
         const lignesSansDate = datesNormalisees
             .map((d: string | null, i: number) => (d === null ? i + 1 : null))
             .filter((n: number | null): n is number => n !== null);
@@ -119,17 +119,18 @@ export async function POST(request: Request) {
 
         // Bulk insert all journal lines
         const result = await prisma.tpeJournal.createMany({
-            data: journal.map((line: any, index: number) => ({
+            data: journal.map((line: Record<string, unknown>, index: number) => ({
                 periode,
+                cabinetId: session.cabinetId,
                 businessName: (typeof businessName === "string" && businessName.trim()) || client.companyName || 'Commerçant',
                 date: datesNormalisees[index] as string,
-                libelle: line.libelle,
+                libelle: String(line.libelle),
                 entree: Number(line.entree ?? 0),
                 sortie: Number(line.sortie ?? 0),
-                debitCompte: line.debit_compte,
-                debitIntitule: line.debit_intitule,
-                creditCompte: line.credit_compte,
-                creditIntitule: line.credit_intitule,
+                debitCompte: String(line.debit_compte),
+                debitIntitule: String(line.debit_intitule),
+                creditCompte: String(line.credit_compte),
+                creditIntitule: String(line.credit_intitule),
                 montant: Number(line.montant),
                 status: 'PENDING',
                 clientId: client.id,
@@ -180,8 +181,10 @@ export async function PATCH(request: Request) {
         // Seules les lignes examinées et approuvées explicitement passent en
         // production. Les lignes PENDING ne peuvent pas être comptabilisées
         // par une action de masse.
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
         const result = await prisma.tpeJournal.updateMany({
-            where: { periode, clientId, status: "APPROVED" },
+            where: { periode, clientId, cabinetId: session.cabinetId, status: "APPROVED" },
             data: { status: 'EXPORTED', exportedAt: new Date() }
         });
 

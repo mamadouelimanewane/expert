@@ -27,21 +27,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   try {
-    const original = await prisma.tpeJournal.findUnique({ where: { id } });
+    const original = await prisma.tpeJournal.findFirst({ where: { id, cabinetId: session.cabinetId } });
     if (!original) return NextResponse.json({ error: "Écriture introuvable." }, { status: 404 });
     if (original.status !== "EXPORTED") {
       return NextResponse.json({ error: "Seule une écriture comptabilisée peut être contrepassée." }, { status: 409 });
     }
 
     const existing = await prisma.tpeJournal.findFirst({
-      where: { reversedFromId: original.id },
+      where: { reversedFromId: original.id, cabinetId: session.cabinetId },
       select: { id: true, status: true },
     });
     if (existing) {
       return NextResponse.json({ error: "Une contrepassation existe déjà pour cette écriture.", reversalId: existing.id }, { status: 409 });
     }
 
-    const reversalData = buildTpeJournalReversal(original, reason, new Date());
+    const reversalData = { ...buildTpeJournalReversal(original, reason, new Date()), cabinetId: session.cabinetId };
     const periodState = await ensureAccountingPeriodOpen(original.clientId, reversalData.periode);
     if (!periodState.open) return NextResponse.json({ error: `La période de contrepassation ${reversalData.periode} est verrouillée.` }, { status: 409 });
     const reversal = await prisma.tpeJournal.create({ data: reversalData });
