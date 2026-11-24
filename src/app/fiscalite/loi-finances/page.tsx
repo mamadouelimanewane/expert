@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
     TrendingDown, TrendingUp, Sliders, Play, Download,
-    Building, AlertCircle, Sparkles, Scale, Info, CheckCircle2
+    Building, AlertCircle, Scale, Info
 } from "lucide-react";
 
 interface ImpactClient {
@@ -38,6 +38,7 @@ interface ResultatSimulation {
 }
 
 export default function LoiFinancesSimulatorPage() {
+    const [clients, setClients] = useState([{ id: "1", nom: "", resultatFiscal: "", chiffreAffaires: "", caTtc: "", tvaCollectee: "" }]);
     const [pays, setPays] = useState<"sn" | "ci" | "cm" | "bj">("sn");
     const [typeChangement, setTypeChangement] = useState<string>("IS_TAUX");
     const [valeurActuelle, setValeurActuelle] = useState<number>(0.3);
@@ -68,6 +69,10 @@ export default function LoiFinancesSimulatorPage() {
     };
 
     const lancerSimulation = async () => {
+        if (clients.some((client) => !client.nom.trim() || [client.resultatFiscal, client.chiffreAffaires, client.caTtc, client.tvaCollectee].some((value) => value.trim() === "" || !Number.isFinite(Number(value))))) {
+            setError("Renseignez le nom et les quatre montants comptables pour chaque entreprise.");
+            return;
+        }
         setLoading(true);
         setError("");
         try {
@@ -82,6 +87,14 @@ export default function LoiFinancesSimulatorPage() {
                         valeurProposee: Number(valeurProposee),
                         exercice: Number(exercice),
                     },
+                    clients: clients.map((client) => ({
+                        clientId: `simulation-client-${client.id}`,
+                        nom: client.nom.trim(),
+                        resultatFiscal: Number(client.resultatFiscal),
+                        chiffreAffaires: Number(client.chiffreAffaires),
+                        caTtc: Number(client.caTtc),
+                        tvaCollectee: Number(client.tvaCollectee),
+                    })),
                 }),
             });
 
@@ -179,7 +192,7 @@ export default function LoiFinancesSimulatorPage() {
 
                     <div>
                         <label className="block text-xs font-medium text-muted-foreground mb-1">
-                            Valeur Actuelle ({typeChangement === "CREDIT_IMPOT" ? "FCFA" : "%"})
+                            Valeur Actuelle ({typeChangement === "CREDIT_IMPOT" ? "FCFA" : "taux décimal, ex. 0,30 = 30 %"})
                         </label>
                         <input
                             type="number"
@@ -192,7 +205,7 @@ export default function LoiFinancesSimulatorPage() {
 
                     <div>
                         <label className="block text-xs font-medium text-muted-foreground mb-1">
-                            Valeur Réformée ({typeChangement === "CREDIT_IMPOT" ? "FCFA" : "%"})
+                            Valeur Réformée ({typeChangement === "CREDIT_IMPOT" ? "FCFA" : "taux décimal, ex. 0,25 = 25 %"})
                         </label>
                         <input
                             type="number"
@@ -215,6 +228,31 @@ export default function LoiFinancesSimulatorPage() {
                         />
                     </div>
                 </div>
+
+                <div className="space-y-3 border-t border-border pt-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 className="text-sm font-semibold">Données comptables par entreprise</h3>
+                            <p className="text-xs text-muted-foreground">Montants de l’exercice sélectionné, en FCFA. Les chiffres sont fournis par l’utilisateur et doivent être vérifiés.</p>
+                        </div>
+                        <button type="button" onClick={() => setClients((items) => [...items, { id: String(Date.now()), nom: "", resultatFiscal: "", chiffreAffaires: "", caTtc: "", tvaCollectee: "" }])} className="px-3 py-2 rounded-lg border border-border text-xs font-medium">Ajouter une entreprise</button>
+                    </div>
+                    {clients.map((client, index) => {
+                        const fields = [
+                            ["nom", "Entreprise", "text"],
+                            ["resultatFiscal", "Résultat fiscal", "number"],
+                            ["chiffreAffaires", "CA HT", "number"],
+                            ["caTtc", "CA TTC", "number"],
+                            ["tvaCollectee", "TVA collectée", "number"],
+                        ] as const;
+                        return <div key={client.id} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end rounded-xl border border-border/70 p-3">
+                            {fields.map(([field, label, type]) => <label key={field} className="text-xs text-muted-foreground">{label}<input type={type} step={type === "number" ? "any" : undefined} value={client[field]} onChange={(event) => setClients((items) => items.map((item, i) => i === index ? { ...item, [field]: event.target.value } : item))} className="mt-1 w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground" /></label>)}
+                            <button type="button" disabled={clients.length === 1} onClick={() => setClients((items) => items.filter((_, i) => i !== index))} className="px-3 py-2 rounded-lg border border-border text-xs disabled:opacity-40">Retirer</button>
+                        </div>;
+                    })}
+                </div>
+
+                <p className="text-xs text-amber-300/90 flex gap-2 items-start"><Info className="w-4 h-4 shrink-0" />Simulation indicative fondée sur les montants saisis. Elle ne remplace pas la validation des règles applicables ni la revue d’un professionnel.</p>
 
                 <div className="flex justify-end pt-2">
                     <button

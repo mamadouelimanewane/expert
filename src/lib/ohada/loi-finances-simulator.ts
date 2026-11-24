@@ -21,9 +21,9 @@ export interface DonneeClientSimulation {
     clientId: string;
     nom: string;
     resultatFiscal: number; // Bénéfice fiscal ou déficit si négatif
-    chiffreAffaires?: number; // CA HT
-    caTtc?: number; // CA TTC
-    tvaCollectee?: number;
+    chiffreAffaires: number; // CA HT de l'exercice
+    caTtc: number; // CA TTC de l'exercice
+    tvaCollectee: number; // TVA collectée réelle de l'exercice
 }
 
 export interface ImpactClient {
@@ -54,10 +54,10 @@ export interface ResultatSimulation {
 /**
  * Calcule l'impôt minimum forfaitaire (IMF) légal pour une entreprise donnée.
  */
-function calculerIMF(pays: PaysCode, caHt: number, caTtc?: number, tauxPersonnalise?: number): number {
+function calculerIMF(pays: PaysCode, caHt: number, caTtc: number, tauxPersonnalise?: number): number {
     const regle = REGLES_FISCALES[pays];
     const taux = tauxPersonnalise !== undefined ? tauxPersonnalise : regle.minimum.taux;
-    const base = regle.minimum.base === "CA_TTC" ? (caTtc ?? caHt * 1.18) : caHt;
+    const base = regle.minimum.base === "CA_TTC" ? caTtc : caHt;
 
     let montant = base * taux;
     if (regle.minimum.plancher) montant = Math.max(montant, regle.minimum.plancher);
@@ -75,8 +75,8 @@ export function simulerImpactLoiFinances(
     const regle = REGLES_FISCALES[params.pays] || REGLES_FISCALES.sn;
 
     const impacts: ImpactClient[] = clients.map((client) => {
-        const caHt = client.chiffreAffaires ?? (client.resultatFiscal > 0 ? client.resultatFiscal * 4 : 20_000_000);
-        const caTtc = client.caTtc ?? caHt * (1 + regle.tauxTVA);
+        const caHt = client.chiffreAffaires;
+        const caTtc = client.caTtc;
         const imfBase = calculerIMF(params.pays, caHt, caTtc);
 
         let chargeActuelle = 0;
@@ -130,7 +130,7 @@ export function simulerImpactLoiFinances(
             }
 
             case "TVA_TAUX": {
-                const tvaActuelle = client.tvaCollectee ?? Math.round(caHt * params.valeurActuelle);
+                const tvaActuelle = client.tvaCollectee;
                 const assiette = params.valeurActuelle > 0 ? tvaActuelle / params.valeurActuelle : caHt;
                 chargeActuelle = Math.round(tvaActuelle);
                 chargeSimulee = Math.round(assiette * params.valeurProposee);

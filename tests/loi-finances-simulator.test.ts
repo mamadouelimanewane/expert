@@ -21,12 +21,16 @@ describe("Simulateur d'Impact de Loi de Finances (OHADA)", () => {
                 nom: "Société Alpha",
                 resultatFiscal: 50_000_000,
                 chiffreAffaires: 200_000_000,
+                caTtc: 236_000_000,
+                tvaCollectee: 36_000_000,
             },
             {
                 clientId: "client2",
                 nom: "Société Bêta",
                 resultatFiscal: 20_000_000,
                 chiffreAffaires: 80_000_000,
+                caTtc: 94_400_000,
+                tvaCollectee: 14_400_000,
             },
         ];
 
@@ -64,6 +68,7 @@ describe("Simulateur d'Impact de Loi de Finances (OHADA)", () => {
                 resultatFiscal: -5_000_000,
                 chiffreAffaires: 50_000_000,
                 caTtc: 59_000_000,
+                tvaCollectee: 9_000_000,
             },
         ];
 
@@ -90,6 +95,8 @@ describe("Simulateur d'Impact de Loi de Finances (OHADA)", () => {
                 nom: "Tech Solar SARL",
                 resultatFiscal: 20_000_000, // IS normal = 6 000 000
                 chiffreAffaires: 50_000_000,
+                caTtc: 59_000_000,
+                tvaCollectee: 9_000_000,
             },
         ];
 
@@ -116,6 +123,7 @@ describe("Simulateur d'Impact de Loi de Finances (OHADA)", () => {
                 resultatFiscal: 10_000_000,
                 chiffreAffaires: 100_000_000,
                 tvaCollectee: 18_000_000,
+                caTtc: 118_000_000,
             },
         ];
 
