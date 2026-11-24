@@ -15,6 +15,8 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
             siegeSocial: "Dakar Plateau, Sénégal",
             rccm: "SN-DKR-2023-B-1234",
             dateAssemblee: "30 juin 2025",
+            heureAssemblee: "10:00",
+            dateCloture: "31 décembre 2024",
             lieuAssemblee: "Dakar",
             exerciceClos: 2024,
             resultatNet: 25_000_000,
@@ -22,10 +24,15 @@ describe("Nexus-Legal v2 : Générateur d'actes juridiques certifiés OHADA", ()
             dividendesDistribues: 15_000_000,
             nomGerantOuPresident: "Moustapha Ndiaye",
             presentsOuRepresentesPourcentage: 100,
+            voteApprobation: "unanimite",
+            voteAffectation: "unanimite",
+            voteFormalites: "unanimite",
         }, "sn");
 
         expect(acte.type).toBe("PV_AGOA");
         expect(acte.texteIntegral).toContain("SARL SAHEL SOLUTIONS");
+        expect(acte.texteIntegral).toContain("Le 30 juin 2025 à 10:00");
+        expect(acte.texteIntegral).toContain("31 décembre 2024");
         expect(acte.texteIntegral).toContain("Réserve Légale (AUSCGIE art. 346)");
         expect(acte.mentionsObligatoiresVerifiees.length).toBeGreaterThanOrEqual(3);
         // Doit avoir un bon score de conformité (aucun risque léonin)

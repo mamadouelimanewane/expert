@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Nexus-Legal v2 : Générateur d'Actes Juridiques Certifiés OHADA
+// Nexus-Legal v2 : Générateur de projets d'actes juridiques OHADA
 // Références : AUSCGIE (Sociétés), AUDCG (Baux commerciaux), CCNI (Travail)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -19,6 +19,8 @@ export interface ParametresPVAGOA {
     siegeSocial: string;
     rccm: string;
     dateAssemblee: string;
+    heureAssemblee: string;
+    dateCloture: string;
     lieuAssemblee: string;
     exerciceClos: number;
     resultatNet: number;      // bénéfice ou perte en FCFA
@@ -27,6 +29,9 @@ export interface ParametresPVAGOA {
     nomGerantOuPresident: string;
     commissaireAuxComptes?: string;
     presentsOuRepresentesPourcentage: number;
+    voteApprobation: "unanimite" | "majorite" | "rejetee";
+    voteAffectation: "unanimite" | "majorite" | "rejetee";
+    voteFormalites: "unanimite" | "majorite" | "rejetee";
 }
 
 export interface ParametresStatutsSARL {
@@ -86,10 +91,16 @@ export interface ActeGenere {
 }
 
 const fmt = (n: number) => n.toLocaleString("fr-FR").replace(/\u202F|\u00A0/g, " ");
+const fmtDate = (value: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+};
+const resultatVote = (vote: "unanimite" | "majorite" | "rejetee") => vote === "rejetee" ? "est rejetée" : `est adoptée ${vote === "unanimite" ? "à l'unanimité" : "à la majorité"}`;
+const conditionnel = (vote: "unanimite" | "majorite" | "rejetee", adopte: string, rejete: string) => vote === "rejetee" ? rejete : adopte;
 
 const DISCLAIMER_LEGAL =
     "AVERTISSEMENT : Ce projet d'acte juridique a été rédigé avec l'assistance du moteur Nexus-Legal v2 " +
-    "conformément aux Actes Uniformes OHADA applicables. Il doit être relu, validé et revêtu des formalités d'enregistrement " +
+    "à partir des informations fournies et de références générales. Ce projet n'est ni une certification ni un avis juridique ; il doit être contrôlé, complété et validé " +
     "ou de publicité légale (RCCM, Greffe, Notaire) par un professionnel habilité (Expert-comptable, Avocat ou Notaire).";
 
 /**
@@ -110,7 +121,7 @@ ${params.formeSociale} au capital de ${fmt(params.capitalSocial)} FCFA
 Siège social : ${params.siegeSocial}
 RCCM : ${params.rccm}
 
-L'an deux mille vingt-cinq, le ${params.dateAssemblee}, à dix heures,
+Le ${fmtDate(params.dateAssemblee)} à ${params.heureAssemblee},
 Les associés de la société « ${params.denomination} » se sont réunis au siège social sis à ${params.lieuAssemblee},
 en Assemblée Générale Ordinaire Annuelle, sur convocation de la gérance adressée conformément aux statuts et aux dispositions de l'AUSCGIE.
 
@@ -118,28 +129,28 @@ Est présent ou valablement représenté un total de parts représentant ${param
 L'assemblée étant régulièrement constituée, elle peut valablement délibérer sous la présidence de ${params.nomGerantOuPresident}.
 
 ORDRE DU JOUR :
-1. Rapport de gestion de la gérance sur l'exercice clos le 31 décembre ${params.exerciceClos}.
+1. Rapport de gestion de la gérance sur l'exercice clos le ${fmtDate(params.dateCloture)}.
 ${params.commissaireAuxComptes ? "2. Rapport général et rapport spécial du Commissaire aux Comptes (AUSCGIE art. 438).\n" : ""}
 3. Approbation des comptes annuels SYSCOHADA et quitus à la gérance.
 4. Affectation du résultat de l'exercice.
 5. Pouvoirs pour l'accomplissement des formalités de dépôt légal.
 
 PREMIERE RESOLUTION (Approbation des comptes)
-L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion, approuve les comptes annuels de l'exercice clos le 31 décembre ${params.exerciceClos},
+L'Assemblée Générale, après avoir entendu la lecture du rapport de gestion, ${conditionnel(params.voteApprobation, "approuve les comptes annuels", "rejette l'approbation des comptes annuels" )} de l'exercice clos le ${fmtDate(params.dateCloture)},
 faisant apparaître un résultat net comptable de ${fmt(params.resultatNet)} FCFA.
-L'Assemblée donne quitus entier et sans réserve à la gérance pour l'exécution de son mandat.
-Cette résolution, mise aux voix, est adoptée à l'unanimité.
+${conditionnel(params.voteApprobation, "L'Assemblée donne quitus entier et sans réserve à la gérance pour l'exécution de son mandat.", "Le quitus à la gérance n'est pas accordé.")}
+Cette résolution, mise aux voix, ${resultatVote(params.voteApprobation)}.
 
 DEUXIEME RESOLUTION (Affectation du résultat)
-L'Assemblée Générale décide d'affecter le résultat net de l'exercice comme suit :
+${conditionnel(params.voteAffectation, "L'Assemblée Générale décide d'affecter le résultat net de l'exercice comme suit :", "La proposition d'affectation du résultat, soumise au vote, est rejetée ; aucune affectation n'est approuvée par cette résolution :")}
 - Dotation à la Réserve Légale (AUSCGIE art. 346) : ${fmt(params.affectationReserveLegale)} FCFA
 - Distribution de dividendes : ${fmt(params.dividendesDistribues)} FCFA
 - Solde affecté en Report à Nouveau : ${fmt(reportANouveau)} FCFA
-Cette résolution, mise aux voix, est adoptée à l'unanimité.
+Cette résolution, mise aux voix, ${resultatVote(params.voteAffectation)}.
 
 TROISIEME RESOLUTION (Pouvoirs pour formalités)
 L'Assemblée confère tous pouvoirs au porteur d'une copie ou d'un extrait du présent procès-verbal pour effectuer tous dépôts, formalités et publications prescrits par la loi.
-Cette résolution est adoptée à l'unanimité.
+Cette résolution ${resultatVote(params.voteFormalites)}.
 
 De tout ce qui précède, il a été dressé le présent procès-verbal qui, après lecture, a été signé par le Président de séance et les associés.`;
 
