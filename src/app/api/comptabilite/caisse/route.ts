@@ -16,7 +16,7 @@ import { AuditService } from "@/lib/audit";
  * POST /api/comptabilite/caisse (Établissement du PV de caisse physique)
  */
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
@@ -29,12 +29,15 @@ export async function GET(request: NextRequest) {
     if (!Number.isFinite(soldeInitial) || soldeInitial < 0) {
         return NextResponse.json({ error: "soldeInitial doit être un nombre positif ou nul." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     // Récupérer les seules écritures dont un compte de trésorerie SYSCOHADA
     // (classe 57) est réellement renseigné.
     const dbJournals = await prisma.tpeJournal.findMany({
         where: {
             clientId,
+            cabinetId: session.cabinetId,
             OR: [{ debitCompte: { startsWith: "57" } }, { creditCompte: { startsWith: "57" } }],
         },
         orderBy: { date: "asc" },
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: {
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
         || clesBilletage.some((key) => !Number.isInteger(billetage[key]) || billetage[key] < 0)) {
         return NextResponse.json({ error: "Champs requis manquants pour le PV de caisse." }, { status: 400 });
     }
-    const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
     if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const pv = etablirProcesVerbalCaisse({

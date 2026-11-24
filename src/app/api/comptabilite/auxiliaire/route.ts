@@ -16,7 +16,7 @@ import { AuditService } from "@/lib/audit";
  * POST /api/comptabilite/auxiliaire (Action de lettrage)
  */
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
@@ -31,13 +31,15 @@ export async function GET(request: NextRequest) {
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     // Le modèle Invoice stocke des factures de vente ; il ne porte pas de type
     // achat/vente ni de factures fournisseurs. Ne jamais mélanger les deux
     // cycles ou afficher un jeu de démonstration comme s'il était réel.
     const invoices = typeTiers === "CLIENT"
         ? await prisma.invoice.findMany({
-            where: { clientId },
+            where: { clientId, cabinetId: session.cabinetId },
             orderBy: { issueDate: "desc" },
             take: 100,
             include: { client: { select: { companyName: true, firstName: true, lastName: true } } },
@@ -74,7 +76,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: {
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(factures) || !Array.isArray(reglements) || typeof codeLettrage !== "string" || !codeLettrage.trim() || !isObjectId(clientId)) {
         return NextResponse.json({ error: "Paramètres de lettrage manquants." }, { status: 400 });
     }
-    const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
     if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const lignesValides = (rows: EcritureTiers[]) => rows.every((row) =>

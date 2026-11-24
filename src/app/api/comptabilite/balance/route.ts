@@ -5,6 +5,7 @@ import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { normaliserPeriode } from "@/lib/validation";
 import { analyserLignesBalance } from "@/lib/ohada/balance-import-validation";
 import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
+import { isObjectId } from "@/lib/tenant-security";
 
 /**
  * Balance générale importée pour un dossier et une période de clôture.
@@ -20,15 +21,17 @@ import { ensureAccountingPeriodOpen } from "@/lib/accounting-period-lock";
 const TOLERANCE = 1; // FCFA — arrondis de saisie
 
 export async function GET(request: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
     try {
         const { searchParams } = new URL(request.url);
         const clientId = searchParams.get("clientId");
         const periode = searchParams.get("periode");
-        if (!clientId || clientId.length !== 24) {
+        if (!isObjectId(clientId)) {
             return NextResponse.json({ error: "clientId requis." }, { status: 400 });
         }
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
         if (periode) {
             const p = normaliserPeriode(periode);
             if (!p) return NextResponse.json({ error: "Période illisible (AAAA-MM attendu)." }, { status: 400 });
@@ -40,7 +43,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ balance });
         }
         const balances = await prisma.balanceImportee.findMany({
-            where: { clientId },
+            where: { clientId, cabinetId: session.cabinetId },
             orderBy: { periode: "desc" },
             select: { id: true, periode: true, fichier: true, nbLignes: true, totalDebit: true, totalCredit: true, equilibree: true, createdAt: true, importedBy: { select: { firstName: true, lastName: true } } },
         });
@@ -57,10 +60,10 @@ export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
         const clientId = typeof body.clientId === "string" ? body.clientId : "";
-        if (clientId.length !== 24) return NextResponse.json({ error: "clientId requis." }, { status: 400 });
+        if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId requis." }, { status: 400 });
         const periode = normaliserPeriode(body.periode);
         if (!periode) return NextResponse.json({ error: "Période de clôture illisible (AAAA-MM attendu, ex. 2025-12)." }, { status: 400 });
-        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true, companyName: true } });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true, companyName: true } });
         if (!client) return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
         const periodeEtat = await ensureAccountingPeriodOpen(clientId, periode);
         if (!periodeEtat.open) return NextResponse.json({ error: "Période comptable verrouillée : import de balance refusé." }, { status: 409 });
@@ -76,12 +79,13 @@ export async function POST(request: Request) {
         const balance = await prisma.balanceImportee.upsert({
             where: { clientId_periode: { clientId, periode } },
             create: {
-                clientId, periode, fichier,
+                cabinetId: session.cabinetId, clientId, periode, fichier,
                 lignes: analyse.lignes as unknown as object[],
                 nbLignes: analyse.lignes.length, totalDebit, totalCredit, equilibree,
                 importedById: session!.id,
             },
             update: {
+                cabinetId: session!.cabinetId,
                 fichier,
                 lignes: analyse.lignes as unknown as object[],
                 nbLignes: analyse.lignes.length, totalDebit, totalCredit, equilibree,
@@ -110,16 +114,18 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
     try {
         const { searchParams } = new URL(request.url);
         const clientId = searchParams.get("clientId") ?? "";
         const periode = normaliserPeriode(searchParams.get("periode"));
-        if (clientId.length !== 24 || !periode) return NextResponse.json({ error: "clientId et periode requis." }, { status: 400 });
+        if (!isObjectId(clientId) || !periode) return NextResponse.json({ error: "clientId et periode requis." }, { status: 400 });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
         const periodeEtat = await ensureAccountingPeriodOpen(clientId, periode);
         if (!periodeEtat.open) return NextResponse.json({ error: "Période comptable verrouillée : suppression de balance refusée." }, { status: 409 });
-        const result = await prisma.balanceImportee.deleteMany({ where: { clientId, periode } });
+        const result = await prisma.balanceImportee.deleteMany({ where: { clientId, cabinetId: session.cabinetId, periode } });
         if (result.count === 0) return NextResponse.json({ error: "Aucune balance pour cette période." }, { status: 404 });
         await AuditService.log({ action: "DELETE", entity: "BALANCE", entityId: clientId, details: `Balance ${periode} supprimée` });
         return NextResponse.json({ supprimee: true });
