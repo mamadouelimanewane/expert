@@ -22,32 +22,35 @@ import type {
 } from "@/lib/ohada/audit-rapport-cac";
 
 export default function RapportCACPage() {
-    const [denomination, setDenomination] = useState("AGRO-INDUSTRIES SAHEL SA");
-    const [forme, setForme] = useState("Société Anonyme");
-    const [rccm, setRccm] = useState("SN-DKR-2015-B-1122");
-    const [siege, setSiege] = useState("Zone Industrielle de Dakar");
-    const [capital, setCapital] = useState(500_000_000);
-    const [exerciceClos, setExerciceClos] = useState("31 décembre 2025");
+    type ConventionInput = { beneficiaire: string; natureConvention: string; montantExercice: string; autorisationPrealableConseil: boolean };
+    const [denomination, setDenomination] = useState("");
+    const [forme, setForme] = useState("");
+    const [rccm, setRccm] = useState("");
+    const [siege, setSiege] = useState("");
+    const [capital, setCapital] = useState("");
+    const [exerciceClos, setExerciceClos] = useState("");
 
-    const [ca, setCa] = useState(4_500_000_000);
-    const [resultatNet, setResultatNet] = useState(280_000_000);
-    const [totalBilan, setTotalBilan] = useState(3_200_000_000);
+    const [ca, setCa] = useState("");
+    const [resultatNet, setResultatNet] = useState("");
+    const [totalBilan, setTotalBilan] = useState("");
 
-    const [opinion, setOpinion] = useState<OpinionCAC>("CERTIFICATION_SANS_RESERVE");
+    const [opinion, setOpinion] = useState<OpinionCAC | "">("");
+    const [cabinetDenomination, setCabinetDenomination] = useState("");
+    const [cabinetVille, setCabinetVille] = useState("");
+    const [associeSignataire, setAssocieSignataire] = useState("");
+    const [ordreNational, setOrdreNational] = useState("");
+    const [dateRapport, setDateRapport] = useState("");
+    const [conventions, setConventions] = useState<ConventionInput[]>([]);
+    const [absenceConventionsConfirmee, setAbsenceConventionsConfirmee] = useState(false);
 
     // KAM
-    const [kams, setKams] = useState<KeyAuditMatter[]>([
-        {
-            titre: "Évaluation et dépréciation des stocks",
-            risqueIdentifie: "Risque de surévaluation sur les stocks à rotation lente",
-            reponseAuditApportee: "Test des coûts unitaires moyens pondérés et rapprochement avec l'inventaire physique contradictoire",
-        }
-    ]);
+    const [kams, setKams] = useState<KeyAuditMatter[]>([]);
 
     // Réserves
     const [reserves, setReserves] = useState<ReserveAudit[]>([]);
 
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [resultat, setResultat] = useState<RapportCACResult | null>(null);
     const [copieGen, setCopieGen] = useState(false);
     const [copieSpe, setCopieSpe] = useState(false);
@@ -79,6 +82,28 @@ export default function RapportCACPage() {
     const genererRapport = useCallback(async () => {
         setLoading(true);
         setResultat(null);
+        const donneesRequises = [denomination, forme, rccm, siege, capital, exerciceClos, ca, resultatNet, totalBilan, opinion, cabinetDenomination, cabinetVille, associeSignataire, ordreNational, dateRapport];
+        if (donneesRequises.some((value) => !String(value).trim()) || [capital, ca, resultatNet, totalBilan].some((value) => !Number.isFinite(Number(value)) || Number(value) < 0)) {
+            setLoading(false);
+            setError("Renseignez l'entité, les états financiers, l'opinion et les informations du signataire à partir du dossier audité.");
+            return;
+        }
+        if ((opinion === "CERTIFICATION_AVEC_RESERVES" || opinion === "REFUS_DE_CERTIFIER") && reserves.length === 0) {
+            setLoading(false);
+            setError("Ajoutez au moins un fondement documenté pour l'opinion avec réserve ou le refus de certifier.");
+            return;
+        }
+        if (conventions.some((item) => !item.beneficiaire.trim() || !item.natureConvention.trim() || !Number.isFinite(Number(item.montantExercice)) || Number(item.montantExercice) < 0)) {
+            setLoading(false);
+            setError("Complétez les informations des conventions réglementées ou retirez les lignes vides.");
+            return;
+        }
+        if (conventions.length === 0 && !absenceConventionsConfirmee) {
+            setLoading(false);
+            setError("Confirmez explicitement l'absence de conventions réglementées ou saisissez celles identifiées.");
+            return;
+        }
+        setError("");
 
         const payload: DonneesRapportCAC = {
             societe: {
@@ -86,30 +111,23 @@ export default function RapportCACPage() {
                 formeJuridique: forme,
                 rccm,
                 siegeSocial: siege,
-                capitalSocial: capital,
+                capitalSocial: Number(capital),
             },
             exerciceClos,
-            chiffreAffaires: ca,
-            resultatNet,
-            totalBilan,
-            opinion,
+            chiffreAffaires: Number(ca),
+            resultatNet: Number(resultatNet),
+            totalBilan: Number(totalBilan),
+            opinion: opinion as OpinionCAC,
             reserves,
             pointsClesAudit: kams.filter(k => k.titre.trim() !== ""),
-            conventionsReglementeesMentionnees: [
-                {
-                    beneficiaire: "Société Holding Africaine",
-                    natureConvention: "Contrat de prestations d'assistance technique",
-                    montantExercice: 45_000_000,
-                    autorisationPrealableConseil: true,
-                }
-            ],
+            conventionsReglementeesMentionnees: conventions.map((item) => ({ ...item, montantExercice: Number(item.montantExercice) })),
             cabinet: {
-                denomination: "Cabinet 360 Audit & Advisory",
-                ville: "Dakar",
-                associeSignataire: "Mamadou Sow, Expert-Comptable Associé",
-                ordreNational: "ONECCA Sénégal",
+                denomination: cabinetDenomination,
+                ville: cabinetVille,
+                associeSignataire,
+                ordreNational,
             },
-            dateRapport: new Date().toISOString().split("T")[0],
+            dateRapport,
         };
 
         try {
@@ -120,10 +138,15 @@ export default function RapportCACPage() {
             });
             const data = await res.json();
             if (data.ok) setResultat(data.resultat);
-        } catch {} finally {
+            else setError(data.error || "Échec de génération du rapport.");
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Erreur de communication.");
+        } finally {
             setLoading(false);
         }
-    }, [denomination, forme, rccm, siege, capital, exerciceClos, ca, resultatNet, totalBilan, opinion, reserves, kams]);
+    }, [denomination, forme, rccm, siege, capital, exerciceClos, ca, resultatNet, totalBilan, opinion, reserves, kams, cabinetDenomination, cabinetVille, associeSignataire, ordreNational, dateRapport, conventions, absenceConventionsConfirmee]);
+
+    const ajouterConvention = () => setConventions((items) => [...items, { beneficiaire: "", natureConvention: "", montantExercice: "", autorisationPrealableConseil: false }]);
 
     const copier = (texte: string, isGen: boolean) => {
         navigator.clipboard.writeText(texte);
@@ -144,9 +167,11 @@ export default function RapportCACPage() {
                     Rapports du Commissaire aux Comptes (ISA 700 / 705 / 706 & AUSCGIE)
                 </h1>
                 <p className="page-subtitle text-xs text-muted-foreground mt-1">
-                    Générateur certifié des rapports annuels de CAC : rapport général d&apos;opinion avec Points Clés d&apos;Audit (KAM) et rapport spécial des conventions réglementées.
+                    Assistant de rédaction des rapports annuels de CAC : rapport général d&apos;opinion avec Points Clés d&apos;Audit (KAM) et rapport spécial des conventions réglementées.
                 </p>
+                <p className="mt-2 text-xs text-amber-300">Brouillon calculé à partir de vos saisies. Il ne vaut pas opinion professionnelle, signature ni dépôt légal sans contrôle des éléments probants et validation du commissaire aux comptes.</p>
             </div>
+            {error && <div className="p-3 rounded-lg border border-rose-500/40 bg-rose-950/20 text-rose-300 text-sm">{error}</div>}
 
             {/* Formulaire entité & opinion */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -184,12 +209,28 @@ export default function RapportCACPage() {
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
+                        <div className="col-span-2">
+                            <label className="block text-muted-foreground mb-1 font-medium">Siège social</label>
+                            <input type="text" value={siege} onChange={(e) => setSiege(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" />
+                        </div>
+                        <div>
+                            <label className="block text-muted-foreground mb-1 font-medium">Capital social (FCFA)</label>
+                            <input type="number" value={capital} onChange={(e) => setCapital(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" />
+                        </div>
+                        <div>
+                            <label className="block text-muted-foreground mb-1 font-medium">Exercice clos</label>
+                            <input type="text" value={exerciceClos} onChange={(e) => setExerciceClos(e.target.value)} placeholder="Ex. 31 décembre 2025" className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" />
+                        </div>
+                        <div>
+                            <label className="block text-muted-foreground mb-1 font-medium">Résultat net (FCFA)</label>
+                            <input type="number" value={resultatNet} onChange={(e) => setResultatNet(e.target.value)} className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs" />
+                        </div>
                         <div>
                             <label className="block text-muted-foreground mb-1 font-medium">Total Bilan (FCFA)</label>
                             <input
                                 type="number"
                                 value={totalBilan}
-                                onChange={(e) => setTotalBilan(Number(e.target.value))}
+                                onChange={(e) => setTotalBilan(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -198,7 +239,7 @@ export default function RapportCACPage() {
                             <input
                                 type="number"
                                 value={ca}
-                                onChange={(e) => setCa(Number(e.target.value))}
+                                onChange={(e) => setCa(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -215,9 +256,10 @@ export default function RapportCACPage() {
                         <label className="block text-xs text-muted-foreground mb-1 font-medium">Type d&apos;opinion formulée</label>
                         <select
                             value={opinion}
-                            onChange={(e) => setOpinion(e.target.value as OpinionCAC)}
+                            onChange={(e) => setOpinion(e.target.value as OpinionCAC | "")}
                             className="w-full bg-background border border-border rounded-lg px-2.5 py-2 text-xs font-semibold"
                         >
+                            <option value="">Sélectionner après revue des éléments probants</option>
                             <option value="CERTIFICATION_SANS_RESERVE">Certification sans réserve (Image fidèle et sincère)</option>
                             <option value="CERTIFICATION_AVEC_RESERVES">Certification avec réserves (Désaccord ou limitation circonscrite)</option>
                             <option value="REFUS_DE_CERTIFIER">Refus de certifier (Désaccord profond et généralisé)</option>
@@ -263,6 +305,31 @@ export default function RapportCACPage() {
                         </div>
                     )}
                 </div>
+            </div>
+
+            <div className="bg-card/40 border border-border rounded-xl p-5 space-y-4">
+                <h2 className="text-sm font-semibold">Cabinet, signataire et date du rapport</h2>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+                    <label className="text-muted-foreground">Cabinet<input value={cabinetDenomination} onChange={(e) => setCabinetDenomination(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground" /></label>
+                    <label className="text-muted-foreground">Ville<input value={cabinetVille} onChange={(e) => setCabinetVille(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground" /></label>
+                    <label className="text-muted-foreground">Expert signataire<input value={associeSignataire} onChange={(e) => setAssocieSignataire(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground" /></label>
+                    <label className="text-muted-foreground">Ordre professionnel<input value={ordreNational} onChange={(e) => setOrdreNational(e.target.value)} placeholder="ONECCA / ordre national" className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground" /></label>
+                    <label className="text-muted-foreground">Date du rapport<input type="date" value={dateRapport} onChange={(e) => setDateRapport(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground" /></label>
+                </div>
+            </div>
+
+            <div className="bg-card/40 border border-border rounded-xl p-5 space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                    <h2 className="text-sm font-semibold">Conventions réglementées vérifiées</h2>
+                    <button type="button" onClick={ajouterConvention} className="text-xs text-primary font-medium hover:underline">Ajouter une convention</button>
+                </div>
+                {conventions.map((item, index) => <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                    <label className="text-xs text-muted-foreground">Bénéficiaire<input value={item.beneficiaire} onChange={(e) => setConventions((items) => items.map((v, i) => i === index ? { ...v, beneficiaire: e.target.value } : v))} className="mt-1 w-full bg-background border border-border rounded-lg px-2 py-1.5" /></label>
+                    <label className="text-xs text-muted-foreground">Nature<input value={item.natureConvention} onChange={(e) => setConventions((items) => items.map((v, i) => i === index ? { ...v, natureConvention: e.target.value } : v))} className="mt-1 w-full bg-background border border-border rounded-lg px-2 py-1.5" /></label>
+                    <label className="text-xs text-muted-foreground">Montant exercice<input type="number" value={item.montantExercice} onChange={(e) => setConventions((items) => items.map((v, i) => i === index ? { ...v, montantExercice: e.target.value } : v))} className="mt-1 w-full bg-background border border-border rounded-lg px-2 py-1.5" /></label>
+                    <div className="flex items-center gap-3"><label className="text-xs flex items-center gap-2"><input type="checkbox" checked={item.autorisationPrealableConseil} onChange={(e) => setConventions((items) => items.map((v, i) => i === index ? { ...v, autorisationPrealableConseil: e.target.checked } : v))} />Autorisation préalable</label><button type="button" onClick={() => setConventions((items) => items.filter((_, i) => i !== index))} aria-label="Retirer la convention" className="text-rose-400">×</button></div>
+                </div>)}
+                {conventions.length === 0 && <label className="text-xs flex items-center gap-2"><input type="checkbox" checked={absenceConventionsConfirmee} onChange={(e) => setAbsenceConventionsConfirmee(e.target.checked)} />Après vérification du dossier, aucune convention réglementée n’a été identifiée.</label>}
             </div>
 
             {/* KAM (Points clés d'audit ISA 701) */}

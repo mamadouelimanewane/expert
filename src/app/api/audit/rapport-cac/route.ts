@@ -6,50 +6,10 @@ import {
 } from "@/lib/ohada/audit-rapport-cac";
 import { AuditService } from "@/lib/audit";
 
-export async function GET(req: NextRequest) {
-  const { session, denied } = await requireStaff();
+export async function GET() {
+  const { denied } = await requireStaff();
   if (denied) return denied;
-
-  const demoData: DonneesRapportCAC = {
-    societe: {
-      denomination: "AGRO-INDUSTRIES SAHEL SA",
-      formeJuridique: "Société Anonyme",
-      rccm: "SN-DKR-2015-B-1122",
-      siegeSocial: "Zone Industrielle de Dakar",
-      capitalSocial: 500_000_000,
-    },
-    exerciceClos: "31 décembre 2025",
-    chiffreAffaires: 4_500_000_000,
-    resultatNet: 280_000_000,
-    totalBilan: 3_200_000_000,
-    opinion: "CERTIFICATION_SANS_RESERVE",
-    reserves: [],
-    pointsClesAudit: [
-      {
-        titre: "Évaluation et dépréciation des stocks",
-        risqueIdentifie: "Risque de dépréciation sur stocks à rotation lente",
-        reponseAuditApportee: "Test des coûts unitaires et revue de l'inventaire physique contradictoire",
-      },
-    ],
-    conventionsReglementeesMentionnees: [
-      {
-        beneficiaire: "Société Holding Africaine",
-        natureConvention: "Contrat d'assistance technique et prestations informatiques",
-        montantExercice: 45_000_000,
-        autorisationPrealableConseil: true,
-      },
-    ],
-    cabinet: {
-      denomination: "Cabinet 360 Audit & Advisory",
-      ville: "Dakar",
-      associeSignataire: "Mamadou Sow, Expert-Comptable Associé",
-      ordreNational: "ONECCA Sénégal",
-    },
-    dateRapport: new Date().toISOString().split("T")[0],
-  };
-
-  const resultat = genererRapportsCAC(demoData);
-  return NextResponse.json({ ok: true, params: demoData, resultat });
+  return NextResponse.json({ ok: false, error: "Aucun dossier CAC n'est relié à des états financiers et pièces validés. Transmettez les données documentées au générateur." }, { status: 409 });
 }
 
 export async function POST(req: NextRequest) {
@@ -58,6 +18,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const donnees = (await req.json()) as DonneesRapportCAC;
+    const textesRequis = [donnees.societe?.denomination, donnees.societe?.formeJuridique, donnees.societe?.rccm, donnees.societe?.siegeSocial, donnees.exerciceClos, donnees.cabinet?.denomination, donnees.cabinet?.ville, donnees.cabinet?.associeSignataire, donnees.cabinet?.ordreNational, donnees.dateRapport];
+    const montants = [donnees.societe?.capitalSocial, donnees.chiffreAffaires, donnees.resultatNet, donnees.totalBilan];
+    if (textesRequis.some((value) => typeof value !== "string" || !value.trim())
+      || montants.some((value) => typeof value !== "number" || !Number.isFinite(value) || value < 0)
+      || !["CERTIFICATION_SANS_RESERVE", "CERTIFICATION_AVEC_RESERVES", "REFUS_DE_CERTIFIER", "IMPOSSIBILITE_DE_CONCLURE"].includes(donnees.opinion)
+      || !Array.isArray(donnees.reserves) || !Array.isArray(donnees.pointsClesAudit) || !Array.isArray(donnees.conventionsReglementeesMentionnees)) {
+      return NextResponse.json({ ok: false, error: "Les informations de l'entité, de la mission, des états financiers et l'opinion sont obligatoires et doivent être valides." }, { status: 400 });
+    }
+    if (donnees.conventionsReglementeesMentionnees.some((item) => !item.beneficiaire.trim() || !item.natureConvention.trim() || !Number.isFinite(item.montantExercice) || item.montantExercice < 0)
+      || donnees.reserves.some((item) => !item.titre.trim() || !item.motif.trim())
+      || donnees.pointsClesAudit.some((item) => !item.titre.trim() || !item.risqueIdentifie.trim() || !item.reponseAuditApportee.trim())) {
+      return NextResponse.json({ ok: false, error: "Complétez les fondements d'opinion, points clés et conventions saisis." }, { status: 400 });
+    }
     const resultat = genererRapportsCAC(donnees);
 
     await AuditService.log(session.id, "GENERER_RAPPORT_CAC", "audit", {
