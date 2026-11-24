@@ -36,7 +36,7 @@ describe("AuditService.log", () => {
   });
 
   it("signale l'absence de données au lieu de créer un score de risque artificiel", async () => {
-    const result = await AuditService.calculateRiskScore("507f1f77bcf86cd799439011");
+    const result = await AuditService.calculateRiskScore("507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012");
     expect(result.globalScore).toBe("ND");
     expect(result.donneesDisponibles).toBe(0);
     expect(result.breakdown.every((item) => item.disponible === false)).toBe(true);
@@ -44,7 +44,7 @@ describe("AuditService.log", () => {
 
   it("traite les montants ronds comme des signaux de revue, pas comme une preuve de fraude", async () => {
     journalFindMany.mockResolvedValueOnce([{ date: "2026-11-22", entree: 100_000, sortie: 0, status: "APPROVED" }]);
-    const result = await AuditService.calculateRiskScore("507f1f77bcf86cd799439011");
+    const result = await AuditService.calculateRiskScore("507f1f77bcf86cd799439011", "507f1f77bcf86cd799439012");
     expect(result.breakdown.find((item) => item.category === "Contrôles à examiner")?.observations).toContain("ne constituent pas une preuve de fraude");
   });
 });

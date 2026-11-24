@@ -72,15 +72,15 @@ async function runAdvancedScenarios() {
     const client = await prisma.client.findFirst({
         where: { email: 'contact@senegaldigital.sn' }
     });
-    if (client) {
-        const risk = await AuditService.calculateRiskScore(client.id);
+    if (client?.cabinetId) {
+        const risk = await AuditService.calculateRiskScore(client.id, client.cabinetId);
         console.log(`✅ Risk Score calculated for ${client.companyName}:`);
         console.log(`   - Global Risk Score: ${risk.globalScore} / 10`);
         risk.breakdown.forEach(b => {
             console.log(`   - [${b.category}] Score: ${b.score}/100. Observations: ${b.observations}`);
         });
     } else {
-        console.log('⚠️ Test client contact@senegaldigital.sn not found. Skip risk calculation.');
+        console.log('⚠️ Test client not found or not assigned to a cabinet. Skip risk calculation.');
     }
     console.log('\n');
 
