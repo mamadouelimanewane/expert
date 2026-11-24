@@ -55,3 +55,4 @@ docs/**/CREDENTIALS*.md
 
 # Comptes de démonstration (mots de passe locaux, jamais versionnés)
 scripts/comptes-demo.local.json
+.codex-tmp/
