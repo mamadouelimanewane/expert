@@ -40,7 +40,7 @@ export const SECTION_PAR_PREFIXE: [string, string][] = [
     ["/simulator", "EXPERTISE & PRODUCTION"], ["/industries", "EXPERTISE & PRODUCTION"], ["/data", "EXPERTISE & PRODUCTION"],
     ["/data-center", "EXPERTISE & PRODUCTION"], ["/diagnostic", "EXPERTISE & PRODUCTION"],
     // Audit & conformité
-    ["/aupcap", "AUDIT & CONFORMITÉ"], ["/conformite", "AUDIT & CONFORMITÉ"], ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"],
+    ["/aupcap", "AUDIT & CONFORMITÉ"], ["/conformite", "AUDIT & CONFORMITÉ"], ["/audit-forensique", "AUDIT & CONFORMITÉ"], ["/audit-legal", "AUDIT & CONFORMITÉ"], ["/compliance", "AUDIT & CONFORMITÉ"], ["/qualite-cabinet", "AUDIT & CONFORMITÉ"],
     ["/kyc", "AUDIT & CONFORMITÉ"], ["/expert-judiciaire", "AUDIT & CONFORMITÉ"], ["/legal", "AUDIT & CONFORMITÉ"],
     ["/corporate/audit-assurance", "AUDIT & CONFORMITÉ"], ["/corporate/legal-archive", "AUDIT & CONFORMITÉ"],
     ["/audit/circularisation", "AUDIT & CONFORMITÉ"], ["/audit/rapport-cac", "AUDIT & CONFORMITÉ"],
