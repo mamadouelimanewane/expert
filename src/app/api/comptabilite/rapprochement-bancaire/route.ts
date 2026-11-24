@@ -122,14 +122,14 @@ export async function POST(request: NextRequest) {
 
     await AuditService.log({
         action: "VALIDATION_RAPPROCHEMENT_BANCAIRE",
-        entityType: "Client",
+        entity: "Client",
         entityId: clientId,
-        details: {
+        details: JSON.stringify({
             dateRapprochement,
             nomBanque,
             soldeRectifie: soldeComptableRectifie,
             ecart: ecartRapprochement,
-        },
+        }),
     });
 
     return NextResponse.json({ succes: true, message: "État de rapprochement validé et scellé." });

@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
     const products = await prisma.product.findMany({
         where: { clientId },
         take: 50,
+        include: { costs: true },
     });
 
     let articles: ArticleStockInventaire[] = [];
@@ -37,11 +38,13 @@ export async function GET(request: NextRequest) {
     if (products.length > 0) {
         articles = products.map((p) => ({
             id: p.id,
-            reference: p.sku || `REF-${p.id.slice(0, 6)}`,
+            reference: p.reference,
             designation: p.name,
             categorie: "MARCHANDISES",
             quantitePhysique: 100, // Quantité par défaut
-            prixUnitaireAchatCUMP: p.unitCost || 10_000,
+            prixUnitaireAchatCUMP: p.costs.length > 0
+                ? p.costs.reduce((total, cost) => total + cost.unitCost, 0) / p.costs.length
+                : 0,
         }));
     } else {
         // Catalogue type d'une PME de distribution ou négoce
@@ -98,14 +101,14 @@ export async function POST(request: NextRequest) {
 
     await AuditService.log({
         action: "INVENTAIRE_STOCKS_CLOTURE",
-        entityType: "Client",
+        entity: "Client",
         entityId: clientId,
-        details: {
+        details: JSON.stringify({
             exercice,
             totalStockFinalNet: resultat.totalStockFinalNet,
             variationGlobaleStock: resultat.variationGlobaleStock,
             nbEcrituresGenerees: resultat.ecrituresCloture.length,
-        },
+        }),
     });
 
     return NextResponse.json({ succes: true, resultat });

@@ -314,7 +314,7 @@ export default function ConversionIFRSPage() {
                   <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-center md:text-right">
                     <span className="text-xs text-slate-400 block mb-1">Résultat Net IFRS</span>
                     <span className="text-2xl font-bold text-white">
-                      {resultat.tablePassageResultatNet.rnIFRS.toLocaleString("fr-FR")}
+                      {resultat.tablePassageResultatNet.rnIFRS_XOF.toLocaleString("fr-FR")}
                     </span>
                     <span className="text-[10px] text-slate-500 block">XOF après impôts différés IAS 12</span>
                   </div>
@@ -355,7 +355,7 @@ export default function ConversionIFRSPage() {
                   <div className="flex justify-between py-2.5 bg-blue-500/10 px-2 rounded font-bold border border-blue-500/20">
                     <span className="text-blue-300">Résultat Net Consolidé IFRS</span>
                     <span className="text-blue-300 font-mono">
-                      {resultat.tablePassageResultatNet.rnIFRS.toLocaleString("fr-FR")} XOF
+                      {resultat.tablePassageResultatNet.rnIFRS_XOF.toLocaleString("fr-FR")} XOF
                     </span>
                   </div>
                 </div>

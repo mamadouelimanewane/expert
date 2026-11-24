@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
             where: {
                 clientId,
                 status: "EXPORTED",
-                dateEcriture: { gte: `${exercice}-01-01`, lte: `${exercice}-12-31` },
+                date: { gte: `${exercice}-01-01`, lte: `${exercice}-12-31` },
             },
-            select: { debitCompte: true, debitIntitule: true, creditCompte: true, creditIntitule: true, montant: true },
+            select: { debitCompte: true, debitIntitule: true, creditCompte: true, creditIntitule: true, montant: true, date: true },
         });
 
         const agregat = new Map<string, CompteBalance>();

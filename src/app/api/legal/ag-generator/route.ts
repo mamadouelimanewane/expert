@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { denied, session } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: {
@@ -115,10 +115,16 @@ export async function POST(request: NextRequest) {
     await prisma.document.create({
         data: {
             clientId,
-            nom: `PV-AGOA-${societe.formeJuridique}-${financier.exercice}.pdf`,
-            type: "JURIDIQUE",
-            contenu: liasse.pvCompletAssemblee,
-            metadata: {
+            fileName: `PV-AGOA-${societe.formeJuridique}-${financier.exercice}.txt`,
+            originalName: `PV-AGOA-${societe.formeJuridique}-${financier.exercice}.txt`,
+            fileSize: Buffer.byteLength(liasse.pvCompletAssemblee),
+            mimeType: "text/plain; charset=utf-8",
+            fileUrl: "",
+            type: "RAPPORT",
+            status: "PROCESSED",
+            uploadedById: session.id,
+            ocrData: {
+                contenu: liasse.pvCompletAssemblee,
                 exercice: financier.exercice,
                 formeJuridique: societe.formeJuridique,
                 resultatNet: financier.resultatNetExercice,
@@ -130,14 +136,14 @@ export async function POST(request: NextRequest) {
 
     await AuditService.log({
         action: "GENERATION_AGOA_OHADA",
-        entityType: "Client",
+        entity: "Client",
         entityId: clientId,
-        details: {
+        details: JSON.stringify({
             exercice: financier.exercice,
             formeJuridique: societe.formeJuridique,
             resultatNet: financier.resultatNetExercice,
             dividendeTotalBrut: liasse.affectation.dividendeTotalBrut,
-        },
+        }),
     });
 
     return NextResponse.json({ succes: true, liasse });

@@ -196,7 +196,7 @@ export function convertirSyscohadaVersIFRS(data: DonneesComptablesSyscohada): Re
       impactIFRS16Net_XOF: impactNetIFRS16,
       impactIAS19Net_XOF: -complementProvision,
       impactImpotsDifferesIAS12_XOF: impotDiffereNet,
-      rnIFRS,
+      rnIFRS_XOF: rnIFRS,
     },
     bilanRetraiteIFRS: {
       actifTotalIFRS_XOF: actifTotalIFRS,

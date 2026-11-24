@@ -44,20 +44,18 @@ export async function GET(request: NextRequest) {
             clientId,
             status: "EXPORTED",
             source: { not: "WHATSAPP_TEST" },
-            dateEcriture: { gte: debut, lte: fin },
+            date: { gte: debut, lte: fin },
         },
-        orderBy: [{ dateEcriture: "asc" }, { createdAt: "asc" }],
+        orderBy: [{ date: "asc" }, { createdAt: "asc" }],
         select: {
             id: true,
-            dateEcriture: true,
+            date: true,
             debitCompte: true,
             debitIntitule: true,
             creditCompte: true,
             creditIntitule: true,
             montant: true,
             libelle: true,
-            pieceRef: true,
-            journal: true,
         },
     });
 
@@ -76,10 +74,10 @@ export async function GET(request: NextRequest) {
     const lignesFEC: LigneEcritureFEC[] = [];
     ecritures.forEach((e, idx) => {
         const baseNum = String(idx + 1).padStart(6, "0");
-        const journal = (e.journal as string) || "OD";
-        const ref = (e.pieceRef as string) || `J${baseNum}`;
+        const journal = "OD";
+        const ref = e.id;
         const libelle = (e.libelle as string) || "Écriture de production";
-        const date = (e.dateEcriture as string) || `${exercice}-01-01`;
+        const date = e.date;
         const montant = Number(e.montant) || 0;
 
         // Ligne débit

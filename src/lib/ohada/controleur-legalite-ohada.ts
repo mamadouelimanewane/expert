@@ -203,11 +203,11 @@ export function verifierConformiteStatutsOHADA(input: StatutsSocieteInput): Rapp
   const conformeGlobalement = nbBloquantes === 0 && nbMajeures === 0;
 
   const syntheseJuridique = conformeGlobalement
-    ? `Les statuts de ${input.societeRaisonSociale} (${input.formeJuridique}) sont conformes aux dispositions impératives de l'AUSCGIE.`
+    ? `Les statuts de ${input.raisonSociale} (${input.formeJuridique}) sont conformes aux dispositions impératives de l'AUSCGIE.`
     : `Alerte de conformité juridique : ${nbBloquantes} clause(s) frappée(s) de nullité absolue et ${nbMajeures} anomalie(s) majeure(s) détectées au regard de l'AUSCGIE. Une mise en conformité statutaire s'impose.`;
 
   return {
-    societeRaisonSociale: input.societeRaisonSociale,
+    societeRaisonSociale: input.raisonSociale,
     formeJuridique: input.formeJuridique,
     conformeGlobalement,
     scoreConformite_100: score,

@@ -25,24 +25,24 @@ export async function GET(request: NextRequest) {
 
     // Lire les attestations stockées en tant que documents liés au client
     const attestations = await prisma.document.findMany({
-        where: { clientId, type: "AUTRE", nom: { startsWith: "BRS-" } },
+        where: { clientId, type: "AUTRE", fileName: { startsWith: "BRS-" } },
         orderBy: { createdAt: "desc" },
         take: 50,
-        select: { id: true, nom: true, createdAt: true, metadata: true },
+        select: { id: true, fileName: true, createdAt: true, ocrData: true },
     });
 
     return NextResponse.json({
         attestations: attestations.map((a) => ({
             id: a.id,
-            numeroCertificat: a.nom,
+            numeroCertificat: a.fileName,
             dateEmission: a.createdAt,
-            metadata: a.metadata,
+            certificat: a.ocrData,
         })),
     });
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { denied, session } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: {
@@ -124,25 +124,23 @@ export async function POST(request: NextRequest) {
     await prisma.document.create({
         data: {
             clientId,
-            nom: cert.numeroCertificat,
+            fileName: cert.numeroCertificat,
+            originalName: cert.numeroCertificat,
+            fileSize: Buffer.byteLength(JSON.stringify(cert)),
+            mimeType: "application/json",
+            fileUrl: "",
             type: "AUTRE",
-            contenu: JSON.stringify(cert),
-            metadata: {
-                typeCertificat: "BRS",
-                typeRetenue,
-                totalRetenu: cert.totalRetenu,
-                totalBrutHT: cert.totalBrutHT,
-                beneficiaire: beneficiaire.raisonSociale,
-                cleControle: cert.cleControle,
-            },
+            status: "PROCESSED",
+            ocrData: JSON.parse(JSON.stringify(cert)) as object,
+            uploadedById: session.id,
         },
     });
 
     await AuditService.log({
         action: "CREATION_ATTESTATION_BRS",
-        entityType: "Client",
+        entity: "Client",
         entityId: clientId,
-        details: { numeroCertificat: cert.numeroCertificat, totalRetenu: cert.totalRetenu },
+        details: JSON.stringify({ numeroCertificat: cert.numeroCertificat, totalRetenu: cert.totalRetenu }),
     });
 
     return NextResponse.json({ succes: true, certificat: cert }, { status: 201 });

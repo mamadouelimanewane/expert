@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
   portalClientFindFirst: vi.fn(),
@@ -68,7 +69,7 @@ const CABINET_ID = "507f1f77bcf86cd799439012";
 const TOKEN = "a".repeat(64);
 
 function jsonRequest(url: string, body: unknown, headers: Record<string, string> = {}) {
-  return new Request(url, {
+  return new NextRequest(url, {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify(body),
@@ -130,18 +131,18 @@ describe("parcours clients isolés par le portail", () => {
   });
 
   it("refuse un portail sans jeton valide et un portail révoqué", async () => {
-    const missing = await portalObligations(new Request("https://local.test/api/portal/obligations"));
+    const missing = await portalObligations(new NextRequest("https://local.test/api/portal/obligations"));
     expect(missing.status).toBe(401);
     expect(mocks.portalClientFindFirst).not.toHaveBeenCalled();
 
     mocks.portalClientFindFirst.mockResolvedValueOnce({ id: CLIENT_ID, cabinetId: CABINET_ID, portalEnabled: false });
-    const revoked = await portalDashboard(new Request("https://local.test"), { params: Promise.resolve({ token: TOKEN }) });
+    const revoked = await portalDashboard(new NextRequest("https://local.test"), { params: Promise.resolve({ token: TOKEN }) });
     expect(revoked.status).toBe(401);
     expect(mocks.clientFindUnique).not.toHaveBeenCalled();
   });
 
   it("ouvre le tableau de bord du client sans exposer le jeton et remplace les URL de fichiers", async () => {
-    const response = await portalDashboard(new Request("https://local.test"), { params: Promise.resolve({ token: TOKEN }) });
+    const response = await portalDashboard(new NextRequest("https://local.test"), { params: Promise.resolve({ token: TOKEN }) });
     const payload = await body(response);
 
     expect(response.status).toBe(200);
@@ -155,10 +156,10 @@ describe("parcours clients isolés par le portail", () => {
     mocks.taxDeclarationFindMany.mockResolvedValueOnce([{
       id: "tax-1", type: "TVA", period: "2026-01", dueDate: new Date(Date.now() + 30 * 86_400_000), amount: 45_000, status: "PENDING",
     }]);
-    const obligations = await portalObligations(new Request(`https://local.test/api/portal/obligations?token=${TOKEN}`));
+    const obligations = await portalObligations(new NextRequest(`https://local.test/api/portal/obligations?token=${TOKEN}`));
     expect((await body(obligations)).obligations[0]).toMatchObject({ id: "tax-1", type: "TVA — 2026-01", amount: "45 000 FCFA" });
 
-    const messages = await portalMessagesGet(new Request(`https://local.test/api/portal/communications?token=${TOKEN}`));
+    const messages = await portalMessagesGet(new NextRequest(`https://local.test/api/portal/communications?token=${TOKEN}`));
     expect((await body(messages)).messages[0]).toMatchObject({ sender: "accountant", text: "Merci, pièce reçue." });
 
     const sent = await portalMessagesPost(jsonRequest(`https://local.test/api/portal/communications?token=${TOKEN}`, { text: "  Voici la pièce demandée.  ", clientId: "other-client" }));
@@ -195,10 +196,10 @@ describe("parcours clients isolés par le portail", () => {
 
   it("sert un document uniquement avec un jeton et un identifiant de pièce valides", async () => {
     const id = "507f1f77bcf86cd799439099";
-    const unauthorized = await portalDocumentGet(new Request(`https://local.test/api/portal/documents/${id}`), { params: Promise.resolve({ id }) });
+    const unauthorized = await portalDocumentGet(new NextRequest(`https://local.test/api/portal/documents/${id}`), { params: Promise.resolve({ id }) });
     expect(unauthorized.status).toBe(401);
 
-    const response = await portalDocumentGet(new Request(`https://local.test/api/portal/documents/${id}?token=${TOKEN}`), { params: Promise.resolve({ id }) });
+    const response = await portalDocumentGet(new NextRequest(`https://local.test/api/portal/documents/${id}?token=${TOKEN}`), { params: Promise.resolve({ id }) });
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(response.headers.get("content-type")).toBe("application/pdf");
@@ -206,7 +207,7 @@ describe("parcours clients isolés par le portail", () => {
   });
 
   it("sauvegarde les préférences du portail dans le dossier du client authentifié", async () => {
-    const get = await dashboardPreferencesGet(new Request(`https://local.test/api/portal/dashboard-preferences?token=${TOKEN}`));
+    const get = await dashboardPreferencesGet(new NextRequest(`https://local.test/api/portal/dashboard-preferences?token=${TOKEN}`));
     expect((await body(get)).widgets).toEqual(["missions", "documents"]);
 
     const put = await dashboardPreferencesPut(jsonRequest("https://local.test/api/portal/dashboard-preferences", { token: TOKEN, widgets: ["documents"] }));
@@ -243,7 +244,7 @@ describe("parcours clients isolés par le portail", () => {
     expect(mocks.clientCreate.mock.calls[0][0].data.portalEnabled).toBe(true);
 
     mocks.clientFindUnique.mockResolvedValueOnce({ id: CLIENT_ID, companyName: "Nouvelle Société", portalToken: creation.portalToken, portalEnabled: true, portalCreatedAt: new Date() });
-    const link = await portalLinkGet(new Request("https://local.test/api/clients/" + CLIENT_ID + "/portal-link"), { params: Promise.resolve({ id: CLIENT_ID }) });
+    const link = await portalLinkGet(new NextRequest("https://local.test/api/clients/" + CLIENT_ID + "/portal-link"), { params: Promise.resolve({ id: CLIENT_ID }) });
     expect((await body(link)).url).toContain(`/portal/${creation.portalToken}`);
 
     const revoke = await portalLinkPost(jsonRequest("https://local.test/api/clients/" + CLIENT_ID + "/portal-link", { action: "revoke" }), { params: Promise.resolve({ id: CLIENT_ID }) });
@@ -251,7 +252,7 @@ describe("parcours clients isolés par le portail", () => {
     expect(mocks.clientUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: { portalEnabled: false, portalToken: null } }));
 
     mocks.portalClientFindFirst.mockResolvedValueOnce({ id: CLIENT_ID, cabinetId: CABINET_ID, portalEnabled: false });
-    const afterRevoke = await portalMessagesGet(new Request(`https://local.test/api/portal/communications?token=${creation.portalToken}`));
+    const afterRevoke = await portalMessagesGet(new NextRequest(`https://local.test/api/portal/communications?token=${creation.portalToken}`));
     expect(afterRevoke.status).toBe(401);
   });
 });
