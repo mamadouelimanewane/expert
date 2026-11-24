@@ -70,6 +70,7 @@
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "16.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "prisma": "6.19.3",
@@ -78,8 +79,5 @@
     "typescript": "^5",
     "vite": "7.3.7",
     "vitest": "5.1.1"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }
