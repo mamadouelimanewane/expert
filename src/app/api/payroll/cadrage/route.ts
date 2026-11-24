@@ -8,37 +8,11 @@ import {
 import { AuditService } from "@/lib/audit";
 import type { PaysFiscal } from "@/lib/tax-simulator";
 
-export async function GET(req: NextRequest) {
-  const { session, denied } = await requireStaff();
+export async function GET() {
+  const { denied } = await requireStaff();
   if (denied) return denied;
 
-  const { searchParams } = new URL(req.url);
-  const pays = (searchParams.get("pays") ?? "sn").toLowerCase() as PaysFiscal;
-  const exercice = parseInt(searchParams.get("exercice") ?? String(new Date().getFullYear()));
-  const periode = searchParams.get("periode") ?? "Exercice complet";
-
-  // Données de démonstration réalistes
-  const demoPaie: LigneLivrePaieCumul = {
-    brutImposable: 120_000_000,
-    chargesPatronalesSociales: 21_600_000,
-    chargesSalarialesSociales: 8_400_000,
-    impotsRetenusSource: 14_400_000,
-    netAPayer: 97_200_000,
-    avancesEtAcomptes: 2_000_000,
-  };
-
-  const demoCompta: SoldesComptablesPaie = {
-    solde661_Remunerations: 120_000_000,
-    solde664_ChargesSocialesPatronales: 21_600_000,
-    solde422_PersonnelRemunerationsDues: 97_200_000,
-    solde43_OrganismesSociaux: 30_000_000,
-    solde447_RetenuesFiscalesSalaires: 14_400_000,
-    solde421_AvancesAcomptes: 2_000_000,
-  };
-
-  const rapport = executerCadragePaieCompta(pays, exercice, periode, demoPaie, demoCompta);
-
-  return NextResponse.json({ ok: true, paie: demoPaie, compta: demoCompta, rapport });
+  return NextResponse.json({ ok: false, error: "Aucun livre de paie ni grand livre lié à cette période n'est disponible. Transmettez les montants réels au moteur de cadrage." }, { status: 409 });
 }
 
 export async function POST(req: NextRequest) {
@@ -54,6 +28,22 @@ export async function POST(req: NextRequest) {
       compta: SoldesComptablesPaie;
     };
 
+    if (!body.paie || !body.compta || !Number.isInteger(body.exercice) || body.exercice < 2000 || body.exercice > 2100 || !body.periodeOuMois?.trim()) {
+      return NextResponse.json({ ok: false, error: "Période et données réelles du livre de paie et du grand livre obligatoires." }, { status: 400 });
+    }
+    const montants = [
+      body.paie.brutImposable, body.paie.chargesPatronalesSociales, body.paie.chargesSalarialesSociales,
+      body.paie.impotsRetenusSource, body.paie.netAPayer, body.paie.avancesEtAcomptes,
+      body.compta.solde661_Remunerations, body.compta.solde664_ChargesSocialesPatronales,
+      body.compta.solde422_PersonnelRemunerationsDues, body.compta.solde43_OrganismesSociaux,
+      body.compta.solde447_RetenuesFiscalesSalaires, body.compta.solde421_AvancesAcomptes,
+    ];
+    if (!montants.every((value) => typeof value === "number" && Number.isFinite(value) && value >= 0)) {
+      return NextResponse.json({ ok: false, error: "Tous les montants doivent être numériques, finis et positifs ou nuls." }, { status: 400 });
+    }
+    if (!["sn", "ci", "cm", "bj"].includes(String(body.pays).toLowerCase())) {
+      return NextResponse.json({ ok: false, error: "Pays fiscal non pris en charge." }, { status: 400 });
+    }
     const rapport = executerCadragePaieCompta(
       (body.pays ?? "sn").toLowerCase() as PaysFiscal,
       body.exercice ?? new Date().getFullYear(),

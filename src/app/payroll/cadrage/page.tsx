@@ -20,57 +20,62 @@ const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function CadragePaiePage() {
     const [pays, setPays] = useState<PaysFiscal>("sn");
-    const [exercice, setExercice] = useState(new Date().getFullYear());
-    const [periode, setPeriode] = useState("Décembre " + new Date().getFullYear());
+    const [exercice, setExercice] = useState("");
+    const [periode, setPeriode] = useState("");
 
     // Paie
-    const [brut, setBrut] = useState(120_000_000);
-    const [patronal, setPatronal] = useState(21_600_000);
-    const [salarial, setSalarial] = useState(8_400_000);
-    const [impotsSal, setImpotsSal] = useState(14_400_000);
-    const [net, setNet] = useState(97_200_000);
-    const [acomptes, setAcomptes] = useState(2_000_000);
+    const [brut, setBrut] = useState("");
+    const [patronal, setPatronal] = useState("");
+    const [salarial, setSalarial] = useState("");
+    const [impotsSal, setImpotsSal] = useState("");
+    const [net, setNet] = useState("");
+    const [acomptes, setAcomptes] = useState("");
 
     // Compta
-    const [c661, setC661] = useState(120_000_000);
-    const [c664, setC664] = useState(21_600_000);
-    const [c422, setC422] = useState(97_200_000);
-    const [c43, setC43] = useState(30_000_000);
-    const [c447, setC447] = useState(14_400_000);
-    const [c421, setC421] = useState(2_000_000);
+    const [c661, setC661] = useState("");
+    const [c664, setC664] = useState("");
+    const [c422, setC422] = useState("");
+    const [c43, setC43] = useState("");
+    const [c447, setC447] = useState("");
+    const [c421, setC421] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [rapport, setRapport] = useState<RapportCadragePaieCompta | null>(null);
     const [error, setError] = useState("");
 
     const lancerCadrage = useCallback(async () => {
+        const saisies = [exercice, periode, brut, patronal, salarial, impotsSal, net, acomptes, c661, c664, c422, c43, c447, c421];
+        if (saisies.some((value) => value.trim() === "" || !Number.isFinite(Number(value)))) {
+            setError("Saisissez la période et tous les montants du livre de paie et du grand livre à partir des écritures réelles.");
+            return;
+        }
         setLoading(true);
         setError("");
         setRapport(null);
 
         const paie: LigneLivrePaieCumul = {
-            brutImposable: brut,
-            chargesPatronalesSociales: patronal,
-            chargesSalarialesSociales: salarial,
-            impotsRetenusSource: impotsSal,
-            netAPayer: net,
-            avancesEtAcomptes: acomptes,
+            brutImposable: Number(brut),
+            chargesPatronalesSociales: Number(patronal),
+            chargesSalarialesSociales: Number(salarial),
+            impotsRetenusSource: Number(impotsSal),
+            netAPayer: Number(net),
+            avancesEtAcomptes: Number(acomptes),
         };
 
         const compta: SoldesComptablesPaie = {
-            solde661_Remunerations: c661,
-            solde664_ChargesSocialesPatronales: c664,
-            solde422_PersonnelRemunerationsDues: c422,
-            solde43_OrganismesSociaux: c43,
-            solde447_RetenuesFiscalesSalaires: c447,
-            solde421_AvancesAcomptes: c421,
+            solde661_Remunerations: Number(c661),
+            solde664_ChargesSocialesPatronales: Number(c664),
+            solde422_PersonnelRemunerationsDues: Number(c422),
+            solde43_OrganismesSociaux: Number(c43),
+            solde447_RetenuesFiscalesSalaires: Number(c447),
+            solde421_AvancesAcomptes: Number(c421),
         };
 
         try {
             const res = await fetch("/api/payroll/cadrage", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ pays, exercice, periodeOuMois: periode, paie, compta }),
+                body: JSON.stringify({ pays, exercice: Number(exercice), periodeOuMois: periode, paie, compta }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Erreur de calcul du cadrage");
@@ -104,9 +109,14 @@ export default function CadragePaiePage() {
                 <p className="page-subtitle text-xs text-muted-foreground mt-1">
                     Audit social et réconciliation systématique entre la masse salariale du livre de paie et le Grand Livre SYSCOHADA.
                 </p>
+                <p className="mt-2 text-xs text-amber-300">Saisissez les totaux extraits du livre de paie et du grand livre pour la même période. Aucun montant n’est prérempli.</p>
             </div>
 
             {/* Formulaire des masses */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+                <label className="text-xs text-muted-foreground">Exercice<input type="number" value={exercice} onChange={(e) => setExercice(e.target.value)} className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2" /></label>
+                <label className="text-xs text-muted-foreground">Période commune<input type="text" value={periode} onChange={(e) => setPeriode(e.target.value)} placeholder="Ex. janvier à décembre 2026" className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2" /></label>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* 1. Livre de Paie */}
                 <div className="bg-card/40 border border-border rounded-xl p-5 space-y-4">
@@ -133,7 +143,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={brut}
-                                onChange={(e) => setBrut(Number(e.target.value))}
+                                onChange={(e) => setBrut(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -142,7 +152,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={patronal}
-                                onChange={(e) => setPatronal(Number(e.target.value))}
+                                onChange={(e) => setPatronal(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -151,7 +161,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={salarial}
-                                onChange={(e) => setSalarial(Number(e.target.value))}
+                                onChange={(e) => setSalarial(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -160,7 +170,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={impotsSal}
-                                onChange={(e) => setImpotsSal(Number(e.target.value))}
+                                onChange={(e) => setImpotsSal(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -169,7 +179,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={net}
-                                onChange={(e) => setNet(Number(e.target.value))}
+                                onChange={(e) => setNet(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -178,7 +188,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={acomptes}
-                                onChange={(e) => setAcomptes(Number(e.target.value))}
+                                onChange={(e) => setAcomptes(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -198,7 +208,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c661}
-                                onChange={(e) => setC661(Number(e.target.value))}
+                                onChange={(e) => setC661(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -207,7 +217,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c664}
-                                onChange={(e) => setC664(Number(e.target.value))}
+                                onChange={(e) => setC664(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -216,7 +226,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c422}
-                                onChange={(e) => setC422(Number(e.target.value))}
+                                onChange={(e) => setC422(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -225,7 +235,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c43}
-                                onChange={(e) => setC43(Number(e.target.value))}
+                                onChange={(e) => setC43(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -234,7 +244,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c447}
-                                onChange={(e) => setC447(Number(e.target.value))}
+                                onChange={(e) => setC447(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
@@ -243,7 +253,7 @@ export default function CadragePaiePage() {
                             <input
                                 type="number"
                                 value={c421}
-                                onChange={(e) => setC421(Number(e.target.value))}
+                                onChange={(e) => setC421(e.target.value)}
                                 className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                             />
                         </div>
