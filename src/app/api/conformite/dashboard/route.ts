@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
     const clients = clientsBruts as ProfilClient[];
     const declarations = declarationsBrutes as DeclarationSuivie[];
     const rulesReglees = reglesBrutes.filter((rule) => rule.status === "VERIFIED" || rule.status === "RETIRED");
-    const codesReglesEnVigueur = new Set(reglesReglees
+    const codesReglesEnVigueur = new Set(rulesReglees
       .filter((rule) => regleEnVigueurDansLeMois(rule, annee, mois))
       .map((rule) => rule.obligationCode));
     const reglesApplicables = rulesReglees.filter((rule) => regleActiveDansLeMois(rule, annee, mois));

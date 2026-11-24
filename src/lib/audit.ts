@@ -4,42 +4,48 @@ import { AuthService } from './auth';
 export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'UPLOAD' | 'DOWNLOAD' | 'PROCESS';
 export type AuditEntity = 'CLIENT' | 'MISSION' | 'INVOICE' | 'DOCUMENT' | 'TIME_ENTRY' | 'TAX_DECLARATION' | 'USER';
 
+type AuditLogInput = {
+    action: string;
+    entity: string;
+    entityId?: string;
+    details?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    oldValue?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    newValue?: any;
+    ipAddress?: string;
+    userAgent?: string;
+};
+
 export class AuditService {
-    static async log({
-        action,
-        entity,
-        entityId,
-        details,
-        oldValue,
-        newValue,
-        ipAddress,
-        userAgent
-    }: {
-        action: string;
-        entity: string;
-        entityId?: string;
-        details?: string;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        oldValue?: any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        newValue?: any;
-        ipAddress?: string;
-        userAgent?: string;
-    }) {
+    static async log(input: AuditLogInput): Promise<unknown>;
+    /** Compatibilité avec les routes historiques : userId, action, entity, metadata. */
+    static async log(userId: string, action: string, entity: string, metadata?: Record<string, unknown>): Promise<unknown>;
+    static async log(inputOrUserId: AuditLogInput | string, legacyAction?: string, legacyEntity?: string, metadata?: Record<string, unknown>) {
         try {
             const session = await AuthService.getSession();
+            const input: AuditLogInput = typeof inputOrUserId === 'string'
+                ? {
+                    action: legacyAction ?? 'PROCESS',
+                    entity: legacyEntity ?? 'UNKNOWN',
+                    details: metadata ? JSON.stringify(metadata) : undefined,
+                }
+                : inputOrUserId;
+            const actorId = typeof inputOrUserId === 'string' && inputOrUserId === session?.id
+                ? inputOrUserId
+                : session?.id;
 
             return await prisma.auditLog.create({
                 data: {
-                    action,
-                    entity,
-                    entityId,
-                    details,
-                    oldValue,
-                    newValue,
-                    ipAddress,
-                    userAgent,
-                    userId: session?.id && /^[0-9a-fA-F]{24}$/.test(session.id) ? session.id : null
+                    action: input.action,
+                    entity: input.entity,
+                    entityId: input.entityId,
+                    details: input.details,
+                    oldValue: input.oldValue,
+                    newValue: input.newValue,
+                    ipAddress: input.ipAddress,
+                    userAgent: input.userAgent,
+                    userId: actorId && /^[0-9a-fA-F]{24}$/.test(actorId) ? actorId : null
                 }
             });
         } catch (error) {
