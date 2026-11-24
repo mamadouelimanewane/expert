@@ -15,7 +15,7 @@ import { AuditService } from "@/lib/audit";
  * POST /api/comptabilite/stocks (Calcul & génération des écritures d'inventaire)
  */
 export async function GET(request: NextRequest) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     const { searchParams } = new URL(request.url);
@@ -25,10 +25,12 @@ export async function GET(request: NextRequest) {
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     // Récupérer les produits existants du client
     const products = await prisma.product.findMany({
-        where: { clientId },
+        where: { clientId, cabinetId: session.cabinetId },
         take: 50,
         include: { costs: true },
     });
@@ -42,7 +44,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     let body: unknown;
@@ -61,6 +63,8 @@ export async function POST(request: NextRequest) {
     if (typeof clientId !== "string" || !isObjectId(clientId) || !Array.isArray(articles) || articles.length === 0 || articles.length > 5000) {
         return NextResponse.json({ error: "Données d'inventaire invalides." }, { status: 400 });
     }
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+    if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
 
     const categories = ["MARCHANDISES", "MATIERES_PREMIERES", "PRODUITS_FINIS", "EN_COURS"] as const;
     const montants = [ventesExercice, achatsExercice];
@@ -83,10 +87,27 @@ export async function POST(request: NextRequest) {
     });
     if (!articlesValides) return NextResponse.json({ error: "Chaque article doit avoir une référence, une désignation, une catégorie, une quantité physique et un CUMP valides." }, { status: 400 });
 
+    const lignesInventaire = articles as ArticleStockInventaire[];
+    const idsProduits = lignesInventaire.map((article) => article.id);
+    if (idsProduits.some((id) => !isObjectId(id)) || new Set(idsProduits).size !== idsProduits.length) {
+        return NextResponse.json({ error: "Chaque ligne doit référencer un produit unique du catalogue client." }, { status: 400 });
+    }
+    const produits = await prisma.product.findMany({
+        where: { id: { in: idsProduits }, clientId, cabinetId: session.cabinetId },
+        select: { id: true, reference: true, name: true },
+    });
+    const catalogue = new Map(produits.map((product) => [product.id, product]));
+    if (catalogue.size !== idsProduits.length || lignesInventaire.some((article) => {
+        const product = catalogue.get(article.id);
+        return !product || product.reference !== article.reference || product.name !== article.designation;
+    })) {
+        return NextResponse.json({ error: "Une ligne ne correspond pas au catalogue produit de ce client. Actualisez la liste des articles." }, { status: 409 });
+    }
+
     const resultat = calculerInventaireStocks({
         exercice: Number(exercice),
         stockInitialParCategorie: soldes as Record<CategorieStock, number>,
-        articles: articles as ArticleStockInventaire[],
+        articles: lignesInventaire,
         ventesExercice: ventesExercice as number,
         achatsExercice: achatsExercice as number,
     });
