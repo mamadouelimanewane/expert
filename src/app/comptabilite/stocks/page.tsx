@@ -20,17 +20,12 @@ interface ArticleRow {
 export default function StocksInventairePage() {
     const [clientId, setClientId] = useState("");
     const [exercice, setExercice] = useState(new Date().getFullYear());
-    const [stockInitialMarchandises, setStockInitialMarchandises] = useState(3500000);
-    const [stockInitialMatieres, setStockInitialMatieres] = useState(500000);
-    const [ventesExercice, setVentesExercice] = useState(45000000);
-    const [achatsExercice, setAchatsExercice] = useState(32000000);
+    const [stockInitialMarchandises, setStockInitialMarchandises] = useState(0);
+    const [stockInitialMatieres, setStockInitialMatieres] = useState(0);
+    const [ventesExercice, setVentesExercice] = useState(0);
+    const [achatsExercice, setAchatsExercice] = useState(0);
 
-    const [articles, setArticles] = useState<ArticleRow[]>([
-        { id: "1", reference: "ALIM-01", designation: "Huile de palme bidon 20L", categorie: "MARCHANDISES", quantitePhysique: 120, prixUnitaireAchatCUMP: 16500 },
-        { id: "2", reference: "ALIM-02", designation: "Sucre cristallisé sac 50kg", categorie: "MARCHANDISES", quantitePhysique: 80, prixUnitaireAchatCUMP: 24000 },
-        { id: "3", reference: "ALIM-03", designation: "Lait concentré carton 48 btes", categorie: "MARCHANDISES", quantitePhysique: 65, prixUnitaireAchatCUMP: 19500, valeurRealisableNette: 15000 },
-        { id: "4", reference: "EMB-01", designation: "Sacs polypropylène 50kg", categorie: "MATIERES_PREMIERES", quantitePhysique: 1500, prixUnitaireAchatCUMP: 350 },
-    ]);
+    const [articles, setArticles] = useState<ArticleRow[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -41,11 +36,11 @@ export default function StocksInventairePage() {
             ...articles,
             {
                 id: String(Date.now()),
-                reference: `REF-${articles.length + 1}`,
-                designation: "Nouvel article en stock",
+                reference: "",
+                designation: "",
                 categorie: "MARCHANDISES",
-                quantitePhysique: 10,
-                prixUnitaireAchatCUMP: 5000,
+                quantitePhysique: 0,
+                prixUnitaireAchatCUMP: 0,
             },
         ]);
     };
@@ -62,6 +57,10 @@ export default function StocksInventairePage() {
     const calculerInventaire = async () => {
         if (!clientId.trim() || clientId.trim().length < 12) {
             setError("Veuillez renseigner un identifiant client valide (MongoDB ID).");
+            return;
+        }
+        if (articles.length === 0 || articles.some((article) => !article.reference.trim() || !article.designation.trim())) {
+            setError("Ajoutez au moins un article d'inventaire avec sa référence et sa désignation réelles.");
             return;
         }
 

@@ -33,70 +33,62 @@ export async function GET(request: NextRequest) {
         include: { costs: true },
     });
 
-    let articles: ArticleStockInventaire[] = [];
-
-    if (products.length > 0) {
-        articles = products.map((p) => ({
-            id: p.id,
-            reference: p.reference,
-            designation: p.name,
-            categorie: "MARCHANDISES",
-            quantitePhysique: 100, // Quantité par défaut
-            prixUnitaireAchatCUMP: p.costs.length > 0
-                ? p.costs.reduce((total, cost) => total + cost.unitCost, 0) / p.costs.length
-                : 0,
-        }));
-    } else {
-        // Catalogue type d'une PME de distribution ou négoce
-        articles = [
-            { id: "art-1", reference: "ALIM-001", designation: "Huile de palme raffinée bidon 20L", categorie: "MARCHANDISES", quantitePhysique: 120, prixUnitaireAchatCUMP: 16_500 },
-            { id: "art-2", reference: "ALIM-002", designation: "Sucre cristallisé sac 50kg", categorie: "MARCHANDISES", quantitePhysique: 80, prixUnitaireAchatCUMP: 24_000 },
-            { id: "art-3", reference: "ALIM-003", designation: "Lait concentré carton 48 boîtes", categorie: "MARCHANDISES", quantitePhysique: 65, prixUnitaireAchatCUMP: 19_500, valeurRealisableNette: 15_000 },
-            { id: "art-4", reference: "EMB-001", designation: "Sacs polypropylène tissés 50kg", categorie: "MATIERES_PREMIERES", quantitePhysique: 1500, prixUnitaireAchatCUMP: 350 },
-        ];
-    }
-
-    const stockInitialParCategorie: Record<CategorieStock, number> = {
-        MARCHANDISES: 3_500_000,
-        MATIERES_PREMIERES: 500_000,
-        PRODUITS_FINIS: 0,
-        EN_COURS: 0,
-    };
-
-    const resultat = calculerInventaireStocks({
+    return NextResponse.json({
+        clientId,
         exercice,
-        stockInitialParCategorie,
-        articles,
-        ventesExercice: 45_000_000,
-        achatsExercice: 32_000_000,
+        message: "Aucun comptage physique ni CUMP ne sont enregistrés dans le catalogue produit. Saisissez les quantités réellement inventoriées, les CUMP et les soldes initiaux avant de calculer les écritures.",
+        produits: products.map(({ id, reference, name }) => ({ id, reference, designation: name })),
     });
-
-    return NextResponse.json(resultat);
 }
 
 export async function POST(request: NextRequest) {
     const { denied } = await requireWriteAccess();
     if (denied) return denied;
 
-    let body: any;
+    let body: unknown;
     try {
         body = await request.json();
     } catch {
         return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
     }
 
-    const { clientId, exercice, stockInitialParCategorie, articles, ventesExercice, achatsExercice } = body;
+    if (!body || typeof body !== "object") {
+        return NextResponse.json({ error: "Données d'inventaire invalides." }, { status: 400 });
+    }
+    const input = body as Record<string, unknown>;
+    const { clientId, exercice, stockInitialParCategorie, articles, ventesExercice, achatsExercice } = input;
 
-    if (!clientId || !isObjectId(clientId) || !articles || !Array.isArray(articles)) {
+    if (typeof clientId !== "string" || !isObjectId(clientId) || !Array.isArray(articles) || articles.length === 0 || articles.length > 5000) {
         return NextResponse.json({ error: "Données d'inventaire invalides." }, { status: 400 });
     }
 
+    const categories = ["MARCHANDISES", "MATIERES_PREMIERES", "PRODUITS_FINIS", "EN_COURS"] as const;
+    const montants = [ventesExercice, achatsExercice];
+    const soldes = stockInitialParCategorie as Partial<Record<CategorieStock, unknown>> | null;
+    if (!Number.isInteger(exercice) || Number(exercice) < 2000 || Number(exercice) > 2100
+        || !montants.every((value) => typeof value === "number" && Number.isFinite(value) && value >= 0)
+        || !soldes || !categories.every((category) => typeof soldes[category] === "number" && Number.isFinite(soldes[category]) && Number(soldes[category]) >= 0)) {
+        return NextResponse.json({ error: "L'exercice, les soldes initiaux, les ventes et les achats doivent être renseignés avec des valeurs réelles et valides." }, { status: 400 });
+    }
+    const articlesValides = articles.every((article) => {
+        if (!article || typeof article !== "object") return false;
+        const item = article as Record<string, unknown>;
+        return typeof item.id === "string" && item.id.trim() !== ""
+            && typeof item.reference === "string" && item.reference.trim() !== ""
+            && typeof item.designation === "string" && item.designation.trim() !== ""
+            && categories.includes(item.categorie as (typeof categories)[number])
+            && typeof item.quantitePhysique === "number" && Number.isFinite(item.quantitePhysique) && item.quantitePhysique >= 0
+            && typeof item.prixUnitaireAchatCUMP === "number" && Number.isFinite(item.prixUnitaireAchatCUMP) && item.prixUnitaireAchatCUMP >= 0
+            && (item.valeurRealisableNette === undefined || (typeof item.valeurRealisableNette === "number" && Number.isFinite(item.valeurRealisableNette) && item.valeurRealisableNette >= 0));
+    });
+    if (!articlesValides) return NextResponse.json({ error: "Chaque article doit avoir une référence, une désignation, une catégorie, une quantité physique et un CUMP valides." }, { status: 400 });
+
     const resultat = calculerInventaireStocks({
-        exercice: Number(exercice) || new Date().getFullYear(),
-        stockInitialParCategorie: stockInitialParCategorie || { MARCHANDISES: 0, MATIERES_PREMIERES: 0, PRODUITS_FINIS: 0, EN_COURS: 0 },
-        articles,
-        ventesExercice: Number(ventesExercice) || 0,
-        achatsExercice: Number(achatsExercice) || 0,
+        exercice: Number(exercice),
+        stockInitialParCategorie: soldes as Record<CategorieStock, number>,
+        articles: articles as ArticleStockInventaire[],
+        ventesExercice: ventesExercice as number,
+        achatsExercice: achatsExercice as number,
     });
 
     await AuditService.log({
