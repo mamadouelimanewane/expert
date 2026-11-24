@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
 import { AuditService } from "@/lib/audit";
-import { estIntrouvable } from "@/lib/api-auth";
+import { estIntrouvable, requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
         const category = searchParams.get("category");
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = { cabinetId: session.cabinetId };
         if (status) where.status = status;
         if (category) where.category = category;
 
@@ -37,10 +35,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { caseNumber, court, judge, parties, natureOfDispute, category, deadline, clientId, notes } = body;
@@ -55,7 +51,8 @@ export async function POST(request: NextRequest) {
         // quel. L'enregistrement devenait orphelin — invisible dans toutes les
         // vues filtrees par client, mais compte dans les totaux globaux.
         if (clientId) {
-            const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+            if (!isObjectId(clientId)) return NextResponse.json({ error: "Identifiant client invalide." }, { status: 400 });
+            const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
             if (!client) {
                 return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
             }
@@ -63,6 +60,7 @@ export async function POST(request: NextRequest) {
 
         const judicialCase = await prisma.judicialCase.create({
             data: {
+                cabinetId: session.cabinetId,
                 caseNumber,
                 court,
                 judge: judge || null,
@@ -97,29 +95,31 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { id, status, notes } = body;
 
-        if (!id) {
+        if (!isObjectId(id)) {
             return NextResponse.json({ error: "id requis" }, { status: 400 });
         }
 
-        const judicialCase = await prisma.judicialCase.update({
-            where: { id },
+        const current = await prisma.judicialCase.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!current) return NextResponse.json({ error: "Affaire introuvable dans ce cabinet." }, { status: 404 });
+        const updated = await prisma.judicialCase.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: {
                 ...(status && { status }),
                 ...(notes !== undefined && { notes }),
             },
-            include: {
+        });
+        if (!updated.count) return NextResponse.json({ error: "Affaire introuvable dans ce cabinet." }, { status: 404 });
+        const judicialCase = await prisma.judicialCase.findFirst({ where: { id, cabinetId: session.cabinetId }, include: {
                 client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
                 expert: { select: { id: true, firstName: true, lastName: true } },
-            },
-        });
+            } });
+        if (!judicialCase) return NextResponse.json({ error: "Affaire introuvable dans ce cabinet." }, { status: 404 });
 
         await AuditService.log({
             action: "UPDATE",

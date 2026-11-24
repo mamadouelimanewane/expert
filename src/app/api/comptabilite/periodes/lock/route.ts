@@ -18,7 +18,7 @@ async function lireParametres(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const { denied } = await requireStaff();
+  const { session, denied } = await requireStaff();
   if (denied) return denied;
   const { searchParams } = new URL(request.url);
   const clientId = searchParams.get("clientId") ?? "";
@@ -26,6 +26,8 @@ export async function GET(request: Request) {
   if (!isObjectId(clientId) || !periode) {
     return NextResponse.json({ error: "clientId et période AAAA-MM requis." }, { status: 400 });
   }
+  const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+  if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
   const lock = await prisma.accountingPeriodLock.findUnique({
     where: { clientId_periode: { clientId, periode } },
     select: { periode: true, lockedAt: true, lockedById: true, reason: true },
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "clientId, période et motif de clôture (10 à 500 caractères) requis." }, { status: 400 });
   }
 
-  const client = await prisma.client.findUnique({ where: { id: params.clientId }, select: { id: true } });
+  const client = await prisma.client.findFirst({ where: { id: params.clientId, cabinetId: session.cabinetId }, select: { id: true } });
   if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
   const existingLock = await prisma.accountingPeriodLock.findUnique({
     where: { clientId_periode: { clientId: params.clientId, periode: params.periode } },
@@ -50,7 +52,7 @@ export async function POST(request: Request) {
   if (existingLock) return NextResponse.json({ error: "Cette période est déjà verrouillée." }, { status: 409 });
 
   const operationsEnAttente = await prisma.tpeJournal.count({
-    where: { clientId: params.clientId, periode: params.periode, status: { in: ["PENDING", "APPROVED"] } },
+    where: { clientId: params.clientId, cabinetId: session.cabinetId, periode: params.periode, status: { in: ["PENDING", "APPROVED"] } },
   });
   if (!peutVerrouillerPeriode(operationsEnAttente)) {
     return NextResponse.json({
@@ -62,7 +64,7 @@ export async function POST(request: Request) {
   let lock;
   try {
     lock = await prisma.accountingPeriodLock.create({
-      data: { clientId: params.clientId, periode: params.periode, lockedById: session.id, reason: params.reason },
+      data: { cabinetId: session.cabinetId, clientId: params.clientId, periode: params.periode, lockedById: session.id, reason: params.reason },
       select: { id: true, periode: true, lockedAt: true, lockedById: true, reason: true },
     });
   } catch (error) {
@@ -88,6 +90,8 @@ export async function DELETE(request: Request) {
   if (!params || params.reason.length < 10 || params.reason.length > 500) {
     return NextResponse.json({ error: "clientId, période et motif de réouverture (10 à 500 caractères) requis." }, { status: 400 });
   }
+  const client = await prisma.client.findFirst({ where: { id: params.clientId, cabinetId: session.cabinetId }, select: { id: true } });
+  if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
   const lock = await prisma.accountingPeriodLock.findUnique({
     where: { clientId_periode: { clientId: params.clientId, periode: params.periode } },
     select: { id: true, reason: true },
