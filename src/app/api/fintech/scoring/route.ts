@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 import { requireStaff } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Score de solvabilité — barème interne du cabinet.
@@ -32,17 +33,17 @@ function estIdentifiantValide(clientId: unknown): clientId is string {
 }
 
 export async function GET(req: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     try {
         const clientId = new URL(req.url).searchParams.get("clientId");
-        if (!estIdentifiantValide(clientId)) {
+        if (!estIdentifiantValide(clientId) || !isObjectId(clientId)) {
             return NextResponse.json({ error: "clientId requis." }, { status: 400 });
         }
 
         const score = await prisma.creditScore.findFirst({
-            where: { clientId },
+            where: { clientId, cabinetId: session.cabinetId },
             orderBy: { evaluatedAt: 'desc' }
         });
 
@@ -54,7 +55,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     try {
@@ -63,15 +64,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "clientId requis." }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true } });
+        if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
         if (!client) {
             return NextResponse.json({ error: "Client introuvable." }, { status: 404 });
         }
 
         const [invoices, journals, mmTx] = await Promise.all([
-            prisma.invoice.findMany({ where: { clientId: client.id } }),
-            prisma.tpeJournal.findMany({ where: { clientId: client.id, source: { not: 'WHATSAPP_TEST' } }, orderBy: { createdAt: 'desc' } }),
-            prisma.mobileMoneyTransaction.findMany({ where: { clientId: client.id } }),
+            prisma.invoice.findMany({ where: { clientId: client.id, cabinetId: session.cabinetId } }),
+            prisma.tpeJournal.findMany({ where: { clientId: client.id, cabinetId: session.cabinetId, source: { not: 'WHATSAPP_TEST' } }, orderBy: { createdAt: 'desc' } }),
+            prisma.mobileMoneyTransaction.findMany({ where: { clientId: client.id, cabinetId: session.cabinetId } }),
         ]);
 
         if (invoices.length === 0 && journals.length === 0 && mmTx.length === 0) {
@@ -133,6 +135,7 @@ export async function POST(req: Request) {
                 factors,
                 isEligible,
                 clientId: client.id,
+                cabinetId: session.cabinetId,
                 evaluatedAt: new Date()
             }
         });

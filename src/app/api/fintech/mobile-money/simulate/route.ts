@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthService } from "@/lib/auth";
+import { requireStaff } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
 import prisma from "@/lib/prisma";
 import { randomBytes } from "crypto";
 
@@ -17,14 +18,14 @@ export async function POST(req: NextRequest) {
     if (process.env.NODE_ENV === "production") {
       return NextResponse.json({ error: "Simulation désactivée en production" }, { status: 403 });
     }
-    await AuthService.requireAuth();
+    const { session, denied } = await requireStaff();
+    if (denied) return denied;
 
     const body = await req.json().catch(() => ({}));
-    const clientId = body?.clientId as string | undefined;
+    const clientId = body?.clientId;
+    if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId requis pour la simulation." }, { status: 400 });
 
-    const client = clientId
-      ? await prisma.client.findUnique({ where: { id: clientId } })
-      : await prisma.client.findFirst({ orderBy: { createdAt: "desc" } });
+    const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId } });
 
     if (!client) {
       return NextResponse.json({ error: "Aucun client trouvé pour la simulation" }, { status: 404 });
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
 
     const tx = await prisma.mobileMoneyTransaction.create({
       data: {
+        cabinetId: session.cabinetId,
         operator,
         reference: `SIM-${randomBytes(4).toString("hex").toUpperCase()}`,
         senderName: client.companyName || `${client.firstName ?? ""} ${client.lastName ?? ""}`.trim(),
@@ -49,10 +51,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ simulated: true, transaction: tx });
-  } catch (error: any) {
-    if (error?.message === "Non authentifié") {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+  } catch (error) {
     console.error("[MobileMoney Simulate] Error:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

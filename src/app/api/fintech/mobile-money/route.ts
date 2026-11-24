@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-import { requireStaff } from "@/lib/api-auth";
+import { requireStaff, requireWriteAccess } from "@/lib/api-auth";
+import { isObjectId } from "@/lib/tenant-security";
+const OPERATEURS = ["Wave", "Orange Money", "MTN MoMo"] as const;
 export async function GET() {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     try {
         const transactions = await prisma.mobileMoneyTransaction.findMany({
+            where: { cabinetId: session.cabinetId },
             orderBy: { transactionDate: 'desc' }
         });
         return NextResponse.json({
@@ -21,7 +24,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
@@ -31,9 +34,9 @@ export async function POST(request: Request) {
         // données financières (montant, expéditeur). Le formulaire appelant doit
         // fournir des données réelles.
         const missing: string[] = [];
-        if (!data.operator) missing.push('operator');
-        if (!data.senderPhone) missing.push('senderPhone');
-        if (!data.clientId) missing.push('clientId');
+        if (!OPERATEURS.includes(data.operator)) missing.push('operator');
+        if (typeof data.senderPhone !== "string" || !data.senderPhone.trim()) missing.push('senderPhone');
+        if (!isObjectId(data.clientId)) missing.push('clientId');
         if (data.amount === undefined || data.amount === null || isNaN(parseFloat(data.amount)) || parseFloat(data.amount) <= 0) missing.push('amount');
         if (!data.type || !['IN', 'OUT'].includes(data.type)) missing.push('type');
 
@@ -44,20 +47,25 @@ export async function POST(request: Request) {
             );
         }
 
-        if (!data.reference) {
+        if (typeof data.reference !== "string" || !data.reference.trim() || data.reference.length > 160) {
             return NextResponse.json(
                 { error: "Une référence de transaction réelle (fournie par l'opérateur Mobile Money) est requise." },
                 { status: 400 }
             );
         }
 
-        const client = await prisma.client.findUnique({ where: { id: data.clientId } });
+        const client = await prisma.client.findFirst({ where: { id: data.clientId, cabinetId: session.cabinetId } });
         if (!client) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
 
+        const transactionDate = data.transactionDate ? new Date(data.transactionDate) : null;
+        if (data.transactionDate && (!transactionDate || Number.isNaN(transactionDate.getTime()))) {
+            return NextResponse.json({ error: "Date de transaction invalide." }, { status: 400 });
+        }
         const tx = await prisma.mobileMoneyTransaction.create({
             data: {
+                cabinetId: session.cabinetId,
                 operator: data.operator,
                 reference: data.reference,
                 senderName: data.senderName || null,
@@ -65,7 +73,7 @@ export async function POST(request: Request) {
                 amount: parseFloat(data.amount),
                 type: data.type,
                 status: 'PENDING',
-                transactionDate: data.transactionDate ? new Date(data.transactionDate) : new Date(),
+                transactionDate: transactionDate ?? new Date(),
                 clientId: client.id
             }
         });
@@ -78,7 +86,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH() {
-    const { denied } = await requireStaff();
+    const { denied } = await requireWriteAccess();
     if (denied) return denied;
 
     // Le rapprochement automatique nécessite une intégration réelle avec l'API de
