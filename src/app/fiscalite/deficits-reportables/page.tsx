@@ -1,23 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingDown, AlertTriangle, Calculator, FileSpreadsheet, Plus, Trash2, ArrowRight } from "lucide-react";
+import { TrendingDown, AlertTriangle, Calculator, FileSpreadsheet, Plus, Trash2 } from "lucide-react";
+import type { BordereauDeficits, ImputationDeficit, ProjectionExerciceFutur } from "@/lib/ohada/deficits-reportables";
+
+interface ResultatDeficits {
+    bordereau: BordereauDeficits;
+    imputation: ImputationDeficit | null;
+    projections: ProjectionExerciceFutur[] | null;
+    rapport: string;
+}
 
 export default function DeficitsReportablesPage() {
-    const [pays, setPays] = useState("SN");
-    const [exerciceCourant, setExerciceCourant] = useState(2024);
-    const [resultatBrut, setResultatBrut] = useState(15000000);
-    const [lignes, setLignes] = useState<Array<{ exercice: number; montant: number; type: string; montantDejaImpute: number }>>([
-        { exercice: 2021, montant: 8000000, type: "ORDINAIRE", montantDejaImpute: 0 },
-        { exercice: 2022, montant: 6000000, type: "ORDINAIRE", montantDejaImpute: 0 },
-        { exercice: 2023, montant: 5000000, type: "AMORTISSEMENT_DIFFERE", montantDejaImpute: 0 },
-    ]);
+    const [pays, setPays] = useState("");
+    const [exerciceCourant, setExerciceCourant] = useState<number | "">(new Date().getFullYear() - 1);
+    const [resultatBrut, setResultatBrut] = useState<number | "">("");
+    const [lignes, setLignes] = useState<Array<{ exercice: number | ""; montant: number | ""; type: string; montantDejaImpute: number | "" }>>([]);
 
     const [loading, setLoading] = useState(false);
-    const [donnees, setDonnees] = useState<any>(null);
+    const [donnees, setDonnees] = useState<ResultatDeficits | null>(null);
+    const [error, setError] = useState("");
 
     const ajouterLigne = () => {
-        setLignes([...lignes, { exercice: exerciceCourant - 1, montant: 1000000, type: "ORDINAIRE", montantDejaImpute: 0 }]);
+        setLignes([...lignes, { exercice: "", montant: "", type: "ORDINAIRE", montantDejaImpute: "" }]);
     };
 
     const supprimerLigne = (idx: number) => {
@@ -25,7 +30,16 @@ export default function DeficitsReportablesPage() {
     };
 
     const calculer = async () => {
+        if (!pays || exerciceCourant === "" || !Number.isInteger(exerciceCourant) || exerciceCourant < 1900
+            || resultatBrut === "" || !Number.isFinite(resultatBrut) || resultatBrut < 0 || lignes.length === 0
+            || lignes.some((ligne) => ligne.exercice === "" || !Number.isInteger(ligne.exercice) || ligne.exercice < 1900
+                || ligne.exercice >= exerciceCourant || ligne.montant === "" || !Number.isFinite(ligne.montant) || ligne.montant <= 0
+                || ligne.montantDejaImpute === "" || !Number.isFinite(ligne.montantDejaImpute) || ligne.montantDejaImpute < 0 || ligne.montantDejaImpute > ligne.montant)) {
+            setError("Renseignez le pays, l’exercice, le résultat fiscal et chaque déficit réel (année, montant et imputation antérieure valide).");
+            return;
+        }
         setLoading(true);
+        setError("");
         try {
             const res = await fetch("/api/fiscalite/deficits-reportables", {
                 method: "POST",
@@ -34,15 +48,18 @@ export default function DeficitsReportablesPage() {
                     pays,
                     exerciceCourant: Number(exerciceCourant),
                     resultatFiscalBrut: Number(resultatBrut),
-                    historique: lignes,
+                    historique: lignes.map((ligne) => ({ ...ligne, exercice: Number(ligne.exercice), montant: Number(ligne.montant), montantDejaImpute: Number(ligne.montantDejaImpute) })),
                 }),
             });
             const data = await res.json();
             if (data.bordereau) {
                 setDonnees(data);
+            } else {
+                setError(data.error || "Le calcul des déficits n’a pas abouti.");
             }
         } catch (err) {
             console.error("Erreur calcul déficits:", err);
+            setError(err instanceof Error ? err.message : "Le calcul des déficits n’a pas abouti.");
         } finally {
             setLoading(false);
         }
@@ -56,7 +73,7 @@ export default function DeficitsReportablesPage() {
                     <h1 className="page-title text-2xl font-bold tracking-tight">Déficits Reportables & ARD (IS OHADA)</h1>
                 </div>
                 <p className="page-subtitle text-sm text-muted-foreground">
-                    Suivi pluriannuel, contrôle de péremption triennale et liquidation FIFO optimale de l'Impôt sur les Sociétés.
+                    Suivi pluriannuel, contrôle de péremption triennale et liquidation FIFO optimale de l&apos;Impôt sur les Sociétés.
                 </p>
             </div>
 
@@ -65,7 +82,7 @@ export default function DeficitsReportablesPage() {
                 <div className="md:col-span-1 bg-card/40 border border-border rounded-xl p-5 space-y-4">
                     <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <FileSpreadsheet className="w-4 h-4 text-primary" />
-                        Paramètres d'arrêté
+                        Paramètres d&apos;arrêté
                     </h2>
 
                     <div className="space-y-3 text-xs">
@@ -77,10 +94,11 @@ export default function DeficitsReportablesPage() {
                                     onChange={(e) => setPays(e.target.value)}
                                     className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-border bg-background"
                                 >
-                                    <option value="SN">Sénégal (SN)</option>
-                                    <option value="CI">Côte d'Ivoire (CI)</option>
-                                    <option value="CM">Cameroun (CM)</option>
-                                    <option value="BF">Burkina Faso (BF)</option>
+                                    <option value="">Choisir le pays</option>
+                                    <option value="sn">Sénégal (SN)</option>
+                                    <option value="ci">Côte d&apos;Ivoire (CI)</option>
+                                    <option value="cm">Cameroun (CM)</option>
+                                    <option value="bj">Bénin (BJ)</option>
                                 </select>
                             </div>
                             <div>
@@ -88,7 +106,7 @@ export default function DeficitsReportablesPage() {
                                 <input
                                     type="number"
                                     value={exerciceCourant}
-                                    onChange={(e) => setExerciceCourant(Number(e.target.value))}
+                                    onChange={(e) => setExerciceCourant(e.target.value === "" ? "" : Number(e.target.value))}
                                     className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-border bg-background"
                                 />
                             </div>
@@ -99,7 +117,8 @@ export default function DeficitsReportablesPage() {
                             <input
                                 type="number"
                                 value={resultatBrut}
-                                onChange={(e) => setResultatBrut(Number(e.target.value))}
+                                min="0"
+                                onChange={(e) => setResultatBrut(e.target.value === "" ? "" : Number(e.target.value))}
                                 className="w-full mt-1 px-2.5 py-1.5 rounded-lg border border-border bg-background font-semibold text-emerald-400"
                             />
                         </div>
@@ -124,7 +143,7 @@ export default function DeficitsReportablesPage() {
                                                 value={l.exercice}
                                                 onChange={(e) => {
                                                     const nl = [...lignes];
-                                                    nl[idx].exercice = Number(e.target.value);
+                                                    nl[idx].exercice = e.target.value === "" ? "" : Number(e.target.value);
                                                     setLignes(nl);
                                                 }}
                                                 className="w-20 px-1.5 py-0.5 rounded border border-border text-[11px]"
@@ -152,13 +171,28 @@ export default function DeficitsReportablesPage() {
                                         <input
                                             type="number"
                                             value={l.montant}
+                                            min="0"
                                             onChange={(e) => {
                                                 const nl = [...lignes];
-                                                nl[idx].montant = Number(e.target.value);
+                                                nl[idx].montant = e.target.value === "" ? "" : Number(e.target.value);
                                                 setLignes(nl);
                                             }}
                                             className="w-full px-2 py-1 rounded border border-border text-xs"
                                             placeholder="Montant FCFA"
+                                        />
+                                        <label className="sr-only" htmlFor={`montant-impute-${idx}`}>Montant déjà imputé</label>
+                                        <input
+                                            id={`montant-impute-${idx}`}
+                                            type="number"
+                                            min="0"
+                                            value={l.montantDejaImpute}
+                                            onChange={(e) => {
+                                                const nl = [...lignes];
+                                                nl[idx].montantDejaImpute = e.target.value === "" ? "" : Number(e.target.value);
+                                                setLignes(nl);
+                                            }}
+                                            className="w-full px-2 py-1 rounded border border-border text-xs"
+                                            placeholder="Montant déjà imputé (FCFA)"
                                         />
                                     </div>
                                 ))}
@@ -171,9 +205,10 @@ export default function DeficitsReportablesPage() {
                             className="w-full mt-3 py-2 px-4 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 flex items-center justify-center gap-2"
                         >
                             <Calculator className="w-4 h-4" />
-                            Liquider l'imputation fiscale
+                            Liquider l&apos;imputation fiscale
                         </button>
                     </div>
+                    {error && <p role="alert" className="text-xs text-rose-400">{error}</p>}
                 </div>
 
                 {/* Synthèse & Imputation */}
@@ -224,7 +259,7 @@ export default function DeficitsReportablesPage() {
                                     Bordereau fiscal pluriannuel (Tableau 7/8 DSF)
                                 </h3>
                                 <div className="divide-y divide-border text-xs">
-                                    {donnees.bordereau.deficits.map((d: any) => (
+                                    {donnees.bordereau.deficits.map((d) => (
                                         <div key={d.exercice} className="py-2.5 flex items-center justify-between">
                                             <div>
                                                 <span className="font-semibold text-foreground">Exercice {d.exercice}</span>
@@ -257,7 +292,7 @@ export default function DeficitsReportablesPage() {
                     ) : (
                         <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-8 border border-dashed border-border rounded-xl text-center text-muted-foreground text-sm">
                             <TrendingDown className="w-8 h-8 text-rose-400/50 mb-3" />
-                            <p>Saisissez l'historique des exercices déficitaires pour liquider l'imputation et contrôler les péremptions.</p>
+                            <p>Saisissez l&apos;historique des exercices déficitaires pour liquider l&apos;imputation et contrôler les péremptions.</p>
                         </div>
                     )}
                 </div>
