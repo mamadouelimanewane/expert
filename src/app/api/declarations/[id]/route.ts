@@ -24,7 +24,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     if (!isObjectId(id)) return NextResponse.json({ error: 'Identifiant invalide' }, { status: 400 });
 
     try {
-        const current = await prisma.taxDeclaration.findUnique({ where: { id } });
+        const current = await prisma.taxDeclaration.findFirst({ where: { id, cabinetId: session.cabinetId } });
         if (!current) return NextResponse.json({ error: 'Déclaration introuvable' }, { status: 404 });
         const body = await request.json();
         const data: Record<string, any> = {};
@@ -60,7 +60,10 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
             }
         }
 
-        const declaration = await prisma.taxDeclaration.update({ where: { id }, data });
+        const updated = await prisma.taxDeclaration.updateMany({ where: { id, cabinetId: session.cabinetId }, data });
+        if (!updated.count) return NextResponse.json({ error: 'Déclaration introuvable' }, { status: 404 });
+        const declaration = await prisma.taxDeclaration.findFirst({ where: { id, cabinetId: session.cabinetId } });
+        if (!declaration) return NextResponse.json({ error: 'Déclaration introuvable' }, { status: 404 });
         await AuditService.log({
             action: 'UPDATE', entity: 'TAX_DECLARATION', entityId: declaration.id,
             details: `Déclaration ${declaration.type} ${declaration.period} mise à jour${data.status ? ` : statut ${data.status}` : ''}.`,

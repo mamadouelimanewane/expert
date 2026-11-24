@@ -12,11 +12,12 @@ export async function GET(request: NextRequest) {
         if (!session) {
             return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
         }
+        if (!isObjectId(session.cabinetId)) return NextResponse.json({ error: 'Cabinet invalide' }, { status: 403 });
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
 
-        const where: Prisma.TaxDeclarationWhereInput = {};
+        const where: Prisma.TaxDeclarationWhereInput = { cabinetId: session.cabinetId };
         if (status && status !== 'tous') {
             const statusMap: Record<string, DeclarationStatus> = {
                 'a_preparer': 'DRAFT',
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
 
         const totalToPay = await prisma.taxDeclaration.aggregate({
             _sum: { amount: true },
-            where: { status: { in: ['DRAFT', 'PENDING', 'SUBMITTED'] } }
+            where: { cabinetId: session.cabinetId, status: { in: ['DRAFT', 'PENDING', 'SUBMITTED'] } }
         });
 
         // `declarations` est trie par dueDate croissante mais sans filtre de date
@@ -100,6 +101,7 @@ export async function GET(request: NextRequest) {
         // pour un indicateur global.
         const prochaine = await prisma.taxDeclaration.findFirst({
             where: {
+                cabinetId: session.cabinetId,
                 dueDate: { gte: new Date() },
                 status: { in: ['DRAFT', 'PENDING'] },
             },
@@ -149,7 +151,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Montant invalide' }, { status: 400 });
         }
 
-        const client = await prisma.client.findUnique({ where: { id: clientId }, select: { id: true, country: true } });
+        const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true, country: true } });
         if (!client) return NextResponse.json({ error: 'Client introuvable dans ce cabinet' }, { status: 404 });
 
         let regulatoryRuleId: string | null = null;
@@ -174,7 +176,7 @@ export async function POST(request: NextRequest) {
 
         const existing = await prisma.taxDeclaration.findFirst({
             where: {
-                clientId, type, period,
+                cabinetId: session.cabinetId, clientId, type, period,
                 ...(obligationCode ? { OR: [{ obligationCode }, { obligationCode: null }] } : {}),
             },
             select: { id: true },
