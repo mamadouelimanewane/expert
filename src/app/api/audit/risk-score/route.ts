@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const riskData = await AuditService.calculateRiskScore(clientId);
+        const riskData = await AuditService.calculateRiskScore(clientId, session.cabinetId!);
         return NextResponse.json(riskData);
     } catch (error) {
         console.error("[Risk API] Error:", error);

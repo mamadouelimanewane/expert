@@ -37,6 +37,7 @@ export class AuditService {
 
             return await prisma.auditLog.create({
                 data: {
+                    cabinetId: session?.cabinetId ?? null,
                     action: input.action,
                     entity: input.entity,
                     entityId: input.entityId,
@@ -54,8 +55,9 @@ export class AuditService {
         }
     }
 
-    static async getRecentLogs(limit = 10) {
+    static async getRecentLogs(limit = 10, cabinetId = "") {
         return await prisma.auditLog.findMany({
+            where: { cabinetId },
             take: limit,
             orderBy: { createdAt: 'desc' },
             include: {
@@ -75,11 +77,11 @@ export class AuditService {
      * Calcule un score de risque dynamique pour un client donné
      * Basé sur la conformité fiscale et les indicateurs opérationnels
      */
-    static async calculateRiskScore(clientId: string) {
+    static async calculateRiskScore(clientId: string, cabinetId: string) {
         const [declarations, missions, journals] = await Promise.all([
-            prisma.taxDeclaration.findMany({ where: { clientId } }),
-            prisma.mission.findMany({ where: { clientId } }),
-            prisma.tpeJournal.findMany({ where: { clientId } })
+            prisma.taxDeclaration.findMany({ where: { clientId, cabinetId } }),
+            prisma.mission.findMany({ where: { clientId, cabinetId } }),
+            prisma.tpeJournal.findMany({ where: { clientId, cabinetId } })
         ]);
 
         const now = new Date();

@@ -18,7 +18,6 @@ import { HubModules } from "@/components/dashboard/HubModules";
 // ─────────────────────────────────────────────────────────────────────────────
 
 type TaxDeclarationWithClient = TaxDeclaration & { client: Client | null };
-type AuditLogWithUser = any;
 
 // Fuseau de référence du cabinet (UTC+0, Dakar) : évite tout écart entre
 // l'heure rendue côté serveur (Vercel, UTC) et celle du navigateur.
@@ -26,15 +25,16 @@ const TZ = "Africa/Dakar";
 
 
 export default async function BusinessIntelligencePage() {
+  const session = await AuthService.getSession();
   // Récupération des données réelles
-  const [recentDeclarations, recentLogs, session] = await Promise.all([
+  const [recentDeclarations, recentLogs] = await Promise.all([
     prisma.taxDeclaration.findMany({
+      where: { cabinetId: session?.cabinetId ?? "" },
       take: 4,
       orderBy: { dueDate: 'asc' },
       include: { client: true }
     }),
-    AuditService.getRecentLogs(4),
-    AuthService.getSession(),
+    AuditService.getRecentLogs(4, session?.cabinetId ?? ""),
   ]);
 
   // Accueil personnalisé : prénom et date du jour. La date est formatée dans
@@ -115,9 +115,9 @@ export default async function BusinessIntelligencePage() {
 
         {/* Right Column: Activity Feed */}
         <div className="apix-card p-4 sm:p-6 rounded-2xl">
-          <h3 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight mb-6">Flux d'Activité Système</h3>
+          <h3 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight mb-6">Flux d&apos;Activité Système</h3>
           <div className="pl-5 sm:pl-6 border-l-2 border-slate-300 dark:border-slate-800 space-y-6 sm:space-y-8">
-            {recentLogs.length > 0 ? recentLogs.map((act: AuditLogWithUser, i: number) => (
+            {recentLogs.length > 0 ? recentLogs.map((act, i) => (
               <div key={i} className="relative group">
                 <div className="absolute -left-[29px] sm:-left-[33px] top-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-4 border-white dark:border-slate-900 bg-[#006B3F] shadow-[0_0_15px_rgba(0,107,63,0.5)] group-hover:scale-125 transition-all" />
                 <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#006B3F] dark:group-hover:text-white transition-colors leading-snug">{act.action}</p>
@@ -130,7 +130,7 @@ export default async function BusinessIntelligencePage() {
             )) : (
               <div className="relative group">
                 <div className="absolute -left-[29px] sm:-left-[33px] top-1 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-4 border-white dark:border-slate-900 bg-slate-700" />
-                <p className="text-sm font-bold text-slate-500">En attente d'activités...</p>
+                <p className="text-sm font-bold text-slate-500">En attente d&apos;activités...</p>
               </div>
             )}
           </div>
