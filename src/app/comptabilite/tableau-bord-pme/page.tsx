@@ -2,11 +2,18 @@
 
 import { useState, useCallback } from "react";
 import {
-    LayoutDashboard, TrendingUp, Target, Wallet,
-    ShieldCheck, AlertTriangle, Printer, RefreshCw,
-    Activity, Clock, DollarSign, Calendar
+    LayoutDashboard, Target, Wallet,
+    AlertTriangle, Printer, RefreshCw,
+    Activity, Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { SyntheseTableauBordPME } from "@/lib/ohada/tableau-bord-pme";
+
+type ReponseTableauBord = SyntheseTableauBordPME & {
+    estimationFiable: boolean;
+    sources: { balance: string | null; facturesVente: number };
+    avertissements: string[];
+};
 
 export default function TableauBordPmePage() {
     const [clientId, setClientId] = useState("");
@@ -14,7 +21,7 @@ export default function TableauBordPmePage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [data, setData] = useState<any | null>(null);
+    const [data, setData] = useState<ReponseTableauBord | null>(null);
 
     const chargerTableauBord = useCallback(async () => {
         if (!clientId.trim() || clientId.trim().length < 12) {
@@ -30,9 +37,9 @@ export default function TableauBordPmePage() {
             );
             const resData = await res.json();
             if (!res.ok) throw new Error(resData.error || "Erreur de chargement");
-            setData(resData);
-        } catch (err: any) {
-            setError(err.message || "Erreur lors de la récupération du tableau de bord PME.");
+            setData(resData as ReponseTableauBord);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Erreur lors de la récupération du tableau de bord PME.");
         } finally {
             setLoading(false);
         }
@@ -47,7 +54,7 @@ export default function TableauBordPmePage() {
                     Tableau de Bord Dirigeant & Pilotage Flash PME
                 </h2>
                 <p className="page-subtitle">
-                    Indicateurs clés de gestion pour le chef d'entreprise : Point Mort (Seuil de Rentabilité), BFR en jours de CA, Trésorerie Nette et diagnostic synthétique de l'Expert-Comptable.
+                    Indicateurs clés de gestion pour le chef d&apos;entreprise : Point Mort (Seuil de Rentabilité), BFR en jours de CA, Trésorerie Nette et diagnostic synthétique de l&apos;Expert-Comptable.
                 </p>
             </div>
 
@@ -108,14 +115,17 @@ export default function TableauBordPmePage() {
                 </div>
             </div>
 
-            {data && (
+            {data && (data.estimationFiable ? (
                 <div className="space-y-6">
+                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/15 px-4 py-3 text-sm text-emerald-200">
+                        Indicateurs calculés à partir de la balance équilibrée du {data.sources.balance}.
+                    </div>
                     {/* Diagnostic Flash & Score de Santé */}
                     <div className="p-6 rounded-2xl border border-border bg-card/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="space-y-2 flex-1">
                             <span className="text-xs uppercase tracking-wider font-bold text-primary flex items-center gap-1.5">
                                 <Activity className="w-4 h-4" />
-                                Avis d'Expertise & Diagnostic Financier Flash
+                                Avis d&apos;Expertise & Diagnostic Financier Flash
                             </span>
                             <p className="text-sm font-medium text-foreground leading-relaxed">
                                 {data.conseilExpert}
@@ -152,7 +162,7 @@ export default function TableauBordPmePage() {
                                     {Number(data.pointMort.seuilRentabiliteFCFA).toLocaleString("fr-FR")} F
                                 </span>
                                 <span className="text-[11px] text-muted-foreground font-sans block mt-1">
-                                    CA minimum d'équilibre
+                                    CA minimum d&apos;équilibre
                                 </span>
                             </div>
 
@@ -184,7 +194,7 @@ export default function TableauBordPmePage() {
                                         : "bg-rose-950/20 border-rose-500/40 text-rose-300"
                                 )}
                             >
-                                <span className="font-sans block opacity-80">Résultat d'Exploitation</span>
+                                <span className="font-sans block opacity-80">Résultat d&apos;Exploitation</span>
                                 <span className="text-lg font-black">
                                     {Number(data.pointMort.resultatExploitationPrevisionnel).toLocaleString("fr-FR")} F
                                 </span>
@@ -275,7 +285,22 @@ export default function TableauBordPmePage() {
                         </div>
                     </div>
                 </div>
-            )}
+            ) : (
+                <div className="space-y-4 rounded-2xl border border-amber-500/35 bg-amber-950/15 p-6">
+                    <div className="flex items-start gap-3">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 flex-none text-amber-300" />
+                        <div className="space-y-2">
+                            <h3 className="font-semibold text-amber-100">Diagnostic masqué : base comptable insuffisante</h3>
+                            <p className="text-sm text-amber-100/80">Le score, le seuil de rentabilité, le BFR et la trésorerie ne sont pas présentés sans balance équilibrée au 31 décembre. Cela évite de transformer des données manquantes en indicateurs financiers trompeurs.</p>
+                            {data.sources?.facturesVente > 0 && <p className="text-xs text-amber-100/70">{data.sources.facturesVente} facture(s) de vente de l’exercice sont disponibles ; elles ne suffisent pas à calculer un diagnostic complet.</p>}
+                            <ul className="list-disc space-y-1 pl-5 text-xs text-amber-100/70">
+                                {(data.avertissements ?? []).map((message: string) => <li key={message}>{message}</li>)}
+                            </ul>
+                            <a href={`/etats-financiers/import?clientId=${encodeURIComponent(clientId)}`} className="inline-flex rounded-lg border border-amber-300/30 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-300/10">Importer une balance équilibrée</a>
+                        </div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 }

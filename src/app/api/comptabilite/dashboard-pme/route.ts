@@ -6,6 +6,7 @@ import {
     calculerTableauBordPME,
     type ParametresTableauBordPME,
 } from "@/lib/ohada/tableau-bord-pme";
+import { extraireIndicateursBalancePME } from "@/lib/ohada/tableau-bord-pme-data";
 
 /**
  * API Tableau de Bord Dirigeant & Pilotage Flash PME
@@ -17,42 +18,56 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const clientId = searchParams.get("clientId");
-    const exercice = Number(searchParams.get("exercice")) || new Date().getFullYear();
+    const exerciceBrut = searchParams.get("exercice");
+    const exercice = exerciceBrut ? Number(exerciceBrut) : new Date().getFullYear();
 
     if (!clientId || !isObjectId(clientId)) {
         return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
     }
+    if (!Number.isInteger(exercice) || exercice < 2000 || exercice > 2100) {
+        return NextResponse.json({ error: "exercice invalide." }, { status: 400 });
+    }
 
-    // Récupérer le total des factures de vente et d'achat
-    const salesInvoices = await prisma.invoice.findMany({
-        where: { clientId, type: "SALE" },
-        select: { amount: true },
-    });
-    const purchaseInvoices = await prisma.invoice.findMany({
-        where: { clientId, type: "PURCHASE" },
-        select: { amount: true },
-    });
-
-    const totalVentes = salesInvoices.reduce((sum, inv) => sum + inv.amount, 0);
-    const totalAchats = purchaseInvoices.reduce((sum, inv) => sum + inv.amount, 0);
-
-    const caReel = totalVentes > 0 ? totalVentes : 95_000_000;
-    const achatsReels = totalAchats > 0 ? totalAchats : 55_000_000;
-
+    const debutExercice = new Date(Date.UTC(exercice, 0, 1));
+    const debutExerciceSuivant = new Date(Date.UTC(exercice + 1, 0, 1));
+    const [facturesVente, derniereBalance] = await Promise.all([
+        prisma.invoice.findMany({
+            where: { clientId, issueDate: { gte: debutExercice, lt: debutExerciceSuivant }, status: { in: ["SENT", "PAID", "OVERDUE"] } },
+            select: { subtotal: true },
+        }),
+        prisma.balanceImportee.findFirst({
+            where: { clientId, periode: { gte: `${exercice}-01`, lte: `${exercice}-12` } },
+            orderBy: { periode: "desc" },
+            select: { periode: true, lignes: true, equilibree: true },
+        }),
+    ]);
+    const caFactures = facturesVente.reduce((sum, invoice) => sum + invoice.subtotal, 0);
+    const indicateursBalance = derniereBalance?.equilibree
+        ? extraireIndicateursBalancePME(derniereBalance.lignes)
+        : null;
+    const zero = {
+        chiffreAffairesHT: 0, achatsEtChargesVariables: 0, chargesFixesExploitation: 0,
+        stocksActuels: 0, creancesClients: 0, dettesFournisseurs: 0, dettesFiscalesSociales: 0,
+        disponibilitesBancaires: 0, encaissePhysiqueCaisse: 0, concoursBancairesCourants: 0,
+    } satisfies ParametresTableauBordPME;
     const parametres: ParametresTableauBordPME = {
-        chiffreAffairesHT: caReel,
-        achatsEtChargesVariables: achatsReels,
-        chargesFixesExploitation: 22_500_000,
-        stocksActuels: 7_800_000,
-        creancesClients: 11_400_000,
-        dettesFournisseurs: 10_200_000,
-        dettesFiscalesSociales: 2_600_000,
-        disponibilitesBancaires: 9_500_000,
-        encaissePhysiqueCaisse: 1_850_000,
-        concoursBancairesCourants: 0,
+        ...(indicateursBalance ?? zero),
+        chiffreAffairesHT: indicateursBalance?.chiffreAffairesHT || caFactures,
     };
 
     const synthese = calculerTableauBordPME(parametres, exercice);
-
-    return NextResponse.json(synthese);
+    const estimationFiable = Boolean(indicateursBalance && derniereBalance?.periode === `${exercice}-12`);
+    const avertissements = [
+        ...(!derniereBalance ? ["Aucune balance importée pour cet exercice ; les indicateurs de bilan et de charges ne sont pas disponibles."] : []),
+        ...(derniereBalance && !derniereBalance.equilibree ? ["La dernière balance importée est déséquilibrée ; elle n’est pas utilisée pour les indicateurs financiers."] : []),
+        ...(derniereBalance?.equilibree && !indicateursBalance ? ["Les lignes de la balance ne peuvent pas être interprétées de façon sûre."] : []),
+        ...(indicateursBalance && derniereBalance?.periode !== `${exercice}-12` ? [`La dernière balance équilibrée est celle de ${derniereBalance?.periode} ; un arrêté au 31 décembre est requis pour qualifier le diagnostic annuel.`] : []),
+        ...(!indicateursBalance && caFactures === 0 ? ["Aucune facture de vente validée n’est disponible pour cet exercice."] : []),
+    ];
+    return NextResponse.json({
+        ...synthese,
+        estimationFiable,
+        sources: { balance: derniereBalance?.periode ?? null, facturesVente: facturesVente.length },
+        avertissements,
+    });
 }
