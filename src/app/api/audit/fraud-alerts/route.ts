@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { FraudAlertSeverity, FraudAlertStatus } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { AuthService } from "@/lib/auth";
-import { analyserEnum } from "@/lib/api-auth";
+import { analyserEnum, requireStaff, requireWriteAccess } from "@/lib/api-auth";
 import { AuditService } from "@/lib/audit";
 import { analyserMontantOptionnel } from "@/lib/validation";
+import { isObjectId } from "@/lib/tenant-security";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireStaff();
+        if (denied) return denied;
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
         const severity = searchParams.get("severity");
 
-        const where: Record<string, unknown> = {};
+        const where: Record<string, unknown> = { cabinetId: session.cabinetId };
         if (status) {
             const s = analyserEnum(status, Object.values(FraudAlertStatus), "Statut");
             if (!s.ok) return NextResponse.json({ error: s.raison }, { status: 400 });
@@ -42,6 +40,7 @@ export async function GET(request: NextRequest) {
         const byRule = await prisma.fraudAlert.groupBy({
             by: ["ruleTriggered"],
             _count: { _all: true },
+            where: { cabinetId: session.cabinetId },
         });
 
         return NextResponse.json({
@@ -56,8 +55,9 @@ export async function GET(request: NextRequest) {
 
 // Règles de détection simples, réutilisées de la logique d'anomalies FEC (audit-legal)
 // et du calcul de risque existant (AuditService.calculateRiskScore) : dimanche, montant rond, montant atypique.
-async function runFraudScan() {
+async function runFraudScan(cabinetId: string) {
     const transactions = await prisma.bankTransaction.findMany({
+        where: { cabinetId },
         include: { invoice: { include: { client: true } } },
         orderBy: { date: "desc" },
     });
@@ -71,7 +71,7 @@ async function runFraudScan() {
 
     // Alertes déjà générées, pour éviter les doublons à chaque nouveau scan
     const existing = await prisma.fraudAlert.findMany({
-        where: { transactionId: { not: null } },
+        where: { cabinetId, transactionId: { not: null } },
         select: { transactionId: true, ruleTriggered: true },
     });
     const existingKeys = new Set(existing.map((e) => `${e.transactionId}::${e.ruleTriggered}`));
@@ -121,6 +121,7 @@ async function runFraudScan() {
 
             await prisma.fraudAlert.create({
                 data: {
+                    cabinetId,
                     title: flag.title + (clientLabel ? ` — ${clientLabel}` : ""),
                     description: flag.description,
                     severity: flag.severity,
@@ -141,15 +142,13 @@ async function runFraudScan() {
 
 export async function POST(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
 
         if (body.action === "scan") {
-            const result = await runFraudScan();
+            const result = await runFraudScan(session.cabinetId!);
             await AuditService.log({
                 action: "PROCESS",
                 entity: "FRAUD_ALERT",
@@ -163,6 +162,16 @@ export async function POST(request: NextRequest) {
         if (!title || !description || !ruleTriggered) {
             return NextResponse.json({ error: "Champs requis manquants (titre, description, règle)" }, { status: 400 });
         }
+        if (clientId) {
+            if (!isObjectId(clientId)) return NextResponse.json({ error: "clientId invalide." }, { status: 400 });
+            const client = await prisma.client.findFirst({ where: { id: clientId, cabinetId: session.cabinetId }, select: { id: true } });
+            if (!client) return NextResponse.json({ error: "Client introuvable dans ce cabinet." }, { status: 404 });
+        }
+        if (transactionId) {
+            if (!isObjectId(transactionId)) return NextResponse.json({ error: "transactionId invalide." }, { status: 400 });
+            const transaction = await prisma.bankTransaction.findFirst({ where: { id: transactionId, cabinetId: session.cabinetId }, select: { id: true } });
+            if (!transaction) return NextResponse.json({ error: "Transaction introuvable dans ce cabinet." }, { status: 404 });
+        }
 
         const montant = analyserMontantOptionnel(amount);
         if (!montant.ok) {
@@ -175,6 +184,7 @@ export async function POST(request: NextRequest) {
 
         const alert = await prisma.fraudAlert.create({
             data: {
+                cabinetId: session.cabinetId,
                 title,
                 description,
                 severity: gravite.valeur,
@@ -202,10 +212,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
-        const session = await AuthService.getSession();
-        if (!session) {
-            return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-        }
+        const { session, denied } = await requireWriteAccess();
+        if (denied) return denied;
 
         const body = await request.json();
         const { id, status } = body;
@@ -213,15 +221,22 @@ export async function PATCH(request: NextRequest) {
         if (!id || !status) {
             return NextResponse.json({ error: "id et status requis" }, { status: 400 });
         }
+        if (typeof id !== "string" || !isObjectId(id)) return NextResponse.json({ error: "id invalide." }, { status: 400 });
 
-        const alert = await prisma.fraudAlert.update({
-            where: { id },
+        const existing = await prisma.fraudAlert.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true } });
+        if (!existing) return NextResponse.json({ error: "Alerte introuvable dans ce cabinet." }, { status: 404 });
+        await prisma.fraudAlert.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { status },
+        });
+        const alert = await prisma.fraudAlert.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             include: {
                 client: { select: { id: true, companyName: true, firstName: true, lastName: true } },
                 transaction: { select: { id: true, date: true, description: true, amount: true, type: true } },
             },
         });
+        if (!alert) return NextResponse.json({ error: "Alerte introuvable dans ce cabinet." }, { status: 404 });
 
         await AuditService.log({
             action: "UPDATE",
