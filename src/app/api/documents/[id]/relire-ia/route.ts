@@ -78,11 +78,12 @@ export async function POST(request: Request, { params }: Params) {
             humanReviewHistory: Array.isArray(ancienneDonnee.humanReviewHistory) ? ancienneDonnee.humanReviewHistory : [],
             manualReview: { status: "PENDING", resetAt: new Date().toISOString(), reason: "Nouvelle lecture IA à vérifier." },
         };
-        const majDocument = await prisma.document.update({
-            where: { id },
+        await prisma.document.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { status: "PROCESSED", ocrData: ocrData as object, ocrProcessedAt: new Date() },
-            select: { id: true, status: true, ocrData: true },
         });
+        const majDocument = await prisma.document.findFirst({ where: { id, cabinetId: session.cabinetId }, select: { id: true, status: true, ocrData: true } });
+        if (!majDocument) return NextResponse.json({ error: "Pièce introuvable dans ce cabinet." }, { status: 404 });
         await AuditService.log({
             action: "PROCESS",
             entity: "DOCUMENT",

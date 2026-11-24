@@ -56,7 +56,10 @@ export async function PATCH(request: Request, { params }: Params) {
     manualReview: { status: "VALIDATED", validatedAt: new Date().toISOString(), validatedById: session.id },
     humanReviewHistory,
   } as Prisma.InputJsonValue;
-  const updated = await prisma.document.update({ where: { id }, data: { ocrData: updatedOcrData }, select: { id: true, originalName: true, status: true, ocrData: true, updatedAt: true } });
+  const result = await prisma.document.updateMany({ where: { id, cabinetId: session.cabinetId, type: "FACTURE" }, data: { ocrData: updatedOcrData } });
+  if (!result.count) return NextResponse.json({ error: "Facture introuvable dans ce cabinet." }, { status: 404 });
+  const updated = await prisma.document.findFirst({ where: { id, cabinetId: session.cabinetId, type: "FACTURE" }, select: { id: true, originalName: true, status: true, ocrData: true, updatedAt: true } });
+  if (!updated) return NextResponse.json({ error: "Facture introuvable dans ce cabinet." }, { status: 404 });
   await AuditService.log({ action: "UPDATE", entity: "DOCUMENT_OCR_REVIEW", entityId: id, oldValue: { invoiceData: previousInvoice, status: (current.manualReview as { status?: string } | undefined)?.status ?? "PENDING" }, newValue: { invoiceData: correctedInvoice, status: "VALIDATED", duplicateCandidates: duplicateCandidates.map((candidate) => candidate.id) }, details: `Extraction OCR de « ${document.originalName} » vérifiée par ${session.name}.` });
   return NextResponse.json({ document: updated, duplicateCandidates });
 }
