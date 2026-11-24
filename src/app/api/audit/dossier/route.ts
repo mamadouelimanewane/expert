@@ -30,12 +30,12 @@ export async function GET(request: NextRequest) {
     const type = (searchParams.get("type") || "AUDIT") as MissionType;
 
     const mission = missionId
-      ? await prisma.mission.findUnique({
-          where: { id: missionId },
+      ? await prisma.mission.findFirst({
+          where: { id: missionId, cabinetId: session.cabinetId },
           include: { client: { select: { id: true, companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
         })
       : await prisma.mission.findFirst({
-          where: { type },
+          where: { type, cabinetId: session.cabinetId },
           include: { client: { select: { id: true, companyName: true, firstName: true, lastName: true } }, assignedTo: { select: { firstName: true, lastName: true } } },
           orderBy: { createdAt: "desc" },
         });
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     // standard (programme vide, à compléter par l'auditeur) — pas de constats fabriqués.
     if (sections.length === 0) {
       await prisma.auditSection.createMany({
-        data: DEFAULT_SECTIONS.map((name, i) => ({ name, order: i, missionId: mission.id })),
+        data: DEFAULT_SECTIONS.map((name, i) => ({ name, order: i, missionId: mission.id, cabinetId: session.cabinetId })),
       });
       sections = await prisma.auditSection.findMany({
         where: { missionId: mission.id },
@@ -128,8 +128,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "sectionId requis" }, { status: 400 });
     }
 
-    const actuelle = await prisma.auditSection.findFirst({ where: { id: String(sectionId) }, include: { items: true, mission: { select: { type: true } } } });
+    const actuelle = await prisma.auditSection.findFirst({ where: { id: String(sectionId) }, include: { items: true, mission: { select: { type: true, cabinetId: true } } } });
     if (!actuelle) return NextResponse.json({ error: "Section introuvable." }, { status: 404 });
+    if (actuelle.mission.cabinetId !== session.cabinetId) return NextResponse.json({ error: "Section introuvable dans ce cabinet." }, { status: 404 });
     if (action === "REVIEW") {
       if (!canManageReviewResolution(session.role)) return NextResponse.json({ error: "La revue de section est réservée à un expert ou administrateur." }, { status: 403 });
       if (actuelle.mission.type !== "AUDIT") return NextResponse.json({ error: "La revue hiérarchique de section est réservée aux missions d’audit." }, { status: 400 });
@@ -167,8 +168,9 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "itemId requis" }, { status: 400 });
     }
 
-    const actuelle = await prisma.auditChecklistItem.findFirst({ where: { id: String(itemId) }, include: { section: { select: { id: true, name: true, missionId: true } } } });
+    const actuelle = await prisma.auditChecklistItem.findFirst({ where: { id: String(itemId) }, include: { section: { select: { id: true, name: true, missionId: true, mission: { select: { cabinetId: true } } } } } });
     if (!actuelle) return NextResponse.json({ error: "Diligence introuvable." }, { status: 404 });
+    if (actuelle.section.mission.cabinetId !== session.cabinetId) return NextResponse.json({ error: "Diligence introuvable dans ce cabinet." }, { status: 404 });
     if (status !== undefined && !(Object.values(AuditItemStatus) as unknown[]).includes(status)) return NextResponse.json({ error: "Statut de diligence invalide." }, { status: 400 });
     if (ref !== undefined && ref !== null && (typeof ref !== "string" || ref.length > 500)) return NextResponse.json({ error: "Référence de pièce invalide." }, { status: 400 });
     if (comment !== undefined && comment !== null && (typeof comment !== "string" || comment.length > 5000)) return NextResponse.json({ error: "Commentaire trop long." }, { status: 400 });
