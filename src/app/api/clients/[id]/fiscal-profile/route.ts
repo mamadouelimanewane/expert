@@ -6,11 +6,11 @@ import { isObjectId } from '@/lib/tenant-security';
 const COUNTRIES = new Set(['SN', 'CI', 'CM', 'BJ', 'BF', 'ML', 'NE', 'TG', 'GA', 'TD', 'CF', 'CG', 'CD', 'GQ', 'GW']);
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
     const { id } = await context.params;
     if (!isObjectId(id)) return NextResponse.json({ error: 'Identifiant client invalide' }, { status: 400 });
-    const client = await prisma.client.findUnique({ where: { id }, select: {
+    const client = await prisma.client.findFirst({ where: { id, cabinetId: session.cabinetId }, select: {
         id: true, companyName: true, country: true, fiscalRegime: true, sector: true,
         ninea: true, ifu: true, nif: true, subjectToTva: true, taxProfile: true,
     } });
@@ -19,7 +19,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
     const { id } = await context.params;
     if (!isObjectId(id)) return NextResponse.json({ error: 'Identifiant client invalide' }, { status: 400 });
@@ -68,7 +68,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
                 activities: p.activities ?? [], taxIncentives: p.taxIncentives ?? [], reviewedAt: new Date().toISOString(),
             };
         }
-        const profile = await prisma.client.update({ where: { id }, data: clientData, select: {
+        const updated = await prisma.client.updateMany({ where: { id, cabinetId: session.cabinetId }, data: clientData });
+        if (!updated.count) return NextResponse.json({ error: 'Client introuvable' }, { status: 404 });
+        const profile = await prisma.client.findFirst({ where: { id, cabinetId: session.cabinetId }, select: {
             id: true, companyName: true, country: true, fiscalRegime: true, sector: true,
             ninea: true, ifu: true, nif: true, subjectToTva: true, taxProfile: true,
         } });

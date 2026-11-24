@@ -7,7 +7,7 @@ import { clientUpdateSchema, parseBody } from "@/lib/validation";
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, { params }: Params) {
-    const { denied } = await requireStaff();
+    const { session, denied } = await requireStaff();
     if (denied) return denied;
 
     try {
@@ -20,8 +20,8 @@ export async function GET(request: Request, { params }: Params) {
         // qui n appellent cet endpoint que pour lire une raison sociale, faisant
         // transiter le secret dans le navigateur de chaque collaborateur.
         // Le lien portail s'obtient explicitement via /api/clients/[id]/portal-link.
-        const client = await prisma.client.findUnique({
-            where: { id },
+        const client = await prisma.client.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             omit: { portalToken: true },
         });
         if (!client) {
@@ -42,7 +42,7 @@ export async function GET(request: Request, { params }: Params) {
  * client et de perdre ses missions, factures et écritures.
  */
 export async function PATCH(request: Request, { params }: Params) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     const { data, invalid } = await parseBody(request, clientUpdateSchema);
@@ -50,15 +50,16 @@ export async function PATCH(request: Request, { params }: Params) {
 
     try {
         const { id } = await params;
-        const avant = await prisma.client.findUnique({ where: { id }, omit: { portalToken: true } });
+        const avant = await prisma.client.findFirst({ where: { id, cabinetId: session.cabinetId }, omit: { portalToken: true } });
         if (!avant) {
             return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         }
-        const client = await prisma.client.update({
-            where: { id },
+        const result = await prisma.client.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data,
-            omit: { portalToken: true },
         });
+        if (!result.count) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
+        const client = await prisma.client.findFirst({ where: { id, cabinetId: session.cabinetId }, omit: { portalToken: true } });
         const champs = Object.keys(data) as (keyof typeof data)[];
         await AuditService.log({
             action: "UPDATE",
@@ -84,16 +85,21 @@ export async function PATCH(request: Request, { params }: Params) {
  * mission signées qui doivent rester consultables. Le portail est coupé.
  */
 export async function DELETE(request: Request, { params }: Params) {
-    const { denied } = await requireWriteAccess();
+    const { session, denied } = await requireWriteAccess();
     if (denied) return denied;
 
     try {
         const { id } = await params;
-        const client = await prisma.client.update({
-            where: { id },
+        const result = await prisma.client.updateMany({
+            where: { id, cabinetId: session.cabinetId },
             data: { isActive: false, portalEnabled: false },
+        });
+        if (!result.count) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
+        const client = await prisma.client.findFirst({
+            where: { id, cabinetId: session.cabinetId },
             select: { id: true, companyName: true, isActive: true, portalEnabled: true },
         });
+        if (!client) return NextResponse.json({ error: "Client introuvable" }, { status: 404 });
         await AuditService.log({
             action: "DELETE",
             entity: "CLIENT",
