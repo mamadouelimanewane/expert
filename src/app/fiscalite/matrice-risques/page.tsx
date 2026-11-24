@@ -15,42 +15,34 @@ import type { AnomalieFiscaleDetectee, DonneesAuditFiscal, SyntheseAuditFiscalAv
 interface VehiculeInput {
     id: string;
     immatriculation: string;
-    prixAcquisitionTTC: number;
-    tauxAmortissementAnnuel: number;
-    dotationComptabilisee: number;
+    prixAcquisitionTTC: string;
+    tauxAmortissementAnnuel: string;
+    dotationComptabilisee: string;
 }
 
 const f = (n: number) => n.toLocaleString("fr-FR") + " F CFA";
 
 export default function MatriceRisquesFiscauxPage() {
     const [pays, setPays] = useState<PaysFiscal>("sn");
-    const [exercice, setExercice] = useState(new Date().getFullYear() - 1);
-    const [chiffreAffairesHT, setChiffreAffairesHT] = useState(500_000_000);
-    const [beneficeAvantFraisSiege, setBeneficeAvantFraisSiege] = useState(45_000_000);
-    const [capitalSocialTotal, setCapitalSocialTotal] = useState(100_000_000);
-    const [capitalSocialLibere, setCapitalSocialLibere] = useState(100_000_000);
+    const [exercice, setExercice] = useState("");
+    const [chiffreAffairesHT, setChiffreAffairesHT] = useState("");
+    const [beneficeAvantFraisSiege, setBeneficeAvantFraisSiege] = useState("");
+    const [capitalSocialTotal, setCapitalSocialTotal] = useState("");
+    const [capitalSocialLibere, setCapitalSocialLibere] = useState("");
 
     // CCA
-    const [soldeMoyenCCA, setSoldeMoyenCCA] = useState(20_000_000);
-    const [tauxInteretCCA, setTauxInteretCCA] = useState(7.5);
-    const [tauxBCEAOMax, setTauxBCEAOMax] = useState(5.5);
+    const [soldeMoyenCCA, setSoldeMoyenCCA] = useState("");
+    const [tauxInteretCCA, setTauxInteretCCA] = useState("");
+    const [tauxBCEAOMax, setTauxBCEAOMax] = useState("");
 
     // Frais de siège
-    const [fraisDeSiege, setFraisDeSiege] = useState(6_000_000);
+    const [fraisDeSiege, setFraisDeSiege] = useState("");
 
     // Dons
-    const [dons, setDons] = useState(3_500_000);
+    const [dons, setDons] = useState("");
 
     // Véhicules
-    const [vehicules, setVehicules] = useState<VehiculeInput[]>([
-        {
-            id: "1",
-            immatriculation: "DK-1234-AB",
-            prixAcquisitionTTC: 25_000_000,
-            tauxAmortissementAnnuel: 20,
-            dotationComptabilisee: 5_000_000
-        }
-    ]);
+    const [vehicules, setVehicules] = useState<VehiculeInput[]>([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -62,9 +54,9 @@ export default function MatriceRisquesFiscauxPage() {
             {
                 id: Date.now().toString(),
                 immatriculation: "",
-                prixAcquisitionTTC: 20_000_000,
-                tauxAmortissementAnnuel: 20,
-                dotationComptabilisee: 4_000_000
+                prixAcquisitionTTC: "",
+                tauxAmortissementAnnuel: "",
+                dotationComptabilisee: ""
             }
         ]);
     };
@@ -78,30 +70,35 @@ export default function MatriceRisquesFiscauxPage() {
     };
 
     const lancerAudit = useCallback(async () => {
+        const saisies = [exercice, chiffreAffairesHT, beneficeAvantFraisSiege, capitalSocialTotal, capitalSocialLibere, soldeMoyenCCA, tauxInteretCCA, tauxBCEAOMax, fraisDeSiege, dons];
+        if (saisies.some((value) => value.trim() === "" || !Number.isFinite(Number(value))) || vehicules.some((v) => !v.immatriculation.trim() || [v.prixAcquisitionTTC, v.tauxAmortissementAnnuel, v.dotationComptabilisee].some((value) => value.trim() === "" || !Number.isFinite(Number(value))))) {
+            setError("Renseignez l'exercice, les montants des comptes et les informations des véhicules réellement comptabilisés.");
+            return;
+        }
         setLoading(true);
         setError("");
         setSynthese(null);
 
         const payload: DonneesAuditFiscal = {
             pays,
-            exercice,
-            chiffreAffairesHT,
-            beneficeAvantFraisSiege,
-            capitalSocialTotal,
-            capitalSocialLibere,
+            exercice: Number(exercice),
+            chiffreAffairesHT: Number(chiffreAffairesHT),
+            beneficeAvantFraisSiege: Number(beneficeAvantFraisSiege),
+            capitalSocialTotal: Number(capitalSocialTotal),
+            capitalSocialLibere: Number(capitalSocialLibere),
             comptesCourants: {
-                soldeMoyenAnnuel: soldeMoyenCCA,
-                tauxInteretApplique: tauxInteretCCA,
-                tauxBCEAOMax: tauxBCEAOMax
+                soldeMoyenAnnuel: Number(soldeMoyenCCA),
+                tauxInteretApplique: Number(tauxInteretCCA),
+                tauxBCEAOMax: Number(tauxBCEAOMax)
             },
-            fraisDeSiegeComptabilises: fraisDeSiege,
+            fraisDeSiegeComptabilises: Number(fraisDeSiege),
             vehiculesTourisme: vehicules.map(v => ({
-                immatriculation: v.immatriculation || "NON_RENSEIGNE",
-                prixAcquisitionTTC: v.prixAcquisitionTTC,
-                tauxAmortissementAnnuel: v.tauxAmortissementAnnuel,
-                dotationComptabilisee: v.dotationComptabilisee
+                immatriculation: v.immatriculation,
+                prixAcquisitionTTC: Number(v.prixAcquisitionTTC),
+                tauxAmortissementAnnuel: Number(v.tauxAmortissementAnnuel),
+                dotationComptabilisee: Number(v.dotationComptabilisee)
             })),
-            donsComptabilises: dons
+            donsComptabilises: Number(dons)
         };
 
         try {
@@ -152,6 +149,7 @@ export default function MatriceRisquesFiscauxPage() {
                 <p className="page-subtitle text-sm text-muted-foreground mt-1">
                     Audit fiscal approfondi UEMOA / OHADA : intérêts CCA, plafonnement frais de siège, amortissements véhicules de tourisme, dons et prescription.
                 </p>
+                <p className="mt-2 text-xs text-amber-300">Aucune donnée n’est préremplie. Utilisez les états financiers et justificatifs validés du dossier pour chaque exercice.</p>
             </div>
 
             {/* Formulaire des données d'audit */}
@@ -182,7 +180,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={exercice}
-                                    onChange={(e) => setExercice(Number(e.target.value))}
+                                    onChange={(e) => setExercice(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -191,7 +189,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={chiffreAffairesHT}
-                                    onChange={(e) => setChiffreAffairesHT(Number(e.target.value))}
+                                    onChange={(e) => setChiffreAffairesHT(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -200,7 +198,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={beneficeAvantFraisSiege}
-                                    onChange={(e) => setBeneficeAvantFraisSiege(Number(e.target.value))}
+                                    onChange={(e) => setBeneficeAvantFraisSiege(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -209,7 +207,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={capitalSocialTotal}
-                                    onChange={(e) => setCapitalSocialTotal(Number(e.target.value))}
+                                    onChange={(e) => setCapitalSocialTotal(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -218,7 +216,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={capitalSocialLibere}
-                                    onChange={(e) => setCapitalSocialLibere(Number(e.target.value))}
+                                    onChange={(e) => setCapitalSocialLibere(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -237,7 +235,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={soldeMoyenCCA}
-                                    onChange={(e) => setSoldeMoyenCCA(Number(e.target.value))}
+                                    onChange={(e) => setSoldeMoyenCCA(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -247,7 +245,7 @@ export default function MatriceRisquesFiscauxPage() {
                                     type="number"
                                     step="0.1"
                                     value={tauxInteretCCA}
-                                    onChange={(e) => setTauxInteretCCA(Number(e.target.value))}
+                                    onChange={(e) => setTauxInteretCCA(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -257,7 +255,7 @@ export default function MatriceRisquesFiscauxPage() {
                                     type="number"
                                     step="0.1"
                                     value={tauxBCEAOMax}
-                                    onChange={(e) => setTauxBCEAOMax(Number(e.target.value))}
+                                    onChange={(e) => setTauxBCEAOMax(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -278,7 +276,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={fraisDeSiege}
-                                    onChange={(e) => setFraisDeSiege(Number(e.target.value))}
+                                    onChange={(e) => setFraisDeSiege(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -287,7 +285,7 @@ export default function MatriceRisquesFiscauxPage() {
                                 <input
                                     type="number"
                                     value={dons}
-                                    onChange={(e) => setDons(Number(e.target.value))}
+                                    onChange={(e) => setDons(e.target.value)}
                                     className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs"
                                 />
                             </div>
@@ -331,7 +329,7 @@ export default function MatriceRisquesFiscauxPage() {
                                                 type="number"
                                                 placeholder="Prix TTC"
                                                 value={v.prixAcquisitionTTC}
-                                                onChange={(e) => majVehicule(v.id, "prixAcquisitionTTC", Number(e.target.value))}
+                                                onChange={(e) => majVehicule(v.id, "prixAcquisitionTTC", e.target.value)}
                                                 className="w-full bg-background border border-border rounded px-2 py-1 text-xs"
                                             />
                                         </div>
@@ -340,7 +338,7 @@ export default function MatriceRisquesFiscauxPage() {
                                                 type="number"
                                                 placeholder="Taux %"
                                                 value={v.tauxAmortissementAnnuel}
-                                                onChange={(e) => majVehicule(v.id, "tauxAmortissementAnnuel", Number(e.target.value))}
+                                                onChange={(e) => majVehicule(v.id, "tauxAmortissementAnnuel", e.target.value)}
                                                 className="w-full bg-background border border-border rounded px-2 py-1 text-xs"
                                             />
                                         </div>
@@ -349,7 +347,7 @@ export default function MatriceRisquesFiscauxPage() {
                                                 type="number"
                                                 placeholder="Dotation"
                                                 value={v.dotationComptabilisee}
-                                                onChange={(e) => majVehicule(v.id, "dotationComptabilisee", Number(e.target.value))}
+                                                onChange={(e) => majVehicule(v.id, "dotationComptabilisee", e.target.value)}
                                                 className="w-full bg-background border border-border rounded px-2 py-1 text-xs"
                                             />
                                         </div>
@@ -471,7 +469,7 @@ export default function MatriceRisquesFiscauxPage() {
                                     key={an}
                                     className="px-2.5 py-1 rounded bg-muted text-foreground font-mono text-xs border border-border"
                                 >
-                                    Exercice {an} {an === exercice ? "(En cours d'audit)" : "(Auditable)"}
+                                    Exercice {an} {an === Number(exercice) ? "(En cours d'audit)" : "(Auditable)"}
                                 </span>
                             ))}
                         </div>
