@@ -33,5 +33,8 @@ export function dossierUploads(): string {
 
 /** Chemin disque d'une pièce à partir de son nom de fichier enregistré. */
 export function cheminPiece(fileName: string): string {
-    return join(dossierUploads(), fileName);
+    // Les pièces sont stockées dans GridFS en production; le chemin local sert
+    // uniquement au repli local et aux fichiers temporaires d'OCR. Ne pas
+    // tracer le contenu de ce dossier dans les fonctions déployées.
+    return join(/* turbopackIgnore: true */ dossierUploads(), fileName);
 }
